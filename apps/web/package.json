@@ -1,0 +1,6 @@
+{
+  "name": "@zhiwei/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "知微前端空壳（依赖由根 package.json 统一管理，本文件仅占位元数据）"
+}

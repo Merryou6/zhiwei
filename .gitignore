@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.DS_Store
+.learnbuddy/
+*.log
+coverage/
+.vite/
+__pycache__/
+*.pyc

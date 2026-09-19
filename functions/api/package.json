@@ -1,0 +1,6 @@
+{
+  "name": "@zhiwei/functions-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "知微云函数骨架（迭代1 仅空入口，19 个接口自迭代2 起实现；本文件仅占位元数据）"
+}
