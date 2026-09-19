@@ -1,30 +1,44 @@
 /**
- * @zhiwei/engine · barrel 导出
+ * @zhiwei/engine barrel 导出
  *
- * 共享算法层（BKT 纯函数引擎）：前端与云函数未来都从这里 import 同一份实现，
- * "引擎无 if(subject) 分支"的架构证明落在目录结构上（计划 2.2 D1）。
- * 本文件不做任何计算，只做公共符号汇总。
+ * 知微共享算法层（纯函数、零运行时依赖、零 IO）：
+ *   params      —— 参数加载与类型（config/params.json 为唯一来源）
+ *   bkt         —— 加权三段式掌握度更新 + 弱负证据
+ *   dedup       —— evidence_events 幂等去重键
+ *   selection   —— 拓扑剪枝 + 信息增益 + 池推导 + 收敛判定的自适应选题
+ *   statusBand  —— 掌握度状态带与颜色映射
  */
-
-export type { Params } from './params';
+export type { Params, ParamKey } from './params';
 export { PARAM_KEYS, DEFAULT_PARAMS_PATH, loadParams, priorFor } from './params';
 
 export type { MasteryUpdateResult } from './bkt';
 export { clamp, updateMastery, applyWeakNegative } from './bkt';
 
 export type { EvidenceSource, DedupKeyInput } from './dedup';
-export { hourBucket, buildDedupKey, isDuplicateKey } from './dedup';
+export {
+  SECONDS_PER_HOUR,
+  hourBucket,
+  buildDedupKey,
+  isDuplicateKey,
+  isDuplicateEvidence,
+} from './dedup';
 
 export type {
   GraphNode,
   BankItem,
   SelectionState,
   SelectionMode,
-  NextItemInput,
-  NextItemResult,
-  PruneResult,
+  SelectionInput,
+  SelectionResult,
 } from './selection';
-export { nextItem, rankTestableKps } from './selection';
+export { poolForMode, nextItem } from './selection';
 
-export type { MasteryBand, BandColor } from './statusBand';
-export { masteryToBand, BAND_COLORS } from './statusBand';
+export type { MasteryBand, MasteryColor } from './statusBand';
+export {
+  BAND_THRESHOLD_UNSTABLE,
+  BAND_THRESHOLD_MASTERY,
+  BAND_THRESHOLD_MASTERED,
+  BAND_COLORS,
+  masteryToBand,
+  masteryToColor,
+} from './statusBand';
