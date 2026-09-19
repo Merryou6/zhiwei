@@ -2,19 +2,23 @@
   "name": "zhiwei",
   "version": "0.1.0",
   "private": true,
-  "description": "知微 · 迭代2：后端 19 接口（API_CONTRACT v1.1）+ MINOR 清偿（单一工程，不用 npm workspaces）",
+  "description": "知微 · 迭代3：前端 10 页面 + 端到端闭环（单一工程，不用 npm workspaces）",
+  "//start": "一键启动说明：1) npm run api   2) npm run dev   3) 浏览器打开 http://127.0.0.1:5173",
   "scripts": {
     "dev": "vite --config apps/web/vite.config.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p packages/engine/tsconfig.json",
-    "typecheck:all": "tsc --noEmit -p functions/api/tsconfig.json && tsc --noEmit -p packages/engine/tsconfig.json",
+    "typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json",
+    "typecheck:all": "tsc --noEmit -p functions/api/tsconfig.json && tsc --noEmit -p packages/engine/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
     "build:api": "esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js",
+    "build:web": "vite build --config apps/web/vite.config.ts",
     "api": "npm run build:api && node functions/api/dist/server.js"
   },
   "dependencies": {
     "echarts": "5.5.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-router-dom": "6.26.2",
     "zustand": "4.5.5"
   },
   "devDependencies": {
@@ -24,6 +28,7 @@
     "@vitejs/plugin-react": "4.3.2",
     "autoprefixer": "10.4.20",
     "esbuild": "0.21.5",
+    "jsdom": "25.0.1",
     "postcss": "8.4.47",
     "tailwindcss": "3.4.13",
     "typescript": "5.5.4",

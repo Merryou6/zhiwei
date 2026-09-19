@@ -2,6 +2,7 @@ node_modules/
 dist/
 build/
 functions/api/dist/
+apps/web/dist/
 data/local_db/
 .DS_Store
 .learnbuddy/

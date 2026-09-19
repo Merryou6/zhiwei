@@ -1,3 +1,14 @@
+/* 显式绑定本目录 tailwind 配置：
+   tailwind 插件默认按 process.cwd() 找配置文件，而工程实际是从仓库根用 --config 启动 vite
+   （cwd=仓库根）→ 找不到 apps/web/tailwind.config.js 会退化为空配置（无 content、无令牌）。
+   @config 相对本 CSS 文件解析，dev 与 build 两种启动方式结果一致。 */
+@config "../tailwind.config.js";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 全局底色与字体（PRD §6：低饱和、不刺眼；界面色一律走 tailwind 令牌，见 theme/bands.ts）。 */
+body {
+  @apply bg-canvas font-sans text-ink antialiased;
+}
