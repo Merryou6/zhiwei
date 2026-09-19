@@ -10,6 +10,7 @@
  * 本迭代只装配本地确定性适配器（计划 一、1.2 排除项 3：真实模型调用不在范围内）。
  */
 
+import { chatTurn } from './localChat';
 import { classify } from './localClassify';
 import { recognizePaper } from './localRecognize';
 import type { ModelAdapter } from './types';
@@ -17,12 +18,8 @@ import type { ModelAdapter } from './types';
 export function createModels(): ModelAdapter {
   return {
     recognizePaper,
-    // 步骤 5 装配
     classify,
-    // 步骤 6 装配：chatTurn（models/localChat.ts）
-    chatTurn: () => {
-      throw new Error('chatTurn 适配器尚未装配（计划 五、步骤 6）');
-    },
+    chatTurn,
   };
 }
 
