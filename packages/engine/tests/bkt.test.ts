@@ -74,6 +74,17 @@ describe('bkt · ALGORITHM §1 三个自检用例（硬门槛，±0.001）', () 
     expect(r.weight).toBe(0);
   });
 
+  it('C3 留痕字段：返回 before/p_obs/p_eff/after/weight/triggered_by，可直接映射 mastery_logs', () => {
+    const r = updateMastery(0.5, true, P.W_PAPER, P, 'evt_8821');
+    expect(Object.keys(r).sort()).toEqual(['after', 'before', 'p_eff', 'p_obs', 'triggered_by', 'weight']);
+    expect(r.triggered_by).toBe('evt_8821');
+    expect(r.weight).toBe(P.W_PAPER);
+    // 未传触发事件时默认为 null，且不影响计算结果
+    const noEvent = updateMastery(0.5, true, P.W_PAPER, P);
+    expect(noEvent.triggered_by).toBeNull();
+    expect(noEvent.after).toBe(r.after);
+  });
+
   it('T5 输入越界先 clamp：pL=0 → 0.01、pL=1.5 → 0.99，全部结果落在 CLAMP 内', () => {
     const low = updateMastery(0, true, P.W_DIAGNOSE, P);
     const high = updateMastery(1.5, false, P.W_DIAGNOSE, P);

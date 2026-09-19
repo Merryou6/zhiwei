@@ -18,6 +18,11 @@ export interface MasteryUpdateResult {
   after: number;
   /** 本次证据权重 */
   weight: number;
+  /**
+   * 留痕字段：触发本次更新的 evidence_event id（验收 C3「mastery_logs 全留痕」）。
+   * 调用方传什么就返回什么；未传时为 null。本迭代不实现落库（见计划 一、1.2 排除项）。
+   */
+  triggered_by: string | null;
 }
 
 /** P(L) 取值夹取（CLAMP = [下界, 上界]）。 */
@@ -34,18 +39,20 @@ export function clamp(p: number, params: Params): number {
  * @param pL 当前掌握度 P(L)
  * @param isCorrect 本题是否答对
  * @param w 证据权重（W_DIAGNOSE / W_PAPER 等由调用方传入）
+ * @param triggeredBy 可选：触发本次更新的 evidence_event id，仅供 mastery_logs 留痕，不参与计算
  */
 export function updateMastery(
   pL: number,
   isCorrect: boolean,
   w: number,
   params: Params,
+  triggeredBy: string | null = null,
 ): MasteryUpdateResult {
   const before = clamp(pL, params);
 
   // 完全不采纳：直接返回，三个中间量相等（规格早退分支）
   if (w === 0) {
-    return { before, p_obs: before, p_eff: before, after: before, weight: w };
+    return { before, p_obs: before, p_eff: before, after: before, weight: w, triggered_by: triggeredBy };
   }
 
   const { P_S, P_G, P_T } = params;
@@ -65,7 +72,7 @@ export function updateMastery(
   // ③ 学习迁移
   const p_new = p_eff + (1 - p_eff) * P_T;
 
-  return { before, p_obs, p_eff, after: clamp(p_new, params), weight: w };
+  return { before, p_obs, p_eff, after: clamp(p_new, params), weight: w, triggered_by: triggeredBy };
 }
 
 /**
