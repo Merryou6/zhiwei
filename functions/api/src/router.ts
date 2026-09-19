@@ -17,6 +17,8 @@ import { fail } from './context';
 import { ERROR_CODES, ApiError } from './errors';
 import type { ApiResponse } from './errors';
 import { login, register } from './services/auth';
+import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
+import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
 export interface SseEvent {
@@ -66,6 +68,10 @@ export function createRoutes(): RouteDefinition[] {
     { method: 'GET', pattern: '/api/space/:spaceId/drive', handler: spaceDrive },
 
     // 步骤 3：自报 + 测评（#6–#8）
+    { method: 'POST', pattern: '/api/evidence/self-report', handler: selfReport },
+    { method: 'POST', pattern: '/api/diagnose/next', handler: diagnoseNext },
+    { method: 'POST', pattern: '/api/diagnose/submit', handler: diagnoseSubmit },
+
     // 步骤 4：试卷三接口（#9–#11）
     // 步骤 5：错误诊断 + 归因四接口（#12–#16）
     // 步骤 6：处方 + 对话（#17–#18）

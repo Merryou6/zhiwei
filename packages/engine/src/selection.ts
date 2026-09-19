@@ -3,6 +3,9 @@
  *
  * ① 拓扑剪枝：先修为空或全部先修 mastery ≥ PRUNE_THRESHOLD 的 kp 才可测
  *    （其余记入 prunedKps，标记「未具备学习条件」）
+ *    【剪枝口径声明（D9）】按**直接先修**判定：更上游的节点不达标不阻断本节点
+ *    （ALGORITHM §2「所有先修节点」取直接先修解读）。迭代 1 已按此实现并由
+ *    S1/S1b 用例锁定，本迭代仅补充口径声明，行为零变更。
  * ② 可测集合中选 |mastery − 0.5| 最小者（信息增益最大；并列取先修链更长者，再按 id 稳定排序）
  * ③ 池推导：mode=diagnose → train；mode=baseline/retest → retest（服务端推导，调用方不传 pool）
  *    排除 usedItemIds；该 kp 对应池为空 → 换次优 kp（全部无题 → item=null）
@@ -46,6 +49,16 @@ export interface SelectionResult {
   converged: boolean;
   remaining: number;
   prunedKps: string[];
+  /**
+   * 停止原因（D8，**可选字段，向后兼容**）：区分「无题可出」与「已收敛」，
+   * 避免把题池耗尽误报为收敛。
+   *   'variance'  方差代理 V = P(1−P) < CONV_VAR
+   *   'max_items' 已答 ≥ MAX_ITEMS
+   *   'no_items'  可测 kp 的对应池均无可用题（诚实停止，不硬凑题）
+   * 契约 §4 响应**不含**本字段（契约冻结，converged 语义保持「前端结束测评」）；
+   * 仅供服务端日志与接口测试断言使用。
+   */
+  stopReason?: 'variance' | 'max_items' | 'no_items';
 }
 
 /** 信息增益最大的掌握度位置：|mastery − 0.5| 最小。 */
@@ -111,16 +124,16 @@ export function nextItem(input: SelectionInput): SelectionResult {
     if (available.length === 0) continue;
 
     if (answeredCount >= params.MAX_ITEMS) {
-      return { item: null, converged: true, remaining, prunedKps };
+      return { item: null, converged: true, remaining, prunedKps, stopReason: 'max_items' };
     }
     const p = mastery[kp] ?? 0;
     const variance = p * (1 - p);
     if (variance < params.CONV_VAR) {
-      return { item: null, converged: true, remaining, prunedKps };
+      return { item: null, converged: true, remaining, prunedKps, stopReason: 'variance' };
     }
     return { item: available[0], converged: false, remaining, prunedKps };
   }
 
   // 全部可测 kp 的对应池均无题可出：无可出题即视为收敛（诚实停止，不硬凑题）
-  return { item: null, converged: true, remaining, prunedKps };
+  return { item: null, converged: true, remaining, prunedKps, stopReason: 'no_items' };
 }

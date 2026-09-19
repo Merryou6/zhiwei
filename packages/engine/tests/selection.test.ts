@@ -9,6 +9,8 @@
  *   S5 排除已做：usedItemIds 命中后取同 kp 次题
  *   S6 收敛：mastery=0.95 → V=0.0475 < CONV_VAR → converged=true、item=null
  *   S7 收敛：answeredCount ≥ MAX_ITEMS → converged
+ *   S6c/S6d 收敛取等边界（MINOR-①，迭代2 新增）：V = CONV_VAR ∓ 1e-9 双侧夹逼，
+ *           并断言 stopReason（D8）为 'variance' / undefined
  * 另含 remaining 计算与确定性并列规则（先修链更长者优先）。
  *
  * 测试数据为内联 fixture（4 节点小图 + 12 题小题库），不依赖 data/ 真实文件
@@ -63,6 +65,9 @@ const ask = (mastery: Record<string, number>, mode: SelectionMode, extra: Extra 
     answeredCount: extra.answeredCount ?? 0,
     params: P,
   });
+
+/** 由目标方差 V 反解 p（取 p < 0.5 一侧）：p = (1 − √(1 − 4V)) / 2。S6c/S6d 取等边界用。 */
+const pFromVariance = (v: number): number => (1 - Math.sqrt(1 - 4 * v)) / 2;
 
 describe('selection · ALGORITHM §2 拓扑剪枝与信息增益', () => {
   it('S1 先修 mastery=0.3（< PRUNE_THRESHOLD）→ 后继不可测并记入 prunedKps', () => {
@@ -171,5 +176,38 @@ describe('selection · ALGORITHM §2 收敛判定与剩余题量', () => {
     expect(
       ask({ 'kp.a': 0.5 }, 'diagnose', { answeredCount: P.MAX_ITEMS + 5 }).remaining,
     ).toBe(0);
+  });
+
+  it('S6c 取等边界（下侧）：V = CONV_VAR − 1e-9 → converged=true、stopReason="variance"', () => {
+    // MINOR-①（03_REVIEW §5.3）：收敛取等边界用例。
+    // IEEE754 无法精确表示 0.10，故先按解析解反解 p = (1 − √(1 − 4V)) / 2，
+    // 再以 ±1e-9 双侧夹逼（本用例下侧、S6d 上侧）把取等边界锁成确定性断言。
+    const pLo = pFromVariance(P.CONV_VAR - 1e-9);
+    expect(pLo * (1 - pLo)).toBeLessThan(P.CONV_VAR);
+
+    // 单节点图：确保取等边界的 kp.a 就是信息增益最大者（否则 mastery=0.5 的节点会先被选中）
+    const only: GraphNode[] = [{ id: 'kp.a', prerequisites: [] }];
+    const r = ask({ 'kp.a': pLo }, 'diagnose', { graph: only });
+    expect(r.converged).toBe(true);
+    expect(r.item).toBeNull();
+    expect(r.stopReason).toBe('variance');
+
+    // D8：三个终止出口的 stopReason 互不相同（区分「题量上限 / 方差收敛 / 无题可出」），
+    // 避免把「题池耗尽」误报为「已收敛」。
+    expect(ask({ 'kp.a': 0.5 }, 'diagnose', { answeredCount: P.MAX_ITEMS }).stopReason).toBe(
+      'max_items',
+    );
+    expect(ask({ 'kp.a': 0.5 }, 'diagnose', { bank: [] }).stopReason).toBe('no_items');
+  });
+
+  it('S6d 取等边界（上侧）：V = CONV_VAR + 1e-9 → 正常出题、stopReason 保持 undefined', () => {
+    const pHi = pFromVariance(P.CONV_VAR + 1e-9);
+    expect(pHi * (1 - pHi)).toBeGreaterThanOrEqual(P.CONV_VAR);
+
+    const only: GraphNode[] = [{ id: 'kp.a', prerequisites: [] }];
+    const r = ask({ 'kp.a': pHi }, 'diagnose', { graph: only });
+    expect(r.converged).toBe(false);
+    expect(r.item).not.toBeNull();
+    expect(r.stopReason).toBeUndefined();
   });
 });
