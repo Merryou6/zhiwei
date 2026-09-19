@@ -28,6 +28,7 @@ import { classifyError } from './services/classify';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
 import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { generate as generatePlan } from './services/plan';
+import { summary as reportSummary } from './services/report';
 import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
@@ -101,6 +102,7 @@ export function createRoutes(): RouteDefinition[] {
     { method: 'POST', pattern: '/api/agent/chat', handler: agentChat },
 
     // 步骤 7：学习报告（#19）
+    { method: 'GET', pattern: '/api/report/summary', handler: reportSummary },
   ];
 }
 
