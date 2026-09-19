@@ -5681,7 +5681,7 @@
         {
           "answer": "-3",
           "typical_error_code": "no_coordinate_method",
-          "explanation": "横坐标相减后没有取绝对值，底算成 1 - 3 = -2，面积得 1/2 × (-2) × 3 = -3"
+          "explanation": "用坐标相减后没有取绝对值，底算成 1 - 3 = -2，面积得 1/2 × (-2) × 3 = -3"
         }
       ]
     }
