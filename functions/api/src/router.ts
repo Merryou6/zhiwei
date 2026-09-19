@@ -16,6 +16,8 @@ import type { AppContext, Headers } from './context';
 import { fail } from './context';
 import { ERROR_CODES, ApiError } from './errors';
 import type { ApiResponse } from './errors';
+import { login, register } from './services/auth';
+import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
 export interface SseEvent {
   event: 'delta' | 'meta' | 'done' | 'error';
@@ -57,6 +59,12 @@ export interface DispatchInput {
 export function createRoutes(): RouteDefinition[] {
   return [
     // 步骤 2：认证 + 空间（#1–#5）
+    { method: 'POST', pattern: '/api/auth/register', handler: register },
+    { method: 'POST', pattern: '/api/auth/login', handler: login },
+    { method: 'GET', pattern: '/api/space/list', handler: listSpaces },
+    { method: 'POST', pattern: '/api/space/create', handler: createSpace },
+    { method: 'GET', pattern: '/api/space/:spaceId/drive', handler: spaceDrive },
+
     // 步骤 3：自报 + 测评（#6–#8）
     // 步骤 4：试卷三接口（#9–#11）
     // 步骤 5：错误诊断 + 归因四接口（#12–#16）
