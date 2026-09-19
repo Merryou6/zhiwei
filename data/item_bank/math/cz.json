@@ -5679,9 +5679,9 @@
           "explanation": "面积算成底乘高，漏除以 2"
         },
         {
-          "answer": "3（把高写成横坐标相减的结果）",
+          "answer": "-3",
           "typical_error_code": "no_coordinate_method",
-          "explanation": "不会用坐标表示高，长度取值混乱"
+          "explanation": "横坐标相减后没有取绝对值，底算成 1 - 3 = -2，面积得 1/2 × (-2) × 3 = -3"
         }
       ]
     }
