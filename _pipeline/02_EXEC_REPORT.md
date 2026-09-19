@@ -383,6 +383,9 @@ D7 工作区多出 1 个非计划文件（留痕类，非业务文件）
 八、git commit 记录（git log --oneline 全量）
 -------------------------------------------------
 
+  git log --oneline 全量（HEAD 为 61454d0）：
+
+  61454d0 iter1 执行报告与校验留档：_pipeline/02_EXEC_REPORT.md（步骤 1-9 逐项结果/六项验证输出/偏差清单/文件清单核对/git 记录）+ validate_report.json（验收 D2）
   bf75dd3 iter1 补齐验收 C3：updateMastery 返回 triggered_by 留痕字段（可直接映射 mastery_logs）+ 对应用例（Tests 36 passed）
   9907833 iter1 题库复核修正：q_cz_geometry_011 干扰项改为错误路径真实值（-3），生成器新增"禁止答案+评语式伪干扰项"断言
   8e91003 iter1 单测：bkt.test.ts(T1-T8+C6) 19 例 + selection.test.ts(S1-S7) 16 例，Test Files 2 passed / Tests 35 passed
@@ -394,7 +397,8 @@ D7 工作区多出 1 个非计划文件（留痕类，非业务文件）
   8ac76eb iter1 参数与校验闸门：config/params.json（ALGORITHM §0 全部 17 键外置）+ data/knowledge/index.json + scripts/validate_data.py（DATA_SCHEMA §6 全 6 项校验，含负例阻断自测）
   9b4257d iter1 脚手架：目录骨架、根 package.json/tsconfig、前端空壳、云函数空入口、引擎包骨架（依赖装至隔离 workspace + node_modules 软链）
 
-  说明：本实现执行期间产生的 commit 为 26f4d52、cfdc441、21c6d5d/9907833（复核修正）、bf75dd3；
+  说明：本实现执行期间产生的 commit 为 26f4d52、cfdc441、21c6d5d/9907833（复核修正）、bf75dd3、
+  61454d0（报告留档）；
   其余 commit 由并行会话产生（f20cce8、0146009、8e91003）；21c6d5d 与 9907833 为同一处改动的
   两个历史条目（见 五、D3）。未执行 git push（按要求不推送）。
 
