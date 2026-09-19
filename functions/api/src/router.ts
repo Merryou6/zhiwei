@@ -16,7 +16,14 @@ import type { AppContext, Headers } from './context';
 import { fail } from './context';
 import { ERROR_CODES, ApiError } from './errors';
 import type { ApiResponse } from './errors';
+import {
+  analyze as attributionAnalyze,
+  getOne as getAttribution,
+  reject as agentReject,
+  verify as attributionVerify,
+} from './services/attribution';
 import { login, register } from './services/auth';
+import { classifyError } from './services/classify';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
 import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { selfReport } from './services/selfReport';
@@ -80,6 +87,13 @@ export function createRoutes(): RouteDefinition[] {
     { method: 'GET', pattern: '/api/evidence/paper/:recognitionId', handler: getPaper },
 
     // 步骤 5：错误诊断 + 归因四接口（#12–#16）
+    // 注册顺序：/analyze 与 /verify 静态段必须先于 /:attributionId 参数段（契约 §7）
+    { method: 'POST', pattern: '/api/error/classify', handler: classifyError },
+    { method: 'POST', pattern: '/api/attribution/analyze', handler: attributionAnalyze },
+    { method: 'POST', pattern: '/api/attribution/verify', handler: attributionVerify },
+    { method: 'POST', pattern: '/api/agent/reject', handler: agentReject },
+    { method: 'GET', pattern: '/api/attribution/:attributionId', handler: getAttribution },
+
     // 步骤 6：处方 + 对话（#17–#18）
     // 步骤 7：学习报告（#19）
   ];
