@@ -9,6 +9,9 @@
  *   scope_chapter 非空 → 图谱先按章节过滤再进选题
  *   correct 仅 baseline/retest 返回（diagnose 恒 null，防反推答案）
  *   幂等（D7）：dedup_key 相同**且** item_id 相同 → 静默返回当前状态，不写事件、不更新掌握度
+ *   测量一致性（D15，仅 mode=retest）：首选 kp = 本 space 已有 baseline 证据的 kp（尚未复测者排前），
+ *   经 nextItem 的 measureKps 传入；无基线证据 / 首选 kp 无 retest 池可用题 → 引擎回落原排序。
+ *   mode=diagnose / baseline 的选题行为逐字不变。
  */
 
 import {
@@ -64,6 +67,17 @@ export interface SpaceSelectionState {
   mastery: Record<string, number>;
   usedItemIds: string[];
   answeredCount: number;
+  /**
+   * 该 space 已有 mode='baseline' 证据事件的 kp（去重，保持事件顺序）——复测基准集合（D15）。
+   * 与 report.ts 的 accuracy 分组口径一致（source='diagnose' 且 mode='baseline'）。
+   */
+  baselineKps: string[];
+  /**
+   * 该 space 已有 mode='retest' 证据事件的 kp（去重）——用于把「尚未复测的基线 kp」排前，
+   * 使一轮复测覆盖整批基线 kp（PRD §7「复测与基线测同一批知识点」）。
+   * 两项均由 loadSelectionState 已取出的事件列表计算，**零额外 IO**。
+   */
+  retestKps: string[];
 }
 
 /** 取该 space 的选题态（掌握度 + 已做 + 已答数）。 */
@@ -87,7 +101,29 @@ export async function loadSelectionState(
     (event) => event.source === 'diagnose' && event.mode === mode,
   ).length;
 
-  return { mastery, usedItemIds, answeredCount };
+  const kpsByMode = (target: 'baseline' | 'retest'): string[] => [
+    ...new Set(
+      events
+        .filter((event) => event.source === 'diagnose' && event.mode === target)
+        .map((event) => event.knowledge_point),
+    ),
+  ];
+  const baselineKps = kpsByMode('baseline');
+  const retestKps = kpsByMode('retest');
+
+  return { mastery, usedItemIds, answeredCount, baselineKps, retestKps };
+}
+
+/**
+ * 复测的首选 kp 顺序（D15）：尚未复测的基线 kp 优先，再是已复测过的基线 kp；
+ * 无基线证据（集合为空）→ 返回空数组，引擎回落原排序（向后兼容）。
+ */
+export function measureKpsForRetest(state: SpaceSelectionState): string[] {
+  if (state.baselineKps.length === 0) return [];
+  const retested = new Set(state.retestKps);
+  const pending = state.baselineKps.filter((kp) => !retested.has(kp));
+  const done = state.baselineKps.filter((kp) => retested.has(kp));
+  return [...pending, ...done];
 }
 
 function resolveClientItem(
@@ -125,6 +161,9 @@ export async function computeSelection(
     usedItemIds,
     answeredCount: state.answeredCount,
     params: ctx.params,
+    // 测量一致性（D15）：复测优先落在已有基线证据的 kp 上，使报告 ΔAccuracy 可计算；
+    // 集合内 retest 池无可用题时由引擎自然回退（不报错）。
+    measureKps: mode === 'retest' ? measureKpsForRetest(state) : undefined,
   });
 
   return {
