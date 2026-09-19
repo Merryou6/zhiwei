@@ -288,6 +288,50 @@ describe('attribution · 契约 §7 get / verify', () => {
       ).code,
     ).toBe(400);
   });
+
+  // ---- MINOR-①（迭代3 清偿）：验证题必须属于当前候选集
+  it('MINOR-①：传非候选集的题 → 400「这不是当前的验证题，先完成手头这道」', async () => {
+    const user = await app.register(uniqueIdentifier());
+    const created = await analyze(user, FROM_KP, 'prerequisite_gap');
+    const id = created.data!.attribution_id;
+
+    // extremum 的 d≤3 候选集 = {vertex_form, function.graph, completing_square,
+    //                          algebra.identity, function.concept, eq_concept}；
+    // translation 的题不在其中（旧题 / 前端传错题的典型情形）
+    const outsider = SD.itemsByKpPool('math.cz.quadratic.translation', 'train')[0];
+    expect(created.data!.suspect_scores[outsider.knowledge_point]).toBeUndefined();
+
+    const res = await verify(user, id, outsider.item_id, outsider.answer);
+    expect(res.code).toBe(400);
+    expect(res.msg).toBe('这不是当前的验证题，先完成手头这道');
+
+    // 被拒绝后状态不变：不写证据、不推进候选游标
+    expect(await app.ctx.store.listEventsBySpace(user.space_id)).toHaveLength(0);
+    const fetched = await getAttribution(user, id);
+    expect(fetched.data?.root_cause).toBe('math.cz.quadratic.vertex_form');
+    expect(fetched.data?.verified).toBe(false);
+  });
+
+  it('MINOR-①：候选集内的其它题仍正常通过（只排除该候选，不误伤）', async () => {
+    const user = await app.register(uniqueIdentifier());
+    const created = await analyze(user, FROM_KP, 'prerequisite_gap');
+    const id = created.data!.attribution_id;
+
+    // 次高嫌疑 function.graph 的题（候选集内，但非当前第一嫌疑）
+    const secondKp = 'math.cz.function.graph';
+    expect(Object.keys(created.data!.suspect_scores)).toContain(secondKp);
+    const item = SD.itemsByKpPool(secondKp, 'train')[0];
+
+    const res = await verify(user, id, item.item_id, wrongAnswer(item.item_id));
+    expect(res.code).toBe(0);
+    expect(res.data?.correct).toBe(false);
+    // 该候选被排除，root_cause 回到剩余候选的第一位（vertex_form）
+    expect(res.data?.root_cause).toBe('math.cz.quadratic.vertex_form');
+    expect(res.data?.next_candidate?.kp_id).toBe('math.cz.quadratic.vertex_form');
+
+    const fetched = await getAttribution(user, id);
+    expect(fetched.data?.suspect_scores[secondKp]).toBeCloseTo(0.36, 10);
+  });
 });
 
 describe('attribution · 契约 §7 agent/reject', () => {

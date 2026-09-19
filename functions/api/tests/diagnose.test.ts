@@ -342,6 +342,88 @@ describe('diagnose · 契约 §4 提交（判定 / BKT / 留痕 / correct 口径
   });
 });
 
+describe('diagnose · 契约 §4 跨小时桶（MINOR-④ 接口层锁定）', () => {
+  it('同 kp 两题跨越小时桶（now T → T+3600s）→ 事件新增、掌握度正常更新、键不同', async () => {
+    // 独立时钟（可推进）：验证「跨小时后 dedup_key 变化 → 不误判幂等」
+    let clock = FIXED_NOW;
+    const clocked = await createTestApp({ now: () => clock });
+    try {
+      const user = await clocked.register(uniqueIdentifier());
+      await clocked.post(
+        '/api/evidence/self-report',
+        { space_id: user.space_id, reports: [{ chapter: '二次函数', level: 3 }] },
+        { token: user.token },
+      );
+
+      const kp = 'math.cz.quadratic.translation';
+      const first = bankItem('q_cz_translate_001');
+      const second = bankItem('q_cz_translate_002');
+
+      const r1 = await clocked.post<SubmitData>(
+        '/api/diagnose/submit',
+        { space_id: user.space_id, item_id: first.item_id, answer: first.answer, mode: 'diagnose' },
+        { token: user.token },
+      );
+      expect(r1.code).toBe(0);
+      expect(r1.data?.mastery_after).toBeCloseTo(0.845, 3);
+
+      // 时钟推进整 1 小时 → 小时桶（dedup_key 第五段）变化
+      clock = FIXED_NOW + 3_600_000;
+
+      const r2 = await clocked.post<SubmitData>(
+        '/api/diagnose/submit',
+        { space_id: user.space_id, item_id: second.item_id, answer: second.answer, mode: 'diagnose' },
+        { token: user.token },
+      );
+      expect(r2.code).toBe(0);
+      expect(r2.data?.mastery_before).toBeCloseTo(0.845, 3);
+      expect(r2.data!.mastery_after).toBeGreaterThan(r2.data!.mastery_before);
+
+      const events = await clocked.ctx.store.listEventsBySpace(user.space_id);
+      expect(events).toHaveLength(2);
+      expect(events.every((event) => event.knowledge_point === kp)).toBe(true);
+      expect(events[0].dedup_key).not.toBe(events[1].dedup_key);
+      expect(new Set(events.map((event) => event.item_id)).size).toBe(2);
+      expect(await clocked.ctx.store.listLogsBySpace(user.space_id)).toHaveLength(2);
+    } finally {
+      await clocked.cleanup();
+    }
+  });
+
+  it('跨小时前重交同一题仍幂等（对照组：不重复计分）', async () => {
+    let clock = FIXED_NOW;
+    const clocked = await createTestApp({ now: () => clock });
+    try {
+      const user = await clocked.register(uniqueIdentifier());
+      await clocked.post(
+        '/api/evidence/self-report',
+        { space_id: user.space_id, reports: [{ chapter: '二次函数', level: 3 }] },
+        { token: user.token },
+      );
+
+      const target = bankItem('q_cz_translate_001');
+      const first = await clocked.post<SubmitData>(
+        '/api/diagnose/submit',
+        { space_id: user.space_id, item_id: target.item_id, answer: target.answer, mode: 'diagnose' },
+        { token: user.token },
+      );
+      clock = FIXED_NOW + 600_000; // 同一小时桶内
+      const again = await clocked.post<SubmitData>(
+        '/api/diagnose/submit',
+        { space_id: user.space_id, item_id: target.item_id, answer: target.answer, mode: 'diagnose' },
+        { token: user.token },
+      );
+
+      expect(again.code).toBe(0);
+      expect(again.data?.mastery_after).toBeCloseTo(first.data!.mastery_after, 10);
+      expect(await clocked.ctx.store.listEventsBySpace(user.space_id)).toHaveLength(1);
+      expect(await clocked.ctx.store.listLogsBySpace(user.space_id)).toHaveLength(1);
+    } finally {
+      await clocked.cleanup();
+    }
+  });
+});
+
 describe('diagnose · 契约 §4/§0 校验与鉴权', () => {
   it('mode 非法/缺失 → 400；item_id 不存在 → 404；answer 非字符串 → 400', async () => {
     const user = await bootstrap();

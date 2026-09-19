@@ -193,6 +193,18 @@ export async function verify(req: RouteRequest, ctx: AppContext): Promise<ApiRes
   const item = ctx.data.itemById.get(itemId);
   if (!item) throw httpError.notFound('验证题不存在');
 
+  // MINOR-①（迭代2 遗留清偿）：pending_candidates 非空时，item 必须属于当前候选集。
+  // 理由：前端会把服务端下发的 verification_item 原样回传，但「反驳追加题 / 刷新回显 /
+  // 旧页面残留」都可能让前端传一道已经过期的题；候选游标由 item.knowledge_point 推进
+  // （见下方 excluded 逻辑），若不校验，传任意题库题都会静默推进游标 → 归因结论被污染。
+  // pending 为空（已 verified / self 型）时维持既有幂等行为不变。
+  if (
+    record.pending_candidates.length > 0 &&
+    !record.pending_candidates.includes(item.knowledge_point)
+  ) {
+    throw httpError.badRequest('这不是当前的验证题，先完成手头这道');
+  }
+
   const answer = req.body.answer;
   if (typeof answer !== 'string') {
     throw httpError.badRequest('answer 必须是字符串');
