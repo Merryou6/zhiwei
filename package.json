@@ -2,11 +2,14 @@
   "name": "zhiwei",
   "version": "0.1.0",
   "private": true,
-  "description": "知微 · 迭代1 地基冲刺：脚手架 + 静态数据资产 + BKT 引擎（单一工程，不用 npm workspaces）",
+  "description": "知微 · 迭代2：后端 19 接口（API_CONTRACT v1.1）+ MINOR 清偿（单一工程，不用 npm workspaces）",
   "scripts": {
     "dev": "vite --config apps/web/vite.config.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p packages/engine/tsconfig.json"
+    "typecheck": "tsc --noEmit -p packages/engine/tsconfig.json",
+    "typecheck:all": "tsc --noEmit -p functions/api/tsconfig.json && tsc --noEmit -p packages/engine/tsconfig.json",
+    "build:api": "esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js",
+    "api": "npm run build:api && node functions/api/dist/server.js"
   },
   "dependencies": {
     "echarts": "5.5.1",
@@ -15,10 +18,12 @@
     "zustand": "4.5.5"
   },
   "devDependencies": {
+    "@types/node": "22.7.5",
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
     "@vitejs/plugin-react": "4.3.2",
     "autoprefixer": "10.4.20",
+    "esbuild": "0.21.5",
     "postcss": "8.4.47",
     "tailwindcss": "3.4.13",
     "typescript": "5.5.4",

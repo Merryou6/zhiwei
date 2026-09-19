@@ -1,6 +1,8 @@
 node_modules/
 dist/
 build/
+functions/api/dist/
+data/local_db/
 .DS_Store
 .learnbuddy/
 *.log
