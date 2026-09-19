@@ -18,6 +18,7 @@ import { ERROR_CODES, ApiError } from './errors';
 import type { ApiResponse } from './errors';
 import { login, register } from './services/auth';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
+import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
@@ -73,6 +74,11 @@ export function createRoutes(): RouteDefinition[] {
     { method: 'POST', pattern: '/api/diagnose/submit', handler: diagnoseSubmit },
 
     // 步骤 4：试卷三接口（#9–#11）
+    // 注册顺序：/confirm 静态段必须先于 /:recognitionId 参数段（契约 §5）
+    { method: 'POST', pattern: '/api/evidence/paper', handler: uploadPaper },
+    { method: 'POST', pattern: '/api/evidence/paper/confirm', handler: confirmPaper },
+    { method: 'GET', pattern: '/api/evidence/paper/:recognitionId', handler: getPaper },
+
     // 步骤 5：错误诊断 + 归因四接口（#12–#16）
     // 步骤 6：处方 + 对话（#17–#18）
     // 步骤 7：学习报告（#19）
