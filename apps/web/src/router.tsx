@@ -98,3 +98,68 @@ export function hashWithQuery(path: string, query: Record<string, string | undef
   const suffix = params.toString();
   return suffix.length > 0 ? `${path}?${suffix}` : path;
 }
+
+// ------------------------------------------------- 会话内小状态（localStorage / sessionStorage）
+// 均为「用户本机进度标记」，非业务数据：丢了只会多问一次，不会坏数据。
+
+function readStore(storage: 'local' | 'session', slot: string): string | null {
+  try {
+    const area = storage === 'local' ? localStorage : sessionStorage;
+    return typeof area === 'undefined' ? null : area.getItem(slot);
+  } catch {
+    return null;
+  }
+}
+
+function writeStore(storage: 'local' | 'session', slot: string, value: string | null): void {
+  try {
+    const area = storage === 'local' ? localStorage : sessionStorage;
+    if (typeof area === 'undefined') return;
+    if (value === null) area.removeItem(slot);
+    else area.setItem(slot, value);
+  } catch {
+    /* 隐私模式等场景忽略 */
+  }
+}
+
+/** 该空间是否已完成起点自报（空间页主按钮文案切换用）。 */
+export function isSelfReportDone(spaceId: string | null): boolean {
+  if (!spaceId) return false;
+  return readStore('local', `${STORAGE_KEYS.selfReportDonePrefix}${spaceId}`) === '1';
+}
+
+/** 标记该空间已完成自报。 */
+export function markSelfReportDone(spaceId: string): void {
+  writeStore('local', `${STORAGE_KEYS.selfReportDonePrefix}${spaceId}`, '1');
+}
+
+/** 试卷识别 id（sessionStorage）：刷新页面凭它走 #10 回显。 */
+export function readRecognitionId(): string | null {
+  return readStore('session', STORAGE_KEYS.recognition);
+}
+
+export function writeRecognitionId(recognitionId: string | null): void {
+  writeStore('session', STORAGE_KEYS.recognition, recognitionId);
+}
+
+export interface PaperWrongItem {
+  kp_id: string;
+  stem_excerpt: string;
+  student_answer: string;
+}
+
+/** 试卷确认后的错题缓存（归因向导第一步「选试卷错题」用）。 */
+export function readPaperWrong(spaceId: string): PaperWrongItem[] {
+  const raw = readStore('session', `${STORAGE_KEYS.paperWrongPrefix}${spaceId}`);
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as PaperWrongItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writePaperWrong(spaceId: string, items: PaperWrongItem[]): void {
+  writeStore('session', `${STORAGE_KEYS.paperWrongPrefix}${spaceId}`, JSON.stringify(items));
+}
