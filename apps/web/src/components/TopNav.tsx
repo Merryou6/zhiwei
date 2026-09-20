@@ -100,7 +100,7 @@ export default function TopNav() {
                       </li>
                     ))}
                     {spaces.length === 0 ? (
-                      <li className="px-2 py-1.5 text-xs text-ink-soft">还没有空间</li>
+                      <li className="px-2 min-h-9 py-2 text-[13px] text-ink-soft">还没有空间</li>
                     ) : null}
                   </ul>
                   <Link

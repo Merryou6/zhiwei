@@ -64,7 +64,7 @@ export default function AssessmentPage() {
   }
 
   function handleError(error: unknown): void {
-    toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+    toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
   }
 
   async function startMode(mode: DiagnoseMode): Promise<void> {
@@ -140,7 +140,7 @@ export default function AssessmentPage() {
   if (phase === 'done') {
     const tooFast = store.submittedCount === 0;
     return (
-      <section className="mx-auto max-w-xl">
+      <section className="max-w-xl">
         <h1 className="text-xl font-medium text-ink">
           {tooFast ? '这一轮很快就收敛了' : UI_TEXT.assessmentDone}
         </h1>
@@ -180,7 +180,7 @@ export default function AssessmentPage() {
   // ------------------------------------------------------------ 模式选择屏
   if (phase === 'select') {
     return (
-      <section className="mx-auto max-w-2xl">
+      <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">选一种测评</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           一次只做一件事：你要么让我找卡点（诊断），要么先量一个基准（基线/复测）。题目都只出现一次，
@@ -194,7 +194,7 @@ export default function AssessmentPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void startMode(card.value)}
-                className="w-full rounded-2xl border border-line bg-white p-5 text-left hover:border-primary disabled:opacity-60"
+                className="w-full rounded-2xl border border-line bg-white p-5 shadow-card text-left hover:border-primary disabled:opacity-60"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-base font-medium text-ink">{MODE_LABEL[card.value]}</span>
@@ -213,14 +213,14 @@ export default function AssessmentPage() {
   const item = store.currentItem;
   if (!item) {
     return (
-      <section className="mx-auto max-w-2xl">
+      <section className="max-w-2xl">
         <p className="text-sm text-ink-soft">正在取题…</p>
       </section>
     );
   }
 
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-base font-medium text-ink">{MODE_LABEL[store.mode]}</h1>
         <span className="text-xs text-ink-soft">剩 {store.remaining} 题</span>

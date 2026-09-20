@@ -72,7 +72,7 @@ export default function AttributionPage() {
         loadedRef.current = view.attribution_id;
         store.setAttribution(view);
       } catch (error) {
-        toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+        toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,7 +88,7 @@ export default function AttributionPage() {
   }
 
   function handleError(error: unknown): void {
-    toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+    toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
   }
 
   // ------------------------------------------------------------ 向导：classify
@@ -213,7 +213,7 @@ export default function AttributionPage() {
     const plan = store.plan;
 
     return (
-      <section className="mx-auto max-w-2xl">
+      <section className="max-w-2xl">
         <header className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-medium text-ink">{PHRASES.attributionFound}</h1>
           <span className="rounded-md bg-band-unstable/15 px-2 py-0.5 text-xs text-band-unstable">
@@ -232,7 +232,7 @@ export default function AttributionPage() {
         </p>
 
         {/* 回溯路径步进条 */}
-        <div className="mt-5 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
           <h2 className="text-sm font-medium text-ink">回溯路径（从出错的地方往上找）</h2>
           <ol className="mt-3 space-y-2">
             {view.path.map((id, index) => {
@@ -266,7 +266,7 @@ export default function AttributionPage() {
         </div>
 
         {suspects.length > 0 ? (
-          <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+          <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
             <h2 className="text-sm font-medium text-ink">嫌疑排序（前 3）</h2>
             <ul className="mt-2 space-y-1 text-sm text-ink-soft">
               {suspects.map(([suspect, score]) => (
@@ -280,7 +280,7 @@ export default function AttributionPage() {
         ) : null}
 
         {/* 验证区 */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
           <h2 className="text-sm font-medium text-ink">验证一下</h2>
 
           {item ? (
@@ -312,7 +312,7 @@ export default function AttributionPage() {
         </div>
 
         {/* 反驳（常驻） */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-medium text-ink">不同意这个判断？</h2>
@@ -349,7 +349,7 @@ export default function AttributionPage() {
         </div>
 
         {/* 处方 */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
           {view.verified ? (
             <>
               <div className="flex items-center justify-between gap-3">
@@ -425,7 +425,7 @@ export default function AttributionPage() {
     'mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary';
 
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="max-w-2xl">
       <h1 className="text-xl font-medium text-ink">看看这道题错在哪</h1>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
         先告诉我一道错题。我会先复述你写的这一步，再说它大概属于哪一类——如果我拿不准，我会问你，而不是猜。
@@ -435,7 +435,7 @@ export default function AttributionPage() {
       {draft === null ? (
         <div className="mt-6 space-y-4">
           {wrongItems.length > 0 ? (
-            <div className="rounded-2xl border border-line bg-white p-4">
+            <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
               <h2 className="text-sm font-medium text-ink">从试卷错题里挑</h2>
               <ul className="mt-2 space-y-2">
                 {wrongItems.map((item, index) => (
@@ -463,7 +463,7 @@ export default function AttributionPage() {
             </div>
           ) : null}
 
-          <div className="rounded-2xl border border-line bg-white p-4">
+          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <h2 className="text-sm font-medium text-ink">或者自己填一道</h2>
             <label className="mt-3 block text-xs text-ink-soft">
               题目（写个大概也行）
@@ -507,7 +507,7 @@ export default function AttributionPage() {
 
       {/* 第二步：复述确认 */}
       {draft !== null && !adopted && !clarify ? (
-        <div className="mt-6 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-6 rounded-2xl border border-line bg-white p-4 shadow-card">
           <p className="text-xs text-ink-soft">{UI_TEXT.restateFirst}</p>
           <div className="mt-3 rounded-lg bg-canvas px-3 py-2 text-sm text-ink">
             <p className="text-xs text-ink-soft">题目</p>
@@ -585,7 +585,7 @@ export default function AttributionPage() {
       {/* 第三步 B：判定结果（五类枚举） */}
       {adopted ? (
         <div className="mt-6 space-y-4">
-          <div className="rounded-2xl border border-line bg-white p-4">
+          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-medium text-ink">先复述你写的这一步</h2>
               <span className="text-xs text-ink-soft">把握 {percent(adopted.confidence)}</span>
@@ -600,7 +600,7 @@ export default function AttributionPage() {
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-line bg-white p-4">
+          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <h2 className="text-sm font-medium text-ink">它大概属于哪一类</h2>
             <ul className="mt-3 space-y-2">
               {ERROR_TYPES.map((type: ErrorTypeValue) => {
@@ -644,7 +644,7 @@ export default function AttributionPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-white p-4">
+            <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
               <button
                 type="button"
                 disabled={busy}

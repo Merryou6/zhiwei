@@ -118,7 +118,7 @@ export default function ReportPage() {
       </p>
 
       {/* ① 掌握度分布 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4">
+      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
         <h2 className="text-sm font-medium text-ink">掌握度分布（{mastery.length} 个知识点）</h2>
 
         <ul className="mt-3 space-y-2">
@@ -161,7 +161,7 @@ export default function ReportPage() {
       </div>
 
       {/* ② 缺口清单 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4">
+      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
         <h2 className="text-sm font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
         {gaps.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
@@ -190,7 +190,7 @@ export default function ReportPage() {
       </div>
 
       {/* ③ 基线 vs 复测 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4">
+      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
         <h2 className="text-sm font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
         {accuracy.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">

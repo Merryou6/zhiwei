@@ -60,7 +60,7 @@ export default function ChatPage() {
       setFiles(data.files);
       setImageFileId((current) => current ?? data.files[0]?.file_id ?? null);
     } catch (error) {
-      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
     }
   }
 
@@ -116,7 +116,7 @@ export default function ChatPage() {
       : null;
 
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="max-w-2xl">
       <header className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-medium text-ink">跟学长聊两句</h1>
@@ -139,14 +139,14 @@ export default function ChatPage() {
           </p>
           <Link
             to={`/graph?path=${encodeURIComponent(meta?.kp_match.kp_id ?? '')}`}
-            className="mt-2 inline-block rounded-lg bg-primary px-3 py-1.5 text-xs text-white"
+            className="mt-2 inline-block rounded-lg bg-primary px-3 min-h-9 py-2 text-[13px] text-white"
           >
             去图谱看看这一环
           </Link>
         </div>
       ) : null}
 
-      <div className="mt-5 space-y-3 rounded-2xl border border-line bg-white p-4">
+      <div className="mt-5 space-y-3 rounded-2xl border border-line bg-white p-4 shadow-card">
         {store.messages.length === 0 ? (
           <p className="text-sm text-ink-soft">
             还没有聊天记录。可以从一句「我卡在这里」开始，也可以传张题图让我先读题。
@@ -214,7 +214,7 @@ export default function ChatPage() {
                 </button>
               </li>
             ))}
-            {files.length === 0 ? <li className="px-3 py-1.5 text-xs text-ink-soft">正在取文件…</li> : null}
+            {files.length === 0 ? <li className="px-3 min-h-9 py-2 text-[13px] text-ink-soft">正在取文件…</li> : null}
           </ul>
         </div>
       ) : null}

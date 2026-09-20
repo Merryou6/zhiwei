@@ -198,7 +198,7 @@ export default function GraphPage() {
           </p>
         </div>
         {highlightPath.length > 0 ? (
-          <span className="rounded-lg bg-primary-soft px-3 py-1.5 text-xs text-primary">
+          <span className="rounded-lg bg-primary-soft px-3 min-h-9 py-2 text-[13px] text-primary">
             {plan && plan.path.join(',') === highlightPath.join(',')
               ? `学习路径：${plan.strategy}`
               : '正在高亮一条路径（上游 → 根因）'}
@@ -209,7 +209,7 @@ export default function GraphPage() {
       {loading ? (
         <p className="mt-6 text-sm text-ink-soft">正在取你的掌握度…</p>
       ) : !hasData ? (
-        <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5 shadow-card">
           <p className="text-sm text-ink">{UI_TEXT.needSelfReport}</p>
           <div className="mt-4 flex items-center gap-3">
             <Link to="/self-report" className="rounded-lg bg-primary px-4 py-2 text-sm text-white">

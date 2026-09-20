@@ -80,7 +80,7 @@ export default function PaperPage() {
           setSelected(data.files[0]?.file_id ?? null);
         }
       } catch (error) {
-        if (!cancelled) toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+        if (!cancelled) toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
       }
 
       // 刷新回显：凭 sessionStorage 里的 recognition_id 走 #10
@@ -132,7 +132,7 @@ export default function PaperPage() {
       writeRecognitionId(data.recognition_id);
     } catch (error) {
       setStatus('');
-      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
     } finally {
       setBusy(false);
     }
@@ -180,7 +180,7 @@ export default function PaperPage() {
       if (error instanceof ApiError && error.code === 409) {
         toast(`${error.message}，去归因页看看`,'warn');
       } else {
-        toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+        toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
       }
     } finally {
       setBusy(false);
@@ -190,7 +190,7 @@ export default function PaperPage() {
   // ------------------------------------------------------------ 确认完成
   if (confirmed) {
     return (
-      <section className="mx-auto max-w-2xl">
+      <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">这份卷子记下了</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-soft">
           新增了 {confirmed.events_created} 条证据，更新了 {confirmed.mastery_updates.length} 个知识点。
@@ -255,7 +255,7 @@ export default function PaperPage() {
 
         <ul className="mt-6 space-y-3">
           {rows.map((row) => (
-            <li key={row.seq} className="rounded-2xl border border-line bg-white p-4">
+            <li key={row.seq} className="rounded-2xl border border-line bg-white p-4 shadow-card">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <span className="text-xs text-ink-soft">第 {row.seq} 题</span>
@@ -279,7 +279,7 @@ export default function PaperPage() {
                 <label className="text-xs text-ink-soft">
                   知识点
                   <select
-                    className="ml-2 rounded-lg border border-line px-2 py-1.5 text-xs text-ink outline-none focus:border-primary"
+                    className="ml-2 rounded-lg border border-line px-2 min-h-9 py-2 text-[13px] text-ink outline-none focus:border-primary"
                     value={row.kpId}
                     onChange={(event) =>
                       setRows(rows.map((item) => (item.seq === row.seq ? { ...item, kpId: event.target.value } : item)))
@@ -304,7 +304,7 @@ export default function PaperPage() {
                           setRows(rows.map((item) => (item.seq === row.seq ? { ...item, result: value } : item)))
                         }
                         className={[
-                          'rounded-lg border px-3 py-1.5 text-xs transition-colors',
+                          'rounded-lg border px-3 min-h-9 py-2 text-[13px] transition-colors',
                           active ? 'border-primary bg-primary-soft text-ink' : 'border-line text-ink-soft hover:bg-canvas',
                         ].join(' ')}
                       >
@@ -335,7 +335,7 @@ export default function PaperPage() {
 
   // ------------------------------------------------------------ 选文件
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="max-w-2xl">
       <h1 className="text-xl font-medium text-ink">传一份卷子</h1>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
         演示态：从预置文件里挑一份（真实的相册上传在云端开放）。识别结果只是草稿，

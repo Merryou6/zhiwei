@@ -12,3 +12,20 @@
 body {
   @apply bg-canvas font-sans text-ink antialiased;
 }
+
+/* 键盘焦点可见性（2026-09-20 风格走查）：全站统一主色描边环。
+   用 :focus-visible 而非 :focus，鼠标点击不出现描边。 */
+@layer base {
+  :focus-visible {
+    outline: 2px solid #4e8fb0;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* 中文排版：标题与数据数字的默认字距收紧一点，避免大字号发散 */
+  h1,
+  h2 {
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+}

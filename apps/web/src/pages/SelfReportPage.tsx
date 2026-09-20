@@ -66,7 +66,7 @@ export default function SelfReportPage() {
       markSelfReportDone(activeSpaceId);
       toast(`已更新 ${data.updated} 个知识点的起点`);
     } catch (error) {
-      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
+      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +74,7 @@ export default function SelfReportPage() {
 
   if (updated !== null) {
     return (
-      <section className="mx-auto max-w-xl">
+      <section className="max-w-xl">
         <h1 className="text-xl font-medium text-ink">起点记下了</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-soft">
           已更新 {updated} 个知识点的起点。接下来我出几道题，看看猜得准不准——你把会做的做掉就行，
@@ -107,8 +107,8 @@ export default function SelfReportPage() {
         这不是考试，是让我别把时间浪费在你已经会的东西上。凭感觉选就行，30 秒够用。
       </p>
 
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-xs text-ink-soft">
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <span className="text-[13px] text-ink-soft">
           已选 {chosen.length}/{chapters.length} 个章节
         </span>
         <button
@@ -116,7 +116,7 @@ export default function SelfReportPage() {
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="rounded-lg border border-line px-3 py-1.5 text-xs text-ink-soft hover:bg-white"
+          className="min-h-9 shrink-0 rounded-lg border border-line bg-white px-3 py-2 text-[13px] text-ink hover:border-primary hover:text-primary"
         >
           按 3 档先填上
         </button>
@@ -124,7 +124,7 @@ export default function SelfReportPage() {
 
       <ul className="mt-4 space-y-3">
         {chapters.map((chapter) => (
-          <li key={chapter} className="rounded-2xl border border-line bg-white p-4">
+          <li key={chapter} className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <div className="flex items-baseline justify-between">
               <h2 className="text-sm font-medium text-ink">{chapter}</h2>
               <span className="text-xs text-ink-soft">
@@ -141,8 +141,10 @@ export default function SelfReportPage() {
                     type="button"
                     onClick={() => setLevels({ ...levels, [chapter]: level.value })}
                     className={[
-                      'rounded-lg border px-3 py-2 text-left text-xs transition-colors',
-                      selected ? 'border-primary bg-primary-soft text-ink' : 'border-line text-ink-soft hover:bg-canvas',
+                      'min-h-9 rounded-lg border px-3 py-2 text-left text-[13px] transition-colors',
+                      selected
+                        ? 'border-primary bg-primary-soft font-medium text-ink ring-1 ring-primary'
+                        : 'border-line text-ink-soft hover:bg-canvas',
                     ].join(' ')}
                   >
                     <span className="mr-1 font-medium">{level.label}</span>
@@ -159,7 +161,7 @@ export default function SelfReportPage() {
         type="button"
         onClick={() => void handleSubmit()}
         disabled={submitting}
-        className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:opacity-90 disabled:opacity-60"
+        className="mt-6 min-h-11 w-full rounded-lg bg-primary px-4 py-3 text-sm text-white hover:opacity-90 disabled:opacity-60"
       >
         {submitting ? '正在记下…' : '记下来，开始测评'}
       </button>

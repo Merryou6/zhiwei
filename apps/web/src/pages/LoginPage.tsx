@@ -78,24 +78,28 @@ export default function LoginPage() {
   }
 
   const inputClass =
-    'mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary';
+    'mt-1 min-h-11 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink transition-colors focus:border-primary';
 
   return (
-    <section className="mx-auto max-w-md">
+    // 走查修正：认证页是全屏入口（无内容区导航），保持水平居中属有意例外；
+    // 但增加垂直居中，修掉原「内容贴顶、下方大片留白」的重心失衡。
+    <section className="mx-auto flex min-h-[calc(100vh-11rem)] max-w-md flex-col justify-center">
       <h1 className="text-xl font-medium text-ink">知微 · 学习伴侣</h1>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
         我会先弄清你卡在哪个知识点，再陪你把它补上。第一次来直接注册，30 秒就能开始。
       </p>
 
-      <div className="mt-6 flex gap-1 rounded-xl bg-white p-1 text-sm">
+      <div className="mt-6 flex gap-1 rounded-xl border border-line bg-white p-1 text-sm shadow-card">
         {(['login', 'register'] as Tab[]).map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setTab(item)}
             className={[
-              'flex-1 rounded-lg px-3 py-2 transition-colors',
-              tab === item ? 'bg-primary-soft text-primary' : 'text-ink-soft hover:bg-canvas',
+              'min-h-9 flex-1 rounded-lg px-3 py-2 transition-colors',
+              tab === item
+                ? 'bg-primary-soft font-medium text-ink ring-1 ring-primary/30'
+                : 'text-ink-soft hover:bg-canvas',
             ].join(' ')}
           >
             {item === 'login' ? '登录' : '注册'}
@@ -103,8 +107,11 @@ export default function LoginPage() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-4 rounded-2xl border border-line bg-white p-5">
-        <label className="block text-sm text-ink-soft">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-4 rounded-2xl border border-line bg-white p-5 shadow-card"
+      >
+        <label className="block text-sm text-ink">
           手机号或邮箱
           <input
             className={inputClass}
@@ -114,7 +121,7 @@ export default function LoginPage() {
           />
         </label>
 
-        <label className="mt-4 block text-sm text-ink-soft">
+        <label className="mt-4 block text-sm text-ink">
           密码（≥6 位）
           <input
             className={inputClass}
@@ -126,7 +133,7 @@ export default function LoginPage() {
         </label>
 
         {tab === 'register' ? (
-          <label className="mt-4 block text-sm text-ink-soft">
+          <label className="mt-4 block text-sm text-ink">
             称呼（可选）
             <input
               className={inputClass}
@@ -139,7 +146,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="mt-6 min-h-11 w-full rounded-lg bg-primary px-4 py-3 text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
         </button>

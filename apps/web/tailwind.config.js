@@ -16,8 +16,16 @@ export default {
         'band-mastered': '#2F9C7C',
         ink: '#22303A',
         'ink-soft': '#5B6B76',
-        line: '#E3E8EB',
-        canvas: '#F7F9FA',
+        // 层次令牌（2026-09-20 风格走查）：canvas 压深一档、line 提对比一档，
+        // 让白底卡片在浅底上具备可感知的边界；四状态带与主色不动（守恒测试锁的就是那四色）。
+        line: '#DCE4E9',
+        canvas: '#F5F8F9',
+        // 提示条语义加深色：error 用更深暖橙（仍低饱和、非刺眼大红，遵守 PRD §6）。
+        'tone-error': '#C96A3A',
+      },
+      boxShadow: {
+        // 卡片抬升（极轻，不抢状态带颜色的注意力）
+        card: '0 1px 2px rgba(34,48,58,0.04), 0 2px 6px rgba(34,48,58,0.05)',
       },
       fontFamily: {
         sans: [
