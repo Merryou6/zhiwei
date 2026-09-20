@@ -1,727 +1,203 @@
-知微 · 迭代 2「后端 19 接口 + MINOR 清偿」审查报告
+知微 · 迭代 3「前端 10 页面 + 端到端闭环」审查报告（终审）
 =================================================
-报告编号：03_REVIEW（第 2 版，迭代 2）
-审查日期：2026-09-19
-审查角色：只读审查者（未修改任何业务代码与数据）
-审查对象：_pipeline/01_PLAN.md（迭代 2 版，984 行）/ _pipeline/02_EXEC_REPORT.md（迭代 2 版，505 行）
-          / 实际改动（git 区间 cf21111..52fe185，基线 666a52f）
-权威依据：API_CONTRACT.md（v1.1）> ALGORITHM.md > DATA_SCHEMA.md > PRD.md > 知微-参赛完整方案-v4.md
-工作区：/Users/Merryou/LearnBuddy/zhiwei/（git main，52fe185）
-
-归档记录（只增不删，动作已执行）：
-  迭代 1 审查报告（_pipeline/03_REVIEW.md，29058 字节，mtime 20260919_1540，末行 VERDICT: PASS，
-  正文含「迭代 1「地基冲刺」判定通过」）已复制归档为
-    _pipeline/archive/03_REVIEW_20260919_1540.md
-  原文件保持存在，仅新增副本；本文件为迭代 2 版审查报告，覆盖写入 _pipeline/03_REVIEW.md。
-
-审查原则：执行报告 三、/六、/九、 的每一个数字与结论，本报告均以「自己复跑 + 端到端实测 +
-代码级复核」取得独立证据，不采信自述。未能独立验证者一律列为阻塞项（本次无）。
-
-说明：本报告为纯文本，不依赖 markdown 渲染。
-
+报告编号：03_REVIEW（第 3 版 · 迭代 3 · 项目终审）
+审查日期：2026-09-20
+审查角色：总控（依用户指令「不要调用子智能体，自己干活」，由总控直接执行只读审查；未修改任何业务代码）
+审查对象：apps/web（10 页面 / stores / API 与 SSE 客户端 / 主题令牌）、functions/api（迭代 3 仅 D15 修复相关）、scripts、数据资产
+上一版归档：_pipeline/archive/03_REVIEW_20260919_1853.md（迭代 2 版，只增不删，内容与本报告替换前的文件一致）
 
 -------------------------------------------------
-一、审查范围与方法（抽样与实测清单）
+一、审查范围与方法
 -------------------------------------------------
 
-1.1 文档与基线核对
-  - 01_PLAN.md（984 行）、02_EXEC_REPORT.md（505 行）全文通读；
-    API_CONTRACT.md（284 行）、ALGORITHM.md（192 行）全文通读作为裁决依据。
-  - git 区间 666a52f..52fe185：git log --oneline（10 个迭代 2 提交，与报告 七、逐条一致）、
-    git diff --stat / --name-status / --diff-filter=A|M 全量核对。
-  - 结果：新增 45 / 修改 9 / 删除 0（含 52fe185 报告提交自身；
-    报告表述的「提交前 44A/8M」与之一致，见 INFO-7）。
+1.1 范围
+  (1) 前端 10 页面与 PRD §2 P0 验收项逐项核对（#1–#12 前端侧）
+  (2) 交互纪律（PRD §6 话术表 + 颜色语义）与颜色守恒（前端 vs 引擎）
+  (3) ΔAccuracy 专项：迭代 3 交付时 accuracy[].delta 恒为 null，属 P0 #11 验收缺口候选，须判定
+  (4) 测试与构建复核（vitest / tsc / 数据闸门 / 生产构建）
+  (5) 迭代 2 遗留 MINOR-①④ 清偿核对
+  (6) 范围纪律与安全纪律（answer 不下发、零密钥、无越界实现）
 
-1.2 独立复跑（全部真实执行，环境常量展开为完整路径）
-  [R1] typecheck（计划 7.2）：
-       $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json      → exit=0（无输出）
-       $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p packages/engine/tsconfig.json    → exit=0（无输出）
-  [R2] vitest 全量（计划 7.3）：$NODE $WS/node_modules/vitest/vitest.mjs run
-       → Test Files 13 passed (13) / Tests 150 passed (150) / VITEST_EXIT=0
-       逐文件：selection 18 + bkt 20 = 引擎 38；attribution 14、auth 11、chat 11、classify 8、
-       closedLoop 5、diagnose 16、paper 15、plan 8、report 6、selfReport 8、space 10 = api 112。
-       38 + 112 = 150，与报告 三、7.3 逐字吻合。
-  [R3] 数据闸门（计划 7.6）：
-       $PY scripts/validate_data.py → 8 行 [PASS]、节点 20 / typical_errors 74 / 题库 228
-       （train 104 + retest 124）、末行「全部阻断项通过」、VALIDATE_EXIT=0
-       $PY scripts/verify_items.py  → 覆盖重算 86 题（目标 ≥80，达标）、未覆盖 142、
-       「复算不一致 0 题」PASS、「solution_steps 末步均包含 answer」PASS、VERIFY_EXIT=0
-  [R4] 构建（计划 7.4）：先 rm 产物再用 $WS/node_modules/.bin/esbuild 重建 →
-       functions/api/dist/server.js 91.5kb / 93660 字节 / BUILD_EXIT=0。
-       计划字面命令（$NODE .../esbuild/bin/esbuild）已复现为不可执行，见 INFO-6。
-  [R5] 依赖核对：@types/node 22.7.5、esbuild 0.21.5、typescript 5.5.4、vitest 2.1.1（require 读版本确认）。
+1.2 方法（全部由本次审查独立执行）
+  a. 代码级核对：grep / 逐文件阅读（证据见各节「位置」列）
+  b. 独立实跑：vitest 全量（分两批）、tsc 三段、validate_data.py、verify_items.py、vite build
+  c. 端到端实测：自写两个临时探针（/tmp/zhiwei_e2e.py、/tmp/zhiwei_sse.py，均不入仓库），
+     在同一 shell 调用内「起服务 → 探针 → 关服务」，避免长驻进程被环境回收
+  d. 负例（401/403/409 等）由迭代 2 审查已覆盖（契约层本次未变更，仅 D15 改动 selection 与 diagnose）
 
-1.3 端到端实测（起真实本地服务 + curl，非仅单测）
-  方式：$NODE functions/api/dist/server.js（ZHIWEI_API_PORT=879x）或
-        require(dist/server.js).startApiServer({ storeDir }) 注入隔离临时库（避免污染 data/local_db）。
-  共 4 轮脚本化实测（/tmp/zhiwei_e2e.sh、e2e2.sh、e2e3.sh、e2e4.sh、e2e5.sh + 1 次定向探针）：
-   - 正例闭环：register → login → space/list|create|drive → self-report → diagnose/next|submit
-     → evidence/paper（上传/回显/确认）→ error/classify → attribution/analyze|get|verify|reject
-     → plan/generate → chat(SSE + JSON 降级) → report/summary。
-   - 负例：409（重复注册 / 同学科空间 / 重复确认）、401（无 token / 伪造 / 过期 / 密码错）、
-     403（跨用户访问 11 个受保护入口全覆盖）、404（空间/题/归因/识别/对话不存在）、
-     400（mode 非法、chapter 非法、level 越界、reports >6、stem 缺失、kp 非法、
-     error_type 非法、unclear 未手标、answer 非字符串、message 空、space_id 缺失）。
-   - 专项：D7 同 kp 不同题同小时；verify 答对分支；verify 全排除回落；reject 耗尽；
-     silent 弱负证据与 1 小时去重；低置信零证据；退出通道 5 轮连打；report ΔAccuracy。
-  实测后已把 data/local_db/ 还原为审查前状态（demo@zhiwei.dev），git status 仅剩本报告归档副本。
-
-1.4 代码级复核（逐文件阅读，非抽样）
-  functions/api/src 全部 28 个源文件 + packages/engine/src 关键文件 + 12 个测试文件：
-  router.ts / context.ts / errors.ts / ids.ts / grading.ts / serialization.ts /
-  db/{types,jsonStore,cloudbaseStore,index}.ts / models/{types,localClassify,localRecognize,localChat,index}.ts /
-  data/staticData.ts / attribution/attributionCore.ts / services/*.ts(10) / index.ts / server.ts /
-  packages/engine/src/{bkt,dedup,selection}.ts + tests。
-  另：grep 全量扫描硬编码参数、真实模型/云 SDK 调用、禁发字段。
-
+1.3 环境常量
+  $NODE=/Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node
+  $WS=/Users/Merryou/.workbuddy/binaries/node/workspace
+  $PY=/Users/Merryou/.workbuddy/binaries/python/envs/default/bin/python3
+  后端本地端口 ZHIWEI_API_PORT=8899（本次实测用）
 
 -------------------------------------------------
-二、分类发现（级别 / 位置 / 描述 / 证据）
+二、10 页面 × PRD §2 P0 验收核对表
 -------------------------------------------------
 
-【BLOCKER】0 条。
+#  P0 要求                                       实现位置                                       证据 / 结论
+-  --------------------------------------------------  ----------------------------------------------  ------------------------------------------
+1  注册即建默认空间；token 存 localStorage 刷新不掉线  pages/LoginPage.tsx（handleSubmit）、stores/auth.ts  auth.ts 手动读写 localStorage（键与 router.STORAGE_KEYS 同源）、401/登出同时清内存与落盘；E2E：注册返回 200，space/list 立即含 `初中数学` is_default=true → 通过
+2  自报章节级 5 档 ≤6 题、30 秒完成；写入 p_l0        pages/SelfReportPage.tsx（chapters/levels/handleSubmit） 章节取自 data/graphSnapshot（4 章节 ≤6 上限），提交 #6；E2E：updated=20（20 个知识点全部写入先验）→ 通过
+3  测评不出已做题、不展示对错、收敛即停              pages/AssessmentPage.tsx（D11 注释 + 105 行「不读 data.correct」）  exclude_item_ids=本轮 doneIds（含跳过题）+ 服务端 evidence 兜底双保险；converged/item=null → 结束屏；E2E：diagnose 模式 submit 返回 correct=null → 通过
+4  试卷上传→识别→逐题确认；unclear 必须手标无默认值   pages/PaperPage.tsx（43 行「无默认值，必须手标」、267 行 unclear 分支）  所有行对/错均不预选，suggested_result 仅作参考样式；识别阶段不产生证据、不更新掌握度（页面如实说明）→ 通过
+5  加权 BKT 幂等 + mastery_logs 全留痕               （后端，迭代 2 已审）                           独立复跑 api 用例含 D7「同 kp 第二道不同题同小时正常计分」；本次未回归 → 通过
+6  五类错误枚举输出；confidence<0.6 退回追问         pages/AttributionPage.tsx（ERROR_TYPE_LABEL 徽标）+ services/classify.ts  attribution_direction 服务端硬编码；低置信 → clarify（页面按澄清态渲染）→ 通过
+7  归因定位：路径 + 根因 + 错误类型 + 反驳按钮       pages/AttributionPage.tsx（14 行「反驳按钮常驻」、173 行 reject、195-196 行 root_cause/error_type）  结果态含回溯路径步进条 + 根因高亮 + 错误类型徽标 + suspect 前三 + 验证区 + 常驻反驳；耗尽态诚实兜底文案；rejected_by_student → 「已记录你的反驳」→ 通过
+8  对话 SSE；2 次方向提示、3 次解法；连续 3 轮无进展触发退出  pages/ChatPage.tsx（streamChat、next_action 映射）+ services/chat.ts  **独立实测**（见五、E2E-2）：ctype=text/event-stream；轮1 continue → 轮2 hint_down → 轮3 exit_channel；delta 段数 1→2→3 → 通过
+9  归因结果页（★答辩主战场）                        pages/AttributionPage.tsx                    同 #7；附带 suspect 分数与验证题交互 → 通过
+10 图谱四色着色 + 归因路径高亮 + 全局图例            pages/GraphPage.tsx（masteryHexOf、path 高亮、BandLegend）  ?path=kp1,kp2 → 路径节点描边加粗、边走主色、其余降透明；图例常驻右上（四色 + 归因/学习路径）→ 通过
+11 复测闭环：双池零重叠（脚本校验）+ 报告页展示 ΔAccuracy  data/item_bank + scripts/validate_data.py + pages/ReportPage.tsx  双池零重叠由 §6-3/4 校验保证（本次复跑 PASS）；ΔAccuracy 见三、专项（实测 3 行 delta 非 null）→ 通过
+12 学习报告页：掌握度分布 + 缺口清单 + 基线/复测对比   pages/ReportPage.tsx（三段布局：分布 / gaps / accuracy）  Δ>0 青绿、Δ<0 暖橙、null 显示「—」；E2E：mastery 20 条、gaps 0 条、accuracy 3 条 → 通过
 
-【MAJOR】0 条。
-
-【MINOR】4 条（均不阻塞，按影响排序）
-
-MINOR-1  位置：functions/api/src/services/attribution.ts（verify，#15）
-  描述：verify 未校验入参 item_id 是否属于本归因的候选集（record.pending_candidates）。
-        只要 item_id 是题库中任意一题，答对即被当作「根因确认」，root_cause 被写为该题的
-        knowledge_point，path 亦按该非祖先节点重建；答错分支同样会把「队首候选」误排除。
-  证据（本轮实测，DB=/tmp/zhiwei_db_D，attr_mu89lzxe03jdo，from_kp=math.cz.quadratic.vertex_form）：
-        analyze → root_cause=math.cz.function.graph，verification_item=q_cz_func_graph_001
-        verify { item_id: "q_cz_geometry_001"（kp=math.cz.quadratic.geometry，既非候选也非 from_kp 祖先），
-                 answer: "(0, 3)"（该题标准答案）}
-        → {"code":0,"data":{"verified":true,"correct":true,
-                            "root_cause":"math.cz.quadratic.geometry","next_candidate":null}}
-        GET 该归因 → root_cause=math.cz.quadratic.geometry，
-                     path=["math.cz.quadratic.vertex_form","math.cz.quadratic.geometry"]，verified=true
-  影响：契约 §7 把 item_id 语义定义为「验证题」；此缺口只在客户端传入非约定题时触发，
-        且需为归因所有者本人（鉴权与归属校验均生效），不影响契约合规路径与 150 用例覆盖的主流程，
-        但会把「根因必须是 from_kp 的上游候选」这一 ALGORITHM §4 不变量打破并持久化。
-  建议（不改代码，仅建议）：在 verify 入口增加校验——
-        ① item.knowledge_point 必须属于 record.pending_candidates（否则 400，msg 说明"非当前验证题"）；
-        ② 或至少校验其属于 from_kp 的先修闭包；
-        ③ 补 1 条用例断言该 400。属计划 #15 未明确要求的防御性校验，故按 MINOR 而非 MAJOR。
-
-MINOR-2  位置：functions/api/src/services/attribution.ts（toView / getOne，#14）
-  描述：GET /api/attribution/{attribution_id} 的 data 是 analyze data 的「超集」：除契约声明的
-        rejected_by_student 外，还多出 from_kp、error_type、verified、verified_by 四个字段。
-  证据：本轮实测 GET→ {"attribution_id","from_kp","root_cause","error_type","path","suspect_scores",
-        "verified","verified_by","rejected_by_student","verification_item"}；
-        而 analyze 响应仅有 {attribution_id, root_cause, path, suspect_scores, verification_item}。
-        attribution.test.ts:178 亦对该超集（含 from_kp/error_type/verified/verified_by）做了断言。
-  影响：契约 §7 字面为「data = 同 analyze 的 data（归因结果页刷新回显用，含 rejected_by_student）」。
-        括号已声明 data 含 analyze 之外的字段，故超集方向被契约认可；多出的四字段对回显页有益、
-        不与任何契约字段冲突、不改变既有字段语义。字段集合未被契约逐字限定，故定 MINOR。
-  建议：在契约 §11 变更记录或执行报告偏差清单补一条「#14 回显字段超集」留痕，使文档与实现对齐。
-
-MINOR-3  位置：functions/api/src/db/types.ts:108-114（AttributionRecord.pending_candidates）
-             + _pipeline/02_EXEC_REPORT.md 四、偏差清单 D1–D8
-  描述：attributions 表新增了内部字段 pending_candidates（候选游标，跨请求持久化所必需）。
-        源码注释明确写「以内部字段承载并在执行报告留痕」，但执行报告偏差清单 D1–D8 未列此项
-        （已 grep 全文确认无 pending_candidates 字样）。DATA_SCHEMA §4.6 未定义该字段。
-  证据：grep -n "pending_candidates|内部字段" 02_EXEC_REPORT.md → 0 命中（仅 stopReason 相关命中）。
-  影响：字段不出现在任何契约响应（toView 未输出），不影响接口行为；属「代码声称已留痕、
-        报告未留痕」的记录缺口，可能让后续九表落地时与 DATA_SCHEMA 对不上。
-  建议：在 02_EXEC_REPORT.md 偏差清单补 D9 条目，或在 DATA_SCHEMA §4.6 补该字段定义。
-
-MINOR-4  位置：functions/api/tests/*（测试缺口：dedup 跨小时桶的接口层验证）
-  描述：dedup 的「同小时命中 / 跨小时后重新计分」两条语义中，跨小时一侧仅在引擎纯函数层覆盖
-        （packages/engine/tests/bkt.test.ts T8：hourBucket(+3600) 差 1、isDuplicateKey=false），
-        接口层（diagnose/submit 或 chat 在时钟跨小时后重新计分）无对应用例。
-  证据：grep tests 目录 now:/FIXED* → 仅 diagnose.test.ts 与 chat.test.ts 注入固定时钟
-        （FIXED_NOW = 2026-09-19T10:00:00Z），其余文件用真实时钟；无一处推进时钟跨小时。
-  影响：hour_bucket 计算本身已被 T8 锁定，接口层缺失仅为覆盖缺口，非实现缺陷；
-        helpers.createTestApp 已支持 now 注入，补测成本极低。
-  建议：加 1 条 diagnose 用例（now 从 T 走到 T+3600 提交同一 kp 的另一题 → 事件新增、正常计分）。
-
-【INFO】8 条（不阻塞，供知悉）
-
-INFO-1  新用户未自报时 diagnose/next 立即 converged=true。
-        实测：注册后直接 POST /diagnose/next → {"item":null,"remaining":10,"converged":true}。
-        定位：全部 kp mastery=0 → 仅根级 kp 可测（剪枝）→ V = 0×(1−0) = 0 < CONV_VAR(0.10)。
-        这是 ALGORITHM §2 ④「V = P(1−P) < CONV_VAR 即收敛」的字面推论，与执行报告 D4
-        （自报 level 2 → 0.30 → 同因收敛）同源同因。计划/测试一律用 level 3（0.50，V=0.25）
-        驱动闭环（diagnose.test.ts:66、closedLoop.test.ts:182），口径自洽。不改判、不列缺陷；
-        仅提示：演示与前端落地时须保证「先自报（level ≥3）再测评」，否则会看到立即收敛。
-
-INFO-2  契约 §9 的 next_action 枚举成员 give_solution 未被实际产出。
-        实测：第 2 轮 false → hint_down；第 3 轮 false → exit_channel（delta 先「完整解法」文本、
-        后「往回看一眼 XX」退出话术）。依据计划 四、4.3 的显式裁决（提示阶梯 ≥3 与状态机 3 轮
-        在 n=3 重叠，单值 next_action 以退出通道优先），已留痕；ChatNextAction 类型
-        （models/types.ts:55）仍保留四值，与契约枚举一致。属计划授权行为。
-
-INFO-3  chat 退出通道的上游搜索把 MAX_DEPTH 覆盖为全图节点数（chat.ts:193
-        `const wide = { ...ctx.params, MAX_DEPTH: ctx.data.nodes.length }`）。
-        代码注释已说明「ALGORITHM §5 未限定回溯深度 → 放开到全图上界，仅用于找最近低掌握上游」，
-        跳转次数仍由 MAX_EXIT_HOPS 兜底。实测 5 轮连打（消息依次为 不会/还是不会/我不知道/没思路/不会）：
-        第 3 轮 exit_channel + 跳到 function.graph（exit_count=1）、第 4 轮跳到 function.concept
-        （exit_count=2）、第 5 轮 next_action 仍为 exit_channel 但不再跳转、改输出
-        「我们先停一下，把「函数的概念与自变量取值范围」再啃一遍」——MAX_EXIT_HOPS=2 生效。
-
-INFO-4  502 / 504 降级话术仅纯函数层可验。paper.ts:37 mapModelError 真实实现（超时 → 504、
-        其余 → 502，msg 均为 PAPER_FALLBACK_MSG「这道题我没看清，麻烦你手动标一下对错」），
-        paper.test.ts:313 单测覆盖；因本地适配器永远不抛错，接口层无法触发。真实模型接入后需补。
-
-INFO-5  chat 第 3 轮的 delta 文本含完整解法（含最终答案值，如「所以顶点坐标是 (1, 2)」）。
-        这是 ALGORITHM §5 提示阶梯第 3 档 + PRD P0 #8 的设计意图，非题库序列化泄漏；
-        序列化白名单（serialization.ts）管的是题目对象，两者不冲突。实测全量响应捕获中
-        `"answer"` / `"solution_steps"` / `"distractors"` 三个键命中数均为 0，E5 成立。
-
-INFO-6  计划 七、7.4 的字面构建命令不可执行（偏差 D1 属实，已复现）：
-        $NODE $WS/node_modules/esbuild/bin/esbuild → 输出 Mach-O 乱码并报
-        SyntaxError（file 判定为 "Mach-O 64-bit executable arm64"）；
-        改用计划括注授权的 $WS/node_modules/.bin/esbuild → exit=0、91.5kb。裁决与理由成立。
-
-INFO-7  区间新增/修改计数 45A/9M（含 52fe185 自身），与报告「提交前 44A/8M」自洽：
-        多出的 1A 为 _pipeline/archive/02_EXEC_REPORT_20260919_1525.md（报告提交自带），
-        多出的 1M 为 _pipeline/02_EXEC_REPORT.md。新增中非计划文件仅 3 个 _pipeline 流程留档
-        （03_REVIEW.md、两份归档），与报告 D6 一致。
-
-INFO-8  时间格式断言覆盖偏窄：仅 auth.test.ts:67/97 用 /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
-        断言 spaces.created_at 与 users.created_at。evidence_events / mastery_logs / attributions /
-        dialogs / recognitions 的 created_at 未单独断言（但全部经同一 nowIso() 生成，
-        实测抽样均为 `2026-09-19T10:31:00Z` 形态，合规）。
-
+  附加（PRD §5 页面 #10 云盘页，P1）：pages/DrivePage.tsx 预置资料只读列表 + 上传按钮 disabled
+  + 非阻断 toast「自定义知识库即将开放」（PRD §3 P1 原文案）→ 通过
 
 -------------------------------------------------
-三、19 接口契约核对表（API_CONTRACT v1.1 逐接口）
--------------------------------------------------
-（「字段」列：请求/响应键名逐字比对；「结论」OK = 路由、字段、错误码、语义全部一致）
-
-#1  POST /api/auth/register
-    路由：router.ts:75 → services/auth.ts:69。契约 §1。
-    请求：identifier / password(≥6) / nickname(可选) —— 一致
-    响应：data = { user_id, token } —— 一致；token = base64url(payload).HMAC-SHA256（无状态，不落库，D6）
-    错误：409 重复注册；400 密码 <6 / identifier 空 / nickname 非字符串
-    副作用：自动建默认空间（name="初中数学"、knowledge_source=["kb_math_cz"]、is_default=true）
-    实测：注册成功 u_mu88w8s401jm8 + token；重复 → 409「该账号已注册」；pw="123" → 400「password 至少 6 位」；
-          space/list 可见默认空间（created_at 2026-09-19T10:29:10Z，ISO8601 UTC）
-    结论：OK
-
-#2  POST /api/auth/login
-    路由：router.ts:76 → services/auth.ts:106。契约 §1。
-    请求：identifier / password；响应：data = { user_id, token } —— 一致
-    错误：401（identifier 不存在与密码错误统一话术「账号或密码不正确」，D16，不泄露存在性）
-    实测：错密码 → 401；正确 → 200；伪造 token → 401「token 无效或已过期」；
-          自造 exp 已过期 token（iat/exp 置于过去）→ 401
-    结论：OK
-
-#3  GET /api/space/list
-    路由：router.ts:77 → services/space.ts:65。契约 §2。
-    响应：data = { spaces: [{space_id,name,subject,knowledge_source,is_default,created_at}] } —— 六字段逐字一致
-    错误：401（无/无效 token）
-    实测：返回 1 条默认空间，六字段齐全；无 token → 401
-    结论：OK
-
-#4  POST /api/space/create
-    路由：router.ts:78 → services/space.ts:72。契约 §2。
-    请求：knowledge_source（唯一合法值 kb_math_cz；其他 → 400）；name 由服务端取知识库名，拒收客户端传入
-    响应：data = { space_id, name }
-    错误：409（同学科空间已存在）且 data = { existing_space_id }；400（非法 knowledge_source）
-    实测：二建 → 409 + {"existing_space_id":"sp_mu88w8tf02s70"}；kb_phys → 400
-    结论：OK
-
-#5  GET /api/space/{space_id}/drive
-    路由：router.ts:79 → services/space.ts:100。契约 §2。
-    响应：data = { files: [{file_id,name,type,size}] }
-    错误：403（越权）/ 404（空间不存在）/ 401
-    实测：预置 2 条（file_preset_001/002，pdf）；B token → 403；sp_nope → 404
-    结论：OK
-
-#6  POST /api/evidence/self-report
-    路由：router.ts:82 → services/selfReport.ts:64。契约 §3。
-    请求：space_id + reports[{chapter, level:1–5}]，≤6 项
-    响应：data = { updated }
-    规则：level→P(L0) 用 engine.priorFor（PRIOR_MAP）；仅覆盖 p_l0 与 mastery；
-          evidence_count>0 不覆盖；不写 evidence_events
-    错误：400（reports >6 / 章节不存在 / level 越界）；403
-    实测：level 3「二次函数」→ updated=11；7 项 → 400「reports 最多 6 项」；
-          level 9 → 400；章节「不存在」→ 400；B token → 403
-    结论：OK
-
-#7  POST /api/diagnose/next
-    路由：router.ts:83 → services/diagnose.ts:138。契约 §4。
-    请求：space_id / mode∈{diagnose,baseline,retest} / scope_chapter(可选) / exclude_item_ids(可选)
-    响应：data = { item:{item_id,stem,options}|null, remaining, converged }
-    规则：池由 mode 推导（diagnose→train，baseline/retest→retest），请求不传 pool；
-          已做题排除；剪枝；converged=true 时 item=null；序列化走 toClientItem
-    错误：400（mode 非法/缺失、scope_chapter 不存在）；403；401
-    实测：diagnose 返回 q_cz_geometry_001（train 池）；remaining 10→9→8 递减；
-          item 键集合仅 {item_id, stem, options}；mode=bogus → 400；chapter 不存在 → 400
-          （注：全零掌握度下立即 converged，属 ALGORITHM §2 字面推论，见 INFO-1）
-    结论：OK
-
-#8  POST /api/diagnose/submit
-    路由：router.ts:84 → services/diagnose.ts:155。契约 §4。
-    请求：space_id / item_id / answer / mode
-    响应：data = { correct(true|null), mastery_before, mastery_after, converged, next_item|null }
-    规则：correct 仅 baseline/retest 返回（diagnose 恒 null）；判定服务端做；
-          写 evidence_events(source=diagnose, mode, w=1.0) + mastery_logs；
-          幂等：dedup_key + item_id 双匹配命中 → HTTP 200 静默返回当前状态、不重复更新
-    错误：404（题不存在）/ 400（answer 非字符串、mode 非法）；403；401
-    实测：diagnose 错答 0.5 → 0.24444444444444446（= ALGORITHM §1 自检 0.244，w=1.0）且 correct=null；
-          baseline 错答 correct=false；同题重交 mastery_after 不变、事件仍 1 条；
-          自报后答对 0.5 → 0.845（自检值，diagnose.test.ts:229 断言）
-    结论：OK
-
-#9  POST /api/evidence/paper
-    路由：router.ts:88 → services/paper.ts:74。契约 §5。
-    请求：space_id / file_id
-    响应：data = { recognition_id, status:"pending_confirm",
-                   items:[{seq, stem_excerpt, kp_guess, student_answer, suggested_result}] }
-    规则：识别不产生证据、不更新掌握度；整体写 recognitions（刷新可回显）
-    错误：502/504（msg=用户可读话术）；400（file_id 空）；403
-    实测：rec_mu88wakg0dbdm / pending_confirm / 3 项（seq 3 为 unclear，符合 D14）；
-          同 file_id 二次调用结果逐字一致（确定性）；seq%3===0 恒为 unclear
-    结论：OK
-
-#10 GET /api/evidence/paper/{recognition_id}
-    路由：router.ts:90（静态段 /confirm 先注册，顺序正确）→ services/paper.ts:133。契约 §5。
-    响应：data 同 #9
-    错误：404（不存在）/ 403（他人识别结果）/ 401
-    实测：确认前 pending_confirm；确认后 status=confirmed；他人 → 403；rec_nope → 404
-    结论：OK
-
-#11 POST /api/evidence/paper/confirm
-    路由：router.ts:89 → services/paper.ts:191。契约 §5。
-    请求：recognition_id / space_id / items[{seq, kp_id, result∈{correct,wrong}}]
-    响应：data = { events_created, mastery_updates:[{knowledge_point, before, after}] }
-    规则：unclear 必须手标（缺失 → 400）；kp_id 须存在（可为学生修正值）；
-          重复确认 → 409；逐题写 source=paper、w=0.8、item_id=null、raw 含 crop_url；
-          status→confirmed；expire_at = now+30d
-    错误：400 / 409 / 403 / 404
-    实测：漏标 seq3 → 400「第 3 题识别不清，必须手动标注对错」；
-          3 题 → events_created=3，mastery_updates 3 条，w=0.8 值 0.15255750315258512
-          （手工复算：clamp(0)=0.01 → P_obs=0.001261 → P_eff=0.003009 → +P_T → 0.15256，吻合）；
-          重复确认 → 409；kp 非法 → 400；识别不属于该空间 → 403
-    结论：OK
-
-#12 POST /api/error/classify
-    路由：router.ts:94 → services/classify.ts:31。契约 §6。
-    请求：space_id / item_id(可选) / stem(item_id 空时必填) / student_answer / kp_id
-    响应（采纳）：{ status:"adopted", knowledge_point, error_type, matched_typical_error,
-                    confidence, evidence, attribution_direction }
-    响应（低置信）：{ status:"clarify", question }
-    规则：confidence < CONF_ADOPT(0.60) → 一律 clarify；attribution_direction 服务端硬编码映射
-          （prerequisite_gap→upstream；concept_confusion/method_gap→self；
-            procedural_slip/misreading→none）；matched 只能取自该 kp typical_errors[].code；
-          error_type 限五值枚举；不落表
-    错误：400（kp 非法 / stem 缺失）；404（item 不存在）；403
-    实测（真实 distractor 作答 "(-1, 2)"）：
-          {"status":"adopted","error_type":"concept_confusion","matched_typical_error":"sign_confusion",
-           "confidence":0.9,"attribution_direction":"self"} —— 映射表方向正确、码取自该 kp；
-          标准答案作答 "(1, 2)" → clarify「这次做对了，说说你当时卡在哪一步？」（规则 2）；
-          未知错误作答 → clarify「你这一步是怎么算的？能写一下吗？」（conf 0.45 < 0.6）；
-          kp 非法 → 400；无 stem → 400
-    结论：OK（模型输出被后处理完全覆盖：direction 取自映射表而非适配器）
-
-#13 POST /api/attribution/analyze
-    路由：router.ts:95 → services/attribution.ts:101。契约 §7。
-    请求：space_id / kp_id / error_type / evidence_event_id(可选)
-    响应：data = { attribution_id, root_cause, path[](完整 id，终点=根因), suspect_scores{},
-                   verification_item{item_id,stem,options}|null }
-    规则：procedural_slip / misreading → 400（不进归因）；self → path=[kp]、suspect_scores={}、
-          verification_item=null；upstream → BFS 反向 ≤MAX_DEPTH + 嫌疑分公式 + 降序 + 验证题
-    错误：400（procedural_slip/misreading、error_type 非法、kp 非法）；403；401
-    实测（kp=vertex_form）：suspect_scores = {function.graph 0.6(d=1), completing_square 0.6(d=1),
-          algebra.identity 0.36(d=2), quadratic.eq_concept 0.36(d=2), function.concept 0.36(d=2),
-          algebra.basic 0.216(d=3)} —— 上界 d=1 ≤0.60、d=2 ≤0.36 全部成立，d=3 未超 MAX_DEPTH；
-          path=["math.cz.quadratic.vertex_form","math.cz.function.graph"]（终点=根因，完整 id）；
-          verification_item=q_cz_func_graph_001（train 池、difficulty 最低、未做过）；
-          concept_confusion → path=[kp]、suspect_scores={}、verification_item=null；
-          procedural_slip / misreading → 400（msg 明确「不进归因」）；attr_ 前缀正确
-    结论：OK
-
-#14 GET /api/attribution/{attribution_id}
-    路由：router.ts:98（在 /analyze、/verify 之后注册，顺序正确）→ services/attribution.ts:178。契约 §7。
-    响应：data 同 #13 且含 rejected_by_student（另含 4 个回显字段，见 MINOR-2）
-    错误：404 / 403（他人归因）/ 401
-    实测：analyze 后立即 GET，root_cause/path/suspect_scores/verification_item 逐字一致；
-          rejected_by_student=false；B token → 403；attr_nope → 404
-    结论：OK（字段超集，见 MINOR-2）
-
-#15 POST /api/attribution/verify
-    路由：router.ts:96 → services/attribution.ts:185。契约 §7。
-    请求：attribution_id / item_id / answer
-    响应：data = { verified, correct, root_cause, next_candidate:{kp_id,suspect_score,verification_item}|null }
-    规则：correct 由服务端判定；验证题作答写 source=diagnose、mode=diagnose、w=1.0 + BKT + 日志；
-          答对 → verified=true + verified_by=evt_id，root_cause=候选；答错 → 排除当前候选取次高；
-          全部排除 → root_cause 回落 from_kp、verified=true
-    错误：404（题不存在）/ 400（answer 缺失、attribution_id 空）/ 403
-    实测：答对（第二象限）→ {"verified":true,"correct":true,"root_cause":"math.cz.function.graph",
-          "next_candidate":null}，GET 可见 verified_by="evt_mu89aitg06gwj"；
-          连续答错 6 轮依次排除 function.graph→completing_square→identity→function.concept→
-          eq_concept→algebra.basic，第 6 轮 → {"verified":true,"correct":false,
-          "root_cause":"math.cz.quadratic.vertex_form"（=from_kp）、"next_candidate":null}，
-          GET 可见 path=[from_kp]、verified=true；同题重交（幂等）不重复推进候选
-    结论：OK（入参校验缺口见 MINOR-1）
-
-#16 POST /api/agent/reject
-    路由：router.ts:97 → services/attribution.ts:330。契约 §7。
-    请求：attribution_id / reason(可选)
-    响应：data = { verification_item }（追加一道再验证题）
-    副作用：attributions.rejected_by_student = true
-    错误：403 / 404 / 400
-    实测：连续 reject 依次返回 comp_sq_002 → identity_002 → func_concept_002 → eq_concept_002 →
-          basic_002 → null；耗尽后 GET：rejected_by_student=true、root_cause=from_kp、
-          path=[from_kp]、verified=true、verification_item=null（诚实兜底，与计划 #16 一致）
-    结论：OK
-
-#17 POST /api/plan/generate
-    路由：router.ts:101 → services/plan.ts:29。契约 §8。
-    请求：space_id / root_cause / error_type
-    响应：data = { strategy, explanation_outline[], item_sequence[{item_id,stem,options,difficulty}], path[] }
-    规则（D15）：strategy 按 error_type 硬编码；item_sequence 沿先修链正向、难度递增、全部 train 池、
-          排除已做、总量 ≤8；path = 链完整 id（上游在前）
-    错误：400（root_cause / error_type 非法）；403 / 401
-    实测：prerequisite_gap → strategy="先补上游 + 上游讲解"；concept_confusion → "对比辨析"；
-          item_sequence 难度 [1,2,3,4] 严格非降；逐项查题库确认 4 题全部 pool=train；
-          path=["math.cz.function.concept","math.cz.function.graph"]（上游在前）；
-          explanation_outline 3 条（desc → remedy）；响应无 answer/solution_steps/distractors 键
-    结论：OK
-
-#18 POST /api/agent/chat（SSE）
-    路由：router.ts:102 → services/chat.ts:346 + server.ts:108。契约 §9。
-    请求：space_id / dialog_id(续聊) / message / image_file_id(可选)
-    响应：Content-Type: text/event-stream；事件序列 delta（≥1 段）→ meta → done；
-          meta = { dialog_id, kp_match:{kp_id,confidence}, progress, progress_reason, next_action }
-    降级：Accept: application/json 或 X-Response-Format: json → 普通 JSON { reply, meta }
-    规则：首轮带图先读题；置信度 <0.6 → 澄清且不产生证据；≥0.6 → silent 弱负证据（α=0.10、
-          1 小时去重）；progress 只读结构化字段；连续 3 轮 false → exit_channel
-    错误：400（message 空）/ 403 / 404（dialog 不存在）/ 401
-    实测：curl -sN → 响应头 text/event-stream，正文 event: delta → event: meta → event: done，
-          meta 五字段齐全（dialog_id dlg_…、kp_match{vertex_form, 0.85}、progress=false、
-          progress_reason="学生仍未能给出有效一步"、next_action="continue"）；
-          Accept: application/json → {code:0, data:{reply, meta}}，reply 为全文且不含 "event:"；
-          silent 事件落库：source=silent、mode=null、item_id=null、weight=0、alpha=0.1、
-          dedup_key 五段（…:math.cz.quadratic.vertex_form:silent:497170）；
-          同小时同 kp 第二轮 → silent 事件仍 1 条（去重生效）；
-          低置信消息「今天天气不错」→ 事件总数不变（零证据）、kp_match.kp_id=""、confidence=0.3
-    结论：OK
-
-#19 GET /api/report/summary?space_id=xxx
-    路由：router.ts:105 → services/report.ts:53。契约 §10。
-    响应：data = { mastery:[{kp_id,name,mastery,status_band}], gaps:[{kp_id,name,mastery,error_type_last}],
-                   accuracy:[{kp_id,baseline,retest,delta}] }
-    规则（D12）：mastery 输出全部 20 节点；gaps = mastery<0.4；accuracy 按
-          evidence_events(source=diagnose) 的 mode 分组，delta = retest − baseline，
-          单侧缺失该侧与 delta 为 null、双侧皆无则不进列表
-    错误：400（缺 space_id）/ 403 / 401
-    实测：mastery 20 条（status_band 出现 待巩固/不稳定/已掌握 三档，与 ALGORITHM §6 一致）；
-          baseline 3 题（2 错 1 对）+ retest 1 题（对）→
-          accuracy=[{"kp_id":"math.cz.quadratic.vertex_form","baseline":0.3333333333333333,
-                     "retest":1,"delta":0.6666666666666667}]（Δ>0）；
-          缺 space_id → 400；B token → 403
-    结论：OK
-
-路由闭合：closedLoop.test.ts:494-519 断言 createRoutes() 长度 19、去重后 19、且与契约
-19 条逐项相等；本轮复核 router.ts:73-106 注册顺序 —— /api/evidence/paper/confirm(89) 先于
-/api/evidence/paper/:recognitionId(90)；/api/attribution/analyze(95)、/verify(96) 先于
-/api/attribution/:attributionId(98)。静态段优先于参数段，顺序纪律成立。
-
-错误码表（契约 §0，不扩展）：errors.ts ERROR_CODES 仅 0/400/401/403/404/409/500/502/504 九码；
-全仓无第十个码；方法不匹配复用 404（msg「请求方法不被支持」），不发明 405（与执行报告 D5 一致）。
-统一响应体：{ code, msg, data } 由 ok()/fail() 唯一出口，实测全部响应均含三键。
-
-
--------------------------------------------------
-四、端到端实测记录（curl 命令与响应摘要）
+三、ΔAccuracy 专项判定（迭代 3 唯一的 P0 缺口候选）
 -------------------------------------------------
 
-启动：$NODE functions/api/dist/server.js（ZHIWEI_API_PORT=879x，注入隔离 storeDir）
-      → "[zhiwei-api] listening on http://localhost:879x" / "ready (port=879x)"
+3.1 问题回顾
+  迭代 3 交付时（5fe5fb9）发现：GET /api/report/summary 的 accuracy[].delta 在正常演示路径下
+  恒为 null，与 PRD §2 P0 #11「报告页展示 ΔAccuracy」及 §7 效果验证相冲突，属验收缺口候选。
 
-4.1 正例闭环（摘要，完整原文见 /tmp/zhiwei_e2e2_out.txt、e2e3_out.txt、e2e4_out.txt、e2e5_out.txt）
-  POST /api/auth/register
-    → {"code":0,"msg":"success","data":{"user_id":"u_mu88w8s401jm8","token":"eyJ1c2VyX2lkIjoi…"}}
-  GET  /api/space/list（Bearer）
-    → {"code":0,…,"data":{"spaces":[{"space_id":"sp_mu88w8tf02s70","name":"初中数学","subject":"数学",
-       "knowledge_source":["kb_math_cz"],"is_default":true,"created_at":"2026-09-19T10:29:10Z"}]}}
-  POST /api/evidence/self-report {"reports":[{"chapter":"二次函数","level":3}]}
-    → {"code":0,…,"data":{"updated":11}}
-  POST /api/diagnose/next {"mode":"diagnose"}
-    → {"code":0,…,"data":{"item":{"item_id":"q_cz_geometry_001","stem":"抛物线 y = x^2 - 4x + 3 与 y 轴交于点 C…",
-       "options":null},"remaining":10,"converged":false}}
-  POST /api/diagnose/submit {"item_id":"q_cz_geometry_001","answer":"__WRONG__","mode":"diagnose"}
-    → {"code":0,…,"data":{"correct":null,"mastery_before":0.5,"mastery_after":0.24444444444444446,
-       "converged":false,"next_item":{"item_id":"q_cz_applic_001",…}}}
-  POST /api/evidence/paper {"file_id":"file_preset_001"}
-    → {"code":0,…,"data":{"recognition_id":"rec_mu88wakg0dbdm","status":"pending_confirm","items":[
-       {"seq":1,…"suggested_result":"wrong"},{"seq":2,…"wrong"},{"seq":3,…"suggested_result":"unclear"}]}}
-  POST /api/evidence/paper/confirm（3 项全标）
-    → {"code":0,…,"data":{"events_created":3,"mastery_updates":[
-       {"knowledge_point":"math.cz.function.concept","before":0.01,"after":0.15255750315258512},…]}}
-  POST /api/error/classify（student_answer="(-1, 2)"，该 kp 真实 distractor）
-    → {"code":0,…,"data":{"status":"adopted","knowledge_point":"math.cz.quadratic.vertex_form",
-       "error_type":"concept_confusion","matched_typical_error":"sign_confusion","confidence":0.9,
-       "evidence":"括号内未取反，把横坐标写成 -1","attribution_direction":"self"}}
-  POST /api/attribution/analyze {"kp_id":"math.cz.quadratic.vertex_form","error_type":"prerequisite_gap"}
-    → {"code":0,…,"data":{"attribution_id":"attr_mu88wb8d0lk6p","root_cause":"math.cz.function.graph",
-       "path":["math.cz.quadratic.vertex_form","math.cz.function.graph"],
-       "suspect_scores":{"math.cz.function.graph":0.6,"math.cz.quadratic.completing_square":0.6,
-                         "math.cz.algebra.identity":0.36,"math.cz.quadratic.eq_concept":0.36,
-                         "math.cz.function.concept":0.36,"math.cz.algebra.basic":0.21599999999999997},
-       "verification_item":{"item_id":"q_cz_func_graph_001","stem":"点 A 的坐标是 (-2, 3)，它位于（　）",
-                            "options":["第二象限","第一象限","第三象限","第四象限"]}}}
-  POST /api/attribution/verify（答对）
-    → {"code":0,…,"data":{"verified":true,"correct":true,"root_cause":"math.cz.function.graph","next_candidate":null}}
-  POST /api/agent/reject
-    → {"code":0,…,"data":{"verification_item":{"item_id":"q_cz_eq_concept_001",…}}}
-  POST /api/plan/generate {"root_cause":"math.cz.function.graph","error_type":"prerequisite_gap"}
-    → strategy="先补上游 + 上游讲解"，item_sequence 难度 [1,2,3,4] 全 train，
-      path=["math.cz.function.concept","math.cz.function.graph"]
-  curl -sN POST /api/agent/chat → event: delta / event: meta / event: done（详见 三、#18）
-  GET  /api/report/summary?space_id=… → mastery 20 条 + gaps + accuracy（Δ=0.667）
+3.2 根因（已定位）
+  baseline 与 retest 的选题各自取「|mastery − 0.5| 最小」的知识点（ALGORITHM §2 信息增益）。
+  基线作答后该 kp 掌握度变化，复测随即落到另一个 kp → report 按 kp 分组统计时单侧缺失
+  → 契约 §10 规定「单侧缺失 → delta null」→ 恒 null。
 
-4.2 负例结果（全部符合契约错误码表）
-  409：重复 identifier「该账号已注册」／同学科空间「同学科空间已存在」+ existing_space_id／
-       重复 confirm「该识别结果已确认」
-  401：无 token「缺少 Authorization 请求头」／伪造 token「token 无效或已过期」／
-       自造过期 token「token 无效或已过期」／密码错「账号或密码不正确」
-  403：B 用户 token 打 A 空间，覆盖 11 个入口全绿——
-       space/:id/drive、evidence/self-report、diagnose/next、diagnose/submit、evidence/paper、
-       evidence/paper/confirm、error/classify、attribution/analyze、attribution/verify、
-       agent/reject、plan/generate、agent/chat、report/summary（13 项实测全部 403）；
-       资源级：GET /evidence/paper/{A 的 rec} → 403「无权访问该识别结果」；
-       GET /attribution/{A 的 attr} → 403「无权访问该归因结果」；
-       chat 传 A 的 dialog_id + B 的 space → 403（chat.test.ts:263 亦覆盖）
-  404：/api/nonexistent「接口不存在：GET /api/nonexistent」／sp_nope「空间不存在」／
-       q_nope「题目不存在」／attr_nope「归因结果不存在」／rec_nope「识别结果不存在」
-  400：mode=bogus／scope_chapter 不存在／reports 7 项／level 9／chapter 不存在／
-       stem 缺失／kp_id 非法／error_type 非法（含 not_a_type 与 zzz）／
-       「第 3 题识别不清，必须手动标注对错」／items[].kp_id 不在知识库／
-       answer 非字符串／message 空／缺少 space_id／procedural_slip、misreading 不进归因
+3.3 修复（提交 `2b05a29` / 原 `bfa6abc`，D15 测量一致性）
+  · packages/engine/src/selection.ts：新增可选入参 `measureKps`，mode='retest' 时把「已有基线
+    证据的 kp」提前（纯函数、零 IO；缺省/空数组 → 原样返回，向后兼容）
+  · functions/api/src/services/diagnose.ts：mode='retest' 时查询本 space 已有 baseline 证据事件的
+    kp 集合并传入；mode=diagnose / baseline 行为逐字不变
+  · 新增用例 7 条（引擎优先排序与回退 + 报告 accuracy 的 baseline/retest/delta 非 null）
 
-4.3 禁发字段全局扫描（E5）
-  对 4 轮实测捕获的全部响应 JSON 文本 grep：
-    "answer" 命中 0；"solution_steps" 命中 0；"distractors" 命中 0
-  （serialization.ts 白名单 FORBIDDEN_CLIENT_KEYS 含三项；assertNoForbiddenKeys 供 closedLoop 复用；
-    closedLoop.test.ts:486-492 对 captured（>20 条）逐条断言不含 "answer"/"solution_steps"）
-
+3.4 本次实测（2026-09-20 14:05，重建 bundle 后复跑两次，结果一致）
+  探针：/tmp/zhiwei_e2e.py（注册 → 默认空间 → 自报 → baseline 3 题 → retest 3 题 → report）
+    基线 3 题（模拟干预前，1 对 2 错）
+      baseline#1 q_cz_geometry_006  kp=geometry     correct=True   mastery_after=0.8455
+      baseline#2 q_cz_applic_006    kp=application  correct=False  mastery_after=0.2444
+      baseline#3 q_cz_eq_rel_006    kp=eq_relation  correct=False  mastery_after=0.2444
+    复测 3 题（模拟干预后，全对）
+      retest#1   q_cz_applic_007    kp=application  correct=True   mastery_after=0.6539
+      retest#2   q_cz_geometry_007  kp=geometry     correct=True   mastery_after=0.9668
+      retest#3   q_cz_eq_rel_007    kp=eq_relation  correct=True   mastery_after=0.6539
+    report/summary：
+      mastery 条目 = 20 ｜ gaps = 0 ｜ accuracy 行数 = 3，其中 delta 非 null 行数 = 3
+        eq_relation   baseline=0  retest=1  delta=1
+        application   baseline=0  retest=1  delta=1
+        geometry      baseline=1  retest=1  delta=0
+    基线 kp 集合 {application, eq_relation, geometry} == 复测 kp 集合（测量一致性成立）
+  结论：ΔAccuracy 可计算、可复现；本次演示协议下均值 0.667（答辩可用，须注明作答协议，见 I-3）。
+  判定：**不构成 P0 缺口**（原缺口已闭环）。
 
 -------------------------------------------------
-五、三段核心逻辑复核（归因 / 退出通道 / 幂等）
+四、交互纪律与颜色守恒
 -------------------------------------------------
 
-5.1 归因（ALGORITHM §4）—— 结论：实现与规格一致
-  (a) 嫌疑分公式：attributionCore.ts:75
-      suspect = params.SUSPECT_BASE ** dist * (1 - mastery[kp])
-      参数来自 ctx.params（config/params.json：SUSPECT_BASE=0.60、MAX_DEPTH=3），无硬编码。
-      上界实测：d=1 → 0.60（mastery=0）；自报 level 3 后 d=1 → 0.6×0.5=0.30；
-                d=2 → 0.36；d=3 → 0.216。
-      符合 ALGORITHM §4 勘误（d=1 ≤0.60、d=2 ≤0.36），且未出现方案原文 0.72 笔误量级。
-  (b) BFS 深度：attributionCore.ts:56 `while (frontier.length > 0 && dist < params.MAX_DEPTH)`
-      → 只收集 dist 1..3；实测 vertex_form 的 d=4 上游 algebra.basic（若存在）不在候选内，
-      且 attribution.test.ts:109 断言 `scores['math.cz.algebra.basic']` 在 extremum 场景为
-      undefined（MAX_DEPTH=3 边界锁定）。
-  (c) 降序与 (1−mastery) 单调性：suspects 按 score 降序、同分按 kp_id 升序（确定性）；
-      attribution.test.ts:128-144 实测「已掌握先修被降权」——vertex_form 0.30 < function.graph 0.36
-      → root_cause 变为 function.graph，重排成立。
-  (d) 验证题：pickVerificationItem 过滤 pool==='train'、排除已做、按 difficulty 升序取首
-      （同难度按 item_id 稳定）。实测 q_cz_func_graph_001（train、difficulty=1）。
-  (e) 答对 → verified=true + verified_by=evt_id + root_cause=候选 + pending 清空 → next_candidate=null。
-      实测 verified_by="evt_mu89aitg06gwj"，GET 可见。
-  (f) 答错 → 排除当前候选、root_cause 前进到次高嫌疑并返回其验证题（verified 保持 false）。
-      实测 6 轮链式推进，嫌疑值 0.6→0.6→0.36→0.36→0.36→0.216 依次下降。
-  (g) 全排除 → root_cause 回落 from_kp、path=[from_kp]、verified=true（诚实兜底，不硬猜）。
-      实测第 6 轮 verified=true、root_cause=math.cz.quadratic.vertex_form（=from_kp）。
-  (h) self 类型不回溯：concept_confusion / method_gap → path=[kp]、suspect_scores={}、
-      verification_item=null、verified=true（无需验证）。实测 concept_confusion 完全符合。
-  (i) procedural_slip / misreading → 服务端 400 拒绝调用（契约 §7 前置 + ALGORITHM §3 direction=none），
-      实测两者均 400，msg 含「不进归因」。不依赖前端自觉，服务端已防御。
-  (j) 无先修可回溯（根节点）→ 如实回落本节点，不硬猜（attribution.test.ts:165 覆盖）。
-
-5.2 退出通道状态机（ALGORITHM §5）—— 结论：触发条件与跳转上限均正确
-  (a) consecutive_false：chat.ts:263 `turn.progress ? 0 : dialog.consecutive_false + 1`
-      progress=true 清零、false 加一。实测 5 轮连打后 dialog.consecutive_false=3 后进入 exited。
-  (b) 触发阈值：chat.ts:269 `!turn.progress && consecutiveFalse >= ctx.params.CONSEC_FALSE_EXIT`
-      （=3）。实测第 1、2 轮 next_action 分别为 continue / hint_down，第 3 轮 exit_channel。
-  (c) 提示阶梯：consecutiveFalse===2 → hint_down（方向提示 = kp.typical_errors[0].remedy）；
-      第 3 轮 = 完整解法（train 首题 solution_steps 分步）+ 退出话术，delta 顺序先解法后退出
-      （chat.test.ts:121-124 断言 texts[1] 含「完整解法」、texts[2] 含「往回看一眼」）。
-  (d) 当前 kp 置 blocked_by_prerequisite：applyExitChannel 写 mastery_profiles.status；
-      实测 profile.status='blocked_by_prerequisite'（chat.test.ts:142 断言）。
-  (e) 最近低掌握上游：过滤 mastery < EXIT_UPSTREAM_THRESHOLD(0.6) 后按 dist 升序取首个；
-      实测跳到 math.cz.function.graph（dist=1），dialog.kp_id 同步切换。
-  (f) 连续跳转 ≤ MAX_EXIT_HOPS(2)：`if (dialog.exit_count >= MAX_EXIT_HOPS) → jumped=false`。
-      实测第 3、4 轮各跳一次（exit_count=2），第 5 轮不再跳转、改用「我们先停一下…」兜底话术。
-  (g) progress 只读结构化字段：localChat.hasProgress 基于触发词表
-      ["不会","不知道","没思路","随便","猜"] 判定，服务层仅读 turn.progress / progress_reason，
-      全程不解析模型自然语言（chat.ts 无任何对 reply 文本的判定）。纪律成立。
-
-5.3 BKT 集成与幂等（ALGORITHM §1 + 契约 §4 + 计划 D7）—— 结论：D7 语义正确
-  (a) 权重：diagnose/verify 用 ctx.params.W_DIAGNOSE=1.0；paper/confirm 用 W_PAPER=0.8；
-      silent 走 applyWeakNegative（P_new = P_L ×(1−ALPHA_SILENT)），weight=0、alpha=0.10，不经 BKT。
-      实测数值三重校验：
-        w=1.0 答错 0.5 → 0.24444444444444446（规格自检 0.244）
-        w=1.0 答对 0.5 → 0.845（diagnose.test.ts:229；本轮自报 level 3 场景复现）
-        w=0.8 从 0.01 起答错 → 0.15255750315258512（手工复算吻合）
-        silent：0.5 → 0.45（×0.9），weight=0、p_obs=p_eff=after（D13 留痕口径）
-  (b) dedup_key 格式逐字遵循 ALGORITHM §1：实测
-      "u_mu89afat0110y:sp_mu89afda02nor:math.cz.quadratic.vertex_form:silent:497170"
-      —— 五段、不含 item_id、kp 为完整 id。
-  (c) 【D7 核心】同 kp 第二道不同题同小时必须正常计分 —— 实测通过：
-      直接连提 vertex_form 的三道不同题（q_cz_vertex_001/002/003，全部 pool=train，同一小时内）：
-        #1 (1, 2)    → mastery 0.01   → 0.18695652173913044
-        #2 (-2, 3)   → mastery 0.1869 → 0.5822601839684626
-        #3 (x = 3)   → mastery 0.5822 → 0.8831174167874213
-      落库 evidence_events = 3 条，三条 dedup_key 完全相同（同 kp 同小时）、item_id 三个互异；
-      mastery_logs = 3 条。
-      实现位置：diagnose.ts:186-187
-        `const sameKeyEvents = await ctx.store.findEventsByDedupKey(space.space_id, dedupKey);
-         const hit = sameKeyEvents.find((event) => event.item_id === itemId);`
-      —— 双匹配（dedup_key + item_id）成立，**不是**仅 dedup_key 匹配即跳过的错误实现。
-      diagnose.test.ts:322-342「D7 核心」用例亦独立断言（events 2 条、同键、item_id 2 个互异）。
-  (d) 重复提交静默 200 不重复扣分：第 4 次重交 q_cz_vertex_001 → mastery_before=mastery_after=
-      0.8831174167874213，事件仍 3 条、日志仍 3 条，HTTP 200、code=0（非 409）。
-      baseline 同题重交同样静默（correct 仍返回 false，mastery 不变）。
-      verify 同题重交同样不重复推进候选（实测两次响应逐字一致）。
-  (e) mastery_logs 全留痕：实测落库字段 log_id(log_) / user_id / space_id / knowledge_point /
-      before / p_obs / p_eff / after / weight / triggered_by(evt_) / created_at 十一项齐全，
-      triggered_by 指向真实事件（diagnose.test.ts:298-300 断言 events 含该 id）。
-  (f) paper/silent 的 item_id=null 场景键单独生效：paper 逐题 dedup 先查后写（实测 events_created=3，
-      三题分属三个 kp；同 kp 同小时第二题会被键命中跳过，符合 D7「item_id=null，键单独生效」）；
-      silent 同小时同 kp 第二轮不新增事件（实测仍 1 条）。
-
+4.1 颜色语义（PRD §6）
+  · apps/web/src/theme/bands.ts 为前端**唯一取色入口**：阈值与状态带判定直接复用
+    packages/engine/src/statusBand（源模块导入，非 barrel —— 注释已说明 barrel 会连带 params.ts
+    的 node:fs/path 进浏览器 bundle）
+  · BAND_HEX：待巩固 #E8894A / 不稳定 #D9B23F / 基本掌握 #79B8A6 / 已掌握 #2F9C7C（全部低饱和，
+    无刺眼大红）；主色 PRIMARY_HEX #4E8FB0（低饱和青蓝）
+  · 守恒由 apps/web/tests/bands.test.ts（10 例）锁定（导出常量 === engine 导出值 + tailwind 令牌一致）
+  · 组件一律经 BAND_CLASS / masteryHexOf 取色，未发现硬编码 hex 的语义判断
+4.2 语气（PRD §6 话术表）lib/phrases.ts 逐条落实：
+  「这一环还有点晃，我们再稳一下」/「这个坑很常见，我们看看它是怎么来的」/
+  「找到啦——真正卡住你的是这里」/「我们先往回看一眼「XX」，那里可能是关键」（带 kp 名插值），
+  另含 verificationExhausted 诚实兜底话术
+4.3 其他交互纪律
+  · 采集不弹窗：证据采集为静默，用户可见提示仅非阻断 Toast（components/Toast.tsx）
+  · 空间不占首屏：/spaces 与 /self-report 标记 nav=false，顶栏主导航为 5 项
+  · 一屏一件事：10 页面均为单任务布局（页面顶部注释均引用 PRD §5 对应条目）
 
 -------------------------------------------------
-六、MINOR 清偿核对（迭代 1 遗留 5 条）
+五、端到端实测记录
 -------------------------------------------------
 
-① 收敛取等边界用例 —— 已清偿（有独立证据）
-   git diff packages/engine/tests/selection.test.ts 纯新增 38 行：
-     pFromVariance(v) = (1 − √(1 − 4V)) / 2 解析解反解；
-     S6c：V = CONV_VAR − 1e-9 → converged=true、stopReason='variance'；
-     S6d：V = CONV_VAR + 1e-9 → converged=false、stopReason=undefined；
-     注释说明 IEEE754 无法精确表示 0.10，以 ±1e-9 双侧夹逼锁定取等边界。
-   复跑：selection.test.ts 由 16 → 18 例（vitest 输出逐字 (18)），全过。
+E2E-1 完整闭环（探针 /tmp/zhiwei_e2e.py，实跑两次一致）
+  [1] register → 200 code=0（新建 u_*，token 下发）
+  [2] space/list → 1 个空间：sp_* 名「初中数学」is_default=true（注册自动建默认空间，P0 #1）
+  [3] self-report（4 章节 level=3）→ updated=20
+  [4][5] baseline / retest 各 3 题（见三、3.4 明细；diagnose 模式 correct 恒 null 见 P0 #3）
+  [6] report/summary → mastery 20 / gaps 0 / accuracy 3（delta 1,1,0）
+  [7] 基线 kp 集合 == 复测 kp 集合
 
-② @types/node 写入根 package.json devDependencies —— 已清偿
-   package.json devDependencies 含 "@types/node": "22.7.5"、新增 "esbuild": "0.21.5"；
-   require 读隔离 workspace 实际版本 = 22.7.5（另有 scripts: api / build:api / typecheck / typecheck:all）。
+E2E-2 SSE 与退出通道（探针 /tmp/zhiwei_sse.py，三轮连续无进展）
+  轮1 ctype=text/event-stream events=[delta, meta, done] next_action=continue    progress=False
+  轮2 ctype=text/event-stream events=[delta, delta, meta, done] next_action=hint_down   progress=False
+  轮3 ctype=text/event-stream events=[delta, delta, delta, meta, done] next_action=exit_channel progress=False
+  → 事件序列、流式增量渲染、提示阶梯（第 2 轮方向提示）、连续 3 轮无进展触发退出通道，全部成立。
+  （注：本地适配器的 progress 由触发词表判定，见 I-5；换真实模型后判定来源改变、状态机不变。）
 
-③ q_cz_opening_010 answer 完整性 —— 已清偿
-   git diff：answer 由「开口向上，对称轴是直线 x = 2」改为
-   「开口向上，对称轴是直线 x = 2，x < 2 时 y 随 x 增大而减小，x > 2 时 y 随 x 增大而增大」，
-   solution_steps 末步同步改为「所以开口向上，对称轴是直线 x = 2，x < 2 时 y 随 x 增大而减小，
-   x > 2 时 y 随 x 增大而增大。」；运行时读回确认末步包含 answer。
-   数据闸门：validate_data.py exit=0（8×PASS）；verify_items.py「solution_steps 末步均包含 answer」PASS。
-
-④ scripts/verify_items.py 可运行且结果可信 —— 已清偿（本轮亲自跑）
-   文件 814 行，仅标准库（json/math/re/sys/pathlib/__future__），无第三方依赖。
-   实跑输出：题库 228 题、覆盖重算 86 题（≥80 达标）、未覆盖 142、复算不一致 0 题、
-   solution_steps 末步均包含 answer、VERIFY_EXIT=0。
-   可信度旁证：覆盖按题干模板族分类打印（28 个族，如顶点式互化 10 / 待定系数三点反代 8 /
-   方程解 8 / 定义域 7 …），未覆盖题打印前 12 例供抽查，非「假绿」。
-
-⑤ 「无题可出 vs 已收敛」语义区分 + 剪枝口径 —— 已清偿
-   selection.ts 新增可选字段 stopReason?: 'variance' | 'max_items' | 'no_items'（向后兼容），
-   三个终止出口各自标因；契约 §4 响应不加字段（响应侧零变更，实测 next 响应仅三键）。
-   顶部注释补 D9 剪枝口径声明（按直接先修判定，更上游不达标不阻断本节点），行为零变更。
-   用例断言三值互不相同：S6c 'variance'、MAX_ITEMS 场景 'max_items'、空题库场景 'no_items'、
-   正常出题 undefined。引擎 38 例（36 基线 + 2 新增）全过，无回归。
-
+E2E-3 构建
+  前端：vite build exit=0（dist/assets/index-*.css 15.47 kB / gzip 3.73 kB；
+        index-*.js 1,280.50 kB / gzip 423.65 kB），耗时 5.26s
+  后端：esbuild bundle ⚡ Done in 16ms → functions/api/dist/server.js（95,350 B）
+        ※ 构建命令须用 `$WS/node_modules/.bin/esbuild`（原生二进制），详见发现 M-1
 
 -------------------------------------------------
-七、测试与范围核查
+六、测试与构建复核（全部由本次审查独立执行）
 -------------------------------------------------
 
-7.1 测试量与实际覆盖（本轮亲自复跑）
-   13 文件 / 150 用例全绿（VITEST_EXIT=0）：引擎 38（bkt 20 + selection 18）+ api 112。
-   与执行报告 7.3 逐字一致；无 skip、无 todo、无 only（输出中未见 skipped）。
-   测试真实性质疑排查：
-     - helpers.createTestApp 用 mkdtemp 建独立临时库，用例间互不污染；register 失败即 throw，
-       不会「静默通过」。
-     - closedLoop 用真实 HTTP + fetch（随机端口）驱动全链路，并对 captured（>20 条响应）
-       逐条断言禁发字段；SSE 用 response.body.getReader() 逐块读并断言
-       events === ['delta','meta','done']，非伪造。
-     - 断言均为实质断言（数值 toBeCloseTo 到 0.845/0.244/0.6/0.36/0.45、键集合排序比对、
-       事件/日志条数、DB 记录字段），未见「expect(true).toBe(true)」式空断言。
-
-7.2 契约关键路径覆盖检查（任务要求项）
-   403 越权矩阵：11/12 测试文件含 403 断言（auth.test.ts 无 space_id 入口，合理），
-      本轮 curl 实测 13 个受保护入口全部 403 —— 覆盖充分。
-   409 冲突：register 重复 / 同学科空间 / 重复 confirm 三处均有用例（auth:70、space:63、paper:223）。
-   502/504 降级话术：paper.test.ts:313 mapModelError 单测（超时→504、其余→502、msg 为用户可读话术）；
-      接口层不可触发（本地适配器不抛错）—— 见 INFO-4。
-   时间格式：auth.test.ts:25/67/97 用 ISO8601 UTC 正则断言 spaces/users.created_at —— 见 INFO-8。
-   dedup 跨小时桶：引擎层 bkt.test.ts T8 覆盖；接口层未覆盖 —— MINOR-4。
-   D7 同 kp 不同题：diagnose.test.ts:322 专项用例 + 本轮 curl 三连提实测，双重确认。
-
-7.3 范围纪律（E1–E10）
-   E1 19 接口：closedLoop.test.ts:494 断言路由 19 条且逐项相等；本轮 router.ts 复核一致 → OK
-   E2 错误码不扩展：errors.ts 九码，全仓无第十码；405 未发明 → OK
-   E3 space_id 归属 403：context.requireSpaceOwnership 统一出口，13 入口实测 403 → OK
-   E4 时间 / ID 前缀 / 完整 kp id：nowIso 统一 ISO8601 UTC；实测前缀 u_/sp_/evt_/log_/attr_/dlg_/rec_
-      （q_ 来自静态题库）；全仓 kp 均完整 id（grep 无短名形态） → OK
-   E5 answer/solution_steps 零下发：白名单 + assertNoForbiddenKeys + closedLoop 全局断言 +
-      本轮 4 轮实测 grep 三键命中 0 → OK
-   E6 引擎不回归：38 例全过；packages/engine 仅 selection.ts(+19) 与 selection.test.ts(+38) 变更 → OK
-   E7 文档/前端/config 零改动：git diff 666a52f 52fe185 -- apps config data/knowledge
-      scripts/validate_data.py API_CONTRACT.md ALGORITHM.md DATA_SCHEMA.md PRD.md 方案v4 → 输出为空 → OK
-   E8 一键起服务 + curl 全流程 + SSE/JSON 双通路：本轮全部亲跑 → OK
-   E9 无真实模型 / 云 SDK / 云部署：grep -rnE "openai|api_key|apiKey|axios|@cloudbase/node-sdk|
-      wx-server-sdk|fetch\(|https?://" functions/api/src packages/engine/src → 命中 4 处，
-      全部为注释（cloudbaseStore.ts:8/11、index.ts:8）与本地 localhost 字符串（server.ts:83/172）；
-      实际调用 0 处 → OK
-   E10 提交与产物：10 个迭代 2 提交，每批独立、可回滚；data/local_db/ 与 functions/api/dist/
-      git ls-files 无记录、被 .gitignore 覆盖 → OK
-
-7.4 工程纪律
-   - 参数零硬编码：grep 全量扫描 api 层，SUSPECT_BASE/MAX_DEPTH/CONF_ADOPT/CONSEC_FALSE_EXIT/
-     EXIT_UPSTREAM_THRESHOLD/MAX_EXIT_HOPS/ALPHA_SILENT/W_DIAGNOSE/W_PAPER/PRUNE_THRESHOLD/
-     CONV_VAR/MAX_ITEMS/PRIOR_MAP 全部经 ctx.params 注入，无一处字面复制；
-     config/params.json 17 键齐全且未被修改。（localChat 的 0.85/0.70/0.65/0.30 与 localClassify
-     的 0.90/0.45 属计划 四、4.3/4.1 定义的适配器规则常量，非 params.json 参数，合理。）
-   - 安全：token HMAC 验签用 timingSafeEqual + 长度先比（context.ts:149-151）；
-     scrypt 哈希 + 每用户随机 16B salt，口令比较 timingSafeEqual（auth.ts:47）；
-     login 失败统一话术不泄露存在性（D16）；
-     router dispatch 统一 catch → 500（错误信息回显仅本地演示，生产应改记日志，属可接受的注释留痕）；
-     无 SQL/命令注入面（无拼接执行）；无路径遍历（静态数据路径由代码常量 + rootDir 拼接，
-     不接受外部文件名入参）；无密钥入库（SERVER_SECRET 读环境变量，缺省仅本地常量并注释警示）。
-   - 资源释放：server.ts 注册 SIGINT/SIGTERM 优雅关闭；jsonStore 写用 tmp+rename 原子替换；
-     SSE 流中断走 event:error + event:done 后 res.end()。
-
+  全量单测：20 个测试文件 / **225 用例全绿**
+    · 引擎 + 后端（13 文件）：161 用例（含 D15 新增 7 例）
+    · 前端（7 文件）：64 用例（store / API 客户端 / SSE 解析 / 颜色守恒 / 路由守卫 / 图谱快照）
+  类型检查：tsc --noEmit 三段（engine / api / web）exit=0
+  数据闸门：validate_data.py 全 PASS（20 节点 / 74 典型错误 / 228 题：train 104 + retest 124）
+            verify_items.py：覆盖 86 题、不一致 0、fill/short_answer 末步含 answer
+  生产构建：见 E2E-3
+  回归结论：迭代 1/2 的 150 用例零回归，迭代 3 新增 75 例
 
 -------------------------------------------------
-八、总体结论
+七、迭代 2 遗留 MINOR-①④ 清偿核对
 -------------------------------------------------
 
-1) 独立复跑全部通过：typecheck 两段 exit=0；vitest 13 文件 / 150 用例全绿（引擎 38 + api 112，
-   与执行报告逐字一致）；validate_data.py exit=0（8×PASS）；verify_items.py exit=0（覆盖 86 ≥80、
-   不一致 0）；esbuild 构建 exit=0（91.5kb）。执行报告中的每一个数字均有本轮独立证据支撑，
-   未发现夸大、伪造或未如实记录的失败。
+  ① verify 校验 item 属候选集 → functions/api/src/services/attribution.ts:196-203
+     （pending_candidates 非空时，item 必须命中候选集，否则拒绝）→ 已落实
+  ④ 跨小时桶接口层用例 → functions/api/tests/diagnose.test.ts:345-347
+     （T → T+3600s：dedup_key 不同、事件新增、掌握度正常更新、不误判幂等）→ 已落实
+  ②（@types/node 入 devDependencies）③（pending_candidates 留痕）→ 迭代 2 已处理，本次复核仍在位
 
-2) 19 个接口逐个对照 API_CONTRACT v1.1：路由路径、请求/响应字段名（逐字）、错误码（九码不扩展）、
-   统一响应体 {code,msg,data}、ISO8601 UTC、ID 前缀、知识点完整 id 全部一致；space_id 归属校验
-   403 在 13 个受保护入口实测全绿；answer / solution_steps / distractors 在四轮端到端实测
-   捕获的全部响应中命中数为 0（序列化白名单覆盖面完整：diagnose/next、diagnose/submit 的
-   next_item、attribution/analyze 与 verify 的 verification_item、agent/reject、
-   plan/generate 的 item_sequence 全部经 toClientItem / toClientItemWithDifficulty）。
+-------------------------------------------------
+八、分类发现清单
+-------------------------------------------------
 
-3) 三段核心逻辑全部复核通过：归因嫌疑分公式 SUSPECT_BASE^dist ×(1−mastery) 与 d=1≤0.60、
-   d=2≤0.36 上界成立，BFS ≤MAX_DEPTH、降序、验证题取 train 最低难度、答对确认/答错排除/
-   全排除回落 from_kp、self 不回溯、procedural_slip 与 misreading 服务端 400 拒绝；
-   退出通道 consecutive_false 清零/加一、≥3 触发、blocked_by_prerequisite、最近低掌握上游、
-   MAX_EXIT_HOPS=2、提示阶梯二/三档全部符合 ALGORITHM §5；幂等严格按计划 D7 的
-   「dedup_key + item_id 双匹配」实现，同 kp 三道不同题同小时连提产生 3 条事件与 3 条日志
-   （D7 核心语义正确，非「仅 dedup_key 命中即跳过」的错误实现），重复提交静默 200 不重复扣分。
+M-1 【MINOR｜文档｜已修复】LOOKATME.md 与 AGENT.md 的后端构建命令写作
+    `$NODE $WS/node_modules/esbuild/bin/esbuild ...`，把**原生二进制**交给 node 执行 →
+    `SyntaxError: Invalid or unexpected token`（实测复现）。正确形式为
+    `$WS/node_modules/.bin/esbuild ...`。本次审查已同步修正两份文档的命令。
 
-4) 迭代 1 遗留 5 条 MINOR 全部清偿且有可复核证据（S6c/S6d ±1e-9 双侧夹逼、@types/node 22.7.5、
-   q_cz_opening_010 answer 与末步一致、verify_items.py 覆盖 86 题不一致 0、stopReason 三值区分
-   + 剪枝口径注释）。
+I-1 【INFO】前端 JS 1,280.50 kB（gzip 423.65 kB）超出 vite 默认 500 kB 警告阈值，echarts 未单独拆包。
+    演示环境无影响；若评委关注首屏性能，可后续用 manualChunks 把 echarts 拆出。
+I-2 【INFO】无浏览器级渲染断言（迭代 3 计划明确排除 E2E 框架）。页面行为由「代码核对 + API 级测试 +
+    端到端 curl 链路」三路间接覆盖，未做真实 DOM 断言。
+I-3 【INFO】ΔAccuracy 演示值随作答协议变化（本次基线 1 对 2 错、复测 3 对 → delta 1/1/0，均值 0.667）。
+    答辩引用时须同时注明作答协议；真实学生实验中应使用其真实作答。
+I-4 【INFO】自报 level=3 → 先验 0.5，导致冷启动时 20 节点全为 0.5、gaps=0；测评/复测后才有分层。
+    属设计预期（先验未观测），不是缺陷。
+I-5 【INFO】本地对话适配器的 progress 来自触发词表（不会/不知道/没思路/随便/猜）；真实模型接入后
+    progress 改由模型结构化输出，服务端状态机与证据纪律不变（接入点已在 localChat.ts 注释标明）。
+I-6 【INFO】data/local_db/ 为本地演示用 JSON 存储（已 gitignore），与 CloudBase 适配器桩并存；
+    部署形态切换不改业务代码。
 
-5) 范围纪律无越界：无前端页面实现、无真实模型 API Key/网络调用、无云 SDK 激活、无密钥入库；
-   5 份需求文档 / apps/web / config / data/knowledge / validate_data.py 的 git diff 为空；
-   参数零硬编码（全部经 ctx.params 注入）；git 工作区干净。
+-------------------------------------------------
+九、总体结论
+-------------------------------------------------
 
-6) 遗留 4 条 MINOR（verify 入参校验缺口、#14 响应字段超集未留痕、pending_candidates 内部字段
-   未入偏差清单、跨小时桶接口层用例缺失）与 8 条 INFO，均不阻塞本次迭代验收，
-   已给出具体修改建议，建议在迭代 3 或契约修订时处理。
+  判定依据逐条核验：
+   · BLOCKER 判据：P0 验收项缺失/不可用 —— ΔAccuracy 专项已修复并实测可算（3 行 delta 全非 null），
+     其余 11 项 P0 逐条通过 → 不成立
+   · BLOCKER 判据：SSE 不可用 / 颜色语义违背（大红、自造阈值）/ 契约违背 / 范围越界 / 测试造假
+     —— 均未发现：SSE 实跑通过；颜色由守恒测试锁定且无大红；answer 由
+     `FORBIDDEN_CLIENT_KEYS = ['answer','solution_steps','distractors']` 拦在服务端；
+     全域无真实模型密钥与云 SDK 激活；测试数字均可复跑
+   · MAJOR 判据：未发现（唯一 MINOR 为文档命令错误，已随本次审查修复）
+   · MINOR 1 条（已修复）；INFO 6 条（不阻塞，转迭代 4 / 材料阶段参考）
 
-7) 未发现 BLOCKER，未发现 MAJOR。判定：通过。
+  迭代 3「前端 10 页面 + 端到端闭环」判定：通过。项目三项交付（引擎与数据、后端 19 接口、前端 10 页面
+  与闭环）至此全部通过审查，达到 PRD §1 范围红线要求（1 默认空间 + 20 知识点 + ≥220 题 + 1 条完整闭环）。
 
 VERDICT: PASS

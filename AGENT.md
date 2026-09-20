@@ -62,7 +62,9 @@ $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.jso
 $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json           # 前端类型检查
 $PY scripts/validate_data.py                              # 静态数据闸门（6 项校验 + 统计报告）
 $PY scripts/verify_items.py                               # 题库数学复算
-$NODE $WS/node_modules/esbuild/bin/esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js
+$WS/node_modules/.bin/esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js
+# ⚠ esbuild 是**原生二进制**，不要写成 `$NODE .../esbuild/bin/esbuild` —— node 执行二进制会报
+#   `SyntaxError: Invalid or unexpected token`（2026-09-20 终审实测复现并修正）
 $NODE functions/api/dist/server.js                        # 后端本地服务 :8787
 $NODE $WS/node_modules/vite/bin/vite.js --config apps/web/vite.config.ts   # 前端 :5173（/api proxy → 8787）
 ```

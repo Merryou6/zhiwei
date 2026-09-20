@@ -6,7 +6,7 @@
 > 2. **`AGENT.md`**（工作流与配置：权威文档优先级、流水线纪律、环境常量、常用命令、红线）
 > 3. **`.learnbuddy/memory/MEMORY.md`** + **`.learnbuddy/memory/2026-09-19.md`**（项目长期记忆 + 今日详细日志与续接步骤）
 
-最后更新：2026-09-19 20:20 ｜ 维护：总控（三子 Agent 流水线）｜ 分支：`main`，累计 36 次提交（截至本文件更新时）
+最后更新：2026-09-20 14:10（迭代 3 终审通过）｜ 维护：总控 ｜ 分支：`main`，累计 38 次提交（截至本文件更新时）
 
 ---
 
@@ -27,7 +27,8 @@
 
 ## 一句话进度
 
-**三个开发迭代的主体全部完成并提交。算法引擎、数据资产、后端 19 接口、前端 10 页面、端到端闭环全部就绪；测试 225 用例全绿、构建通过。仅剩 1 项收尾：迭代 3 终审。**
+**项目已收官：三个开发迭代（引擎与数据、后端 19 接口、前端 10 页面与闭环）全部完成并通过审查（3/3 PASS）；测试 225 用例全绿、构建通过、端到端闭环与 SSE 退出通道均已实测。**
+剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅），无未完成开发项；已知 INFO 级优化点见文末。
 
 ---
 
@@ -37,8 +38,8 @@
 | --- | --- | --- | --- |
 | 迭代 1 | 工程脚手架 + BKT 引擎（三段式/弱负证据/dedup/自适应选题/状态带）+ 20 节点知识图谱 + 228 题双池题库 + 静态数据校验闸门 | 完成 | **PASS** |
 | 迭代 2 | 后端 19 接口全量（认证/空间/自报/测评/试卷/诊断/归因/处方/对话 SSE/报告；本地 HTTP + CloudBase 双入口；DB 与模型适配层）+ 迭代 1 遗留 5 条 MINOR 清偿 | 完成 | **PASS** |
-| 迭代 3 | 前端 10 页面（登录/自报/空间/测评/试卷/对话/归因/图谱/报告/云盘）+ Zustand 状态层 + API/SSE 客户端 + ECharts 图谱 + 端到端演示 | 完成 | 待终审 |
-| 修复 | ΔAccuracy 不可计算（测量一致性 D15）：复测优先落在已有基线证据的知识点 | 完成，已提交（提交信息 `fix 测量一致性（D15）…`） | 待并入终审 |
+| 迭代 3 | 前端 10 页面（登录/自报/空间/测评/试卷/对话/归因/图谱/报告/云盘）+ Zustand 状态层 + API/SSE 客户端 + ECharts 图谱 + 端到端演示 | 完成 | **PASS** |
+| 修复 | ΔAccuracy 不可计算（测量一致性 D15）：复测优先落在已有基线证据的知识点 | 完成（已提交） | **PASS**（已并入终审；实测 delta 1/1/0 非 null） |
 
 **关键数字（均已实跑核对）**
 
@@ -49,13 +50,23 @@
 
 ---
 
-## 下一步（唯一待办）
+## 收官状态与后续建议
 
-1. **补迭代 3 终审** → `_pipeline/03_REVIEW.md` 目前仍是**迭代 2 版**。上次终审者被中断在"归档完旧报告、还没写新报告"那一刻，需重跑一轮限范围终审：
-   - 10 页面 × `PRD.md` §2 P0 验收项逐项核对
-   - ΔAccuracy 专项（修复后应可算出实测值，**顺手把实测数值记下来，答辩 PPT 直接可用**）
-   - 交互纪律与颜色语义守恒（`PRD.md` §6）+ 测试/构建 + 端到端实测
-2. 终审 PASS 即视为项目收官；随后可进入排期的功能冻结（9/24）与材料准备（Demo 视频、PPT）
+**迭代 3 终审已于 2026-09-20 通过（VERDICT: PASS）** → `_pipeline/03_REVIEW.md` 现为迭代 3 版（迭代 2 版已归档 `_pipeline/archive/03_REVIEW_20260919_1853.md`）。三项交付 3/3 PASS，项目达到 `PRD.md` §1 范围红线。
+
+**可直接用于答辩的实测数字**（本次终审实跑）
+
+- 测试 225 用例全绿（20 文件：引擎+后端 161 / 前端 64）；tsc 三段 exit=0
+- 数据闸门：图谱 20 节点 / 74 条典型错误；题库 228 题（train 104 + retest 124，双池零重叠）；复算 86 题 0 不一致
+- **ΔAccuracy 实测（D15 修复后）**：基线 1 对 2 错 → 复测 3 对 → 报告 delta = **1 / 1 / 0**，3 行全部非 null，均值 **0.667**；基线 kp 集合 == 复测 kp 集合。⚠ 引用时注明作答协议（真实实验须用学生真实作答）
+- SSE 退出通道实测：轮 1 `continue` → 轮 2 `hint_down` → 轮 3 `exit_channel`（连续 3 轮 progress=false）
+- 构建：前端 gzip 423.65 kB；后端 bundle 95,350 B
+
+**后续（无开发待办，属材料阶段）**
+
+1. 按排期推进 9/24 功能冻结（当前已无未完成开发项）、9/25 Demo 视频与 PPT、9/26 上午提交
+2. 可选优化（INFO 级，不阻塞）：前端 bundle 拆包（echarts 单独 chunk）、补浏览器级渲染断言、把对话 progress 判定接入真实模型
+3. 已知本地形态差异：`data/local_db/` 为本地演示存储（已 gitignore），真实部署切 CloudBase 适配器，业务代码不改
 
 ---
 
@@ -82,7 +93,7 @@ $PY scripts/validate_data.py
 $PY scripts/verify_items.py
 
 # 4) 起后端（默认 http://localhost:8787，可用 ZHIWEI_API_PORT 覆盖）
-$NODE $WS/node_modules/esbuild/bin/esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js
+$WS/node_modules/.bin/esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js
 $NODE functions/api/dist/server.js
 
 # 5) 起前端（http://localhost:5173，/api 已 proxy 到 8787）
