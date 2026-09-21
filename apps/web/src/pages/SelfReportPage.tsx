@@ -126,8 +126,8 @@ export default function SelfReportPage() {
         {chapters.map((chapter) => (
           <li key={chapter} className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-sm font-medium text-ink">{chapter}</h2>
-              <span className="text-xs text-ink-soft">
+              <h2 className="text-base font-medium text-ink">{chapter}</h2>
+              <span className="text-[13px] text-ink-soft">
                 {CHAPTER_SIZES[chapter] ?? 0} 个知识点
               </span>
             </div>

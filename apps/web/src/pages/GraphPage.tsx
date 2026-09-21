@@ -16,6 +16,7 @@ import { ApiError } from '../api/client';
 import { reportSummary } from '../api/endpoints';
 import type { ReportSummaryData } from '../api/types';
 import BandLegend from '../components/BandLegend';
+import EmptyState from '../components/EmptyState';
 import { GRAPH_NODES, kpName, snapshotNode } from '../data/graphSnapshot';
 import { computeGraphLayout, isPathEdge, parsePathParam } from '../lib/graphLayout';
 import { kpLabel, percent } from '../lib/format';
@@ -210,31 +211,48 @@ export default function GraphPage() {
         <p className="mt-6 text-sm text-ink-soft">正在取你的掌握度…</p>
       ) : !hasData ? (
         <div className="mt-6 rounded-2xl border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-ink">{UI_TEXT.needSelfReport}</p>
-          <div className="mt-4 flex items-center gap-3">
-            <Link to="/self-report" className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              花 30 秒自报
-            </Link>
-            <Link to="/assessment" className="rounded-lg border border-line px-4 py-2 text-sm text-ink">
-              直接做几道题
-            </Link>
-          </div>
+          <EmptyState
+            title="这张图还没有你的颜色"
+            hint={`${UI_TEXT.needSelfReport}做完自报或几道题，每个知识点就会按掌握度上色。`}
+            action={
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  to="/self-report"
+                  className="min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90"
+                >
+                  花 30 秒自报
+                </Link>
+                <Link
+                  to="/assessment"
+                  className="min-h-9 rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-canvas"
+                >
+                  直接做几道题
+                </Link>
+              </div>
+            }
+          />
         </div>
       ) : (
-        <div className="relative mt-4 rounded-2xl border border-line bg-white">
+        /* 窄屏适配：图例在 <sm 收成卡片内静态一行（不压图），图本身给最小宽度并允许横向滚动，
+           保证 20 个节点在手机上不被压扁到标签重叠。 */
+        <div className="relative mt-4 rounded-2xl border border-line bg-white p-3 sm:p-0">
           <BandLegend
             counts={counts}
             showPath={highlightPath.length > 0}
-            className="absolute right-3 top-3 z-10"
+            className="mb-3 sm:absolute sm:right-3 sm:top-3 sm:z-10 sm:mb-0"
           />
-          <div
-            ref={containerRef}
-            className="w-full"
-            style={{ height: Math.max(460, layout.height + 220) }}
-          />
+          <div className="overflow-x-auto">
+            <div
+              ref={containerRef}
+              style={{
+                minWidth: Math.max(720, layout.width + 200),
+                height: Math.max(420, layout.height + 200),
+              }}
+            />
+          </div>
 
           {selectedNode ? (
-            <div className="absolute bottom-3 left-3 w-64 rounded-xl border border-line bg-white/95 p-3 text-xs shadow-sm">
+            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-line bg-white/95 p-3 text-xs shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm text-ink">{selectedNode.name}</p>
                 <button
@@ -261,7 +279,7 @@ export default function GraphPage() {
         </div>
       )}
 
-      <p className="mt-4 text-xs text-ink-soft">
+      <p className="mt-4 text-[13px] text-ink-soft">
         共 {GRAPH_NODES.length} 个知识点 / {layout.columns} 层先修链 · 四色阈值与状态带取自引擎同一份常量
       </p>
     </section>

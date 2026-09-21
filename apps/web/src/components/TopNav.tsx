@@ -43,7 +43,7 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
       <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 py-3">
-        <Link to={token ? SPACES_PATH : '/login'} className="mr-4 text-sm font-medium tracking-wide text-ink">
+        <Link to={token ? SPACES_PATH : '/login'} className="mr-4 text-base font-medium tracking-wide text-ink">
           知微
         </Link>
 
@@ -79,7 +79,7 @@ export default function TopNav() {
 
               {open ? (
                 <div className="absolute right-0 mt-2 w-56 rounded-xl border border-line bg-white p-2 shadow-lg">
-                  <p className="px-2 py-1 text-xs text-ink-soft">切到另一个空间</p>
+                  <p className="px-2 py-1 text-[13px] text-ink-soft">切到另一个空间</p>
                   <ul>
                     {spaces.map((space) => (
                       <li key={space.space_id}>
@@ -95,7 +95,7 @@ export default function TopNav() {
                           ].join(' ')}
                         >
                           {space.name}
-                          {space.is_default ? <span className="ml-1 text-xs text-ink-soft">（默认）</span> : null}
+                          {space.is_default ? <span className="ml-1 text-[13px] text-ink-soft">（默认）</span> : null}
                         </button>
                       </li>
                     ))}

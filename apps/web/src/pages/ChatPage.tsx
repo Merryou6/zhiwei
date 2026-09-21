@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
+import EmptyState from '../components/EmptyState';
 import { drive } from '../api/endpoints';
 import { streamChat } from '../api/sse';
 import type { ChatMeta, DriveFileView } from '../api/types';
@@ -125,7 +126,7 @@ export default function ChatPage() {
           </p>
         </div>
         {meta ? (
-          <span className="shrink-0 text-xs text-ink-soft">
+          <span className="shrink-0 text-[13px] text-ink-soft">
             这轮在聊：{kpName(meta.kp_match.kp_id)}（{Math.round(meta.kp_match.confidence * 100)}%）
           </span>
         ) : null}
@@ -134,7 +135,7 @@ export default function ChatPage() {
       {exitNotice ? (
         <div className="mt-4 rounded-xl border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
           <p className="font-medium">{exitNotice}</p>
-          <p className="mt-1 text-xs text-ink-soft">
+          <p className="mt-1 text-[13px] text-ink-soft">
             连续几轮都没往前走，多半是更前面的砖没铺稳——我们回去补那一块，不丢人。
           </p>
           <Link
@@ -148,15 +149,17 @@ export default function ChatPage() {
 
       <div className="mt-5 space-y-3 rounded-2xl border border-line bg-white p-4 shadow-card">
         {store.messages.length === 0 ? (
-          <p className="text-sm text-ink-soft">
-            还没有聊天记录。可以从一句「我卡在这里」开始，也可以传张题图让我先读题。
-          </p>
+          <EmptyState
+            compact
+            title="还没有聊天记录"
+            hint="可以从一句「我卡在这里」开始，也可以传张题图让我先读题。"
+          />
         ) : null}
 
         {store.messages.map((message) => {
           if (message.role === 'notice') {
             return (
-              <p key={message.id} className="text-center text-xs text-ink-soft">
+              <p key={message.id} className="text-center text-[13px] text-ink-soft">
                 {message.text}
               </p>
             );
@@ -175,7 +178,7 @@ export default function ChatPage() {
                   {message.text.length > 0 ? message.text : message.pending ? '正在想…' : ''}
                 </div>
 
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
                   {isStudent && message.imageFileId ? (
                     <span className="rounded-md bg-canvas px-2 py-0.5">已带题图（演示态 · {message.imageFileId}）</span>
                   ) : null}
@@ -198,7 +201,7 @@ export default function ChatPage() {
 
       {pickerOpen ? (
         <div className="mt-3 rounded-xl border border-line bg-white p-3">
-          <p className="text-xs text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
+          <p className="text-[13px] text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
           <ul className="mt-2 space-y-1">
             {files.map((file) => (
               <li key={file.file_id}>
@@ -231,7 +234,7 @@ export default function ChatPage() {
         <button
           type="button"
           onClick={() => void openPicker()}
-          className="rounded-xl border border-line px-3 py-2.5 text-xs text-ink-soft hover:bg-white"
+          className="rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-white"
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
@@ -247,7 +250,7 @@ export default function ChatPage() {
         </button>
       </div>
 
-      <p className="mt-3 text-xs text-ink-soft">
+      <p className="mt-3 text-[13px] text-ink-soft">
         {activeSpaceId ? '' : `还没有空间，`}
         <Link to={SPACES_PATH} className="underline">
           {activeSpaceId ? '空间与进度' : '先去建一个空间'}

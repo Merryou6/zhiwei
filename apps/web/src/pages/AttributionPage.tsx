@@ -223,17 +223,17 @@ export default function AttributionPage() {
             <span className="rounded-md bg-band-mastered/12 px-2 py-0.5 text-xs text-band-mastered">已验证</span>
           ) : null}
           {view.rejected_by_student ? (
-            <span className="rounded-md bg-canvas px-2 py-0.5 text-xs text-ink-soft">{UI_TEXT.rejectRecorded}</span>
+            <span className="rounded-md bg-canvas px-2 py-0.5 text-[13px] text-ink-soft">{UI_TEXT.rejectRecorded}</span>
           ) : null}
         </header>
 
-        <p className="mt-2 text-xs text-ink-soft">
+        <p className="mt-2 text-[13px] text-ink-soft">
           起点：{kpName(view.from_kp)} · 归因编号 {view.attribution_id}
         </p>
 
         {/* 回溯路径步进条 */}
         <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
-          <h2 className="text-sm font-medium text-ink">回溯路径（从出错的地方往上找）</h2>
+          <h2 className="text-base font-medium text-ink">回溯路径（从出错的地方往上找）</h2>
           <ol className="mt-3 space-y-2">
             {view.path.map((id, index) => {
               const isRoot = index === view.path.length - 1;
@@ -260,14 +260,14 @@ export default function AttributionPage() {
               );
             })}
           </ol>
-          <p className="mt-3 text-xs text-ink-soft">
+          <p className="mt-3 text-[13px] text-ink-soft">
             根因：<span className="text-ink">{kpName(view.root_cause)}</span>
           </p>
         </div>
 
         {suspects.length > 0 ? (
           <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
-            <h2 className="text-sm font-medium text-ink">嫌疑排序（前 3）</h2>
+            <h2 className="text-base font-medium text-ink">嫌疑排序（前 3）</h2>
             <ul className="mt-2 space-y-1 text-sm text-ink-soft">
               {suspects.map(([suspect, score]) => (
                 <li key={suspect} className="flex items-center justify-between">
@@ -281,11 +281,11 @@ export default function AttributionPage() {
 
         {/* 验证区 */}
         <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
-          <h2 className="text-sm font-medium text-ink">验证一下</h2>
+          <h2 className="text-base font-medium text-ink">验证一下</h2>
 
           {item ? (
             <>
-              <p className="mt-1 text-xs text-ink-soft">
+              <p className="mt-1 text-[13px] text-ink-soft">
                 做对这一题，就说明我们找对了方向（做错也没关系，我换一道再确认）。
               </p>
               <div className="mt-3">
@@ -315,13 +315,13 @@ export default function AttributionPage() {
         <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-medium text-ink">不同意这个判断？</h2>
-              <p className="mt-1 text-xs text-ink-soft">你比我更清楚当时怎么想的——说一句，我换一道题再确认。</p>
+              <h2 className="text-base font-medium text-ink">不同意这个判断？</h2>
+              <p className="mt-1 text-[13px] text-ink-soft">你比我更清楚当时怎么想的——说一句，我换一道题再确认。</p>
             </div>
             <button
               type="button"
               onClick={() => setRejectOpen((value) => !value)}
-              className="shrink-0 rounded-lg border border-line px-3 py-2 text-xs text-ink-soft hover:bg-canvas"
+              className="shrink-0 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-soft hover:bg-canvas"
             >
               反驳一下
             </button>
@@ -354,8 +354,8 @@ export default function AttributionPage() {
             <>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-sm font-medium text-ink">那就从这一环开始稳</h2>
-                  <p className="mt-1 text-xs text-ink-soft">我给你排一条从根因往上补的路线，题从易到难。</p>
+                  <h2 className="text-base font-medium text-ink">那就从这一环开始稳</h2>
+                  <p className="mt-1 text-[13px] text-ink-soft">我给你排一条从根因往上补的路线，题从易到难。</p>
                 </div>
                 <button
                   type="button"
@@ -380,7 +380,7 @@ export default function AttributionPage() {
                   <ul className="mt-3 space-y-2">
                     {plan.item_sequence.map((sequenceItem) => (
                       <li key={sequenceItem.item_id} className="rounded-lg border border-line px-3 py-2 text-sm text-ink">
-                        <span className="mr-2 text-xs text-ink-soft">难度 {sequenceItem.difficulty}</span>
+                        <span className="mr-2 text-[13px] text-ink-soft">难度 {sequenceItem.difficulty}</span>
                         {sequenceItem.stem}
                       </li>
                     ))}
@@ -407,7 +407,7 @@ export default function AttributionPage() {
             setLastCorrect(null);
             navigate('/attribution', { replace: true });
           }}
-          className="mt-5 rounded-lg px-3 py-2 text-xs text-ink-soft hover:bg-white"
+          className="mt-5 rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-white"
         >
           换一道错题重新归因
         </button>
@@ -436,7 +436,7 @@ export default function AttributionPage() {
         <div className="mt-6 space-y-4">
           {wrongItems.length > 0 ? (
             <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
-              <h2 className="text-sm font-medium text-ink">从试卷错题里挑</h2>
+              <h2 className="text-base font-medium text-ink">从试卷错题里挑</h2>
               <ul className="mt-2 space-y-2">
                 {wrongItems.map((item, index) => (
                   <li key={`${item.kp_id}_${index}`}>
@@ -453,7 +453,7 @@ export default function AttributionPage() {
                       className="w-full rounded-lg border border-line px-3 py-2 text-left text-sm text-ink hover:border-primary"
                     >
                       <span className="block">{item.stem_excerpt}</span>
-                      <span className="mt-1 block text-xs text-ink-soft">
+                      <span className="mt-1 block text-[13px] text-ink-soft">
                         {kpName(item.kp_id)} · 你的作答：{item.student_answer || '（空）'}
                       </span>
                     </button>
@@ -464,8 +464,8 @@ export default function AttributionPage() {
           ) : null}
 
           <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
-            <h2 className="text-sm font-medium text-ink">或者自己填一道</h2>
-            <label className="mt-3 block text-xs text-ink-soft">
+            <h2 className="text-base font-medium text-ink">或者自己填一道</h2>
+            <label className="mt-3 block text-[13px] text-ink-soft">
               题目（写个大概也行）
               <textarea
                 className={selectClass}
@@ -474,7 +474,7 @@ export default function AttributionPage() {
                 onChange={(event) => setStem(event.target.value)}
               />
             </label>
-            <label className="mt-3 block text-xs text-ink-soft">
+            <label className="mt-3 block text-[13px] text-ink-soft">
               你当时怎么写的
               <textarea
                 className={selectClass}
@@ -483,7 +483,7 @@ export default function AttributionPage() {
                 onChange={(event) => setStudentAnswer(event.target.value)}
               />
             </label>
-            <label className="mt-3 block text-xs text-ink-soft">
+            <label className="mt-3 block text-[13px] text-ink-soft">
               这道题考的知识点
               <select className={selectClass} value={kpId} onChange={(event) => setKpId(event.target.value)}>
                 {KP_OPTIONS.map((option) => (
@@ -508,13 +508,13 @@ export default function AttributionPage() {
       {/* 第二步：复述确认 */}
       {draft !== null && !adopted && !clarify ? (
         <div className="mt-6 rounded-2xl border border-line bg-white p-4 shadow-card">
-          <p className="text-xs text-ink-soft">{UI_TEXT.restateFirst}</p>
+          <p className="text-[13px] text-ink-soft">{UI_TEXT.restateFirst}</p>
           <div className="mt-3 rounded-lg bg-canvas px-3 py-2 text-sm text-ink">
-            <p className="text-xs text-ink-soft">题目</p>
+            <p className="text-[13px] text-ink-soft">题目</p>
             <p className="mt-1 whitespace-pre-wrap">{draft.stem}</p>
-            <p className="mt-3 text-xs text-ink-soft">你的作答</p>
+            <p className="mt-3 text-[13px] text-ink-soft">你的作答</p>
             <p className="mt-1 whitespace-pre-wrap">{draft.studentAnswer}</p>
-            <p className="mt-3 text-xs text-ink-soft">
+            <p className="mt-3 text-[13px] text-ink-soft">
               知识点：{kpName(draft.kpId)}
             </p>
           </div>
@@ -542,7 +542,7 @@ export default function AttributionPage() {
       {clarify ? (
         <div className="mt-6 rounded-2xl border border-band-weak bg-band-weak/5 p-4">
           <p className="text-sm text-ink">{clarify.question}</p>
-          <p className="mt-1 text-xs text-ink-soft">
+          <p className="mt-1 text-[13px] text-ink-soft">
             我拿不准就不硬猜——你把这一步写清楚，我再判一次。
           </p>
           <textarea
@@ -587,8 +587,8 @@ export default function AttributionPage() {
         <div className="mt-6 space-y-4">
           <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-sm font-medium text-ink">先复述你写的这一步</h2>
-              <span className="text-xs text-ink-soft">把握 {percent(adopted.confidence)}</span>
+              <h2 className="text-base font-medium text-ink">先复述你写的这一步</h2>
+              <span className="text-[13px] text-ink-soft">把握 {percent(adopted.confidence)}</span>
             </div>
             {adopted.evidence ? (
               <p className="mt-2 rounded-lg bg-canvas px-3 py-2 text-sm leading-relaxed text-ink">
@@ -596,12 +596,12 @@ export default function AttributionPage() {
               </p>
             ) : null}
             {adopted.matched_typical_error ? (
-              <p className="mt-2 text-xs text-ink-soft">匹配到的典型失误：{adopted.matched_typical_error}</p>
+              <p className="mt-2 text-[13px] text-ink-soft">匹配到的典型失误：{adopted.matched_typical_error}</p>
             ) : null}
           </div>
 
           <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
-            <h2 className="text-sm font-medium text-ink">它大概属于哪一类</h2>
+            <h2 className="text-base font-medium text-ink">它大概属于哪一类</h2>
             <ul className="mt-3 space-y-2">
               {ERROR_TYPES.map((type: ErrorTypeValue) => {
                 const active = adopted.error_type === type;
@@ -614,7 +614,7 @@ export default function AttributionPage() {
                     ].join(' ')}
                   >
                     <p className="text-sm text-ink">{ERROR_TYPE_LABEL[type]}</p>
-                    <p className="mt-0.5 text-xs text-ink-soft">{ERROR_TYPE_NOTE[type]}</p>
+                    <p className="mt-0.5 text-[13px] text-ink-soft">{ERROR_TYPE_NOTE[type]}</p>
                   </li>
                 );
               })}
@@ -624,7 +624,7 @@ export default function AttributionPage() {
           {adopted.attribution_direction === 'none' ? (
             <div className="rounded-2xl border border-band-weak bg-band-weak/5 p-4 text-sm text-ink">
               <p>{UI_TEXT.slipNoAttribution}</p>
-              <p className="mt-1 text-xs text-ink-soft">
+              <p className="mt-1 text-[13px] text-ink-soft">
                 这类不属于知识缺口，所以我不往上游翻——你需要的只是再稳一遍手。
               </p>
               <div className="mt-3 flex items-center gap-3">
@@ -637,7 +637,7 @@ export default function AttributionPage() {
                 <button
                   type="button"
                   onClick={() => store.reset()}
-                  className="rounded-lg px-3 py-2 text-xs text-ink-soft hover:bg-canvas"
+                  className="rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-canvas"
                 >
                   看下一道错题
                 </button>

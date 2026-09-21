@@ -21,7 +21,7 @@ export default function BandLegend({ counts, showPath = false, className }: Band
   return (
     <div
       className={[
-        'rounded-xl border border-line bg-white/95 px-3 py-2 text-xs text-ink-soft shadow-sm backdrop-blur',
+        'rounded-xl border border-line bg-white/95 px-3 py-2 text-[13px] text-ink-soft shadow-sm backdrop-blur',
         className ?? '',
       ].join(' ')}
       aria-label="掌握度颜色图例"

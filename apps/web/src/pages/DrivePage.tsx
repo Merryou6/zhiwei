@@ -14,6 +14,7 @@ import { ApiError } from '../api/client';
 import { drive } from '../api/endpoints';
 import type { DriveFileView } from '../api/types';
 import { fileSize } from '../lib/format';
+import EmptyState from '../components/EmptyState';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
 import { useSpaceStore } from '../stores/space';
@@ -52,10 +53,17 @@ export default function DrivePage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">云盘</h1>
-        <p className="mt-3 text-sm text-ink-soft">先选一个学习空间，我再告诉你这个学科有哪些资料。</p>
-        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm text-white">
-          去选空间
-        </Link>
+        <div className="mt-5 rounded-2xl border border-line bg-white p-5 shadow-card">
+          <EmptyState
+            title="还没有选中的学习空间"
+            hint="先选一个学习空间，我再告诉你这个学科有哪些资料。"
+            action={
+              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90">
+                去选空间
+              </Link>
+            }
+          />
+        </div>
       </section>
     );
   }
@@ -94,9 +102,9 @@ export default function DrivePage() {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm text-ink">{file.name}</p>
-                <p className="mt-0.5 text-xs text-ink-soft">{file.file_id}</p>
+                <p className="mt-0.5 text-[13px] text-ink-soft">{file.file_id}</p>
               </div>
-              <span className="shrink-0 text-xs text-ink-soft">
+              <span className="shrink-0 text-[13px] text-ink-soft">
                 {file.type.toUpperCase()} · {fileSize(file.size)}
               </span>
             </li>

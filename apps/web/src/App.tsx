@@ -5,7 +5,7 @@
  * 登录/登出/401 清理都会先同步写盘再导航，故守卫是「持久化会话」的纯函数，无额外订阅。
  */
 
-import type { ReactElement } from 'react';
+import { Suspense, lazy, type ComponentType, type ReactElement } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import Layout from './components/Layout';
@@ -14,15 +14,20 @@ import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
 import ChatPage from './pages/ChatPage';
 import DrivePage from './pages/DrivePage';
-import GraphPage from './pages/GraphPage';
 import LoginPage from './pages/LoginPage';
 import PaperPage from './pages/PaperPage';
 import ReportPage from './pages/ReportPage';
 import SelfReportPage from './pages/SelfReportPage';
 import SpacesPage from './pages/SpacesPage';
 
+/**
+ * 图谱页按需加载（2026-09-20 风格走查）：它独占 echarts 依赖（主包一半以上体积），
+ * 懒加载后首屏 JS 少掉约一半，进图谱页时才拉 echarts chunk（vite 已把它单独拆包）。
+ */
+const GraphPage = lazy(() => import('./pages/GraphPage'));
+
 /** 路由 → 页面组件（10 页一一对应，键与 router.ROUTES 的 path 完全一致）。 */
-const PAGE_COMPONENTS: Record<string, () => ReactElement> = {
+const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/login': LoginPage,
   '/self-report': SelfReportPage,
   '/spaces': SpacesPage,
@@ -34,6 +39,11 @@ const PAGE_COMPONENTS: Record<string, () => ReactElement> = {
   '/report': ReportPage,
   '/drive': DrivePage,
 };
+
+/** 懒加载页面的占位（与页面内加载态同语气，避免白屏闪烁）。 */
+function PageLoading(): ReactElement {
+  return <p className="py-10 text-[13px] text-ink-soft">正在准备这一页…</p>;
+}
 
 function persist(slot: string): string | null {
   try {
@@ -69,7 +79,9 @@ export default function App() {
             path={route.path}
             element={
               <Guarded>
-                <Page />
+                <Suspense fallback={<PageLoading />}>
+                  <Page />
+                </Suspense>
               </Guarded>
             }
           />

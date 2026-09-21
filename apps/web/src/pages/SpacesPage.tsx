@@ -13,6 +13,7 @@ import { ApiError } from '../api/client';
 import { createSpace, listSpaces } from '../api/endpoints';
 import type { SpaceCreateConflictData, SpaceView } from '../api/types';
 import ConfirmDialog from '../components/ConfirmDialog';
+import EmptyState from '../components/EmptyState';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { SELF_REPORT_PATH, isSelfReportDone } from '../router';
@@ -92,7 +93,7 @@ export default function SpacesPage() {
           type="button"
           onClick={() => void handleCreate()}
           disabled={creating}
-          className="shrink-0 rounded-lg border border-line px-3 py-2 text-sm text-ink-soft hover:bg-white disabled:opacity-60"
+          className="min-h-9 shrink-0 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink hover:border-primary hover:text-primary disabled:opacity-60"
         >
           {creating ? '正在新建…' : '+ 新建空间'}
         </button>
@@ -101,7 +102,22 @@ export default function SpacesPage() {
       {loading ? (
         <p className="mt-8 text-sm text-ink-soft">正在取你的空间…</p>
       ) : ordered.length === 0 ? (
-        <p className="mt-8 text-sm text-ink-soft">{UI_TEXT.needSelfReport}</p>
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5 shadow-card">
+          <EmptyState
+            title="还没有学习空间"
+            hint="一个空间就是一个学科的知识地图。先建一个，我再按你的自报给你排学习顺序。"
+            action={
+              <button
+                type="button"
+                onClick={() => void handleCreate()}
+                disabled={creating}
+                className="min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+              >
+                {creating ? '正在新建…' : '新建学习空间'}
+              </button>
+            }
+          />
+        </div>
       ) : (
         <ul className="mt-6 space-y-3">
           {ordered.map((space) => {
@@ -130,7 +146,7 @@ export default function SpacesPage() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-xs text-ink-soft">
+                    <p className="mt-1 text-[13px] text-ink-soft">
                       {space.subject} · 创建于 {formatTime(space.created_at)} · {space.space_id}
                     </p>
                   </div>

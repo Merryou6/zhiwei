@@ -228,7 +228,7 @@ export default function PaperPage() {
         </div>
 
         {wrongCount > 0 ? (
-          <p className="mt-4 text-xs text-ink-soft">
+          <p className="mt-4 text-[13px] text-ink-soft">
             已把你标为错的 {wrongCount} 道题存到本地，归因时可一键带出。
           </p>
         ) : null}
@@ -248,7 +248,7 @@ export default function PaperPage() {
               识别状态：{status}。看漏的题我不猜——你标了我才记账。
             </p>
           </div>
-          <span className="shrink-0 text-xs text-ink-soft">
+          <span className="shrink-0 text-[13px] text-ink-soft">
             已标 {rows.filter((row) => row.result !== null).length}/{rows.length}
           </span>
         </header>
@@ -258,9 +258,9 @@ export default function PaperPage() {
             <li key={row.seq} className="rounded-2xl border border-line bg-white p-4 shadow-card">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <span className="text-xs text-ink-soft">第 {row.seq} 题</span>
+                  <span className="text-[13px] text-ink-soft">第 {row.seq} 题</span>
                   <p className="mt-1 text-sm leading-relaxed text-ink">{row.stem_excerpt}</p>
-                  <p className="mt-1 text-xs text-ink-soft">
+                  <p className="mt-1 text-[13px] text-ink-soft">
                     你的作答：{row.student_answer.length > 0 ? row.student_answer : '（识别为空）'}
                   </p>
                 </div>
@@ -269,14 +269,14 @@ export default function PaperPage() {
                     {UI_TEXT.paperUnclearRow}
                   </span>
                 ) : (
-                  <span className="shrink-0 text-xs text-ink-soft">
+                  <span className="shrink-0 text-[13px] text-ink-soft">
                     参考：{row.suggested_result === 'wrong' ? '疑似错' : '疑似对'}
                   </span>
                 )}
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-3">
-                <label className="text-xs text-ink-soft">
+                <label className="text-[13px] text-ink-soft">
                   知识点
                   <select
                     className="ml-2 rounded-lg border border-line px-2 min-h-9 py-2 text-[13px] text-ink outline-none focus:border-primary"
@@ -327,7 +327,7 @@ export default function PaperPage() {
           >
             {busy ? '正在记账…' : '确认，更新掌握度'}
           </button>
-          {!allMarked ? <span className="text-xs text-ink-soft">还有 {rows.filter((r) => r.result === null).length} 题没标</span> : null}
+          {!allMarked ? <span className="text-[13px] text-ink-soft">还有 {rows.filter((r) => r.result === null).length} 题没标</span> : null}
         </div>
       </section>
     );
@@ -360,11 +360,11 @@ export default function PaperPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm text-ink">{file.name}</span>
-                    <span className="shrink-0 text-xs text-ink-soft">
+                    <span className="shrink-0 text-[13px] text-ink-soft">
                       {file.type.toUpperCase()} · {fileSize(file.size)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-ink-soft">{file.file_id}</p>
+                  <p className="mt-1 text-[13px] text-ink-soft">{file.file_id}</p>
                 </button>
               </li>
             );
@@ -381,7 +381,7 @@ export default function PaperPage() {
         {busy ? '正在识别…' : '开始识别'}
       </button>
 
-      {status ? <p className="mt-3 text-xs text-ink-soft">{status}</p> : null}
+      {status ? <p className="mt-3 text-[13px] text-ink-soft">{status}</p> : null}
     </section>
   );
 }

@@ -20,4 +20,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // 拆包（2026-09-20 风格走查）：echarts 体积占主包一半以上，且只有图谱页用到。
+    // 单独成 chunk 后：首屏 JS 减少约 1/2，图谱页按需加载；同时消掉 vite 的 500 kB 告警。
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender')) {
+            return 'echarts';
+          }
+          if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) {
+            return 'react';
+          }
+          return undefined;
+        },
+      },
+    },
+  },
 });
