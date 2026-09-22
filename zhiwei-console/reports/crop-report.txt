@@ -1,0 +1,13 @@
+report-table  .table  box=1254x616 -> 3810x1897  1159KB
+  col0 th「知识点」右缘 542.3  /  td「二次函数与一元二次方」右缘 542.3  差 0.0
+  col1 th「章节」右缘 727.8  /  td「二次函数」右缘 727.8  差 0.0
+  col2 th「正确率」右缘 849  /  td「41%」右缘 849  差 0.0
+  col3 th「掌握度」右缘 1100.6  /  td「」右缘 1100.6  差 0.0
+  col4 th「状态」右缘 1286.8  /  td「待巩固」右缘 1286.8  差 0.0
+  col5 th「最近练习」右缘 1427  /  td「20 天前」右缘 1427  差 0.0
+report-charts  .grid-7-5  box=1256x297 -> 3816x939  590KB
+assess-first-card  .assess  box=1256x153 -> 3816x506  329KB
+space-feature  .feature  box=1256x275 -> 3816x872  560KB
+graph-legend  .legend  box=208x235 -> 672x752  162KB
+drive-toolbar  .toolbar  box=1254x60 -> 3810x228  178KB
+chat-steps  .steps  box=696x198 -> 2136x642  243KB
