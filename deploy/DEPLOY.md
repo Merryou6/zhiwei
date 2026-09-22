@@ -49,6 +49,10 @@ docker compose up -d --build
 完成。浏览器打开 `http://<服务器IP>:8080`，注册一个账号即可体验完整闭环。
 
 > 依赖安装默认走国内镜像（`registry.npmmirror.com`，见 Dockerfile 的 `NPM_REGISTRY`）。
+> 首次构建实测：全量安装 **278 个包**（运行时 5 个 + 构建 6 个 + 测试专用 5 个），镜像产物 **237 MB**，耗时数分钟属正常。
+> **想再快一截（可选）**：镜像构建不需要测试依赖（`jsdom` / `vitest` / `@types/*`，约占四成下载量），
+> 可把 Dockerfile 的安装行改为 `npm install --omit=dev` 另按需补装 `vite esbuild tailwindcss postcss autoprefixer @vitejs/plugin-react`。
+> 当前默认保持全量安装——确保与本地开发/测试环境完全一致，不在部署环节引入差异。
 > 海外服务器构建慢的话：`docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t zhiwei .`
 
 ---
