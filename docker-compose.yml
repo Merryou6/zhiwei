@@ -1,0 +1,23 @@
+# 知微 · 单容器部署（compose 把端口/密钥/数据卷一次性配好）
+# 用法（三步见 deploy/DEPLOY.md）：
+#   1) cp deploy/zhiwei.env.example deploy/zhiwei.env   然后改 ZHIWEI_SERVER_SECRET
+#   2) docker compose up -d --build
+#   3) 浏览器打开 http://<服务器IP>:8080
+
+services:
+  zhiwei:
+    build: .
+    image: zhiwei:latest
+    container_name: zhiwei
+    restart: unless-stopped
+    ports:
+      # 宿主机端口:容器端口 —— 想用 80 就把左边改成 80:8080
+      - "${ZHIWEI_HOST_PORT:-8080}:8080"
+    env_file:
+      - deploy/zhiwei.env
+    volumes:
+      # 用户 / 作答记录 / 空间等全部 JSON 数据（备份这个卷即可）
+      - zhiwei-data:/app/data/local_db
+
+volumes:
+  zhiwei-data:

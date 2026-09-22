@@ -1,0 +1,22 @@
+# 构建上下文瘦身：这些内容不进镜像（均在构建阶段重建或不被运行时需要）
+.git
+.gitignore
+.learnbuddy
+node_modules
+**/node_modules
+
+# 本地产物（镜像内重新构建）
+apps/web/dist
+functions/api/dist
+
+# 本地演示数据（用户/作答记录——绝不打进镜像！部署后由 volume 持有）
+data/local_db
+
+# 文档与流程留痕（体积不小，运行时不需要）
+_pipeline
+*.md
+LICENSE
+
+# 系统文件
+.DS_Store
+*.log
