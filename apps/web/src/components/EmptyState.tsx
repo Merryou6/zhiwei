@@ -3,7 +3,7 @@
  *
  * 统一「还没有数据」时的表达：一个极简标记 + 标题 + 一句说明 + 可选的下一步动作。
  * 设计纪律：
- *   - 标记用 currentColor + 令牌类（text-line / text-primary），不硬编码 hex；
+ *   - 标记用 currentColor + 令牌类（text-line / text-accent），不硬编码 hex；
  *     三根柱子从低到高、最后一根用主色 = 「做完就有图了」，不使用四状态带颜色以免稀释语义。
  *   - 不画插画、不用 emoji、不加渐变（与 PRD §6 低饱和、不刺眼一致）。
  *   - 文案归 PRD §6「像耐心的学长」语气：说清「为什么还没有」+「下一步做什么」。
@@ -33,7 +33,7 @@ export default function EmptyState({ title, hint, action, compact = false }: Emp
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" focusable="false">
             <rect x="3" y="13.5" width="3.6" height="5.5" rx="1" fill="currentColor" className="text-line" />
             <rect x="9.2" y="9.5" width="3.6" height="9.5" rx="1" fill="currentColor" className="text-line" />
-            <rect x="15.4" y="4.5" width="3.6" height="14.5" rx="1" fill="currentColor" className="text-primary" />
+            <rect x="15.4" y="4.5" width="3.6" height="14.5" rx="1" fill="currentColor" className="text-accent" />
           </svg>
         </span>
       )}

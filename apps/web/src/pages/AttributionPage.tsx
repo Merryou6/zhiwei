@@ -22,6 +22,7 @@ import { ApiError } from '../api/client';
 import { analyze, classify, generatePlan, getAttribution, reject, verify } from '../api/endpoints';
 import type { AttributionView, ErrorTypeValue } from '../api/types';
 import ItemCard from '../components/ItemCard';
+import PageSkeleton from '../components/PageSkeleton';
 import { GRAPH_NODES, kpName } from '../data/graphSnapshot';
 import { percent } from '../lib/format';
 import {
@@ -60,12 +61,15 @@ export default function AttributionPage() {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [busy, setBusy] = useState(false);
+  /** 带 ?attribution_id= 进入时的回显等待（批三：此前会先闪一屏空白起始页）。 */
+  const [viewLoading, setViewLoading] = useState(false);
 
   const loadedRef = useRef<string | null>(null);
 
   // 刷新 / 带 ?attribution_id= 进入 → #14 回显
   useEffect(() => {
     if (!attributionId || loadedRef.current === attributionId) return;
+    setViewLoading(true);
     void (async () => {
       try {
         const view = await getAttribution(attributionId);
@@ -73,6 +77,8 @@ export default function AttributionPage() {
         store.setAttribution(view);
       } catch (error) {
         toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
+      } finally {
+        setViewLoading(false);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -203,6 +209,16 @@ export default function AttributionPage() {
     }
   }
 
+  // ============================================================ 回显等待
+  // 带 ?attribution_id= 进入且尚未取回结果：先出骨架，避免闪一屏空白起始页（批三）
+  if (viewLoading && !store.attribution) {
+    return (
+      <section className="max-w-2xl">
+        <PageSkeleton label="正在取这次归因的结果…" rows={2} />
+      </section>
+    );
+  }
+
   // ============================================================ 结果态
   if (store.attribution) {
     const view: AttributionView = store.attribution;
@@ -232,7 +248,7 @@ export default function AttributionPage() {
         </p>
 
         {/* 回溯路径步进条 */}
-        <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
           <h2 className="text-base font-medium text-ink">回溯路径（从出错的地方往上找）</h2>
           <ol className="mt-3 space-y-2">
             {view.path.map((id, index) => {
@@ -242,7 +258,7 @@ export default function AttributionPage() {
                   <span
                     className={[
                       'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px]',
-                      isRoot ? 'bg-primary text-white' : 'bg-canvas text-ink-soft',
+                      isRoot ? 'bg-accent text-on-accent' : 'bg-canvas text-ink-soft',
                     ].join(' ')}
                   >
                     {index + 1}
@@ -250,11 +266,11 @@ export default function AttributionPage() {
                   <div
                     className={[
                       'rounded-lg px-3 py-2 text-sm',
-                      isRoot ? 'bg-primary-soft text-ink' : 'text-ink-soft',
+                      isRoot ? 'bg-accent-veil text-ink' : 'text-ink-soft',
                     ].join(' ')}
                   >
                     <span className="block">{kpName(id)}</span>
-                    {isRoot ? <span className="block text-xs text-primary">根因就在这里</span> : null}
+                    {isRoot ? <span className="block text-xs text-accent">根因就在这里</span> : null}
                   </div>
                 </li>
               );
@@ -266,7 +282,7 @@ export default function AttributionPage() {
         </div>
 
         {suspects.length > 0 ? (
-          <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="mt-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
             <h2 className="text-base font-medium text-ink">嫌疑排序（前 3）</h2>
             <ul className="mt-2 space-y-1 text-sm text-ink-soft">
               {suspects.map(([suspect, score]) => (
@@ -280,7 +296,7 @@ export default function AttributionPage() {
         ) : null}
 
         {/* 验证区 */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div className="mt-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
           <h2 className="text-base font-medium text-ink">验证一下</h2>
 
           {item ? (
@@ -295,7 +311,7 @@ export default function AttributionPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void submitVerify()}
-                className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+                className="mt-3 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
               >
                 {busy ? '正在判…' : '提交这一步'}
               </button>
@@ -312,7 +328,7 @@ export default function AttributionPage() {
         </div>
 
         {/* 反驳（常驻） */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div className="mt-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-medium text-ink">不同意这个判断？</h2>
@@ -321,7 +337,7 @@ export default function AttributionPage() {
             <button
               type="button"
               onClick={() => setRejectOpen((value) => !value)}
-              className="shrink-0 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-soft hover:bg-canvas"
+              className="shrink-0 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-soft hover:bg-raised"
             >
               反驳一下
             </button>
@@ -330,7 +346,7 @@ export default function AttributionPage() {
           {rejectOpen ? (
             <div className="mt-3">
               <textarea
-                className="w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary"
+                className="w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
                 rows={2}
                 placeholder="（可选）说说你的理由，比如「我其实会配方，只是这题看错了」"
                 value={rejectReason}
@@ -340,7 +356,7 @@ export default function AttributionPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void submitReject()}
-                className="mt-2 rounded-lg bg-primary px-3 py-2 text-xs text-white hover:opacity-90 disabled:opacity-60"
+                className="mt-2 rounded-lg bg-accent px-3 py-2 text-xs text-on-accent hover:opacity-90 disabled:opacity-60"
               >
                 {busy ? '正在记…' : '提交反驳，换一道验证题'}
               </button>
@@ -349,7 +365,7 @@ export default function AttributionPage() {
         </div>
 
         {/* 处方 */}
-        <div className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div className="mt-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
           {view.verified ? (
             <>
               <div className="flex items-center justify-between gap-3">
@@ -361,7 +377,7 @@ export default function AttributionPage() {
                   type="button"
                   disabled={busy}
                   onClick={() => void runPlan()}
-                  className="shrink-0 rounded-lg bg-primary px-3 py-2 text-xs text-white hover:opacity-90 disabled:opacity-60"
+                  className="shrink-0 rounded-lg bg-accent px-3 py-2 text-xs text-on-accent hover:opacity-90 disabled:opacity-60"
                 >
                   {plan ? '重新生成' : '给我一条路线'}
                 </button>
@@ -370,7 +386,7 @@ export default function AttributionPage() {
               {plan ? (
                 <div className="mt-4">
                   <p className="text-sm text-ink">
-                    策略：<span className="text-primary">{plan.strategy}</span>
+                    策略：<span className="text-accent">{plan.strategy}</span>
                   </p>
                   <ol className="mt-2 space-y-1 text-sm text-ink-soft">
                     {plan.explanation_outline.map((line, index) => (
@@ -387,7 +403,7 @@ export default function AttributionPage() {
                   </ul>
                   <Link
                     to={`/graph?path=${encodeURIComponent(plan.path.join(','))}`}
-                    className="mt-3 inline-block rounded-lg border border-line px-3 py-2 text-xs text-ink hover:bg-canvas"
+                    className="mt-3 inline-block rounded-lg border border-line px-3 py-2 text-xs text-ink hover:bg-raised"
                   >
                     去图谱看学习路径
                   </Link>
@@ -407,7 +423,7 @@ export default function AttributionPage() {
             setLastCorrect(null);
             navigate('/attribution', { replace: true });
           }}
-          className="mt-5 rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-white"
+          className="mt-5 rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-surface"
         >
           换一道错题重新归因
         </button>
@@ -422,7 +438,7 @@ export default function AttributionPage() {
   const clarify = store.classifyClarify;
 
   const selectClass =
-    'mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary';
+    'mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent';
 
   return (
     <section className="max-w-2xl">
@@ -435,7 +451,7 @@ export default function AttributionPage() {
       {draft === null ? (
         <div className="mt-6 space-y-4">
           {wrongItems.length > 0 ? (
-            <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
+            <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
               <h2 className="text-base font-medium text-ink">从试卷错题里挑</h2>
               <ul className="mt-2 space-y-2">
                 {wrongItems.map((item, index) => (
@@ -450,7 +466,7 @@ export default function AttributionPage() {
                           itemId: null,
                         })
                       }
-                      className="w-full rounded-lg border border-line px-3 py-2 text-left text-sm text-ink hover:border-primary"
+                      className="w-full rounded-lg border border-line px-3 py-2 text-left text-sm text-ink hover:border-accent"
                     >
                       <span className="block">{item.stem_excerpt}</span>
                       <span className="mt-1 block text-[13px] text-ink-soft">
@@ -463,7 +479,7 @@ export default function AttributionPage() {
             </div>
           ) : null}
 
-          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
             <h2 className="text-base font-medium text-ink">或者自己填一道</h2>
             <label className="mt-3 block text-[13px] text-ink-soft">
               题目（写个大概也行）
@@ -497,7 +513,7 @@ export default function AttributionPage() {
               type="button"
               disabled={stem.trim().length === 0 || studentAnswer.trim().length === 0}
               onClick={() => store.setDraft({ kpId, stem, studentAnswer, itemId: null })}
-              className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+              className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
             >
               下一步：先复述一遍
             </button>
@@ -507,7 +523,7 @@ export default function AttributionPage() {
 
       {/* 第二步：复述确认 */}
       {draft !== null && !adopted && !clarify ? (
-        <div className="mt-6 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div className="mt-6 rounded-2xl border border-line bg-surface p-4 shadow-card">
           <p className="text-[13px] text-ink-soft">{UI_TEXT.restateFirst}</p>
           <div className="mt-3 rounded-lg bg-canvas px-3 py-2 text-sm text-ink">
             <p className="text-[13px] text-ink-soft">题目</p>
@@ -523,14 +539,14 @@ export default function AttributionPage() {
               type="button"
               disabled={busy}
               onClick={() => void runClassify(draft)}
-              className="rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+              className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
             >
               {busy ? '正在看…' : '就是这样，看看属于哪类'}
             </button>
             <button
               type="button"
               onClick={() => store.reset()}
-              className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-canvas"
+              className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
             >
               换一道
             </button>
@@ -546,7 +562,7 @@ export default function AttributionPage() {
             我拿不准就不硬猜——你把这一步写清楚，我再判一次。
           </p>
           <textarea
-            className="mt-3 w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary"
+            className="mt-3 w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
             rows={3}
             placeholder="比如把中间那一步式子写出来"
             value={clarifyInput}
@@ -565,7 +581,7 @@ export default function AttributionPage() {
                 setClarifyInput('');
                 void runClassify(next);
               }}
-              className="rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+              className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
             >
               {busy ? '再看一次…' : '再判一次'}
             </button>
@@ -574,7 +590,7 @@ export default function AttributionPage() {
               onClick={() => {
                 store.clearClassify();
               }}
-              className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-canvas"
+              className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
             >
               回到上一步
             </button>
@@ -585,7 +601,7 @@ export default function AttributionPage() {
       {/* 第三步 B：判定结果（五类枚举） */}
       {adopted ? (
         <div className="mt-6 space-y-4">
-          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-medium text-ink">先复述你写的这一步</h2>
               <span className="text-[13px] text-ink-soft">把握 {percent(adopted.confidence)}</span>
@@ -600,7 +616,7 @@ export default function AttributionPage() {
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
             <h2 className="text-base font-medium text-ink">它大概属于哪一类</h2>
             <ul className="mt-3 space-y-2">
               {ERROR_TYPES.map((type: ErrorTypeValue) => {
@@ -610,7 +626,7 @@ export default function AttributionPage() {
                     key={type}
                     className={[
                       'rounded-lg border px-3 py-2',
-                      active ? 'border-primary bg-primary-soft' : 'border-line opacity-60',
+                      active ? 'border-accent bg-accent-veil' : 'border-line opacity-60',
                     ].join(' ')}
                   >
                     <p className="text-sm text-ink">{ERROR_TYPE_LABEL[type]}</p>
@@ -630,33 +646,33 @@ export default function AttributionPage() {
               <div className="mt-3 flex items-center gap-3">
                 <Link
                   to="/assessment"
-                  className="rounded-lg bg-primary px-3 py-2 text-xs text-white hover:opacity-90"
+                  className="rounded-lg bg-accent px-3 py-2 text-xs text-on-accent hover:opacity-90"
                 >
                   再练几道
                 </Link>
                 <button
                   type="button"
                   onClick={() => store.reset()}
-                  className="rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-canvas"
+                  className="rounded-lg px-3 py-2 text-[13px] text-ink-soft hover:bg-raised"
                 >
                   看下一道错题
                 </button>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
+            <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => void runAnalyze()}
-                className="rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+                className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
               >
                 {busy ? '正在往上找…' : '看看真正的根源'}
               </button>
               <button
                 type="button"
                 onClick={() => store.reset()}
-                className="ml-3 rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-canvas"
+                className="ml-3 rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
               >
                 换一道
               </button>

@@ -3,6 +3,13 @@
  * 图谱 / 测评 / 对话 / 报告 / 云盘 五个入口常驻，空间管理收进二级菜单（点开才展开）。
  *
  * 空间列表懒加载：已登录且 store 为空时取一次（#3 space/list）；失败静默——页 3 会给提示。
+ *
+ * 设计规则走查（2026-09-22）：
+ *   · 顶栏原为 `bg-surface/90 + backdrop-blur`。半透明顶栏看着通透，但正文会从底下透上来，
+ *     滚动时对比度一直在变；改成实底后对比度是静态可算的，与内页的浅色表面也更一致。
+ *   · z-index 改走令牌（z-nav），不再散写 z-40。
+ *   · 圆角统一到 rounded-control / rounded-surface 两档，不再混用 rounded-lg / rounded-xl。
+ *   · 「管理空间 →」去掉箭头：给导航文字加箭头是模板套件里的固定装饰，不携带信息。
  */
 
 import { useEffect, useState } from 'react';
@@ -12,6 +19,7 @@ import { listSpaces } from '../api/endpoints';
 import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
+import ZhiweiLogo from './ZhiweiLogo';
 
 export default function TopNav() {
   const [open, setOpen] = useState(false);
@@ -41,9 +49,14 @@ export default function TopNav() {
   const active = spaces.find((space) => space.space_id === activeSpaceId) ?? null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-nav border-b border-line bg-surface">
       <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 py-3">
-        <Link to={token ? SPACES_PATH : '/login'} className="mr-4 text-base font-medium tracking-wide text-ink">
+        {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」） */}
+        <Link
+          to={token ? SPACES_PATH : '/login'}
+          className="mr-4 flex items-center gap-2 rounded-control text-base font-medium tracking-wide text-ink"
+        >
+          <ZhiweiLogo size={22} />
           知微
         </Link>
 
@@ -56,8 +69,8 @@ export default function TopNav() {
                     to={route.path}
                     className={({ isActive }) =>
                       [
-                        'rounded-lg px-3 py-1.5 text-sm transition-colors',
-                        isActive ? 'bg-primary-soft text-primary' : 'text-ink-soft hover:bg-canvas',
+                        'rounded-control px-3 py-1.5 text-sm transition-colors duration-150 ease-out',
+                        isActive ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
                       ].join(' ')
                     }
                   >
@@ -71,14 +84,14 @@ export default function TopNav() {
               <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
-                className="rounded-lg px-3 py-1.5 text-sm text-ink-soft hover:bg-canvas"
+                className="rounded-control px-3 py-1.5 text-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
                 aria-expanded={open}
               >
                 空间 · {active ? active.name : '未选择'}
               </button>
 
               {open ? (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-line bg-white p-2 shadow-lg">
+                <div className="absolute right-0 mt-2 w-56 rounded-surface border border-line bg-surface p-2 shadow-card">
                   <p className="px-2 py-1 text-[13px] text-ink-soft">切到另一个空间</p>
                   <ul>
                     {spaces.map((space) => (
@@ -90,8 +103,8 @@ export default function TopNav() {
                             setOpen(false);
                           }}
                           className={[
-                            'w-full rounded-lg px-2 py-1.5 text-left text-sm',
-                            space.space_id === activeSpaceId ? 'bg-primary-soft text-primary' : 'text-ink hover:bg-canvas',
+                            'w-full rounded-control px-2 py-1.5 text-left text-sm',
+                            space.space_id === activeSpaceId ? 'bg-accent-veil text-accent' : 'text-ink hover:bg-raised',
                           ].join(' ')}
                         >
                           {space.name}
@@ -106,9 +119,9 @@ export default function TopNav() {
                   <Link
                     to={SPACES_PATH}
                     onClick={() => setOpen(false)}
-                    className="mt-1 block rounded-lg px-2 py-1.5 text-sm text-ink-soft hover:bg-canvas"
+                    className="mt-1 block rounded-control px-2 py-1.5 text-sm text-ink-soft hover:bg-raised"
                   >
-                    管理空间 →
+                    管理空间
                   </Link>
                 </div>
               ) : null}

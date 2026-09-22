@@ -98,6 +98,8 @@ export const UI_TEXT = {
   sseFallback: '刚才网络卡了一下，已转为普通回复',
   /** 网络错误（client.ts 统一话术）。 */
   networkError: '网络开小差了，稍后再试一次',
+  /** 请求超时（client.ts 默认 15s，批二）：与网络错误区分，提示可以重试而不是一直等。 */
+  timeoutError: '这一步等得有点久了，检查下网络再试一次',
   /** 空间 409 冲突对话框默认按钮（契约 §2 明文）。 */
   switchToExisting: '切换过去',
   /** 复述错误（先复述再判定，PRD P0 #6）。 */
