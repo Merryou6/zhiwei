@@ -48,8 +48,8 @@ docker compose up -d --build
 
 完成。浏览器打开 `http://<服务器IP>:8080`，注册一个账号即可体验完整闭环。
 
-> 国内服务器 npm 拉包慢的话，把 `Dockerfile` 里那行 `RUN npm install ...` 换成：
-> `RUN npm install --no-audit --no-fund --registry=https://registry.npmmirror.com`
+> 依赖安装默认走国内镜像（`registry.npmmirror.com`，见 Dockerfile 的 `NPM_REGISTRY`）。
+> 海外服务器构建慢的话：`docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t zhiwei .`
 
 ---
 

@@ -6,10 +6,12 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# 先只拷 package.json 装依赖，充分利用层缓存（国内服务器可加：
-# RUN npm install --registry=https://registry.npmmirror.com）
+# 先只拷 package.json 装依赖，充分利用层缓存。
+# NPM_REGISTRY 默认国内镜像（腾讯云/国内 VPS 快）；海外服务器构建时用：
+#   docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t zhiwei .
 COPY package.json ./
-RUN npm install --no-audit --no-fund
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+RUN npm install --no-audit --no-fund --registry=${NPM_REGISTRY}
 
 # 拷源码并构建（后端 esbuild 打包 + 前端 vite 生产构建，均为仓库已验证命令）
 COPY . .
