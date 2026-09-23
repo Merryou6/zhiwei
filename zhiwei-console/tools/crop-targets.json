@@ -1,9 +1,0 @@
-[
-  { "page": 4, "sel": ".table", "name": "report-table", "cols": true },
-  { "page": 4, "sel": ".grid-7-5", "name": "report-charts" },
-  { "page": 1, "sel": ".assess", "name": "assess-first-card" },
-  { "page": 0, "sel": ".feature", "name": "space-feature" },
-  { "page": 3, "sel": ".legend", "name": "graph-legend" },
-  { "page": 5, "sel": ".toolbar", "name": "drive-toolbar" },
-  { "page": 2, "sel": ".steps", "name": "chat-steps" }
-]

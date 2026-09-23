@@ -59,7 +59,7 @@ const TIP_H = 300;
  * 设计的；本页按控制台 width:100% 缩放后会压成细条、图例被裁。保持 x 不变，把 y 在视图层
  * 放大，让 viewBox 接近控制台 1180×700 的均衡比例（不改布局数据本身）。
  */
-const V_SCALE = 3.0;
+const V_SCALE = 2.5;
 
 export default function GraphPage() {
   const [params] = useSearchParams();

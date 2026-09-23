@@ -249,6 +249,7 @@ a.btn.disabled {
   }
 }
 .content-rise {
+  opacity: 1 !important;
   animation: contentRise 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -697,9 +698,10 @@ a.btn.disabled {
   background: var(--sunken);
   border: 1px solid var(--line); border-radius: var(--r-card);
   box-shadow: var(--shadow-card);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
-.graph-svg { display: block; width: 100%; height: auto; }
+.graph-svg { display: block; width: auto; height: 560px; min-width: 100%; }
 .edge { stroke: rgba(169, 178, 195, 0.30); stroke-width: 1.15; fill: none; transition: stroke var(--dur-slow) var(--ease), stroke-width var(--dur-slow) var(--ease); }
 .edge.is-cross { stroke: rgba(169, 178, 195, 0.19); stroke-dasharray: 3.4 4; }
 .edge.is-on { stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: none; }

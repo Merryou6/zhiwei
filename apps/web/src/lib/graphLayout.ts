@@ -11,9 +11,9 @@ import type { GraphNodeSnapshot } from '../data/graphSnapshot';
 import { chapterNames } from '../data/graphSnapshot';
 
 /** 列间距（px）。 */
-export const COLUMN_GAP = 240;
+export const COLUMN_GAP = 320;
 /** 行间距（px）。 */
-export const ROW_GAP = 60;
+export const ROW_GAP = 80;
 
 export interface LayoutNode {
   id: string;
