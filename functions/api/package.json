@@ -1,6 +1,0 @@
-{
-  "name": "@zhiwei/functions-api",
-  "version": "0.2.0",
-  "private": true,
-  "description": "知微后端（迭代2）：19 接口共享 handler 核心（router + services + db/models 适配层）+ 双入口（本地 Node HTTP / CloudBase 薄适配）。依赖统一由根 package.json 管理，本包不新增 dependencies。"
-}

@@ -1,8 +1,0 @@
-{
-  "name": "@zhiwei/engine",
-  "version": "0.1.0",
-  "private": true,
-  "description": "知微共享算法层（BKT 纯函数引擎，零运行时依赖、零 IO；不发布，仅占位元数据）",
-  "main": "src/index.ts",
-  "types": "src/index.ts"
-}
