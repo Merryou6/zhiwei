@@ -1,0 +1,13 @@
+base   = http://127.0.0.1:5173
+chrome = C:/Program Files/Google/Chrome/Application/chrome.exe
+shots  = C:\Users\29401\WorkBuddy\2026-09-21-18-05-40\zhiwei-run\reports\app-shots
+  [SHOT] 01-login.png  (875 KiB)
+  [SHOT] 02-spaces.png  (138 KiB)
+  [SHOT] 03-assessment.png  (214 KiB)
+  [SHOT] 04-chat.png  (170 KiB)
+  [SHOT] 05-graph.png  (288 KiB)
+  [SHOT] 06-report.png  (635 KiB)
+  [SHOT] 07-drive.png  (159 KiB)
+  [TOKENS] {"bodyBg":"rgb(22, 41, 69)","topbarBg":"rgb(18, 33, 57)","cardBg":"rgb(30, 41, 59)","canvas":"22 41 69","surface":"30 41 59","canvasDeep":"18 33 57","accent":"66 165 245","htmlDusk":"dusk"}
+JS 异常: 0
+DONE

@@ -1,0 +1,62 @@
+/**
+ * 用户主动确认对话框（全站唯一 modal）
+ *
+ * PRD §6「采集永不弹窗」：证据采集、识别、判定全程不弹窗；本组件只用于**用户主动操作**的确认
+ * ——当前唯一使用者是页 3 的 409「同学科空间已存在」：契约 §2 明文要求默认按钮是「切换过去」
+ * 而不是「仍要新建」。
+ */
+
+export interface ConfirmDialogProps {
+  open: boolean;
+  title: string;
+  description?: string;
+  /** 默认按钮（契约 §2：409 时默认 = 切换过去）。 */
+  confirmLabel: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export default function ConfirmDialog({
+  open,
+  title,
+  description,
+  confirmLabel,
+  cancelLabel = '取消',
+  onConfirm,
+  onCancel,
+}: ConfirmDialogProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30 px-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="w-full max-w-sm rounded-2xl border border-line bg-surface p-5 shadow-lg"
+      >
+        <h2 className="text-base font-medium text-ink">{title}</h2>
+        {description ? <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p> : null}
+
+        <div className="mt-5 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
+          >
+            {cancelLabel}
+          </button>
+          <button
+            type="button"
+            autoFocus
+            onClick={onConfirm}
+            className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

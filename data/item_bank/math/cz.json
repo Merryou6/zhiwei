@@ -1,0 +1,6844 @@
+{
+  "meta": {
+    "subject": "数学",
+    "stage": "cz",
+    "kb_id": "kb_math_cz",
+    "version": "1.1.0",
+    "item_count": 272,
+    "pool_counts": {
+      "train": 124,
+      "retest": 148
+    },
+    "updated_at": "2026-09-23"
+  },
+  "items": [
+    {
+      "item_id": "q_cz_basic_001",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "当 x = -2 时，代数式 x^2 + 3x 的值是____。",
+      "options": null,
+      "answer": "-2",
+      "solution_steps": [
+        "把 x = -2 代入，注意负数要加括号：(-2)^2 = 4",
+        "3x = 3 × (-2) = -6",
+        "4 + (-6) = -2",
+        "所以代数式的值是 -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "-10",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "把 (-2)^2 算成 -4（漏括号），得 -4 + (-6) = -10"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_002",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "当 a = 3 时，代数式 2a + 1 的值是____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "2a 表示 2 × a，即 2 × 3 = 6",
+        "6 + 1 = 7",
+        "所以代数式的值是 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "misread_variable",
+          "explanation": "把 2a 看成 2 + a = 5，5 + 1 = 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_003",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "当 a = -3 时，代数式 a^2 - 2a 的值是（　）",
+      "options": [
+        "15",
+        "-21",
+        "-3",
+        "10"
+      ],
+      "answer": "15",
+      "solution_steps": [
+        "a^2 = (-3)^2 = 9",
+        "-2a = -2 × (-3) = 6",
+        "9 + 6 = 15",
+        "所以代数式的值是 15。"
+      ],
+      "distractors": [
+        {
+          "answer": "-21",
+          "typical_error_code": "order_confusion",
+          "explanation": "先算减法再乘：a^2 - 2 = 7，7 × a = -21"
+        },
+        {
+          "answer": "-3",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "把 (-3)^2 算成 -9，得 -9 + 6 = -3"
+        },
+        {
+          "answer": "10",
+          "typical_error_code": "misread_variable",
+          "explanation": "把 2a 看成 2 + a = -1，得 9 - (-1) = 10"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_004",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "当 x = 2，y = -1 时，代数式 3x + 2y 的值是____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "3x = 3 × 2 = 6",
+        "2y = 2 × (-1) = -2",
+        "6 + (-2) = 4",
+        "所以代数式的值是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "8",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "把 y = -1 代入时丢掉负号，算成 2y = 2，得 6 + 2 = 8"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_005",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 2a + b = 5，则 4a + 2b - 3 的值是____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "4a + 2b = 2(2a + b)",
+        "把 2a + b = 5 整体代入，得 4a + 2b = 2 × 5 = 10",
+        "10 - 3 = 7",
+        "所以式子的值是 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "order_confusion",
+          "explanation": "把 2(2a + b) 算成 2 + 5 = 7（先算加法），得 7 - 3 = 4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_006",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "当 x = -1 时，代数式 x^2 - 3x 的值是____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "x^2 = (-1)^2 = 1",
+        "-3x = -3 × (-1) = 3",
+        "1 + 3 = 4",
+        "所以代数式的值是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "把 (-1)^2 算成 -1，得 -1 + 3 = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_007",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "当 a = 4 时，代数式 3a - 2 的值是____。",
+      "options": null,
+      "answer": "10",
+      "solution_steps": [
+        "3a = 3 × 4 = 12",
+        "12 - 2 = 10",
+        "所以代数式的值是 10。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "misread_variable",
+          "explanation": "把 3a 看成 3 + a = 7，得 7 - 2 = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_008",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "下列各式中，计算正确的是（　）",
+      "options": [
+        "3(x + 2) = 3x + 6",
+        "(-2)^2 = -4",
+        "2 + 3 × 4 = 20",
+        "3x + 2 = 5x"
+      ],
+      "answer": "3(x + 2) = 3x + 6",
+      "solution_steps": [
+        "用分配律：3(x + 2) = 3x + 6",
+        "3x 与 6 不是同类项，不能再合并",
+        "所以正确的是 3(x + 2) = 3x + 6。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2)^2 = -4",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "负数平方漏加括号，把结果写成负数"
+        },
+        {
+          "answer": "2 + 3 × 4 = 20",
+          "typical_error_code": "order_confusion",
+          "explanation": "先算加法后算乘法，忽略运算优先级"
+        },
+        {
+          "answer": "3x + 2 = 5x",
+          "typical_error_code": "term_merge",
+          "explanation": "把不同类项 3x 与 2 合并成 5x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_009",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "化简 4x - 2x + 5 的结果是____。",
+      "options": null,
+      "answer": "2x + 5",
+      "solution_steps": [
+        "4x 与 -2x 是同类项，合并得 2x",
+        "常数项 5 不是同类项，保留",
+        "所以化简结果是 2x + 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "7x",
+          "typical_error_code": "term_merge",
+          "explanation": "把 2x 与常数 5 当作同类项合并，得 7x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_010",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "当 m = -3 时，代数式 m^2 + 2m 的值是____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "m^2 = (-3)^2 = 9",
+        "2m = 2 × (-3) = -6",
+        "9 + (-6) = 3",
+        "所以代数式的值是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-15",
+          "typical_error_code": "negative_sign_drop",
+          "explanation": "把 (-3)^2 算成 -9，得 -9 + (-6) = -15"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_basic_011",
+      "knowledge_point": "math.cz.algebra.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 x + y = 4，则 3x + 3y - 5 的值是____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "3x + 3y = 3(x + y)",
+        "把 x + y = 4 整体代入，得 3 × 4 = 12",
+        "12 - 5 = 7",
+        "所以式子的值是 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "order_confusion",
+          "explanation": "把 3(x + y) 算成 3 + 4 = 7（先算加法），得 7 - 5 = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_001",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算 (x + 2)^2 = ____。",
+      "options": null,
+      "answer": "x^2 + 4x + 4",
+      "solution_steps": [
+        "完全平方公式：(a + b)^2 = a^2 + 2ab + b^2",
+        "取 a = x、b = 2：x^2 + 2·x·2 + 2^2",
+        "展开得 x^2 + 4x + 4",
+        "所以 (x + 2)^2 = x^2 + 4x + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 4",
+          "typical_error_code": "square_expansion_missing_middle",
+          "explanation": "只算了首尾两项的平方，丢掉中间的 2ab 项"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_002",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算 (x - 3)^2 = ____。",
+      "options": null,
+      "answer": "x^2 - 6x + 9",
+      "solution_steps": [
+        "(a - b)^2 = a^2 - 2ab + b^2",
+        "取 a = x、b = 3：x^2 - 2·x·3 + 3^2",
+        "展开得 x^2 - 6x + 9",
+        "所以 (x - 3)^2 = x^2 - 6x + 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 6x + 9",
+          "typical_error_code": "middle_sign_error",
+          "explanation": "把中间项 -2ab 的符号写成正号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_003",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 x^2 + 6x + 5 配方成 (x + m)^2 + n 的形式，结果是____。",
+      "options": null,
+      "answer": "(x + 3)^2 - 4",
+      "solution_steps": [
+        "取一次项系数 6 的一半：6 ÷ 2 = 3",
+        "(x + 3)^2 = x^2 + 6x + 9",
+        "x^2 + 6x + 5 = (x + 3)^2 + 5 - 9 = (x + 3)^2 - 4",
+        "所以配方结果是 (x + 3)^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 6)^2 - 31",
+          "typical_error_code": "half_coefficient_error",
+          "explanation": "取一半时用了原系数 6：5 - 36 = -31"
+        },
+        {
+          "answer": "(x + 3)^2 + 5",
+          "typical_error_code": "perfect_square_unrecognized",
+          "explanation": "没有把配平时多加的 9 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_004",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 4,
+      "stem": "下列各式中，是完全平方式的是（　）",
+      "options": [
+        "x^2 + 10x + 25",
+        "x^2 + 10x + 20",
+        "x^2 + 25",
+        "x^2 + 5x + 25"
+      ],
+      "answer": "x^2 + 10x + 25",
+      "solution_steps": [
+        "完全平方式形如 a^2 ± 2ab + b^2",
+        "x^2 + 10x + 25 = x^2 + 2·x·5 + 5^2",
+        "即 (x + 5)^2，所以 x^2 + 10x + 25 是完全平方式。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 10x + 20",
+          "typical_error_code": "perfect_square_unrecognized",
+          "explanation": "中间项与两端不匹配，不能写成完全平方"
+        },
+        {
+          "answer": "x^2 + 25",
+          "typical_error_code": "square_expansion_missing_middle",
+          "explanation": "缺少中间项，不是完全平方式"
+        },
+        {
+          "answer": "x^2 + 5x + 25",
+          "typical_error_code": "half_coefficient_error",
+          "explanation": "一次项系数应是一次项一半的 2 倍，这里只取了一半"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_005",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 a + b = 5，ab = 6，则 a^2 + b^2 的值是____。",
+      "options": null,
+      "answer": "13",
+      "solution_steps": [
+        "由 (a + b)^2 = a^2 + 2ab + b^2 变形",
+        "a^2 + b^2 = (a + b)^2 - 2ab",
+        "= 5^2 - 2 × 6 = 25 - 12 = 13",
+        "所以 a^2 + b^2 的值是 13。"
+      ],
+      "distractors": [
+        {
+          "answer": "25",
+          "typical_error_code": "square_expansion_missing_middle",
+          "explanation": "误认为 (a + b)^2 = a^2 + b^2，直接答 25"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_006",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算 (x + 1)^2 = ____。",
+      "options": null,
+      "answer": "x^2 + 2x + 1",
+      "solution_steps": [
+        "(a + b)^2 = a^2 + 2ab + b^2",
+        "取 a = x、b = 1：x^2 + 2x + 1",
+        "所以 (x + 1)^2 = x^2 + 2x + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 1",
+          "typical_error_code": "square_expansion_missing_middle",
+          "explanation": "只算首尾平方，漏掉中间项 2x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_007",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算 (x - 2)^2 = ____。",
+      "options": null,
+      "answer": "x^2 - 4x + 4",
+      "solution_steps": [
+        "(a - b)^2 = a^2 - 2ab + b^2",
+        "取 a = x、b = 2：x^2 - 4x + 4",
+        "所以 (x - 2)^2 = x^2 - 4x + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 4x + 4",
+          "typical_error_code": "middle_sign_error",
+          "explanation": "把中间项符号写成正号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_008",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 x^2 - 4x + 7 配方成 (x + m)^2 + n 的形式，结果是____。",
+      "options": null,
+      "answer": "(x - 2)^2 + 3",
+      "solution_steps": [
+        "一次项系数 -4 的一半是 -2",
+        "(x - 2)^2 = x^2 - 4x + 4",
+        "x^2 - 4x + 7 = (x - 2)^2 + 7 - 4 = (x - 2)^2 + 3",
+        "所以配方结果是 (x - 2)^2 + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 4)^2 - 9",
+          "typical_error_code": "half_coefficient_error",
+          "explanation": "取一半时用了原系数 4：7 - 16 = -9"
+        },
+        {
+          "answer": "(x - 2)^2 + 7",
+          "typical_error_code": "perfect_square_unrecognized",
+          "explanation": "没有把多加的 4 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_009",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "下列计算正确的是（　）",
+      "options": [
+        "(x + 3)^2 = x^2 + 6x + 9",
+        "(x + 3)^2 = x^2 + 3x + 9",
+        "(x + 3)^2 = x^2 + 9",
+        "(x - 3)^2 = x^2 - 9"
+      ],
+      "answer": "(x + 3)^2 = x^2 + 6x + 9",
+      "solution_steps": [
+        "(x + 3)^2 = x^2 + 2·x·3 + 3^2",
+        "= x^2 + 6x + 9",
+        "所以正确的是 (x + 3)^2 = x^2 + 6x + 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 3)^2 = x^2 + 3x + 9",
+          "typical_error_code": "half_coefficient_error",
+          "explanation": "中间项写成 3x，忘记乘 2"
+        },
+        {
+          "answer": "(x + 3)^2 = x^2 + 9",
+          "typical_error_code": "square_expansion_missing_middle",
+          "explanation": "漏掉中间项 2ab"
+        },
+        {
+          "answer": "(x - 3)^2 = x^2 - 9",
+          "typical_error_code": "middle_sign_error",
+          "explanation": "既漏了中间项，又写错了符号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_010",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "若 x^2 + kx + 9 是完全平方式，则 k = ____。",
+      "options": null,
+      "answer": "k = 6 或 k = -6",
+      "solution_steps": [
+        "完全平方式两端是 x^2 与 3^2",
+        "中间项 kx = ±2·x·3 = ±6x",
+        "所以 k = 6 或 k = -6。"
+      ],
+      "distractors": [
+        {
+          "answer": "k = 3",
+          "typical_error_code": "half_coefficient_error",
+          "explanation": "只取了一次项一半的 3，忘了中间项是 2·x·3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_identity_011",
+      "knowledge_point": "math.cz.algebra.identity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 m - n = 3，mn = 2，则 m^2 + n^2 的值是____。",
+      "options": null,
+      "answer": "13",
+      "solution_steps": [
+        "由 (m - n)^2 = m^2 - 2mn + n^2 变形",
+        "m^2 + n^2 = (m - n)^2 + 2mn",
+        "= 3^2 + 2 × 2 = 9 + 4 = 13",
+        "所以 m^2 + n^2 的值是 13。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "middle_sign_error",
+          "explanation": "把 (m - n)^2 展开成 m^2 + n^2 + 2mn，于是 m^2 + n^2 = 9 - 4 = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_001",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "函数 y = 2x + 1 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "全体实数",
+      "solution_steps": [
+        "解析式是整式，任何实数代入都有唯一确定的 y 值",
+        "所以自变量 x 的取值范围是全体实数。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≠ 0",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "习惯性给分母设限制，但本题没有分母"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_002",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 y = 1/(x - 2) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≠ 2",
+      "solution_steps": [
+        "分式的分母不能为零",
+        "x - 2 ≠ 0，得 x ≠ 2",
+        "所以自变量 x 的取值范围是 x ≠ 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≠ 0",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "只盯着分母里的 x 本身，漏掉分母整体不能为零"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_003",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 y = √(x - 3) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≥ 3",
+      "solution_steps": [
+        "二次根式的被开方数必须是非负数",
+        "x - 3 ≥ 0，解得 x ≥ 3",
+        "所以自变量 x 的取值范围是 x ≥ 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≤ 3",
+          "typical_error_code": "inequality_direction_error",
+          "explanation": "解 x - 3 ≥ 0 时不等号方向写反"
+        },
+        {
+          "answer": "x ≠ 3",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "把被开方数非负的限制误当成分母不为零"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_004",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 4,
+      "stem": "下列说法正确的是（　）",
+      "options": [
+        "y = 1/(x - 2) 中，x 可以取除 2 以外的任意实数",
+        "x = y^2 中，y 是 x 的函数",
+        "y = 1/(x - 2) 中，x 可以取任意实数",
+        "y = √(x - 3) 中，x ≤ 3"
+      ],
+      "answer": "y = 1/(x - 2) 中，x 可以取除 2 以外的任意实数",
+      "solution_steps": [
+        "分式有意义的条件是分母不为零：x - 2 ≠ 0",
+        "即 x ≠ 2，也就是除 2 以外的任意实数",
+        "所以正确的是『y = 1/(x - 2) 中，x 可以取除 2 以外的任意实数』。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = y^2 中，y 是 x 的函数",
+          "typical_error_code": "one_to_many_confusion",
+          "explanation": "同一个 x 对应两个 y，不是函数"
+        },
+        {
+          "answer": "y = 1/(x - 2) 中，x 可以取任意实数",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "漏掉分母不为零的限制"
+        },
+        {
+          "answer": "y = √(x - 3) 中，x ≤ 3",
+          "typical_error_code": "inequality_direction_error",
+          "explanation": "解 x - 3 ≥ 0 时不等号方向写反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_005",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "函数 y = √(x - 1)/(x - 3) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≥ 1 且 x ≠ 3",
+      "solution_steps": [
+        "被开方数非负：x - 1 ≥ 0，得 x ≥ 1",
+        "分母不为零：x - 3 ≠ 0，得 x ≠ 3",
+        "两个条件同时满足：x ≥ 1 且 x ≠ 3。",
+        "所以自变量 x 的取值范围是 x ≥ 1 且 x ≠ 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≥ 1",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "只算了被开方数的条件，漏掉分母不为零"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_006",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 y = 3x 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "全体实数",
+      "solution_steps": [
+        "解析式是整式，任意实数都有唯一的函数值",
+        "所以自变量 x 的取值范围是全体实数。"
+      ],
+      "distractors": [
+        {
+          "answer": "x > 0",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "没有依据地给自变量加了正数限制"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_007",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 y = 1/x 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≠ 0",
+      "solution_steps": [
+        "分母不能为零：x ≠ 0",
+        "所以自变量 x 的取值范围是 x ≠ 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≥ 0",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "把分母不为零误写成非负"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_008",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 y = √(2x - 4) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≥ 2",
+      "solution_steps": [
+        "被开方数非负：2x - 4 ≥ 0",
+        "2x ≥ 4，解得 x ≥ 2",
+        "所以自变量 x 的取值范围是 x ≥ 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≤ 2",
+          "typical_error_code": "inequality_direction_error",
+          "explanation": "移项后不等号方向写反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_009",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "关于函数 y = √(x + 2)，下列说法正确的是（　）",
+      "options": [
+        "x ≥ -2",
+        "x ≠ -2",
+        "x ≤ -2",
+        "x 可以取任意实数（x = -3 代入也能算出数）"
+      ],
+      "answer": "x ≥ -2",
+      "solution_steps": [
+        "被开方数 x + 2 必须非负",
+        "x + 2 ≥ 0，解得 x ≥ -2",
+        "所以正确的是 x ≥ -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≠ -2",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "把被开方数非负误当成分母不为零"
+        },
+        {
+          "answer": "x ≤ -2",
+          "typical_error_code": "inequality_direction_error",
+          "explanation": "解 x + 2 ≥ 0 时不等号方向写反"
+        },
+        {
+          "answer": "x 可以取任意实数（x = -3 代入也能算出数）",
+          "typical_error_code": "domain_ignored_in_substitution",
+          "explanation": "代入求值时没有检查定义域，只因为能算出数值就认定都可以取"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_010",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 y = (x + 1)/(x - 1) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≠ 1",
+      "solution_steps": [
+        "分式有意义的条件是分母不为零",
+        "x - 1 ≠ 0，得 x ≠ 1",
+        "所以自变量 x 的取值范围是 x ≠ 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≠ -1",
+          "typical_error_code": "missing_domain_condition",
+          "explanation": "看的是分子的 x + 1，实际限制来自分母"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_concept_011",
+      "knowledge_point": "math.cz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 y = √(4 - x) 中，自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "x ≤ 4",
+      "solution_steps": [
+        "被开方数非负：4 - x ≥ 0",
+        "移项得 -x ≥ -4，两边同乘 -1 并改变不等号方向，得 x ≤ 4",
+        "所以自变量 x 的取值范围是 x ≤ 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x ≥ 4",
+          "typical_error_code": "inequality_direction_error",
+          "explanation": "两边同乘 -1 时没有改变不等号方向"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_001",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 1,
+      "stem": "点 A 的坐标是 (-2, 3)，它位于（　）",
+      "options": [
+        "第二象限",
+        "第一象限",
+        "第三象限",
+        "第四象限"
+      ],
+      "answer": "第二象限",
+      "solution_steps": [
+        "横坐标 -2 < 0，纵坐标 3 > 0",
+        "横坐标为负、纵坐标为正的点在第二象限",
+        "所以点 (-2, 3) 在第二象限。"
+      ],
+      "distractors": [
+        {
+          "answer": "第一象限",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "把横坐标 -2 读成 2，落到第一象限"
+        },
+        {
+          "answer": "第三象限",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "把纵坐标 3 读成 -3，落到第三象限"
+        },
+        {
+          "answer": "第四象限",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "把 (-2, 3) 看成 (3, -2)，落到第四象限"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_002",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "点 (3, -5) 关于 x 轴对称的点的坐标是____。",
+      "options": null,
+      "answer": "(3, 5)",
+      "solution_steps": [
+        "关于 x 轴对称时横坐标不变、纵坐标互为相反数",
+        "横坐标 3 不变，纵坐标 -5 变为 5",
+        "所以对称点是 (3, 5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(5, 3)",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "把横纵坐标的位置写颠倒"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_003",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知一次函数 y = 2x - 1，当 x = 3 时，图像上对应点的坐标是____。",
+      "options": null,
+      "answer": "(3, 5)",
+      "solution_steps": [
+        "把 x = 3 代入：y = 2 × 3 - 1 = 5",
+        "图像上的点写作 (x, y)",
+        "所以点坐标是 (3, 5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(5, 3)",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "把 (x, y) 写成了 (y, x)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_004",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "请说明用描点法画函数 y = x^2 图像的主要步骤。",
+      "options": null,
+      "answer": "列表、描点、用平滑曲线连接",
+      "solution_steps": [
+        "先取若干个 x 的值，算出对应的 y 值，列成表格",
+        "把每一对 (x, y) 作为点的坐标，在坐标系中描点",
+        "用平滑曲线依次连接这些点",
+        "所以描点法的主要步骤是列表、描点、用平滑曲线连接。"
+      ],
+      "distractors": [
+        {
+          "answer": "列表、描点、用折线依次连接各点",
+          "typical_error_code": "curve_as_polyline",
+          "explanation": "用折线连接会改变曲线形状，应使用平滑曲线"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_005",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "画 y = x^2 的图像时，取 x = 1 与 x = -1 得到两点，请说明这两点的位置关系。",
+      "options": null,
+      "answer": "关于 y 轴对称",
+      "solution_steps": [
+        "x = 1 时 y = 1，点为 (1, 1)",
+        "x = -1 时 y = 1，点为 (-1, 1)",
+        "两点纵坐标相同、横坐标互为相反数",
+        "所以这两点关于 y 轴对称。"
+      ],
+      "distractors": [
+        {
+          "answer": "关于 x 轴对称",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "把横坐标互为相反数误认成纵坐标互为相反数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_006",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "点 (-4, 2) 的横坐标是____。",
+      "options": null,
+      "answer": "-4",
+      "solution_steps": [
+        "点的坐标写作 (横坐标, 纵坐标)",
+        "(-4, 2) 中第一个数是横坐标 -4",
+        "所以横坐标是 -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "把第二个数当成了横坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_007",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 2,
+      "stem": "下列各点中，在第二象限的是（　）",
+      "options": [
+        "(-3, 5)",
+        "(-3, -5)",
+        "(3, 5)",
+        "(5, -3)"
+      ],
+      "answer": "(-3, 5)",
+      "solution_steps": [
+        "第二象限的点横坐标为负、纵坐标为正",
+        "(-3, 5)：横坐标 -3 < 0，纵坐标 5 > 0",
+        "所以 (-3, 5) 在第二象限。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-3, -5)",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "纵坐标符号写错，落到第三象限"
+        },
+        {
+          "answer": "(3, 5)",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "丢掉横坐标的负号，落到第一象限"
+        },
+        {
+          "answer": "(5, -3)",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "横纵坐标位置颠倒，落到第四象限"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_008",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "点 (2, -1) 关于 y 轴对称的点的坐标是____。",
+      "options": null,
+      "answer": "(-2, -1)",
+      "solution_steps": [
+        "关于 y 轴对称时纵坐标不变、横坐标互为相反数",
+        "横坐标 2 变为 -2，纵坐标 -1 不变",
+        "所以对称点是 (-2, -1)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-1, -2)",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "把横纵坐标的位置写颠倒"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_009",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 y = -x + 4 的图像与 y 轴的交点坐标是____。",
+      "options": null,
+      "answer": "(0, 4)",
+      "solution_steps": [
+        "与 y 轴相交时 x = 0",
+        "代入得 y = -0 + 4 = 4",
+        "所以交点坐标是 (0, 4)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(4, 0)",
+          "typical_error_code": "point_order_reversed",
+          "explanation": "写成了与 x 轴的交点，横纵坐标颠倒"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_010",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "画函数图像时，只描出两点就直接连成一条直线，可能造成什么问题？",
+      "options": null,
+      "answer": "无法反映图像的真实形状",
+      "solution_steps": [
+        "两点只能确定一条直线",
+        "如果函数的图像不是直线，只描两点就会把曲线画成直线",
+        "画出的图像与真实图像不符",
+        "所以这样画无法反映图像的真实形状。"
+      ],
+      "distractors": [
+        {
+          "answer": "没有任何问题，任意两点都足以确定函数图像",
+          "typical_error_code": "curve_as_polyline",
+          "explanation": "误认为所有函数图像都能由两点确定"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_func_graph_011",
+      "knowledge_point": "math.cz.function.graph",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "点 A(-1, 3) 与点 B(5, 3) 的连线与 x 轴的位置关系是____。",
+      "options": null,
+      "answer": "平行",
+      "solution_steps": [
+        "两点纵坐标都是 3，它们在同一条水平线上",
+        "这条水平线是 y = 3，与 x 轴（y = 0）不相交",
+        "所以连线与 x 轴平行。"
+      ],
+      "distractors": [
+        {
+          "answer": "垂直",
+          "typical_error_code": "negative_axis_misread",
+          "explanation": "把横坐标 -1 当成纵坐标，误判为竖直方向"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_001",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 1,
+      "stem": "关于一次函数 y = kx + b，下列说法正确的是（　）",
+      "options": [
+        "当 k ≠ 0 时，y = kx + b 是一次函数",
+        "b 是与 y 轴交点的横坐标",
+        "k 的符号不影响 y 随 x 的变化趋势",
+        "y = 3 也是一次函数（k = 0 没关系）"
+      ],
+      "answer": "当 k ≠ 0 时，y = kx + b 是一次函数",
+      "solution_steps": [
+        "一次函数的定义要求一次项系数 k ≠ 0",
+        "k ≠ 0 时 y = kx + b 才是一次函数；k = 0 时 y = b 是常函数",
+        "所以正确的是『当 k ≠ 0 时，y = kx + b 是一次函数』。"
+      ],
+      "distractors": [
+        {
+          "answer": "b 是与 y 轴交点的横坐标",
+          "typical_error_code": "intercept_misread",
+          "explanation": "b 是与 y 轴交点的纵坐标，交点是 (0, b)"
+        },
+        {
+          "answer": "k 的符号不影响 y 随 x 的变化趋势",
+          "typical_error_code": "slope_sign_error",
+          "explanation": "k > 0 时 y 随 x 增大而增大，k < 0 时相反"
+        },
+        {
+          "answer": "y = 3 也是一次函数（k = 0 没关系）",
+          "typical_error_code": "k_zero_as_linear",
+          "explanation": "k = 0 时 y = 3 不含一次项，是常函数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_002",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "一次函数 y = 3x - 2 中，k = ____。",
+      "options": null,
+      "answer": "k = 3",
+      "solution_steps": [
+        "一次函数的标准形式是 y = kx + b",
+        "对照 y = 3x - 2，一次项系数 k = 3",
+        "所以 k = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "k = -2",
+          "typical_error_code": "intercept_misread",
+          "explanation": "把常数项 b 当成了 k"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_003",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "一次函数 y = -2x + 5 的图像与 y 轴的交点坐标是____。",
+      "options": null,
+      "answer": "(0, 5)",
+      "solution_steps": [
+        "与 y 轴相交时 x = 0",
+        "y = -2 × 0 + 5 = 5",
+        "所以与 y 轴的交点坐标是 (0, 5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(5, 0)",
+          "typical_error_code": "intercept_misread",
+          "explanation": "把 b = 5 当成交点的横坐标，写成了与 x 轴的交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_004",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知一次函数 y = kx + b 的图像经过点 (1, 3) 和 (2, 5)，则 k = ____。",
+      "options": null,
+      "answer": "k = 2",
+      "solution_steps": [
+        "把两点分别代入：k + b = 3，2k + b = 5",
+        "两式相减得 k = 2",
+        "所以 k = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "k = -2",
+          "typical_error_code": "two_point_solve_slip",
+          "explanation": "两式相减时符号出错，得 k = -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_005",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知一次函数的图像经过点 (0, 1) 和 (1, -1)，则它的解析式是____。",
+      "options": null,
+      "answer": "y = -2x + 1",
+      "solution_steps": [
+        "设解析式为 y = kx + b",
+        "由经过 (0, 1) 得 b = 1",
+        "代入 (1, -1)：k + 1 = -1，得 k = -2",
+        "所以解析式是 y = -2x + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 2x + 1",
+          "typical_error_code": "slope_sign_error",
+          "explanation": "解 k + 1 = -1 时符号写反，把 k 当成 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_006",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "一次函数 y = -4x + 3 中，b = ____。",
+      "options": null,
+      "answer": "b = 3",
+      "solution_steps": [
+        "标准形式 y = kx + b 中，b 是常数项",
+        "对照 y = -4x + 3 得 b = 3",
+        "所以 b = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "b = -4",
+          "typical_error_code": "intercept_misread",
+          "explanation": "把一次项系数 k 当成了 b"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_007",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "点 (2, 7) 是否在直线 y = 3x + 1 上？填『是』或『否』：____。",
+      "options": null,
+      "answer": "是",
+      "solution_steps": [
+        "把 x = 2 代入解析式：y = 3 × 2 + 1 = 7",
+        "算得的 y 与点的纵坐标 7 相同",
+        "所以点 (2, 7) 在直线上，填『是』。"
+      ],
+      "distractors": [
+        {
+          "answer": "否",
+          "typical_error_code": "two_point_solve_slip",
+          "explanation": "代入计算时出错（如算成 3 × 2 + 1 = 5），误判为不在直线上"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_008",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知一次函数 y = kx + 2 的图像经过点 (2, 8)，则 k = ____。",
+      "options": null,
+      "answer": "k = 3",
+      "solution_steps": [
+        "把 (2, 8) 代入：2k + 2 = 8",
+        "2k = 6，解得 k = 3",
+        "所以 k = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "k = -3",
+          "typical_error_code": "slope_sign_error",
+          "explanation": "移项时符号出错，把 2k = 6 算成 2k = -6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_009",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "一次函数 y = 5x - 4 的图像与 x 轴的交点坐标是____。",
+      "options": null,
+      "answer": "(4/5, 0)",
+      "solution_steps": [
+        "与 x 轴相交时 y = 0",
+        "5x - 4 = 0，解得 x = 4/5",
+        "所以交点坐标是 (4/5, 0)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, -4)",
+          "typical_error_code": "intercept_misread",
+          "explanation": "把与 y 轴的交点当成了与 x 轴的交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_010",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "一次函数 y = kx + b 的图像经过点 (1, 2) 和 (3, 8)，则 b = ____。",
+      "options": null,
+      "answer": "b = -1",
+      "solution_steps": [
+        "代入得：k + b = 2，3k + b = 8",
+        "两式相减得 2k = 6，即 k = 3",
+        "代回 k + b = 2 得 b = -1",
+        "所以 b = -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "b = 1",
+          "typical_error_code": "two_point_solve_slip",
+          "explanation": "求 b 时符号出错：用 3 - 2 得 b = 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_linear_011",
+      "knowledge_point": "math.cz.function.linear",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "已知一次函数的图像经过 A(0, 3) 与 B(1, 5)，请写出求解析式的主要步骤并给出结果。",
+      "options": null,
+      "answer": "y = 2x + 3",
+      "solution_steps": [
+        "设解析式为 y = kx + b",
+        "由 A(0, 3) 得 b = 3",
+        "由 B(1, 5) 得 k + 3 = 5，解得 k = 2",
+        "所以解析式是 y = 2x + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = -2x + 3",
+          "typical_error_code": "slope_sign_error",
+          "explanation": "求 k 时把 k + 3 = 5 算成 k = -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_001",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "方程 x^2 = 16 的解是____。",
+      "options": null,
+      "answer": "x1 = -4, x2 = 4",
+      "solution_steps": [
+        "直接开平方：x = ±4",
+        "即 x1 = -4, x2 = 4",
+        "所以方程的解是 x1 = -4, x2 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 4",
+          "typical_error_code": "lost_negative_root",
+          "explanation": "只取了算术平方根，漏掉负根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_002",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "方程 (x - 1)^2 = 9 的解是____。",
+      "options": null,
+      "answer": "x1 = -2, x2 = 4",
+      "solution_steps": [
+        "把 x - 1 看作整体，直接开平方：x - 1 = ±3",
+        "x = 1 ± 3，得 x1 = -2, x2 = 4",
+        "所以方程的解是 x1 = -2, x2 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 4",
+          "typical_error_code": "lost_negative_root",
+          "explanation": "只取 x - 1 = 3，漏掉 x - 1 = -3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_003",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "下列方程中，是一元二次方程的是（　）",
+      "options": [
+        "2x^2 - 5 = 0",
+        "3x + 2 = 1",
+        "x^2 + 1/x = 0",
+        "x^3 - 3x + 1 = 0"
+      ],
+      "answer": "2x^2 - 5 = 0",
+      "solution_steps": [
+        "一元二次方程须满足：整式方程、只含一个未知数、最高次数为 2",
+        "2x^2 - 5 = 0 三条都满足",
+        "所以 2x^2 - 5 = 0 是一元二次方程。"
+      ],
+      "distractors": [
+        {
+          "answer": "3x + 2 = 1",
+          "typical_error_code": "non_quadratic_misjudge",
+          "explanation": "最高次数是 1，是一元一次方程"
+        },
+        {
+          "answer": "x^2 + 1/x = 0",
+          "typical_error_code": "non_quadratic_misjudge",
+          "explanation": "分母含未知数，不是整式方程"
+        },
+        {
+          "answer": "x^3 - 3x + 1 = 0",
+          "typical_error_code": "non_quadratic_misjudge",
+          "explanation": "最高次数是 3，不是一元二次方程"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_004",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "方程 x^2 = 5x 的解是____。",
+      "options": null,
+      "answer": "x1 = 0, x2 = 5",
+      "solution_steps": [
+        "移项得 x^2 - 5x = 0",
+        "提公因式 x(x - 5) = 0",
+        "得 x1 = 0, x2 = 5",
+        "所以方程的解是 x1 = 0, x2 = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 5",
+          "typical_error_code": "divide_by_variable",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_005",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "化简 √18 = ____。",
+      "options": null,
+      "answer": "3√2",
+      "solution_steps": [
+        "把 18 分解为 9 × 2，其中 9 是完全平方数",
+        "√18 = √9 × √2 = 3√2",
+        "所以 √18 = 3√2。"
+      ],
+      "distractors": [
+        {
+          "answer": "9√2",
+          "typical_error_code": "radical_simplify_error",
+          "explanation": "把 18 ÷ 2 = 9 直接写在根号外，应开平方得 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_006",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "方程 x^2 = 25 的解是____。",
+      "options": null,
+      "answer": "x1 = -5, x2 = 5",
+      "solution_steps": [
+        "直接开平方：x = ±5",
+        "即 x1 = -5, x2 = 5",
+        "所以方程的解是 x1 = -5, x2 = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 5",
+          "typical_error_code": "lost_negative_root",
+          "explanation": "只取正根，漏掉负根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_007",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "方程 (x + 2)^2 = 4 的解是____。",
+      "options": null,
+      "answer": "x1 = -4, x2 = 0",
+      "solution_steps": [
+        "把 x + 2 看作整体开平方：x + 2 = ±2",
+        "x = -2 ± 2，得 x1 = -4, x2 = 0",
+        "所以方程的解是 x1 = -4, x2 = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 0",
+          "typical_error_code": "lost_negative_root",
+          "explanation": "只取 x + 2 = 2，漏掉 x + 2 = -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_008",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "方程 x^2 - 3x = 0 的解是____。",
+      "options": null,
+      "answer": "x1 = 0, x2 = 3",
+      "solution_steps": [
+        "提公因式 x(x - 3) = 0",
+        "x = 0 或 x - 3 = 0",
+        "得 x1 = 0, x2 = 3",
+        "所以方程的解是 x1 = 0, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 3",
+          "typical_error_code": "divide_by_variable",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_009",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "下列化简正确的是（　）",
+      "options": [
+        "√18 = 3√2",
+        "√18 = 2√3",
+        "√18 = 6√3",
+        "√18 = 9√2"
+      ],
+      "answer": "√18 = 3√2",
+      "solution_steps": [
+        "18 = 9 × 2，其中 9 是完全平方数",
+        "√18 = √9 × √2 = 3√2",
+        "所以正确的是 √18 = 3√2。"
+      ],
+      "distractors": [
+        {
+          "answer": "√18 = 2√3",
+          "typical_error_code": "radical_simplify_error",
+          "explanation": "分解出错（把 18 当作 12 处理），得 2√3"
+        },
+        {
+          "answer": "√18 = 6√3",
+          "typical_error_code": "radical_simplify_error",
+          "explanation": "分解成 6 × 3，把因数直接写在根号外"
+        },
+        {
+          "answer": "√18 = 9√2",
+          "typical_error_code": "radical_simplify_error",
+          "explanation": "把 18 ÷ 2 = 9 写在根号外，应开平方得 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_010",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "方程 x^2 + 2x = 0 的解是____。",
+      "options": null,
+      "answer": "x1 = -2, x2 = 0",
+      "solution_steps": [
+        "提公因式 x(x + 2) = 0",
+        "x = 0 或 x + 2 = 0",
+        "得 x1 = -2, x2 = 0",
+        "所以方程的解是 x1 = -2, x2 = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2",
+          "typical_error_code": "divide_by_variable",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_concept_011",
+      "knowledge_point": "math.cz.quadratic.eq_concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "方程 2(x - 3)^2 = 8 的解是____。",
+      "options": null,
+      "answer": "x1 = 1, x2 = 5",
+      "solution_steps": [
+        "两边同除 2：(x - 3)^2 = 4",
+        "直接开平方：x - 3 = ±2",
+        "x = 3 ± 2，得 x1 = 1, x2 = 5",
+        "所以方程的解是 x1 = 1, x2 = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 5",
+          "typical_error_code": "lost_negative_root",
+          "explanation": "只取 x - 3 = 2，漏掉 x - 3 = -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_001",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "使 x^2 + 4x + ____ 成为完全平方式，横线上应填____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "完全平方式形如 x^2 + 2·x·m + m^2",
+        "2m = 4，得 m = 2，m^2 = 4",
+        "所以横线上应填 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "16",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "取『一半』时直接用原系数 4 平方，得 16"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_002",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "把 x^2 + 6x 配成完全平方式，需要加上____。",
+      "options": null,
+      "answer": "9",
+      "solution_steps": [
+        "取一次项系数 6 的一半：6 ÷ 2 = 3",
+        "再平方：3^2 = 9",
+        "所以需要加上 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "36",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "用原系数 6 直接平方，得 36"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_003",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "用配方法解方程 x^2 + 6x + 5 = 0，配方后得到的方程是（　）",
+      "options": [
+        "(x + 3)^2 = 4",
+        "(x + 3)^2 = -14",
+        "(x + 3)^2 = 5",
+        "(x + 6)^2 = 31"
+      ],
+      "answer": "(x + 3)^2 = 4",
+      "solution_steps": [
+        "移项：x^2 + 6x = -5",
+        "两边加上 3^2 = 9：x^2 + 6x + 9 = -5 + 9",
+        "左边写成完全平方：(x + 3)^2 = 4",
+        "所以配方后得到的方程是 (x + 3)^2 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 3)^2 = -14",
+          "typical_error_code": "constant_move_sign_error",
+          "explanation": "常数项移项时没有变号：右边算成 -5 - 9 = -14"
+        },
+        {
+          "answer": "(x + 3)^2 = 5",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "左边加了 9，右边没有同步加 9"
+        },
+        {
+          "answer": "(x + 6)^2 = 31",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "取一半时用了原系数 6，右边算成 -5 + 36 = 31"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_004",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用配方法解方程 x^2 - 4x + 1 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x = 2 ± √3",
+      "solution_steps": [
+        "移项：x^2 - 4x = -1",
+        "两边加 4：(x - 2)^2 = 3",
+        "开平方：x - 2 = ±√3",
+        "所以方程的解是 x = 2 ± √3。"
+      ],
+      "distractors": [
+        {
+          "answer": "无实数根",
+          "typical_error_code": "negative_rhs_ignored",
+          "explanation": "中间结果算错后看到负数就宣布无实数根，没有回到配方式核对符号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_005",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "用配方法解方程 x^2 + 2x - 3 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -3, x2 = 1",
+      "solution_steps": [
+        "移项：x^2 + 2x = 3",
+        "两边加 1：(x + 1)^2 = 4",
+        "开平方：x + 1 = ±2，得 x1 = -3, x2 = 1",
+        "所以方程的解是 x1 = -3, x2 = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "无实数根",
+          "typical_error_code": "constant_move_sign_error",
+          "explanation": "移项时未变号，右边算成 -3，于是判定无实数根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_006",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "由 (x - 2)^2 = 5 可得 x = ____。",
+      "options": null,
+      "answer": "x = 2 ± √5",
+      "solution_steps": [
+        "直接开平方：x - 2 = ±√5",
+        "把 -2 移到右边：x = 2 ± √5",
+        "所以 x = 2 ± √5。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = ±√5",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "开平方后忘记把括号里的常数移项"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_007",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "使 x^2 + 8x + ____ 成为完全平方式，横线上应填____。",
+      "options": null,
+      "answer": "16",
+      "solution_steps": [
+        "取一次项系数 8 的一半：4",
+        "再平方：4^2 = 16",
+        "所以横线上应填 16。"
+      ],
+      "distractors": [
+        {
+          "answer": "64",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "用原系数 8 直接平方，得 64"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_008",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "用配方法解方程 x^2 - 2x = 0，配方后得到的方程是____。",
+      "options": null,
+      "answer": "(x - 1)^2 = 1",
+      "solution_steps": [
+        "两边加上 (2/2)^2 = 1：x^2 - 2x + 1 = 0 + 1",
+        "左边写成完全平方：(x - 1)^2 = 1",
+        "所以配方后得到的方程是 (x - 1)^2 = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 2)^2 = 4",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "取一半时用了原系数 2，右边算成 0 + 4 = 4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_009",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用配方法解方程 x^2 + 2x + 5 = 0，方程的解是____。",
+      "options": null,
+      "answer": "无实数根",
+      "solution_steps": [
+        "移项：x^2 + 2x = -5",
+        "两边加 1：(x + 1)^2 = -4",
+        "任何实数的平方都非负，而右边是 -4",
+        "所以方程无实数根。"
+      ],
+      "distractors": [
+        {
+          "answer": "x1 = -3, x2 = 1",
+          "typical_error_code": "negative_rhs_ignored",
+          "explanation": "忽略右边为负，仍把 -4 开平方得 ±2，再减 1 得两根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_010",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用配方法解方程 x^2 - 6x + 5 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 1, x2 = 5",
+      "solution_steps": [
+        "移项：x^2 - 6x = -5",
+        "两边加 9：(x - 3)^2 = 4",
+        "开平方：x - 3 = ±2，得 x1 = 1, x2 = 5",
+        "所以方程的解是 x1 = 1, x2 = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "无实数根",
+          "typical_error_code": "constant_move_sign_error",
+          "explanation": "移项时未变号，右边算成 -5 - 9 = -14，于是判定无实数根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_011",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "配方说明 x^2 - 4x + 5 恒为正数，配方结果是____。",
+      "options": null,
+      "answer": "(x - 2)^2 + 1",
+      "solution_steps": [
+        "x^2 - 4x + 5 = (x^2 - 4x + 4) + 5 - 4",
+        "= (x - 2)^2 + 1",
+        "所以配方结果是 (x - 2)^2 + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 2)^2 + 5",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "没有把配平时多加的 4 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_012",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用配方法解方程 2x^2 - 4x - 6 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -1, x2 = 3",
+      "solution_steps": [
+        "两边同除 2：x^2 - 2x - 3 = 0",
+        "移项并配方：x^2 - 2x + 1 = 3 + 1，即 (x - 1)^2 = 4",
+        "开平方：x - 1 = ±2，得 x1 = -1, x2 = 3",
+        "所以方程的解是 x1 = -1, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "无实数根",
+          "typical_error_code": "constant_move_sign_error",
+          "explanation": "移项时未变号，右边算成 -3 - 1 = -4，于是判定无实数根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_comp_sq_013",
+      "knowledge_point": "math.cz.quadratic.completing_square",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "若 x^2 + bx + 9 是完全平方式，且 b > 0，则 b = ____。",
+      "options": null,
+      "answer": "b = 6",
+      "solution_steps": [
+        "完全平方式的中间项为 ±2·x·3 = ±6x",
+        "由 b > 0 取 b = 6",
+        "所以 b = 6。"
+      ],
+      "distractors": [
+        {
+          "answer": "b = 3",
+          "typical_error_code": "half_coefficient_misread",
+          "explanation": "只取了 3，忘记中间项是两次乘积的 2 倍"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_001",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "一元二次方程 ax^2 + bx + c = 0（a ≠ 0）的求根公式是 x = ____。",
+      "options": null,
+      "answer": "x = (-b ± √(b^2 - 4ac))/(2a)",
+      "solution_steps": [
+        "当判别式 b^2 - 4ac ≥ 0 时方程有实数根",
+        "求根公式为 x = (-b ± √(b^2 - 4ac))/(2a)",
+        "所以 x = (-b ± √(b^2 - 4ac))/(2a)。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = (-b ± √(b^2 - 4ac))/a",
+          "typical_error_code": "denominator_misread",
+          "explanation": "分母漏了 2，只写了 a"
+        },
+        {
+          "answer": "x = (-b ± √(b^2 + 4ac))/(2a)",
+          "typical_error_code": "discriminant_sign_error",
+          "explanation": "判别式中 -4ac 写成了 +4ac"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_002",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "方程 x^2 - 6x + 5 = 0 的判别式 △ = ____。",
+      "options": null,
+      "answer": "△ = 16",
+      "solution_steps": [
+        "a = 1，b = -6，c = 5",
+        "△ = b^2 - 4ac = (-6)^2 - 4 × 1 × 5",
+        "= 36 - 20 = 16",
+        "所以 △ = 16。"
+      ],
+      "distractors": [
+        {
+          "answer": "△ = 56",
+          "typical_error_code": "discriminant_sign_error",
+          "explanation": "把 -4ac 算成 +4ac：36 + 20 = 56"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_003",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用公式法解方程 x^2 + 5x + 6 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -3, x2 = -2",
+      "solution_steps": [
+        "a = 1，b = 5，c = 6，△ = 25 - 24 = 1",
+        "x = (-5 ± 1)/2",
+        "得 x = -3 或 x = -2",
+        "所以方程的解是 x1 = -3, x2 = -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2",
+          "typical_error_code": "plus_minus_omitted",
+          "explanation": "漏掉 ± 号，只保留了一个根"
+        },
+        {
+          "answer": "x1 = -6, x2 = -4",
+          "typical_error_code": "denominator_misread",
+          "explanation": "分母写成 a = 1：( -5 ± 1 )/1 得 -4 与 -6"
+        },
+        {
+          "answer": "x1 = -6, x2 = 1",
+          "typical_error_code": "discriminant_sign_error",
+          "explanation": "判别式算成 25 + 24 = 49，开方得 7，(-5 ± 7)/2 得 1 与 -6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_004",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "方程 x^2 - 4x + 4 = 0 的根的情况是____。",
+      "options": null,
+      "answer": "有两个相等的实数根",
+      "solution_steps": [
+        "a = 1，b = -4，c = 4",
+        "△ = 16 - 16 = 0",
+        "△ = 0 时方程有两个相等的实数根（即 x1 = x2 = 2）",
+        "所以方程有两个相等的实数根。"
+      ],
+      "distractors": [
+        {
+          "answer": "没有实数根",
+          "typical_error_code": "discriminant_meaning_reversed",
+          "explanation": "认为 △ = 0 时方程没有实数根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_005",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "方程 x^2 + x + 1 = 0 的实数根的个数是____。",
+      "options": null,
+      "answer": "0 个",
+      "solution_steps": [
+        "a = 1，b = 1，c = 1",
+        "△ = 1 - 4 = -3 < 0",
+        "△ < 0 时方程没有实数根",
+        "所以实数根的个数是 0 个。"
+      ],
+      "distractors": [
+        {
+          "answer": "2 个",
+          "typical_error_code": "discriminant_meaning_reversed",
+          "explanation": "误认为判别式只影响根的大小，与根的个数无关"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_006",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "方程 x^2 - 2x - 3 = 0 的判别式 △ = ____。",
+      "options": null,
+      "answer": "△ = 16",
+      "solution_steps": [
+        "a = 1，b = -2，c = -3",
+        "△ = (-2)^2 - 4 × 1 × (-3) = 4 + 12",
+        "= 16",
+        "所以 △ = 16。"
+      ],
+      "distractors": [
+        {
+          "answer": "△ = -8",
+          "typical_error_code": "discriminant_sign_error",
+          "explanation": "把 -4ac 当 +4ac：4 + (-12) = -8"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_007",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "用公式法解方程 x^2 - 3x + 2 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 1, x2 = 2",
+      "solution_steps": [
+        "a = 1，b = -3，c = 2，△ = 9 - 8 = 1",
+        "x = (3 ± 1)/2",
+        "得 x = 1 或 x = 2",
+        "所以方程的解是 x1 = 1, x2 = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 2",
+          "typical_error_code": "plus_minus_omitted",
+          "explanation": "漏掉 ± 号，只保留了一个根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_008",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用公式法解方程 2x^2 - 7x + 3 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 1/2, x2 = 3",
+      "solution_steps": [
+        "a = 2，b = -7，c = 3，△ = 49 - 24 = 25",
+        "x = (7 ± 5)/4",
+        "得 x = 3 或 x = 1/2",
+        "所以方程的解是 x1 = 1/2, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x1 = 1, x2 = 6",
+          "typical_error_code": "denominator_misread",
+          "explanation": "分母写成 a = 2：(7 ± 5)/2 得 1 与 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_009",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "方程 x^2 + 3x + 5 = 0 的根的情况是____。",
+      "options": null,
+      "answer": "没有实数根",
+      "solution_steps": [
+        "a = 1，b = 3，c = 5",
+        "△ = 9 - 20 = -11 < 0",
+        "△ < 0 时方程没有实数根",
+        "所以方程没有实数根。"
+      ],
+      "distractors": [
+        {
+          "answer": "有两个不相等的实数根",
+          "typical_error_code": "discriminant_meaning_reversed",
+          "explanation": "把 △ < 0 误认为有两个不相等的实数根"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_010",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用公式法解方程 x^2 + 2x - 1 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x = -1 ± √2",
+      "solution_steps": [
+        "a = 1，b = 2，c = -1，△ = 4 + 4 = 8",
+        "√8 = 2√2，代入公式 x = (-2 ± 2√2)/2",
+        "约分得 x = -1 ± √2",
+        "所以方程的解是 x = -1 ± √2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2 ± 2√2",
+          "typical_error_code": "denominator_misread",
+          "explanation": "没有把分母 2 约掉，直接保留了分子形式"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_formula_011",
+      "knowledge_point": "math.cz.quadratic.formula",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 4,
+      "stem": "关于一元二次方程 ax^2 + bx + c = 0（a ≠ 0）的判别式 △ = b^2 - 4ac，下列说法正确的是（　）",
+      "options": [
+        "△ > 0 时方程有两个不相等的实数根",
+        "△ < 0 时方程有两个不相等的实数根",
+        "△ = 0 时方程没有实数根",
+        "△ = b^2 + 4ac"
+      ],
+      "answer": "△ > 0 时方程有两个不相等的实数根",
+      "solution_steps": [
+        "△ > 0：图像与 x 轴有两个交点，方程有两个不相等的实数根",
+        "△ = 0：两个相等的实数根；△ < 0：没有实数根",
+        "所以正确的是『△ > 0 时方程有两个不相等的实数根』。"
+      ],
+      "distractors": [
+        {
+          "answer": "△ < 0 时方程有两个不相等的实数根",
+          "typical_error_code": "discriminant_meaning_reversed",
+          "explanation": "△ < 0 时没有实数根"
+        },
+        {
+          "answer": "△ = 0 时方程没有实数根",
+          "typical_error_code": "discriminant_meaning_reversed",
+          "explanation": "△ = 0 时有两个相等的实数根"
+        },
+        {
+          "answer": "△ = b^2 + 4ac",
+          "typical_error_code": "discriminant_sign_error",
+          "explanation": "判别式是 b^2 - 4ac，写成了加号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_001",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "因式分解 x^2 - 9 = ____。",
+      "options": null,
+      "answer": "(x - 3)(x + 3)",
+      "solution_steps": [
+        "这是平方差形式 a^2 - b^2 = (a - b)(a + b)",
+        "x^2 - 9 = x^2 - 3^2 = (x - 3)(x + 3)",
+        "所以 x^2 - 9 = (x - 3)(x + 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 3)^2",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "把平方差误当成完全平方，符号也写错"
+        },
+        {
+          "answer": "x(x - 9)",
+          "typical_error_code": "no_factorization_seen",
+          "explanation": "看不出平方差形式，硬用提公因式把 x^2 - 9 写成 x(x - 9)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_002",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "解方程 x(x - 3) = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 0, x2 = 3",
+      "solution_steps": [
+        "两个因式的积为 0，则至少有一个因式为 0",
+        "x = 0 或 x - 3 = 0",
+        "得 x1 = 0, x2 = 3",
+        "所以方程的解是 x1 = 0, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 3",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "两边同除 x，丢掉因式 x 对应的根 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_003",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用因式分解法解方程 x^2 - 5x + 6 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 2, x2 = 3",
+      "solution_steps": [
+        "找两数积为 6、和为 -5：取 -2 与 -3",
+        "x^2 - 5x + 6 = (x - 2)(x - 3)",
+        "由 (x - 2)(x - 3) = 0 得 x1 = 2, x2 = 3",
+        "所以方程的解是 x1 = 2, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x1 = -2, x2 = -3",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "分解成 (x + 2)(x + 3)，两数符号取反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_004",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用因式分解法解方程 x^2 - 4x = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 0, x2 = 4",
+      "solution_steps": [
+        "提公因式：x(x - 4) = 0",
+        "x = 0 或 x - 4 = 0",
+        "得 x1 = 0, x2 = 4",
+        "所以方程的解是 x1 = 0, x2 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 4",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_005",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "用因式分解法解方程 x^2 - 9 = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -3, x2 = 3",
+      "solution_steps": [
+        "平方差分解：x^2 - 9 = (x - 3)(x + 3)",
+        "由 (x - 3)(x + 3) = 0 得 x = 3 或 x = -3",
+        "得 x1 = -3, x2 = 3",
+        "所以方程的解是 x1 = -3, x2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x1 = 0, x2 = 9",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "把 x^2 - 9 分解成 x(x - 9)，形式与符号都错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_006",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "解方程 x(x + 2) = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -2, x2 = 0",
+      "solution_steps": [
+        "积为 0 则至少有一个因式为 0",
+        "x = 0 或 x + 2 = 0",
+        "得 x1 = -2, x2 = 0",
+        "所以方程的解是 x1 = -2, x2 = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_007",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "因式分解 x^2 - x - 6 = ____。",
+      "options": null,
+      "answer": "(x - 3)(x + 2)",
+      "solution_steps": [
+        "找两数积为 -6、和为 -1：取 -3 与 2",
+        "x^2 - x - 6 = (x - 3)(x + 2)",
+        "所以 x^2 - x - 6 = (x - 3)(x + 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 3)(x - 2)",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "两数符号取反，展开后中间项变成 +x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_008",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用因式分解法解方程 x^2 + 3x = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = -3, x2 = 0",
+      "solution_steps": [
+        "提公因式：x(x + 3) = 0",
+        "x = 0 或 x + 3 = 0",
+        "得 x1 = -3, x2 = 0",
+        "所以方程的解是 x1 = -3, x2 = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -3",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "两边同除 x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_009",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "关于方程 x^2 - 3x + 2 = 0 的解法，正确的是（　）",
+      "options": [
+        "分解为 (x - 1)(x - 2) = 0，得 x1 = 1, x2 = 2",
+        "分解为 (x + 1)(x + 2) = 0，得 x1 = -1, x2 = -2",
+        "由 (x - 1)(x - 2) = 2 得 x - 1 = 2 或 x - 2 = 2",
+        "由 x^2 = 3x - 2 两边同除 x 得 x = 3 - 2/x"
+      ],
+      "answer": "分解为 (x - 1)(x - 2) = 0，得 x1 = 1, x2 = 2",
+      "solution_steps": [
+        "x^2 - 3x + 2 = (x - 1)(x - 2)",
+        "由 (x - 1)(x - 2) = 0 得 x1 = 1, x2 = 2",
+        "所以正确的是『分解为 (x - 1)(x - 2) = 0，得 x1 = 1, x2 = 2』。"
+      ],
+      "distractors": [
+        {
+          "answer": "分解为 (x + 1)(x + 2) = 0，得 x1 = -1, x2 = -2",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "两数符号取反，展开后中间项应为 -3x 而不是 +3x"
+        },
+        {
+          "answer": "由 (x - 1)(x - 2) = 2 得 x - 1 = 2 或 x - 2 = 2",
+          "typical_error_code": "zero_product_misuse",
+          "explanation": "只有乘积为 0 时才能把因式分别等于某个数"
+        },
+        {
+          "answer": "由 x^2 = 3x - 2 两边同除 x 得 x = 3 - 2/x",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "同除含未知数的式子会丢根，也无法得到一次方程"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_010",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用因式分解法解方程 2x^2 - 4x = 0，方程的解是____。",
+      "options": null,
+      "answer": "x1 = 0, x2 = 2",
+      "solution_steps": [
+        "提取公因式：2x(x - 2) = 0",
+        "2x = 0 或 x - 2 = 0",
+        "得 x1 = 0, x2 = 2",
+        "所以方程的解是 x1 = 0, x2 = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 2",
+          "typical_error_code": "divide_by_factor",
+          "explanation": "两边同除 2x，丢掉根 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_factoring_011",
+      "knowledge_point": "math.cz.quadratic.factoring",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "请用因式分解法解方程 x^2 - 7x + 12 = 0，写出主要步骤并给出解。",
+      "options": null,
+      "answer": "x1 = 3, x2 = 4",
+      "solution_steps": [
+        "找两数积为 12、和为 -7：取 -3 与 -4",
+        "x^2 - 7x + 12 = (x - 3)(x - 4)",
+        "由 (x - 3)(x - 4) = 0 得 x = 3 或 x = 4",
+        "所以方程的解是 x1 = 3, x2 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x1 = -3, x2 = -4",
+          "typical_error_code": "factor_sign_error",
+          "explanation": "分解成 (x + 3)(x + 4)，两数符号取反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_001",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 1,
+      "stem": "二次函数 y = 3x^2 - 2x + 5 中，二次项系数、一次项系数、常数项依次是（　）",
+      "options": [
+        "3、-2、5",
+        "2、-3、5",
+        "3、-2、-5",
+        "3、2、5"
+      ],
+      "answer": "3、-2、5",
+      "solution_steps": [
+        "一般式 y = ax^2 + bx + c 中，a 是二次项系数、b 是一次项系数、c 是常数项",
+        "对照 y = 3x^2 - 2x + 5 得 a = 3、b = -2、c = 5",
+        "所以依次是 3、-2、5。"
+      ],
+      "distractors": [
+        {
+          "answer": "2、-3、5",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "把二次项系数与一次项系数写颠倒"
+        },
+        {
+          "answer": "3、-2、-5",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "把常数项的符号读成负号"
+        },
+        {
+          "answer": "3、2、5",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "漏掉一次项系数 -2 的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_002",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "二次函数 y = -x^2 + 4x - 3 中，a = ____。",
+      "options": null,
+      "answer": "a = -1",
+      "solution_steps": [
+        "一般式 y = ax^2 + bx + c 中，a 是二次项系数",
+        "对照得 a = -1",
+        "所以 a = -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "a = 1",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "漏掉 x^2 前的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_003",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "二次函数 y = x^2 - 4x + 7 中，c = ____。",
+      "options": null,
+      "answer": "c = 7",
+      "solution_steps": [
+        "一般式中 c 是常数项",
+        "对照得 c = 7",
+        "所以 c = 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "c = 3",
+          "typical_error_code": "constant_as_vertex_y",
+          "explanation": "把配方后的顶点纵坐标 3 当成了 c"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_004",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "判断 y = (x - 1)^2 - x^2 是不是二次函数，并说明理由。",
+      "options": null,
+      "answer": "不是二次函数",
+      "solution_steps": [
+        "展开化简：(x - 1)^2 - x^2 = x^2 - 2x + 1 - x^2",
+        "= -2x + 1，二次项系数为 0",
+        "所以 y = (x - 1)^2 - x^2 不是二次函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "是二次函数，因为式子里出现了 (x - 1)^2",
+          "typical_error_code": "a_zero_misjudge",
+          "explanation": "只看括号里的平方式就下结论，没有先化简确认二次项系数是否为 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_005",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 y = (m - 1)x^2 + 3x - 2 是二次函数，则 m 满足____。",
+      "options": null,
+      "answer": "m ≠ 1",
+      "solution_steps": [
+        "二次函数的二次项系数不能为 0",
+        "m - 1 ≠ 0，解得 m ≠ 1",
+        "所以 m ≠ 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "m = 1",
+          "typical_error_code": "a_zero_misjudge",
+          "explanation": "忽略二次项系数为 0 的情况"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_006",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 2,
+      "stem": "下列关于二次函数的说法，正确的是（　）",
+      "options": [
+        "y = x^2 - 2x + 1 是二次函数",
+        "y = 5 是二次函数",
+        "y = x^2 - 2x + 1 中一次项系数 b = 1",
+        "y = x^2 - 2x + 1 中常数项 c 就是顶点纵坐标"
+      ],
+      "answer": "y = x^2 - 2x + 1 是二次函数",
+      "solution_steps": [
+        "二次函数的一般式是 y = ax^2 + bx + c（a ≠ 0）",
+        "y = x^2 - 2x + 1 中 a = 1 ≠ 0，是二次函数",
+        "所以正确的是『y = x^2 - 2x + 1 是二次函数』。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 5 是二次函数",
+          "typical_error_code": "a_zero_misjudge",
+          "explanation": "y = 5 不含二次项，是常函数"
+        },
+        {
+          "answer": "y = x^2 - 2x + 1 中一次项系数 b = 1",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "一次项系数 b = -2，不是 1"
+        },
+        {
+          "answer": "y = x^2 - 2x + 1 中常数项 c 就是顶点纵坐标",
+          "typical_error_code": "constant_as_vertex_y",
+          "explanation": "c = 1 只是 x = 0 时的函数值，该函数顶点纵坐标是 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_007",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "二次函数 y = 2x^2 + 3x + 1 中，b = ____。",
+      "options": null,
+      "answer": "b = 3",
+      "solution_steps": [
+        "一般式 y = ax^2 + bx + c 中，b 是一次项系数",
+        "对照得 b = 3",
+        "所以 b = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "b = 2",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "把二次项系数 a = 2 当成了 b"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_008",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "二次函数 y = -2x^2 + 8x - 5 中，二次项系数是____。",
+      "options": null,
+      "answer": "-2",
+      "solution_steps": [
+        "二次项系数是 x^2 前的系数",
+        "y = -2x^2 + 8x - 5 中 x^2 前的系数是 -2",
+        "所以二次项系数是 -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "coefficient_name_misread",
+          "explanation": "漏掉 x^2 前的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_009",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 y = (k + 2)x^2 + x - 3 是二次函数，则 k 满足____。",
+      "options": null,
+      "answer": "k ≠ -2",
+      "solution_steps": [
+        "二次项系数不能为 0：k + 2 ≠ 0",
+        "解得 k ≠ -2",
+        "所以 k ≠ -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "k = -2",
+          "typical_error_code": "a_zero_misjudge",
+          "explanation": "忽略二次项系数为 0 的限制"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_010",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "y = x^2 - 4x + 7 中，常数项 c 与顶点纵坐标相同吗？请给出两者数值并说明理由。",
+      "options": null,
+      "answer": "不相同（c = 7，顶点纵坐标是 3）",
+      "solution_steps": [
+        "常数项 c = 7，它对应 x = 0 时的函数值",
+        "配方得 y = (x - 2)^2 + 3，顶点纵坐标是 3",
+        "所以两者不相同（c = 7，顶点纵坐标是 3）。"
+      ],
+      "distractors": [
+        {
+          "answer": "相同，都是 7",
+          "typical_error_code": "constant_as_vertex_y",
+          "explanation": "把常数项当成顶点纵坐标，未做配方"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_concept_011",
+      "knowledge_point": "math.cz.quadratic.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "若 y = (m^2 - 4)x^2 + 3x + 1 是二次函数，则 m 满足____。",
+      "options": null,
+      "answer": "m ≠ 2 且 m ≠ -2",
+      "solution_steps": [
+        "二次项系数 m^2 - 4 ≠ 0",
+        "m^2 ≠ 4，即 m ≠ 2 且 m ≠ -2",
+        "所以 m ≠ 2 且 m ≠ -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "m ≠ 0",
+          "typical_error_code": "a_zero_misjudge",
+          "explanation": "只要求 m 不为 0，忽略了 m = ±2 时系数为 0 的情况"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_001",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = -2x^2 的开口方向是____。",
+      "options": null,
+      "answer": "向下",
+      "solution_steps": [
+        "a = -2 < 0，抛物线开口向下",
+        "所以抛物线 y = -2x^2 的开口方向是向下。"
+      ],
+      "distractors": [
+        {
+          "answer": "向上",
+          "typical_error_code": "opening_direction_reversed",
+          "explanation": "只看系数的绝对值 2，没看符号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_002",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = -x^2 的对称轴是____。",
+      "options": null,
+      "answer": "y 轴（即 x = 0）",
+      "solution_steps": [
+        "y = ax^2 的图像顶点在原点，且关于 y 轴对称",
+        "所以对称轴是 y 轴（即 x = 0）。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -1",
+          "typical_error_code": "axis_written_wrong",
+          "explanation": "把二次项系数 -1 当成了对称轴的 x 值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_003",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "关于抛物线 y = 3x^2，下列说法正确的是（　）",
+      "options": [
+        "开口向上，对称轴是 y 轴",
+        "开口向上，且比 y = x^2 的开口更宽",
+        "开口向上，对称轴是直线 x = 3",
+        "开口向下，对称轴是 y 轴"
+      ],
+      "answer": "开口向上，对称轴是 y 轴",
+      "solution_steps": [
+        "a = 3 > 0，开口向上",
+        "y = ax^2 型的抛物线对称轴是 y 轴（x = 0）",
+        "所以正确的是『开口向上，对称轴是 y 轴』。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口向上，且比 y = x^2 的开口更宽",
+          "typical_error_code": "width_relation_reversed",
+          "explanation": "|a| 越大开口越窄，y = 3x^2 比 y = x^2 更窄"
+        },
+        {
+          "answer": "开口向上，对称轴是直线 x = 3",
+          "typical_error_code": "axis_written_wrong",
+          "explanation": "y = 3x^2 的对称轴是 x = 0，不是 x = 3"
+        },
+        {
+          "answer": "开口向下，对称轴是 y 轴",
+          "typical_error_code": "opening_direction_reversed",
+          "explanation": "a = 3 > 0，开口应向上"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_004",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = x^2 与 y = 5x^2 相比，开口较窄的是____。",
+      "options": null,
+      "answer": "y = 5x^2",
+      "solution_steps": [
+        "|a| 越大，开口越小（越窄）",
+        "|5| > |1|，所以 y = 5x^2 的开口更窄",
+        "所以开口较窄的是 y = 5x^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2",
+          "typical_error_code": "width_relation_reversed",
+          "explanation": "认为 |a| 越大开口越宽"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_005",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "抛物线 y = -3x^2 与 y = 3x^2 有什么关系？请说明。",
+      "options": null,
+      "answer": "开口方向相反，关于 x 轴对称",
+      "solution_steps": [
+        "两者的二次项系数互为相反数",
+        "y = -3x^2 开口向下，y = 3x^2 开口向上",
+        "两条抛物线关于 x 轴对称",
+        "所以两者开口方向相反，关于 x 轴对称。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口方向相同，只是宽窄不同",
+          "typical_error_code": "opening_direction_reversed",
+          "explanation": "忽略了二次项系数的符号差异"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_006",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = 4x^2 的开口方向是____。",
+      "options": null,
+      "answer": "向上",
+      "solution_steps": [
+        "a = 4 > 0，开口向上",
+        "所以抛物线 y = 4x^2 的开口方向是向上。"
+      ],
+      "distractors": [
+        {
+          "answer": "向下",
+          "typical_error_code": "opening_direction_reversed",
+          "explanation": "把正系数当成开口向下"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_007",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = -x^2 的顶点坐标是____。",
+      "options": null,
+      "answer": "(0, 0)",
+      "solution_steps": [
+        "y = ax^2 的形式顶点在坐标原点",
+        "所以顶点坐标是 (0, 0)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, -1)",
+          "typical_error_code": "axis_written_wrong",
+          "explanation": "把二次项系数 -1 当成了顶点纵坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_008",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "抛物线 y = -4x^2 具有的性质是（　）",
+      "options": [
+        "开口向下，有最高点 (0, 0)",
+        "开口向上，有最低点 (0, 0)",
+        "开口向下，且比 y = -x^2 的开口更宽",
+        "开口向下，对称轴是直线 x = -4"
+      ],
+      "answer": "开口向下，有最高点 (0, 0)",
+      "solution_steps": [
+        "a = -4 < 0，开口向下",
+        "顶点在原点且位于图像最高处",
+        "所以正确的是『开口向下，有最高点 (0, 0)』。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口向上，有最低点 (0, 0)",
+          "typical_error_code": "opening_direction_reversed",
+          "explanation": "a = -4 < 0，开口应向下"
+        },
+        {
+          "answer": "开口向下，且比 y = -x^2 的开口更宽",
+          "typical_error_code": "width_relation_reversed",
+          "explanation": "|a| 越大开口越窄"
+        },
+        {
+          "answer": "开口向下，对称轴是直线 x = -4",
+          "typical_error_code": "axis_written_wrong",
+          "explanation": "y = -4x^2 的对称轴是 x = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_009",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 与 y = -x^2 的对称轴都是____。",
+      "options": null,
+      "answer": "y 轴（即 x = 0）",
+      "solution_steps": [
+        "两条抛物线都是 y = ax^2 的形式，顶点在原点",
+        "所以对称轴都是 y 轴（即 x = 0）。"
+      ],
+      "distractors": [
+        {
+          "answer": "x 轴（即 y = 0）",
+          "typical_error_code": "axis_written_wrong",
+          "explanation": "把 x 轴当成了抛物线的对称轴"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_010",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = ax^2 中，|a| 越大，开口越____。",
+      "options": null,
+      "answer": "窄",
+      "solution_steps": [
+        "|a| 越大，图像被压得越瘦",
+        "所以开口越窄。"
+      ],
+      "distractors": [
+        {
+          "answer": "宽",
+          "typical_error_code": "width_relation_reversed",
+          "explanation": "把 |a| 与开口宽窄的关系弄反了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_graph_011",
+      "knowledge_point": "math.cz.quadratic.graph_basic",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "比较抛物线 y = 2x^2 与 y = -2x^2 的开口方向与宽窄。",
+      "options": null,
+      "answer": "开口方向相反，宽窄相同",
+      "solution_steps": [
+        "a = 2 > 0 时开口向上，a = -2 < 0 时开口向下，方向相反",
+        "两者的 |a| 都是 2，开口宽窄相同",
+        "所以开口方向相反，宽窄相同。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口方向相反，且 y = -2x^2 的开口更宽",
+          "typical_error_code": "width_relation_reversed",
+          "explanation": "认为负号会使开口变宽"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_001",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = x^2 - 4x + 7 的对称轴是____。",
+      "options": null,
+      "answer": "x = 2",
+      "solution_steps": [
+        "对称轴为直线 x = -b/(2a)",
+        "a = 1，b = -4：x = -(-4)/(2 × 1) = 2",
+        "所以对称轴是 x = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉公式中的负号，得 -4/2 = -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_002",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = -2x^2 + 4x 的对称轴是____。",
+      "options": null,
+      "answer": "x = 1",
+      "solution_steps": [
+        "对称轴 x = -b/(2a)",
+        "a = -2，b = 4：x = -4/(-4) = 1",
+        "所以对称轴是 x = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -1",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "计算 -b/(2a) 时符号弄错，得 -1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_003",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "关于抛物线 y = x^2 - 2x + 3，下列说法正确的是（　）",
+      "options": [
+        "开口向上，对称轴是直线 x = 1",
+        "开口向上，在对称轴左侧 y 随 x 增大而增大",
+        "开口向上，对称轴是直线 x = -1",
+        "开口向上，最小值是 1"
+      ],
+      "answer": "开口向上，对称轴是直线 x = 1",
+      "solution_steps": [
+        "a = 1 > 0，开口向上",
+        "对称轴 x = -b/(2a) = 2/2 = 1",
+        "所以正确的是『开口向上，对称轴是直线 x = 1』。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口向上，在对称轴左侧 y 随 x 增大而增大",
+          "typical_error_code": "monotonic_direction_error",
+          "explanation": "a > 0 时对称轴左侧是递减的"
+        },
+        {
+          "answer": "开口向上，对称轴是直线 x = -1",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        },
+        {
+          "answer": "开口向上，最小值是 1",
+          "typical_error_code": "vertex_value_as_extremum",
+          "explanation": "1 是顶点横坐标，该函数的最小值是 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_004",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = x^2 - 6x + 5 在对称轴左侧（x < 3）时，y 随 x 增大而____。",
+      "options": null,
+      "answer": "减小",
+      "solution_steps": [
+        "a = 1 > 0，开口向上，对称轴是 x = 3",
+        "对称轴左侧图像从左往右下降",
+        "所以在对称轴左侧 y 随 x 增大而减小。"
+      ],
+      "distractors": [
+        {
+          "answer": "增大",
+          "typical_error_code": "monotonic_direction_error",
+          "explanation": "把开口向上时左半支的走向说成上升"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_005",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "抛物线 y = -x^2 + 4x - 1 在对称轴处的函数值是____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "对称轴 x = -b/(2a) = -4/(-2) = 2",
+        "把 x = 2 代入：y = -4 + 8 - 1 = 3",
+        "所以在对称轴处的函数值是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "vertex_value_as_extremum",
+          "explanation": "把对称轴的 x 值 2 当成了最值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_006",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 + 6x 的对称轴是____。",
+      "options": null,
+      "answer": "x = -3",
+      "solution_steps": [
+        "x = -b/(2a) = -6/2 = -3",
+        "所以对称轴是 x = -3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 3",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_007",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = 2x^2 - 4x + 1 的对称轴是____。",
+      "options": null,
+      "answer": "x = 1",
+      "solution_steps": [
+        "x = -b/(2a) = 4/4 = 1",
+        "所以对称轴是 x = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -1",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_008",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "关于抛物线 y = -x^2 + 2x + 3，下列说法正确的是（　）",
+      "options": [
+        "开口向下，对称轴是直线 x = 1",
+        "开口向下，在对称轴右侧 y 随 x 增大而增大",
+        "开口向下，对称轴是直线 x = -1",
+        "无法判断开口方向（记不清 a 的正负与开口的关系）"
+      ],
+      "answer": "开口向下，对称轴是直线 x = 1",
+      "solution_steps": [
+        "a = -1 < 0，开口向下",
+        "对称轴 x = -b/(2a) = -2/(-2) = 1",
+        "所以正确的是『开口向下，对称轴是直线 x = 1』。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口向下，在对称轴右侧 y 随 x 增大而增大",
+          "typical_error_code": "monotonic_direction_error",
+          "explanation": "a < 0 时对称轴右侧是递减的"
+        },
+        {
+          "answer": "开口向下，对称轴是直线 x = -1",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        },
+        {
+          "answer": "无法判断开口方向（记不清 a 的正负与开口的关系）",
+          "typical_error_code": "prerequisite_graph_basic_gap",
+          "explanation": "缺少 y = ax^2 图像性质的基础，开口方向只能靠猜"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_009",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = -3x^2 + 6x 的对称轴是____。",
+      "options": null,
+      "answer": "x = 1",
+      "solution_steps": [
+        "x = -b/(2a) = -6/(-6) = 1",
+        "所以对称轴是 x = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -1",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_010",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "说明抛物线 y = x^2 - 4x + 5 的开口方向与对称轴，并指出 y 随 x 变化的情况。",
+      "options": null,
+      "answer": "开口向上，对称轴是直线 x = 2，x < 2 时 y 随 x 增大而减小，x > 2 时 y 随 x 增大而增大",
+      "solution_steps": [
+        "a = 1 > 0，开口向上",
+        "对称轴 x = -b/(2a) = 4/2 = 2",
+        "x < 2 时 y 随 x 增大而减小，x > 2 时 y 随 x 增大而增大",
+        "所以开口向上，对称轴是直线 x = 2，x < 2 时 y 随 x 增大而减小，x > 2 时 y 随 x 增大而增大。"
+      ],
+      "distractors": [
+        {
+          "answer": "开口向上，x < 2 时 y 随 x 增大而增大",
+          "typical_error_code": "monotonic_direction_error",
+          "explanation": "把开口向上时左半支的走向说反"
+        },
+        {
+          "answer": "开口向上，对称轴是直线 x = -2",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "漏掉 -b/(2a) 中的负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_opening_011",
+      "knowledge_point": "math.cz.quadratic.opening",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "若抛物线 y = x^2 + bx + 3 的对称轴是直线 x = 2，则 b = ____。",
+      "options": null,
+      "answer": "b = -4",
+      "solution_steps": [
+        "对称轴 x = -b/2 = 2",
+        "解得 b = -4",
+        "所以 b = -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "b = 4",
+          "typical_error_code": "axis_formula_sign_error",
+          "explanation": "解 -b/2 = 2 时符号出错，得 b = 4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_001",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = (x - 1)^2 + 2 的顶点坐标是____。",
+      "options": null,
+      "answer": "(1, 2)",
+      "solution_steps": [
+        "顶点式 y = (x - h)^2 + k 的顶点是 (h, k)",
+        "对照得 h = 1，k = 2",
+        "所以顶点坐标是 (1, 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-1, 2)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，把横坐标写成 -1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_002",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = (x + 2)^2 + 3 的顶点坐标是____。",
+      "options": null,
+      "answer": "(-2, 3)",
+      "solution_steps": [
+        "顶点式 y = (x - h)^2 + k 中顶点为 (h, k)",
+        "y = (x + 2)^2 + 3 即 y = (x - (-2))^2 + 3",
+        "得 h = -2，k = 3",
+        "所以顶点坐标是 (-2, 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(2, 3)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，顶点写成 (2, 3)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_003",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "抛物线 y = -(x - 3)^2 + 1 的对称轴是（　）",
+      "options": [
+        "x = 3",
+        "x = -1",
+        "x = -3",
+        "x = 1"
+      ],
+      "answer": "x = 3",
+      "solution_steps": [
+        "顶点式 y = (x - h)^2 + k 的对称轴是直线 x = h",
+        "对照得 h = 3",
+        "所以对称轴是 x = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -1",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项取反后当成了对称轴"
+        },
+        {
+          "answer": "x = -3",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，把 h 写成 -3"
+        },
+        {
+          "answer": "x = 1",
+          "typical_error_code": "axis_as_constant",
+          "explanation": "把顶点式里的常数项 1 当成了对称轴"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_004",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = 2(x + 1)^2 - 4 的顶点坐标是____。",
+      "options": null,
+      "answer": "(-1, -4)",
+      "solution_steps": [
+        "把式子改写成 y = 2(x - (-1))^2 - 4",
+        "得 h = -1，k = -4",
+        "所以顶点坐标是 (-1, -4)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(1, -4)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，横坐标符号写错"
+        },
+        {
+          "answer": "(-4, -1)",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项当成了顶点横坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_005",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "抛物线 y = (x + 5)^2 的顶点坐标是____。",
+      "options": null,
+      "answer": "(-5, 0)",
+      "solution_steps": [
+        "y = (x + 5)^2 = (x - (-5))^2 + 0",
+        "得 h = -5，k = 0",
+        "所以顶点坐标是 (-5, 0)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(5, 0)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，写成 (5, 0)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_006",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = x^2 + 4x + 1 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x + 2)^2 - 3",
+      "solution_steps": [
+        "配方：x^2 + 4x + 1 = (x^2 + 4x + 4) + 1 - 4",
+        "= (x + 2)^2 - 3",
+        "所以顶点式是 y = (x + 2)^2 - 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 1)^2 - 3",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项 1 当成了括号内的常数"
+        },
+        {
+          "answer": "y = (x + 2)^2 + 1",
+          "typical_error_code": "no_vertex_form",
+          "explanation": "不会配方，只把式子写成完全平方而没减去多加的 4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_007",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = (x - 4)^2 - 5 的顶点坐标是____。",
+      "options": null,
+      "answer": "(4, -5)",
+      "solution_steps": [
+        "对照 y = (x - h)^2 + k，得 h = 4，k = -5",
+        "所以顶点坐标是 (4, -5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-4, -5)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，横坐标写成 -4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_008",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = (x + 1)^2 - 2 的对称轴是____。",
+      "options": null,
+      "answer": "x = -1",
+      "solution_steps": [
+        "y = (x + 1)^2 - 2 即 y = (x - (-1))^2 - 2，得 h = -1",
+        "对称轴是直线 x = h",
+        "所以对称轴是 x = -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -2",
+          "typical_error_code": "axis_as_constant",
+          "explanation": "把顶点式里的常数项 -2 当成了对称轴"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_009",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = -3(x - 2)^2 + 6 的顶点坐标是____。",
+      "options": null,
+      "answer": "(2, 6)",
+      "solution_steps": [
+        "a = -3 只影响开口方向与宽窄，不改变顶点位置",
+        "对照顶点式得 h = 2，k = 6",
+        "所以顶点坐标是 (2, 6)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2, 6)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，横坐标写成 -2"
+        },
+        {
+          "answer": "(6, 2)",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项与括号内的数对调了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_010",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = x^2 - 6x + 5 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x - 3)^2 - 4",
+      "solution_steps": [
+        "配方：x^2 - 6x + 5 = (x^2 - 6x + 9) + 5 - 9",
+        "= (x - 3)^2 - 4",
+        "所以顶点式是 y = (x - 3)^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 6)^2 - 31",
+          "typical_error_code": "no_vertex_form",
+          "explanation": "不会配方，直接取一次项系数 6：5 - 36 = -31"
+        },
+        {
+          "answer": "y = (x - 5)^2 - 4",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项 5 当成了括号内的数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_011",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = 2(x - 1)^2 + 3 的顶点坐标是____。",
+      "options": null,
+      "answer": "(1, 3)",
+      "solution_steps": [
+        "顶点式为 y = a(x - h)^2 + k，顶点是 (h, k)",
+        "对照得 h = 1，k = 3",
+        "所以顶点坐标是 (1, 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-1, 3)",
+          "typical_error_code": "sign_confusion",
+          "explanation": "括号内未取反，横坐标写成 -1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_012",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "把 y = -x^2 + 2x + 3 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = -(x - 1)^2 + 4",
+      "solution_steps": [
+        "提出二次项系数：y = -(x^2 - 2x) + 3",
+        "配方：-(x^2 - 2x + 1) + 1 + 3 = -(x - 1)^2 + 4",
+        "所以顶点式是 y = -(x - 1)^2 + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = -(x - 2)^2 + 3",
+          "typical_error_code": "no_vertex_form",
+          "explanation": "不会配方，直接取一次项系数 2，且没有处理多加的常数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_vertex_013",
+      "knowledge_point": "math.cz.quadratic.vertex_form",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "若抛物线 y = (x - m)^2 + 1 的顶点在 y 轴上，则 m = ____。",
+      "options": null,
+      "answer": "m = 0",
+      "solution_steps": [
+        "顶点坐标为 (m, 1)",
+        "顶点在 y 轴上说明横坐标为 0，即 m = 0",
+        "所以 m = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "m = 1",
+          "typical_error_code": "constant_as_abscissa",
+          "explanation": "把常数项 1 当成了顶点横坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_001",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "把 y = (x + 1)^2 展开成一般式，结果是____。",
+      "options": null,
+      "answer": "y = x^2 + 2x + 1",
+      "solution_steps": [
+        "(x + 1)^2 = x^2 + 2x + 1",
+        "所以一般式是 y = x^2 + 2x + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 1",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "漏掉中间项 2x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_002",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "把 y = (x - 2)^2 展开成一般式，结果是____。",
+      "options": null,
+      "answer": "y = x^2 - 4x + 4",
+      "solution_steps": [
+        "(x - 2)^2 = x^2 - 4x + 4",
+        "所以一般式是 y = x^2 - 4x + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 4x + 4",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "展开 (x - 2)^2 时中间项符号写成正号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_003",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = (x - 1)^2 - 2 展开成一般式，结果是____。",
+      "options": null,
+      "answer": "y = x^2 - 2x - 1",
+      "solution_steps": [
+        "(x - 1)^2 = x^2 - 2x + 1",
+        "x^2 - 2x + 1 - 2 = x^2 - 2x - 1",
+        "所以一般式是 y = x^2 - 2x - 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 2x + 3",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "常数项算成 1 + 2 = 3，加减号用错"
+        },
+        {
+          "answer": "y = x^2 + 2x - 1",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "展开时中间项符号写错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_004",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "把 y = x^2 - 4x + 1 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x - 2)^2 - 3",
+      "solution_steps": [
+        "配方：x^2 - 4x + 1 = (x^2 - 4x + 4) + 1 - 4",
+        "= (x - 2)^2 - 3",
+        "所以顶点式是 y = (x - 2)^2 - 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 2)^2 - 3",
+          "typical_error_code": "half_b_sign_lost",
+          "explanation": "配方时 -b/(2a) 的负号丢失，顶点横坐标写成 +2"
+        },
+        {
+          "answer": "y = (x - 2)^2 + 1",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "没有把多加的 4 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_005",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "把 y = 2x^2 - 8x + 5 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = 2(x - 2)^2 - 3",
+      "solution_steps": [
+        "提出二次项系数：y = 2(x^2 - 4x) + 5",
+        "配方：2(x^2 - 4x + 4) - 8 + 5 = 2(x - 2)^2 - 3",
+        "所以顶点式是 y = 2(x - 2)^2 - 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 2(x - 2)^2 + 5",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "括号内加了 4，但没有把括号外多出的 8 减掉"
+        },
+        {
+          "answer": "y = 2(x + 2)^2 - 3",
+          "typical_error_code": "half_b_sign_lost",
+          "explanation": "配方时负号丢失，写成 x + 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_006",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = x^2 + 2x - 3 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x + 1)^2 - 4",
+      "solution_steps": [
+        "配方：x^2 + 2x - 3 = (x^2 + 2x + 1) - 3 - 1",
+        "= (x + 1)^2 - 4",
+        "所以顶点式是 y = (x + 1)^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 1)^2 - 3",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "没有把多加的 1 减回去"
+        },
+        {
+          "answer": "y = (x + 2)^2 - 7",
+          "typical_error_code": "prerequisite_completing_square_gap",
+          "explanation": "配方步骤不熟，把一次项系数 2 当成了括号内的数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_007",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 2,
+      "stem": "把 y = (x + 3)^2 展开成一般式，结果是（　）",
+      "options": [
+        "y = x^2 + 6x + 9",
+        "y = x^2 + 3x + 9",
+        "y = x^2 + 9",
+        "y = x^2 - 6x + 9"
+      ],
+      "answer": "y = x^2 + 6x + 9",
+      "solution_steps": [
+        "(x + 3)^2 = x^2 + 2·x·3 + 3^2",
+        "展开得 y = x^2 + 6x + 9",
+        "所以一般式是 y = x^2 + 6x + 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 3x + 9",
+          "typical_error_code": "prerequisite_completing_square_gap",
+          "explanation": "不会展开完全平方，中间项只写了 3x（漏乘 2）"
+        },
+        {
+          "answer": "y = x^2 + 9",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "漏掉中间项 6x"
+        },
+        {
+          "answer": "y = x^2 - 6x + 9",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "中间项符号写成负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_008",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "把 y = (x - 1)^2 + 1 展开成一般式，结果是____。",
+      "options": null,
+      "answer": "y = x^2 - 2x + 2",
+      "solution_steps": [
+        "(x - 1)^2 = x^2 - 2x + 1",
+        "x^2 - 2x + 1 + 1 = x^2 - 2x + 2",
+        "所以一般式是 y = x^2 - 2x + 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 2x",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "常数项 1 与 1 误当作 0，没有合并"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_009",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = x^2 - 2x - 3 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x - 1)^2 - 4",
+      "solution_steps": [
+        "配方：x^2 - 2x - 3 = (x^2 - 2x + 1) - 3 - 1",
+        "= (x - 1)^2 - 4",
+        "所以顶点式是 y = (x - 1)^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 1)^2 - 3",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "没有把多加的 1 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_010",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = x^2 + 4x + 3 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = (x + 2)^2 - 1",
+      "solution_steps": [
+        "配方：x^2 + 4x + 3 = (x^2 + 4x + 4) + 3 - 4",
+        "= (x + 2)^2 - 1",
+        "所以顶点式是 y = (x + 2)^2 - 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 2)^2 - 1",
+          "typical_error_code": "half_b_sign_lost",
+          "explanation": "配方时把符号写反，得 x - 2"
+        },
+        {
+          "answer": "y = (x + 2)^2 + 3",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "没有把多加的 4 减回去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_011",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "把 y = -x^2 + 4x - 1 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = -(x - 2)^2 + 3",
+      "solution_steps": [
+        "提出负号：y = -(x^2 - 4x) - 1",
+        "配方：-(x^2 - 4x + 4) + 4 - 1 = -(x - 2)^2 + 3",
+        "所以顶点式是 y = -(x - 2)^2 + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = -(x - 2)^2 - 1",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "括号外提出负号后，多加的 4 没有正确地加回来"
+        },
+        {
+          "answer": "y = -(x + 2)^2 + 3",
+          "typical_error_code": "half_b_sign_lost",
+          "explanation": "配方时负号丢失，写成 x + 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_012",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "把 y = 3x^2 - 6x + 1 化成顶点式，结果是____。",
+      "options": null,
+      "answer": "y = 3(x - 1)^2 - 2",
+      "solution_steps": [
+        "提出二次项系数：y = 3(x^2 - 2x) + 1",
+        "配方：3(x^2 - 2x + 1) - 3 + 1 = 3(x - 1)^2 - 2",
+        "所以顶点式是 y = 3(x - 1)^2 - 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 3(x - 1)^2 + 1",
+          "typical_error_code": "extra_constant_not_removed",
+          "explanation": "括号内加了 1，但没有把括号外多出的 3 减掉"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_g2v_013",
+      "knowledge_point": "math.cz.quadratic.general_to_vertex",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "把 y = (x + 2)^2 - 3 展开成一般式，结果是____。",
+      "options": null,
+      "answer": "y = x^2 + 4x + 1",
+      "solution_steps": [
+        "(x + 2)^2 = x^2 + 4x + 4",
+        "x^2 + 4x + 4 - 3 = x^2 + 4x + 1",
+        "所以一般式是 y = x^2 + 4x + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 4x - 1",
+          "typical_error_code": "expand_middle_sign_error",
+          "explanation": "常数项 4 与 -3 相加时符号出错"
+        },
+        {
+          "answer": "y = x^2 + 1",
+          "typical_error_code": "prerequisite_completing_square_gap",
+          "explanation": "不会展开完全平方，漏掉中间项"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_001",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "将抛物线 y = x^2 向上平移 3 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 + 3",
+      "solution_steps": [
+        "向上平移 n 个单位：解析式变为 y = x^2 + n",
+        "n = 3，得 y = x^2 + 3",
+        "所以所得解析式是 y = x^2 + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 3",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把向上平移写成了减 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_002",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "将抛物线 y = x^2 向右平移 2 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = (x - 2)^2",
+      "solution_steps": [
+        "向右平移 m 个单位：把 x 换成 x - m",
+        "m = 2，得 y = (x - 2)^2",
+        "所以所得解析式是 y = (x - 2)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 2)^2",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把向右平移写成了 x + 2，方向弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_003",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "将抛物线 y = x^2 向左平移 1 个单位、再向下平移 2 个单位，所得抛物线的解析式是（　）",
+      "options": [
+        "y = (x + 1)^2 - 2",
+        "y = (x + 1)^2",
+        "y = (x + 1)^2 + 2",
+        "y = (x - 1)^2 - 2"
+      ],
+      "answer": "y = (x + 1)^2 - 2",
+      "solution_steps": [
+        "向左平移 1 个单位：x 换成 x + 1",
+        "向下平移 2 个单位：整体减 2",
+        "得 y = (x + 1)^2 - 2，所以正确的是 y = (x + 1)^2 - 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 1)^2",
+          "typical_error_code": "only_axis_translated",
+          "explanation": "只做了左右平移，漏掉上下平移"
+        },
+        {
+          "answer": "y = (x + 1)^2 + 2",
+          "typical_error_code": "direction_reversed",
+          "explanation": "上下方向弄反，向下平移应写 -2"
+        },
+        {
+          "answer": "y = (x - 1)^2 - 2",
+          "typical_error_code": "direction_reversed",
+          "explanation": "左右方向弄反，向左平移应写 x + 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_004",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "将抛物线 y = (x - 1)^2 向下平移 4 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = (x - 1)^2 - 4",
+      "solution_steps": [
+        "向下平移 n 个单位：整体减 n",
+        "n = 4，得 y = (x - 1)^2 - 4",
+        "所以所得解析式是 y = (x - 1)^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 1)^2 + 4",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把向下平移写成了加 4"
+        },
+        {
+          "answer": "y = (x - 5)^2",
+          "typical_error_code": "only_axis_translated",
+          "explanation": "把上下平移误当成左右平移"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_005",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "将抛物线 y = x^2 + 2x 向左平移 1 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 + 4x + 3",
+      "solution_steps": [
+        "向左平移 1 个单位：把 x 换成 x + 1",
+        "y = (x + 1)^2 + 2(x + 1) = x^2 + 2x + 1 + 2x + 2",
+        "= x^2 + 4x + 3",
+        "所以所得解析式是 y = x^2 + 4x + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 1",
+          "typical_error_code": "direction_reversed",
+          "explanation": "方向弄反，用 x - 1 代入展开得 x^2 - 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_006",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "将抛物线 y = x^2 向下平移 5 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 5",
+      "solution_steps": [
+        "向下平移 n 个单位：解析式变为 y = x^2 - n",
+        "n = 5，得 y = x^2 - 5",
+        "所以所得解析式是 y = x^2 - 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 5",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把向下平移写成了加 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_007",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "将抛物线 y = x^2 向左平移 3 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = (x + 3)^2",
+      "solution_steps": [
+        "向左平移 m 个单位：把 x 换成 x + m",
+        "m = 3，得 y = (x + 3)^2",
+        "所以所得解析式是 y = (x + 3)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 3)^2",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把向左平移写成了 x - 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_008",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "将抛物线 y = (x + 2)^2 向右平移 4 个单位，所得抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = (x - 2)^2",
+      "solution_steps": [
+        "向右平移 4 个单位：把 x 换成 x - 4",
+        "y = ((x - 4) + 2)^2 = (x - 2)^2",
+        "所以所得解析式是 y = (x - 2)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x + 6)^2",
+          "typical_error_code": "direction_reversed",
+          "explanation": "方向弄反：用 x + 4 代入得 (x + 6)^2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_009",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "将抛物线 y = x^2 - 4x 向右平移 1 个单位，所得抛物线的解析式是（　）",
+      "options": [
+        "y = x^2 - 6x + 5",
+        "y = x^2 - 2x - 3",
+        "y = x^2 - 4x + 1",
+        "y = x^2 - 6x - 3"
+      ],
+      "answer": "y = x^2 - 6x + 5",
+      "solution_steps": [
+        "向右平移 1 个单位：把 x 换成 x - 1",
+        "y = (x - 1)^2 - 4(x - 1) = x^2 - 2x + 1 - 4x + 4",
+        "= x^2 - 6x + 5",
+        "所以正确的是 y = x^2 - 6x + 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 2x - 3",
+          "typical_error_code": "direction_reversed",
+          "explanation": "方向弄反：用 x + 1 代入展开得 x^2 - 2x - 3"
+        },
+        {
+          "answer": "y = x^2 - 4x + 1",
+          "typical_error_code": "only_axis_translated",
+          "explanation": "只在常数项上加 1，误把左右平移当成上下平移"
+        },
+        {
+          "answer": "y = x^2 - 6x - 3",
+          "typical_error_code": "reverse_inference_sign_error",
+          "explanation": "展开 -4(x - 1) 时符号写错，得 -4x - 4，常数项算成 1 - 4 = -3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_010",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = (x - 2)^2 是由 y = x^2 平移得到的，平移方式是____。",
+      "options": null,
+      "answer": "向右平移 2 个单位",
+      "solution_steps": [
+        "y = (x - 2)^2 相当于把 x 换成 x - 2",
+        "向右平移 m 个单位对应把 x 换成 x - m，故 m = 2",
+        "所以是向右平移 2 个单位。"
+      ],
+      "distractors": [
+        {
+          "answer": "向左平移 2 个单位",
+          "typical_error_code": "direction_reversed",
+          "explanation": "把括号内的减号误认为向左平移"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_translate_011",
+      "knowledge_point": "math.cz.quadratic.translation",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "将抛物线 y = (x - 1)^2 + 2 先向左平移 3 个单位，再向下平移 1 个单位，求所得抛物线的解析式。",
+      "options": null,
+      "answer": "y = (x + 2)^2 + 1",
+      "solution_steps": [
+        "向左平移 3 个单位：x 换成 x + 3，得 y = (x + 3 - 1)^2 + 2 = (x + 2)^2 + 2",
+        "向下平移 1 个单位：整体减 1，得 y = (x + 2)^2 + 1",
+        "所以所得解析式是 y = (x + 2)^2 + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (x - 4)^2 + 1",
+          "typical_error_code": "direction_reversed",
+          "explanation": "左右方向弄反：用 x - 3 代入得 (x - 4)^2 + 1"
+        },
+        {
+          "answer": "y = (x + 2)^2 + 2",
+          "typical_error_code": "only_axis_translated",
+          "explanation": "只做了左右平移，漏掉向下平移 1 个单位"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_001",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = x^2 - 4x + 7 的最小值是____。",
+      "options": null,
+      "answer": "最小值 3",
+      "solution_steps": [
+        "配方得 y = (x - 2)^2 + 3，顶点为 (2, 3)",
+        "a = 1 > 0，开口向上，顶点处取得最小值",
+        "顶点的纵坐标 3 就是最小值",
+        "所以最小值 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 2",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = 2 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_002",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 2,
+      "stem": "抛物线 y = -x^2 + 2x + 3 的最大值是（　）",
+      "options": [
+        "最大值 4",
+        "最大值 1",
+        "最大值 3",
+        "最小值 4"
+      ],
+      "answer": "最大值 4",
+      "solution_steps": [
+        "配方得 y = -(x - 1)^2 + 4，顶点为 (1, 4)",
+        "a = -1 < 0，开口向下，顶点处取得最大值",
+        "所以最大值 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最大值 1",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = 1 当成了最大值"
+        },
+        {
+          "answer": "最大值 3",
+          "typical_error_code": "boundary_ignored",
+          "explanation": "只代入了 x = 0 处的函数值 3，没有比较顶点"
+        },
+        {
+          "answer": "最小值 4",
+          "typical_error_code": "opening_direction_ignored",
+          "explanation": "a < 0 时顶点纵坐标是最大值，不是最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_003",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 + 6x + 5 的最小值是____。",
+      "options": null,
+      "answer": "最小值 -4",
+      "solution_steps": [
+        "配方得 y = (x + 3)^2 - 4，顶点为 (-3, -4)",
+        "a = 1 > 0，顶点处取得最小值",
+        "所以最小值 -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 -3",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = -3 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_004",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "当 x = ____ 时，y = x^2 - 4x + 1 取得最小值。",
+      "options": null,
+      "answer": "x = 2",
+      "solution_steps": [
+        "配方得 y = (x - 2)^2 - 3",
+        "a = 1 > 0，x = 2 时取得最小值 -3",
+        "所以 x = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -3",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把最小值的数值 -3 当成了取最值时的 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_005",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "抛物线 y = 2x^2 - 8x + 3 的最小值是____。",
+      "options": null,
+      "answer": "最小值 -5",
+      "solution_steps": [
+        "提出系数并配方：y = 2(x - 2)^2 - 5，顶点为 (2, -5)",
+        "a = 2 > 0，顶点处取得最小值",
+        "所以最小值 -5。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 2",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = 2 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_006",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 - 4x + 1 在 0 ≤ x ≤ 3 上的最小值是____。",
+      "options": null,
+      "answer": "最小值 -3",
+      "solution_steps": [
+        "配方得 y = (x - 2)^2 - 3，顶点 (2, -3) 落在区间 [0, 3] 内",
+        "a = 1 > 0，最小值在顶点处取得，为 -3",
+        "再比较端点：x = 0 时 y = 1，x = 3 时 y = -2，都大于 -3",
+        "所以最小值 -3。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 -2",
+          "typical_error_code": "boundary_ignored",
+          "explanation": "只把端点代入比较，忽略了顶点在区间内且取值更小"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_007",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 + 2x - 3 的最小值是____。",
+      "options": null,
+      "answer": "最小值 -4",
+      "solution_steps": [
+        "配方得 y = (x + 1)^2 - 4",
+        "a = 1 > 0，顶点处取得最小值",
+        "所以最小值 -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 -1",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = -1 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_008",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = -x^2 + 4x - 1 的最大值是____。",
+      "options": null,
+      "answer": "最大值 3",
+      "solution_steps": [
+        "配方得 y = -(x - 2)^2 + 3",
+        "a = -1 < 0，顶点处取得最大值",
+        "所以最大值 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 3",
+          "typical_error_code": "opening_direction_ignored",
+          "explanation": "a < 0 时应取最大值，不是最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_009",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 - 6x + 5 的最小值是____。",
+      "options": null,
+      "answer": "最小值 -4",
+      "solution_steps": [
+        "配方得 y = (x - 3)^2 - 4",
+        "a = 1 > 0，顶点处取得最小值",
+        "所以最小值 -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 3",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = 3 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_010",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "当 x = ____ 时，y = x^2 - 6x + 5 取得最小值。",
+      "options": null,
+      "answer": "x = 3",
+      "solution_steps": [
+        "配方得 y = (x - 3)^2 - 4",
+        "a = 1 > 0，x = 3 时取得最小值 -4",
+        "所以 x = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = -4",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把最小值的数值 -4 当成了取最值时的 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_011",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = 3x^2 + 6x + 7 的最小值是____。",
+      "options": null,
+      "answer": "最小值 4",
+      "solution_steps": [
+        "配方得 y = 3(x + 1)^2 + 4，顶点为 (-1, 4)",
+        "a = 3 > 0，顶点处取得最小值",
+        "所以最小值 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 -1",
+          "typical_error_code": "axis_value_as_extremum",
+          "explanation": "把对称轴 x = -1 当成了最小值"
+        },
+        {
+          "answer": "最小值 7",
+          "typical_error_code": "prerequisite_vertex_form_gap",
+          "explanation": "不会配方求顶点，直接把常数项当成最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_012",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = -x^2 + 6x - 5 的最大值是____。",
+      "options": null,
+      "answer": "最大值 4",
+      "solution_steps": [
+        "配方得 y = -(x - 3)^2 + 4",
+        "a = -1 < 0，顶点处取得最大值",
+        "所以最大值 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "最小值 4",
+          "typical_error_code": "opening_direction_ignored",
+          "explanation": "a = -1 < 0 时应取最大值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_extremum_013",
+      "knowledge_point": "math.cz.quadratic.extremum",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 3,
+      "stem": "求抛物线 y = x^2 - 4x + 3 在 1 ≤ x ≤ 4 上的最大值与最小值。",
+      "options": null,
+      "answer": "最大值 3，最小值 -1",
+      "solution_steps": [
+        "配方得 y = (x - 2)^2 - 1，顶点 (2, -1) 落在区间 [1, 4] 内",
+        "a = 1 > 0，最小值在顶点处取得：-1",
+        "端点：x = 1 时 y = 0，x = 4 时 y = 3",
+        "所以最大值 3，最小值 -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "最大值 0，最小值 -1",
+          "typical_error_code": "boundary_ignored",
+          "explanation": "只比较了左端点与顶点，漏掉右端点 x = 4 处的函数值更大"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_001",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知二次函数图像经过点 (0, 1)、(1, 2)、(2, 5)，则该函数的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 + 1",
+      "solution_steps": [
+        "设解析式为 y = ax^2 + bx + c",
+        "由 (0, 1) 得 c = 1",
+        "由 (1, 2) 得 a + b = 1；由 (2, 5) 得 2a + b = 2",
+        "两式相减得 a = 1，代回得 b = 0",
+        "所以解析式是 y = x^2 + 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 1",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解方程组时符号出错，常数项算成 -1"
+        },
+        {
+          "answer": "y = x^2",
+          "typical_error_code": "constant_term_missing",
+          "explanation": "漏解常数项（其实由 (0, 1) 得 c = 1）"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_002",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知二次函数图像经过点 (0, 0)、(1, -2)、(2, -2)，则该函数的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 3x",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 (0, 0) 得 c = 0",
+        "由 (1, -2) 得 a + b = -2",
+        "由 (2, -2) 得 4a + 2b = -2，即 2a + b = -1",
+        "两式相减得 a = 1，代回得 b = -3",
+        "所以解析式是 y = x^2 - 3x。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 3x",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解 a + b = -2 时符号出错，得 b = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_003",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知抛物线经过点 (1, 0)、(3, 0)、(0, 3)，则该抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 4x + 3",
+      "solution_steps": [
+        "由 (1, 0) 与 (3, 0) 设 y = a(x - 1)(x - 3)",
+        "代入 (0, 3)：a × (-1) × (-3) = 3，得 a = 1",
+        "展开得 y = x^2 - 4x + 3",
+        "所以抛物线的解析式是 y = x^2 - 4x + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "设 y = a(x - 1)^2 + k 求解，结果无唯一解",
+          "typical_error_code": "general_form_without_vertex",
+          "explanation": "没有顶点信息却用顶点式，条件不足"
+        },
+        {
+          "answer": "y = x^2 - 4x",
+          "typical_error_code": "constant_term_missing",
+          "explanation": "展开后漏掉常数项 c = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_004",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知二次函数图像经过点 (0, 2)、(1, 1)、(2, 4)，则该函数的解析式是____。",
+      "options": null,
+      "answer": "y = 2x^2 - 3x + 2",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 (0, 2) 得 c = 2",
+        "由 (1, 1) 得 a + b = -1",
+        "由 (2, 4) 得 4a + 2b = 2，即 2a + b = 1",
+        "两式相减得 a = 2，代回得 b = -3",
+        "所以解析式是 y = 2x^2 - 3x + 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 2x^2 + 3x + 2",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解方程组时 b 的符号出错，得 b = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_005",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "已知抛物线经过 A(0, 3)、B(1, 0)、C(2, -1)，求抛物线的解析式并写出主要步骤。",
+      "options": null,
+      "answer": "y = x^2 - 4x + 3",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 A(0, 3) 得 c = 3",
+        "由 B(1, 0) 得 a + b = -3",
+        "由 C(2, -1) 得 4a + 2b = -4，即 2a + b = -2",
+        "两式相减得 a = 1，代回得 b = -4",
+        "所以抛物线的解析式是 y = x^2 - 4x + 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 4x - 3",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "常数项符号出错，把 c = 3 写成 -3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_006",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知二次函数图像经过点 (0, 5)、(1, 4)、(2, 5)，则该函数的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 2x + 5",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 (0, 5) 得 c = 5",
+        "由 (1, 4) 得 a + b = -1",
+        "由 (2, 5) 得 4a + 2b = 0，即 2a + b = 0",
+        "两式相减得 a = 1，代回得 b = -2",
+        "所以解析式是 y = x^2 - 2x + 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 2x",
+          "typical_error_code": "constant_term_missing",
+          "explanation": "漏掉常数项 c = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_007",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知抛物线经过点 (1, 0)、(2, 0)、(0, 2)，则该抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 3x + 2",
+      "solution_steps": [
+        "由 (1, 0) 与 (2, 0) 设 y = a(x - 1)(x - 2)",
+        "代入 (0, 2)：a × 2 = 2，得 a = 1",
+        "展开得 y = x^2 - 3x + 2",
+        "所以抛物线的解析式是 y = x^2 - 3x + 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 - 3x",
+          "typical_error_code": "constant_term_missing",
+          "explanation": "展开后漏掉常数项 c = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_008",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知二次函数图像经过点 (0, -1)、(1, -2)、(2, 1)，则该函数的解析式是____。",
+      "options": null,
+      "answer": "y = 2x^2 - 3x - 1",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 (0, -1) 得 c = -1",
+        "由 (1, -2) 得 a + b = -1",
+        "由 (2, 1) 得 4a + 2b = 2，即 2a + b = 1",
+        "两式相减得 a = 2，代回得 b = -3",
+        "所以解析式是 y = 2x^2 - 3x - 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 2x^2 + 3x - 1",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解方程组时 b 的符号出错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_009",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "用待定系数法求二次函数解析式，下列做法正确的是（　）",
+      "options": [
+        "已知图像经过三点时，设 y = ax^2 + bx + c 代入求解",
+        "三点代入后只需两个方程就能解出 a、b、c",
+        "已知图像经过三点时，设 y = a(x - h)^2 + k 求解",
+        "设 y = ax^2 + bx，因为三点法总可以取 c = 0"
+      ],
+      "answer": "已知图像经过三点时，设 y = ax^2 + bx + c 代入求解",
+      "solution_steps": [
+        "待定系数法：先设含参数的解析式，再代入已知点求解",
+        "三点代入一般式可得到关于 a、b、c 的三元一次方程组",
+        "所以正确的是『已知图像经过三点时，设 y = ax^2 + bx + c 代入求解』。"
+      ],
+      "distractors": [
+        {
+          "answer": "三点代入后只需两个方程就能解出 a、b、c",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "三个未知数需要三个方程联立求解"
+        },
+        {
+          "answer": "已知图像经过三点时，设 y = a(x - h)^2 + k 求解",
+          "typical_error_code": "general_form_without_vertex",
+          "explanation": "没有顶点信息，顶点式中 h、k、a 三个未知量只由三点无法唯一确定"
+        },
+        {
+          "answer": "设 y = ax^2 + bx，因为三点法总可以取 c = 0",
+          "typical_error_code": "constant_term_missing",
+          "explanation": "只有图像过原点时 c 才为 0，不能默认 c = 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_010",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知抛物线经过点 (0, 4)、(1, 3)、(3, 7)，则该抛物线的解析式是____。",
+      "options": null,
+      "answer": "y = x^2 - 2x + 4",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 (0, 4) 得 c = 4",
+        "由 (1, 3) 得 a + b = -1",
+        "由 (3, 7) 得 9a + 3b = 3，即 3a + b = 1",
+        "两式相减得 2a = 2，即 a = 1，代回得 b = -2",
+        "所以抛物线的解析式是 y = x^2 - 2x + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 2x + 4",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解 3a + b = 1 与 a + b = -1 时符号出错，得 b = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_three_pts_011",
+      "knowledge_point": "math.cz.quadratic.three_points",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "已知抛物线经过 A(0, 0)、B(1, -1)、C(3, 3)，求抛物线的解析式。",
+      "options": null,
+      "answer": "y = x^2 - 2x",
+      "solution_steps": [
+        "设 y = ax^2 + bx + c，由 A(0, 0) 得 c = 0",
+        "由 B(1, -1) 得 a + b = -1",
+        "由 C(3, 3) 得 9a + 3b = 3，即 3a + b = 1",
+        "两式相减得 2a = 2，即 a = 1，代回得 b = -2",
+        "所以抛物线的解析式是 y = x^2 - 2x。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = x^2 + 2x",
+          "typical_error_code": "three_equation_solve_slip",
+          "explanation": "解方程组时 b 符号出错，得 b = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_001",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 x 轴交点的坐标是____。",
+      "options": null,
+      "answer": "(1, 0) 和 (3, 0)",
+      "solution_steps": [
+        "与 x 轴相交时 y = 0",
+        "解 x^2 - 4x + 3 = 0，分解得 (x - 1)(x - 3) = 0，x = 1 或 x = 3",
+        "所以交点是 (1, 0) 和 (3, 0)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, 3)",
+          "typical_error_code": "y_axis_intersect_wrong",
+          "explanation": "把与 y 轴的交点当成了与 x 轴的交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_002",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 - 2x + 1 与 x 轴的交点个数是____。",
+      "options": null,
+      "answer": "1 个",
+      "solution_steps": [
+        "交点个数由方程 x^2 - 2x + 1 = 0 的实数根个数决定",
+        "△ = 4 - 4 = 0，方程有两个相等的实数根",
+        "所以抛物线与 x 轴有 1 个交点。"
+      ],
+      "distractors": [
+        {
+          "answer": "2 个",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "△ = 0 时只有一个交点（相切），不是两个"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_003",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 + x + 1 与 x 轴的交点个数是____。",
+      "options": null,
+      "answer": "0 个",
+      "solution_steps": [
+        "令 y = 0：x^2 + x + 1 = 0",
+        "△ = 1 - 4 = -3 < 0，方程没有实数根",
+        "所以抛物线与 x 轴有 0 个交点。"
+      ],
+      "distractors": [
+        {
+          "answer": "1 个",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "把 △ < 0 误认为有一个交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_004",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 y 轴交点的坐标是____。",
+      "options": null,
+      "answer": "(0, 3)",
+      "solution_steps": [
+        "与 y 轴相交时 x = 0",
+        "代入得 y = 0 - 0 + 3 = 3",
+        "所以与 y 轴的交点是 (0, 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, 0)",
+          "typical_error_code": "y_axis_intersect_wrong",
+          "explanation": "凭印象写成原点，没有代入求值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_005",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "说明抛物线 y = x^2 - 5x + 6 与 x 轴交点的横坐标和方程 x^2 - 5x + 6 = 0 的根之间的关系。",
+      "options": null,
+      "answer": "交点的横坐标就是方程的根（x = 2 和 x = 3）",
+      "solution_steps": [
+        "抛物线与 x 轴交点处 y = 0",
+        "令 y = 0 得方程 x^2 - 5x + 6 = 0，分解得 (x - 2)(x - 3) = 0",
+        "所以交点的横坐标就是方程的根（x = 2 和 x = 3）。"
+      ],
+      "distractors": [
+        {
+          "answer": "交点的横坐标就是顶点的横坐标 2.5",
+          "typical_error_code": "intersect_as_vertex",
+          "explanation": "顶点横坐标是两根的平均值 2.5，不等于交点的横坐标"
+        },
+        {
+          "answer": "交点横坐标与方程的根没有关系",
+          "typical_error_code": "prerequisite_formula_gap",
+          "explanation": "不熟悉判别式与方程根的意义，误认为两者无关"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_006",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 - 3x + 2 与 x 轴交点的坐标是____。",
+      "options": null,
+      "answer": "(1, 0) 和 (2, 0)",
+      "solution_steps": [
+        "令 y = 0：x^2 - 3x + 2 = 0，分解得 (x - 1)(x - 2) = 0",
+        "得 x = 1 或 x = 2",
+        "所以交点是 (1, 0) 和 (2, 0)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, 2)",
+          "typical_error_code": "y_axis_intersect_wrong",
+          "explanation": "把与 y 轴的交点当成了与 x 轴的交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_007",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 - 4x + 4 与 x 轴的交点个数是____。",
+      "options": null,
+      "answer": "1 个",
+      "solution_steps": [
+        "△ = 16 - 16 = 0",
+        "方程有两个相等的实数根",
+        "所以抛物线与 x 轴有 1 个交点。"
+      ],
+      "distractors": [
+        {
+          "answer": "0 个",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "把 △ = 0 误认为没有交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_008",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 + 2x + 3 与 x 轴的交点个数是____。",
+      "options": null,
+      "answer": "0 个",
+      "solution_steps": [
+        "△ = 4 - 12 = -8 < 0",
+        "方程没有实数根",
+        "所以抛物线与 x 轴有 0 个交点。"
+      ],
+      "distractors": [
+        {
+          "answer": "2 个",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "把 △ < 0 误认为有两个交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_009",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = -2x^2 + 4x - 2 与 x 轴的交点个数是____。",
+      "options": null,
+      "answer": "1 个",
+      "solution_steps": [
+        "令 y = 0：-2x^2 + 4x - 2 = 0，两边同除 -2 得 x^2 - 2x + 1 = 0",
+        "△ = 4 - 4 = 0",
+        "所以抛物线与 x 轴有 1 个交点。"
+      ],
+      "distractors": [
+        {
+          "answer": "2 个",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "△ = 0 时只有 1 个交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_010",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 x 轴交点的横坐标是____。",
+      "options": null,
+      "answer": "x = 1 和 x = 3",
+      "solution_steps": [
+        "令 y = 0 得 x^2 - 4x + 3 = 0",
+        "分解得 (x - 1)(x - 3) = 0，x = 1 或 x = 3",
+        "所以交点的横坐标是 x = 1 和 x = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "x = 2",
+          "typical_error_code": "intersect_as_vertex",
+          "explanation": "把顶点横坐标当成了交点横坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_eq_rel_011",
+      "knowledge_point": "math.cz.quadratic.eq_relation",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 4,
+      "stem": "关于抛物线 y = x^2 - 4x + 5 与 x 轴的位置关系，下列说法正确的是（　）",
+      "options": [
+        "不相交（因为 △ < 0，方程没有实数根）",
+        "与 x 轴交于原点 (0, 0)",
+        "有一个交点，横坐标就是对称轴 x = 2",
+        "有两个交点（因为 △ < 0 说明有两个根）"
+      ],
+      "answer": "不相交（因为 △ < 0，方程没有实数根）",
+      "solution_steps": [
+        "令 y = 0：x^2 - 4x + 5 = 0",
+        "△ = 16 - 20 = -4 < 0，方程没有实数根",
+        "所以正确的是『不相交（因为 △ < 0，方程没有实数根）』。"
+      ],
+      "distractors": [
+        {
+          "answer": "与 x 轴交于原点 (0, 0)",
+          "typical_error_code": "y_axis_intersect_wrong",
+          "explanation": "把与 y 轴的交点误当成 x 轴交点，且该函数在 x = 0 时 y = 5"
+        },
+        {
+          "answer": "有一个交点，横坐标就是对称轴 x = 2",
+          "typical_error_code": "intersect_as_vertex",
+          "explanation": "对称轴不是交点，此处抛物线与 x 轴没有交点"
+        },
+        {
+          "answer": "有两个交点（因为 △ < 0 说明有两个根）",
+          "typical_error_code": "discriminant_link_reversed",
+          "explanation": "△ < 0 时没有实数根，也就没有交点"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_001",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "某商品每件进价 20 元，售价为 x 元时每天可售出 (60 - x) 件，则每天利润 y 与 x 的关系式是____。",
+      "options": null,
+      "answer": "y = (x - 20)(60 - x)",
+      "solution_steps": [
+        "每件利润为 (x - 20) 元",
+        "每天售出 (60 - x) 件",
+        "所以 y = (x - 20)(60 - x)。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (20 - x)(60 - x)",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "每件利润写成 (20 - x)，符号写反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_002",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "长方形的周长为 20，设一边长为 x，则面积 S 与 x 的关系式是____。",
+      "options": null,
+      "answer": "S = x(10 - x)",
+      "solution_steps": [
+        "周长 20 表示两邻边之和为 20 ÷ 2 = 10",
+        "另一边长为 10 - x",
+        "所以 S = x(10 - x)。"
+      ],
+      "distractors": [
+        {
+          "answer": "S = x(20 - x)",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "把周长当成两邻边之和，没有先除以 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_003",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "若长方形面积为 S = x(10 - x)（x 为一边长），则自变量 x 的取值范围是（　）",
+      "options": [
+        "0 < x < 10",
+        "0 ≤ x ≤ 10",
+        "x > 0",
+        "x 可以取全体实数"
+      ],
+      "answer": "0 < x < 10",
+      "solution_steps": [
+        "边长必须大于 0：x > 0",
+        "另一边长 10 - x 也必须大于 0，即 x < 10",
+        "所以 0 < x < 10。"
+      ],
+      "distractors": [
+        {
+          "answer": "0 ≤ x ≤ 10",
+          "typical_error_code": "domain_ignored",
+          "explanation": "把 x = 0 或 x = 10 也当作允许，此时矩形退化成线段"
+        },
+        {
+          "answer": "x > 0",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "只考虑了一边为正，漏掉另一边 10 - x > 0"
+        },
+        {
+          "answer": "x 可以取全体实数",
+          "typical_error_code": "domain_ignored",
+          "explanation": "忽略边长必须为正的实际限制"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_004",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "火箭升空高度 h（米）与时间 t（秒）满足 h = -5t^2 + 20t，则火箭达到最高点的时间是____。",
+      "options": null,
+      "answer": "2 秒",
+      "solution_steps": [
+        "配方：h = -5(t - 2)^2 + 20",
+        "a = -5 < 0，t = 2 时 h 取最大值",
+        "所以达到最高点的时间是 2 秒。"
+      ],
+      "distractors": [
+        {
+          "answer": "4 秒",
+          "typical_error_code": "prerequisite_extremum_gap",
+          "explanation": "不会配方求顶点，把时间算成 20 ÷ 5 = 4"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "unit_omitted",
+          "explanation": "只写了数值，漏掉单位『秒』"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_005",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "用一根长 20 米的绳子围成一个矩形，求矩形面积的最大值（需写出自变量取值范围）。",
+      "options": null,
+      "answer": "25 平方米",
+      "solution_steps": [
+        "设一边长为 x 米，另一边为 (10 - x) 米，自变量取值范围为 0 < x < 10",
+        "面积 S = x(10 - x) = -(x - 5)^2 + 25",
+        "a = -1 < 0，x = 5 落在取值范围内，此时面积最大",
+        "所以矩形面积的最大值是 25 平方米。"
+      ],
+      "distractors": [
+        {
+          "answer": "20 平方米",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "列式时符号写反，得到与题意不符的最大值"
+        },
+        {
+          "answer": "25",
+          "typical_error_code": "unit_omitted",
+          "explanation": "算出数值但漏写单位『平方米』"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_006",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "某商品每件进价 10 元，售价为 x 元时每天可售出 (50 - x) 件，则每天利润 y 与 x 的关系式是____。",
+      "options": null,
+      "answer": "y = (x - 10)(50 - x)",
+      "solution_steps": [
+        "每件利润为 (x - 10) 元",
+        "每天售出 (50 - x) 件",
+        "所以 y = (x - 10)(50 - x)。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = (10 - x)(50 - x)",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "每件利润写成 (10 - x)，符号写反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_007",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "长方形的一边长为 x，周长为 24，则它的面积 S 与 x 的关系式是____。",
+      "options": null,
+      "answer": "S = x(12 - x)",
+      "solution_steps": [
+        "两邻边之和为 24 ÷ 2 = 12",
+        "另一边长为 12 - x",
+        "所以 S = x(12 - x)。"
+      ],
+      "distractors": [
+        {
+          "answer": "S = x(24 - x)",
+          "typical_error_code": "model_setup_sign_error",
+          "explanation": "把周长当成两邻边之和，没有先除以 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_008",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "在上一题中，面积 S = x(12 - x) 的自变量 x 的取值范围是____。",
+      "options": null,
+      "answer": "0 < x < 12",
+      "solution_steps": [
+        "x 是边长，必须大于 0",
+        "另一边长 12 - x 也必须大于 0，即 x < 12",
+        "所以 0 < x < 12。"
+      ],
+      "distractors": [
+        {
+          "answer": "x 取全体实数",
+          "typical_error_code": "domain_ignored",
+          "explanation": "忽略边长为正的实际限制"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_009",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "小球竖直上抛，高度 h（米）与时间 t（秒）满足 h = -5t^2 + 10t，则小球达到最高点的时间是____。",
+      "options": null,
+      "answer": "1 秒",
+      "solution_steps": [
+        "配方：h = -5(t - 1)^2 + 5",
+        "a = -5 < 0，t = 1 时 h 取最大值",
+        "所以达到最高点的时间是 1 秒。"
+      ],
+      "distractors": [
+        {
+          "answer": "2 秒",
+          "typical_error_code": "prerequisite_extremum_gap",
+          "explanation": "不会配方，把时间算成 10 ÷ 5 = 2"
+        },
+        {
+          "answer": "1",
+          "typical_error_code": "unit_omitted",
+          "explanation": "只写了数值，漏掉单位『秒』"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_010",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "用长 16 米的绳子围成矩形，面积的最大值是____。",
+      "options": null,
+      "answer": "16 平方米",
+      "solution_steps": [
+        "两邻边之和为 8，设一边长 x，另一边长 8 - x",
+        "面积 S = x(8 - x) = -(x - 4)^2 + 16",
+        "a = -1 < 0，x = 4 时面积最大",
+        "所以面积的最大值是 16 平方米。"
+      ],
+      "distractors": [
+        {
+          "answer": "16",
+          "typical_error_code": "unit_omitted",
+          "explanation": "算出数值但漏写单位『平方米』"
+        },
+        {
+          "answer": "64 平方米",
+          "typical_error_code": "prerequisite_extremum_gap",
+          "explanation": "不会配方，直接把 16 的平方当作最大值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_applic_011",
+      "knowledge_point": "math.cz.quadratic.application",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "某商品进价 30 元，售价 x 元时每天售出 (70 - x) 件。求每天利润的最大值及此时的售价。",
+      "options": null,
+      "answer": "最大利润 400 元，此时售价 50 元",
+      "solution_steps": [
+        "利润 y = (x - 30)(70 - x) = -x^2 + 100x - 2100",
+        "配方得 y = -(x - 50)^2 + 400",
+        "a = -1 < 0，x = 50 时利润最大",
+        "所以最大利润 400 元，此时售价 50 元。"
+      ],
+      "distractors": [
+        {
+          "answer": "最大利润 400，售价 50",
+          "typical_error_code": "unit_omitted",
+          "explanation": "算出数值但漏写利润单位『元』"
+        },
+        {
+          "answer": "最大利润 400 元，售价可以取任意实数",
+          "typical_error_code": "domain_ignored",
+          "explanation": "忽略售价需落在实际允许范围内"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_001",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 y 轴交于点 C，则点 C 的坐标是____。",
+      "options": null,
+      "answer": "(0, 3)",
+      "solution_steps": [
+        "与 y 轴相交时 x = 0",
+        "代入得 y = 0 - 0 + 3 = 3",
+        "所以点 C 的坐标是 (0, 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, -3)",
+          "typical_error_code": "point_sign_dropped",
+          "explanation": "读点时把常数项 3 的符号丢掉"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_002",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 A(1, 0)、B(3, 0)，则线段 AB 的长是____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "横向线段长等于横坐标之差的绝对值：AB = |1 - 3|",
+        "= 2",
+        "所以线段 AB 的长是 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "-2",
+          "typical_error_code": "no_coordinate_method",
+          "explanation": "横坐标相减后没有取绝对值，把长度写成负数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_003",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 x 轴交于 A(1, 0)、B(3, 0)，与 y 轴交于 C(0, 3)，则 △ABC 的面积是____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "底边 AB = |1 - 3| = 2",
+        "C 到 x 轴的距离就是高，为 3",
+        "面积 = 1/2 × 2 × 3 = 3",
+        "所以 △ABC 的面积是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "area_without_half",
+          "explanation": "面积算成底乘高，漏除以 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_004",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知点 A(-2, 3) 与 B(-2, 7)，则线段 AB 的长是____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "两点横坐标相同，线段竖直",
+        "长度 = |3 - 7| = 4",
+        "所以线段 AB 的长是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "10",
+          "typical_error_code": "point_sign_dropped",
+          "explanation": "把纵坐标的负号与符号处理错，用 3 + 7 计算长度"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_005",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "train",
+      "type": "short_answer",
+      "difficulty": 5,
+      "stem": "抛物线 y = -x^2 + 2x + 3 与 x 轴交于 A、B 两点，与 y 轴交于点 C，求 △ABC 的面积。",
+      "options": null,
+      "answer": "6",
+      "solution_steps": [
+        "令 y = 0：x^2 - 2x - 3 = 0，分解得 (x - 3)(x + 1) = 0，交点为 (-1, 0) 与 (3, 0)",
+        "底边 AB = |3 - (-1)| = 4",
+        "令 x = 0 得 C(0, 3)，高为 3",
+        "面积 = 1/2 × 4 × 3 = 6",
+        "所以 △ABC 的面积是 6。"
+      ],
+      "distractors": [
+        {
+          "answer": "12",
+          "typical_error_code": "area_without_half",
+          "explanation": "面积算成底乘高，漏除以 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_006",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "抛物线 y = x^2 - 2x - 3 与 x 轴交于 A、B 两点，则线段 AB 的长是____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "令 y = 0：x^2 - 2x - 3 = 0，得 x = 3 或 x = -1",
+        "AB = |3 - (-1)| = 4",
+        "所以线段 AB 的长是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "point_sign_dropped",
+          "explanation": "把 -1 的负号丢掉，用 3 - 1 = 2 计算长度"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_007",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 A(0, -1)、B(0, 4)，则线段 AB 的长是____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "两点横坐标相同，线段竖直",
+        "长度 = |4 - (-1)| = 5",
+        "所以线段 AB 的长是 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "point_sign_dropped",
+          "explanation": "丢掉 -1 的负号，用 4 - 1 = 3 计算长度"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_008",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 - 2x - 3 与 y 轴交于点 C，则点 C 的坐标是____。",
+      "options": null,
+      "answer": "(0, -3)",
+      "solution_steps": [
+        "与 y 轴相交时 x = 0",
+        "代入得 y = 0 - 0 - 3 = -3",
+        "所以点 C 的坐标是 (0, -3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, 3)",
+          "typical_error_code": "point_sign_dropped",
+          "explanation": "把常数项 -3 的负号丢掉"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_009",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 3,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 x 轴交于 A(1, 0)、B(3, 0)，顶点为 P(2, -1)，则 △ABP 的面积是（　）",
+      "options": [
+        "1",
+        "-2",
+        "2",
+        "4"
+      ],
+      "answer": "1",
+      "solution_steps": [
+        "底边 AB = |3 - 1| = 2",
+        "顶点 P 到 x 轴的距离为 1，即高为 1",
+        "面积 = 1/2 × 2 × 1 = 1",
+        "所以 △ABP 的面积是 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "-2",
+          "typical_error_code": "area_without_half",
+          "explanation": "漏除以 2，并把顶点纵坐标 -1 直接当作高，得到负数面积"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "area_without_half",
+          "explanation": "面积算成底乘高，漏除以 2"
+        },
+        {
+          "answer": "4",
+          "typical_error_code": "no_coordinate_method",
+          "explanation": "底边用 |1| + |3| = 4 计算，没有取坐标之差"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_010",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 A(1, 2) 与 B(4, 2)，则线段 AB 的长是____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "两点纵坐标相同，线段水平",
+        "长度 = |4 - 1| = 3",
+        "所以线段 AB 的长是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-3",
+          "typical_error_code": "no_coordinate_method",
+          "explanation": "横坐标相减后没有取绝对值，把长度写成负数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_geometry_011",
+      "knowledge_point": "math.cz.quadratic.geometry",
+      "pool": "retest",
+      "type": "short_answer",
+      "difficulty": 4,
+      "stem": "抛物线 y = x^2 - 4x + 3 与 x 轴交于 A、B 两点，与 y 轴交于点 C，求 △ABC 的面积。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "令 y = 0 得 x = 1 或 x = 3，即 A(1, 0)、B(3, 0)",
+        "底边 AB = |3 - 1| = 2",
+        "令 x = 0 得 C(0, 3)，高为 3",
+        "面积 = 1/2 × 2 × 3 = 3",
+        "所以 △ABC 的面积是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "area_without_half",
+          "explanation": "面积算成底乘高，漏除以 2"
+        },
+        {
+          "answer": "-3",
+          "typical_error_code": "no_coordinate_method",
+          "explanation": "用坐标相减后没有取绝对值，底算成 1 - 3 = -2，面积得 1/2 × (-2) × 3 = -3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_001",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：(-3) + 7 = ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "异号两数相加，取绝对值较大加数的符号：|7| > |-3|，结果取正",
+        "7 - 3 = 4",
+        "所以 (-3) + 7 = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "-4",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "取了绝对值较小加数（-3）的负号，算成 3 - 7"
+        },
+        {
+          "answer": "-10",
+          "typical_error_code": "sub_to_add",
+          "explanation": "把加法当减法处理：-3 - 7 = -10"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_002",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(-2) - (-5) = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "减去一个数等于加上它的相反数：(-2) - (-5) = (-2) + 5",
+        "(-2) + 5 = 3",
+        "所以 (-2) - (-5) = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-7",
+          "typical_error_code": "sub_to_add",
+          "explanation": "减号没有转化，直接算 (-2) + (-5) = -7"
+        },
+        {
+          "answer": "7",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "符号处理错，算成 2 + 5 = 7"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_003",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(-2)^3 = ____。",
+      "options": null,
+      "answer": "-8",
+      "solution_steps": [
+        "乘方是相同因数的连乘：(-2)^3 = (-2)×(-2)×(-2)",
+        "(-2)×(-2) = 4，4×(-2) = -8",
+        "所以 (-2)^3 = -8。"
+      ],
+      "distractors": [
+        {
+          "answer": "-6",
+          "typical_error_code": "power_meaning",
+          "explanation": "把乘方当成乘法：(-2)×3 = -6"
+        },
+        {
+          "answer": "8",
+          "typical_error_code": "muldiv_sign",
+          "explanation": "三个负因数相乘的符号判断错，算成正数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_004",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：(-4) × (-0.5) ÷ 2 = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "先算乘法：(-4) × (-0.5) = 2",
+        "再算除法：2 ÷ 2 = 1",
+        "所以结果是 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "-1",
+          "typical_error_code": "muldiv_sign",
+          "explanation": "负号个数数错，第一步算成 -2，再 ÷2 得 -1"
+        },
+        {
+          "answer": "4",
+          "typical_error_code": "order_of_ops",
+          "explanation": "运算顺序错：先算了 (-0.5) ÷ 2 再乘 -4，且符号处理错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_005",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "计算：-2^2 + (-2)^2 = ____。",
+      "options": null,
+      "answer": "0",
+      "solution_steps": [
+        "-2^2 表示 2^2 的相反数：-2^2 = -4",
+        "(-2)^2 = 4",
+        "-4 + 4 = 0，所以结果是 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "-8",
+          "typical_error_code": "power_meaning",
+          "explanation": "把两个乘方都当成乘法：-2×2 + (-2)×2 = -8"
+        },
+        {
+          "answer": "8",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "把 -2^2 也算成 +4，两个 4 相加得 8"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_006",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：5 + (-8) = ____。",
+      "options": null,
+      "answer": "-3",
+      "solution_steps": [
+        "异号相加，取绝对值较大加数的符号：|-8| > |5|，结果取负",
+        "8 - 5 = 3，所以结果是 -3",
+        "所以 5 + (-8) = -3。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "符号取错，算成 8 - 5 = 3"
+        },
+        {
+          "answer": "13",
+          "typical_error_code": "sub_to_add",
+          "explanation": "按 5 - (-8) 处理，得 13"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_007",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(-1)^2025 = ____。",
+      "options": null,
+      "answer": "-1",
+      "solution_steps": [
+        "负数的奇次幂是负数",
+        "2025 是奇数，(-1)^2025 = -1",
+        "所以结果是 -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "muldiv_sign",
+          "explanation": "指数奇偶性判断错，算成 1"
+        },
+        {
+          "answer": "-2025",
+          "typical_error_code": "power_meaning",
+          "explanation": "把乘方当成乘法：(-1)×2025 = -2025"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_008",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(-6) ÷ 3 × 2 = ____。",
+      "options": null,
+      "answer": "-4",
+      "solution_steps": [
+        "乘除是同级运算，从左到右：(-6) ÷ 3 = -2",
+        "-2 × 2 = -4",
+        "所以结果是 -4。"
+      ],
+      "distractors": [
+        {
+          "answer": "-1",
+          "typical_error_code": "order_of_ops",
+          "explanation": "先算了 3×2 = 6，再算 -6 ÷ 6 = -1"
+        },
+        {
+          "answer": "4",
+          "typical_error_code": "muldiv_sign",
+          "explanation": "负号处理错，结果符号相反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_009",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：-3 - (-3) + (-3) = ____。",
+      "options": null,
+      "answer": "-3",
+      "solution_steps": [
+        "-3 - (-3) = -3 + 3 = 0",
+        "0 + (-3) = -3",
+        "所以结果是 -3。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "最后一步 0 + (-3) 的符号取错，算成 3"
+        },
+        {
+          "answer": "-9",
+          "typical_error_code": "sub_to_add",
+          "explanation": "把 -3 - (-3) 当成 -3 + (-3) = -6，再 -6 + (-3) = -9"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_010",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "计算：(-3)^2 × (-2) = ____。",
+      "options": null,
+      "answer": "-18",
+      "solution_steps": [
+        "(-3)^2 = 9",
+        "9 × (-2) = -18",
+        "所以结果是 -18。"
+      ],
+      "distractors": [
+        {
+          "answer": "18",
+          "typical_error_code": "muldiv_sign",
+          "explanation": "乘法负号判断错，算成 9 × 2 = 18"
+        },
+        {
+          "answer": "12",
+          "typical_error_code": "power_meaning",
+          "explanation": "把 (-3)^2 当成 (-3)×2 = -6，再 -6×(-2) = 12"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_rat_011",
+      "knowledge_point": "math.cz.number.rational",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "若 a = -2，b = 3，则 a×b + a = ____。",
+      "options": null,
+      "answer": "-8",
+      "solution_steps": [
+        "先算乘法：a×b = (-2)×3 = -6",
+        "再算加法：-6 + a = -6 + (-2) = -8",
+        "所以 a×b + a = -8。"
+      ],
+      "distractors": [
+        {
+          "answer": "-6",
+          "typical_error_code": "order_of_ops",
+          "explanation": "只算了 a×b，漏掉了加 a 这一步"
+        },
+        {
+          "answer": "-4",
+          "typical_error_code": "sign_rule_mix",
+          "explanation": "加 a 时把 -2 当成 +2，得 -6 + 2 = -4"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_001",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "解方程：x + 5 = 12，则 x = ____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "移项：x = 12 - 5",
+        "12 - 5 = 7",
+        "所以 x = 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "17",
+          "typical_error_code": "move_sign",
+          "explanation": "移项没有变号：x = 12 + 5 = 17"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_002",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "解方程：2x - 3 = 9，则 x = ____。",
+      "options": null,
+      "answer": "6",
+      "solution_steps": [
+        "移项：2x = 9 + 3 = 12",
+        "系数化为 1：x = 12 ÷ 2",
+        "所以 x = 6。"
+      ],
+      "distractors": [
+        {
+          "answer": "12",
+          "typical_error_code": "coefficient_drop",
+          "explanation": "求出 2x = 12 后忘记除以 2，直接把 12 当成 x"
+        },
+        {
+          "answer": "3",
+          "typical_error_code": "move_sign",
+          "explanation": "移项变号错：2x = 9 - 3 = 6，x = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_003",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "解方程：3(x - 2) = x + 4，则 x = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "去括号：3x - 6 = x + 4",
+        "移项合并：3x - x = 4 + 6，即 2x = 10",
+        "x = 10 ÷ 2 = 5，所以 x = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "bracket_distribute",
+          "explanation": "去括号漏乘：3x - 2 = x + 4，得 2x = 6，x = 3"
+        },
+        {
+          "answer": "-1",
+          "typical_error_code": "move_sign",
+          "explanation": "移项时 -6 没变号：3x - x = 4 - 6 = -2，x = -1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_004",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "解方程：x/2 - 1 = x/3，则 x = ____。",
+      "options": null,
+      "answer": "6",
+      "solution_steps": [
+        "两边同乘 6 去分母：3x - 6 = 2x",
+        "移项：3x - 2x = 6",
+        "x = 6，所以 x = 6。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "denom_multiply",
+          "explanation": "去分母时 -1 漏乘 6：3x - 1 = 2x，解得 x = 1"
+        },
+        {
+          "answer": "-6",
+          "typical_error_code": "move_sign",
+          "explanation": "移项变号错：3x - 2x = -6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_005",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "解方程：(2x + 1)/3 - (x - 1)/2 = 1，则 x = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "两边同乘 6 去分母：2(2x + 1) - 3(x - 1) = 6",
+        "去括号合并：4x + 2 - 3x + 3 = 6，即 x + 5 = 6",
+        "x = 1，所以 x = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "-4",
+          "typical_error_code": "denom_multiply",
+          "explanation": "右边的 1 漏乘 6：x + 5 = 1，解得 x = -4"
+        },
+        {
+          "answer": "7",
+          "typical_error_code": "bracket_distribute",
+          "explanation": "-3(x-1) 去括号变号错：4x + 2 - 3x - 3 = 6，解得 x = 7"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_006",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "解方程：x - 7 = 4，则 x = ____。",
+      "options": null,
+      "answer": "11",
+      "solution_steps": [
+        "移项：x = 4 + 7",
+        "4 + 7 = 11",
+        "所以 x = 11。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "move_sign",
+          "explanation": "移项没有变号：x = 7 - 4 = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_007",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "解方程：3x + 6 = 0，则 x = ____。",
+      "options": null,
+      "answer": "-2",
+      "solution_steps": [
+        "移项：3x = -6",
+        "系数化为 1：x = -6 ÷ 3",
+        "所以 x = -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "move_sign",
+          "explanation": "移项变号错：3x = 0 + 6 = 6，x = 2"
+        },
+        {
+          "answer": "-6",
+          "typical_error_code": "coefficient_drop",
+          "explanation": "求出 3x = -6 后漏除以 3，把 -6 当成 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_008",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "解方程：2(x + 3) = 10，则 x = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "去括号：2x + 6 = 10",
+        "移项：2x = 10 - 6 = 4",
+        "x = 4 ÷ 2 = 2，所以 x = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "3.5",
+          "typical_error_code": "bracket_distribute",
+          "explanation": "去括号漏乘：2x + 3 = 10，2x = 7，x = 3.5"
+        },
+        {
+          "answer": "8",
+          "typical_error_code": "move_sign",
+          "explanation": "移项没变号：2x = 10 + 6 = 16，x = 8"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_009",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "解方程：(3x - 1)/4 = 2，则 x = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "两边同乘 4：3x - 1 = 8",
+        "移项：3x = 8 + 1 = 9",
+        "x = 9 ÷ 3 = 3，所以 x = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "denom_multiply",
+          "explanation": "右边的 2 漏乘 4：3x - 1 = 2，解得 x = 1"
+        },
+        {
+          "answer": "9",
+          "typical_error_code": "coefficient_drop",
+          "explanation": "求出 3x = 9 后漏除以 3，把 9 当成 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_010",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "解方程：4(x - 1) - x = 8，则 x = ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "去括号：4x - 4 - x = 8",
+        "合并移项：3x = 8 + 4 = 12",
+        "x = 12 ÷ 3 = 4，所以 x = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "bracket_distribute",
+          "explanation": "去括号时 4 漏乘 -1：4x - 1 - x = 8，3x = 9，x = 3"
+        },
+        {
+          "answer": "12",
+          "typical_error_code": "coefficient_drop",
+          "explanation": "求出 3x = 12 后漏除以 3，把 12 当成 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_lineq_011",
+      "knowledge_point": "math.cz.equation.linear_one",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "解方程：(x + 1)/2 - 1 = (2x - 1)/3，则 x = ____。",
+      "options": null,
+      "answer": "-1",
+      "solution_steps": [
+        "两边同乘 6：3(x + 1) - 6 = 2(2x - 1)",
+        "去括号合并：3x + 3 - 6 = 4x - 2，即 3x - 3 = 4x - 2",
+        "移项：-3 + 2 = 4x - 3x，x = -1，所以 x = -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "denom_multiply",
+          "explanation": "常数项 -1 漏乘 6：3x + 3 - 1 = 4x - 2，解得 x = 4"
+        },
+        {
+          "answer": "5",
+          "typical_error_code": "move_sign",
+          "explanation": "移项时符号处理错：3x - 4x = -2 + 3 变成 3x + 4x = 5，x = 5/7 后又取整出错得 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_001",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：a^3 · a^2 = ____。",
+      "options": null,
+      "answer": "a^5",
+      "solution_steps": [
+        "同底数幂相乘，底数不变、指数相加",
+        "a^3 · a^2 = a^(3+2) = a^5",
+        "所以结果是 a^5。"
+      ],
+      "distractors": [
+        {
+          "answer": "a^6",
+          "typical_error_code": "exponent_multiply",
+          "explanation": "把指数相加错做成指数相乘：3×2 = 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_002",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(a^3)^2 = ____。",
+      "options": null,
+      "answer": "a^6",
+      "solution_steps": [
+        "幂的乘方，底数不变、指数相乘",
+        "(a^3)^2 = a^(3×2) = a^6",
+        "所以结果是 a^6。"
+      ],
+      "distractors": [
+        {
+          "answer": "a^5",
+          "typical_error_code": "power_power_add",
+          "explanation": "把幂的乘方当成同底数幂相乘，指数相加：3 + 2 = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_003",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：(2x + 3)(x - 1) = ____。",
+      "options": null,
+      "answer": "2x^2 + x - 3",
+      "solution_steps": [
+        "多项式乘多项式，逐项分配：2x·x = 2x^2，2x·(-1) = -2x，3·x = 3x，3·(-1) = -3",
+        "合并同类项：-2x + 3x = x",
+        "所以结果是 2x^2 + x - 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "2x^2 - 3",
+          "typical_error_code": "distrib_miss",
+          "explanation": "漏乘了中间两项（-2x 与 3x），只算了首尾两项"
+        },
+        {
+          "answer": "2x^2 + 5x - 3",
+          "typical_error_code": "distrib_miss",
+          "explanation": "中间两项符号处理错：-2x 与 3x 相加写成了相加前先都取正"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_004",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：(x - 2)^2 = ____。",
+      "options": null,
+      "answer": "x^2 - 4x + 4",
+      "solution_steps": [
+        "完全平方公式：(a - b)^2 = a^2 - 2ab + b^2",
+        "(x - 2)^2 = x^2 - 2·x·2 + 2^2",
+        "所以结果是 x^2 - 4x + 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 - 4",
+          "typical_error_code": "formula_sign",
+          "explanation": "把完全平方公式当成平方差公式：x^2 - 2^2"
+        },
+        {
+          "answer": "x^2 + 4x + 4",
+          "typical_error_code": "formula_sign",
+          "explanation": "中间项符号判断错，-2·x·2 写成 +4x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_005",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "计算：(-2a^2b)^3 = ____。",
+      "options": null,
+      "answer": "-8a^6b^3",
+      "solution_steps": [
+        "积的乘方，各因式分别乘方：(-2)^3 = -8，(a^2)^3 = a^6，b^3 = b^3",
+        "合并：-8a^6b^3",
+        "所以结果是 -8a^6b^3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-6a^5b^3",
+          "typical_error_code": "power_power_add",
+          "explanation": "(a^2)^3 的指数错算成相加：a^5；系数也错算成 2×3 = 6"
+        },
+        {
+          "answer": "8a^6b^3",
+          "typical_error_code": "coeff_sign_drop",
+          "explanation": "系数 (-2)^3 = -8 的负号丢了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_006",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：x^2 · x^4 = ____。",
+      "options": null,
+      "answer": "x^6",
+      "solution_steps": [
+        "同底数幂相乘，指数相加：2 + 4 = 6",
+        "x^2 · x^4 = x^6",
+        "所以结果是 x^6。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^8",
+          "typical_error_code": "exponent_multiply",
+          "explanation": "指数相乘：2×4 = 8"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_007",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(x + 3)(x - 3) = ____。",
+      "options": null,
+      "answer": "x^2 - 9",
+      "solution_steps": [
+        "平方差公式：(a + b)(a - b) = a^2 - b^2",
+        "(x + 3)(x - 3) = x^2 - 3^2",
+        "所以结果是 x^2 - 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 9",
+          "typical_error_code": "formula_sign",
+          "explanation": "平方差公式符号记错，写成 a^2 + b^2"
+        },
+        {
+          "answer": "x^2 - 6x - 9",
+          "typical_error_code": "distrib_miss",
+          "explanation": "不用公式逐项展开时中间项 -3x 与 +3x 没有抵消，合并出错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_008",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：(y^2)^3 = ____。",
+      "options": null,
+      "answer": "y^6",
+      "solution_steps": [
+        "幂的乘方，指数相乘：2×3 = 6",
+        "(y^2)^3 = y^6",
+        "所以结果是 y^6。"
+      ],
+      "distractors": [
+        {
+          "answer": "y^5",
+          "typical_error_code": "power_power_add",
+          "explanation": "指数相加：2 + 3 = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_009",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：(x + 5)^2 = ____。",
+      "options": null,
+      "answer": "x^2 + 10x + 25",
+      "solution_steps": [
+        "完全平方公式：(a + b)^2 = a^2 + 2ab + b^2",
+        "(x + 5)^2 = x^2 + 2·x·5 + 5^2",
+        "所以结果是 x^2 + 10x + 25。"
+      ],
+      "distractors": [
+        {
+          "answer": "x^2 + 25",
+          "typical_error_code": "formula_sign",
+          "explanation": "漏掉中间项 2ab，写成 a^2 + b^2"
+        },
+        {
+          "answer": "x^2 + 5x + 25",
+          "typical_error_code": "distrib_miss",
+          "explanation": "中间项 2ab 只算了 x·5，漏乘 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_010",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "计算：(3x - 2)(3x + 2) = ____。",
+      "options": null,
+      "answer": "9x^2 - 4",
+      "solution_steps": [
+        "平方差公式：(a + b)(a - b) = a^2 - b^2，其中 a = 3x，b = 2",
+        "(3x)^2 - 2^2 = 9x^2 - 4",
+        "所以结果是 9x^2 - 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "3x^2 - 4",
+          "typical_error_code": "coeff_square_miss",
+          "explanation": "(3x)^2 漏了给系数平方，算成 3x^2"
+        },
+        {
+          "answer": "9x^2 + 4",
+          "typical_error_code": "formula_sign",
+          "explanation": "平方差结果符号记错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_mult_011",
+      "knowledge_point": "math.cz.algebra.multiply",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "下列运算正确的是（　）。",
+      "options": [
+        "a^2 · a^3 = a^6",
+        "(a^2)^3 = a^6",
+        "a^6 ÷ a^2 = a^3",
+        "2a + 3a = 5a^2"
+      ],
+      "answer": "(a^2)^3 = a^6",
+      "solution_steps": [
+        "A 项：a^2 · a^3 = a^5 ≠ a^6，指数应相加",
+        "B 项：(a^2)^3 = a^(2×3) = a^6，正确",
+        "C 项：a^6 ÷ a^2 = a^4 ≠ a^3，指数应相减；D 项：2a + 3a = 5a ≠ 5a^2，不是同类项不能这样并",
+        "所以选 (a^2)^3 = a^6。"
+      ],
+      "distractors": [
+        {
+          "answer": "a^2 · a^3 = a^6",
+          "typical_error_code": "exponent_multiply",
+          "explanation": "同底数幂相乘指数应相加，误用指数相乘"
+        },
+        {
+          "answer": "a^6 ÷ a^2 = a^3",
+          "typical_error_code": "power_power_add",
+          "explanation": "同底数幂相除指数应相减，误用指数相除"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_001",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "分解因式：3x^2 - 6x = ____。",
+      "options": null,
+      "answer": "3x(x - 2)",
+      "solution_steps": [
+        "提公因式：两项都含公因式 3x",
+        "3x^2 ÷ 3x = x，-6x ÷ 3x = -2",
+        "所以 3x^2 - 6x = 3x(x - 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "x(3x - 6)",
+          "typical_error_code": "common_incomplete",
+          "explanation": "公因式没提尽，3x 只提出了 x，还剩系数 3 可以继续提"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_002",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "分解因式：x^2 - 9 = ____。",
+      "options": null,
+      "answer": "(x + 3)(x - 3)",
+      "solution_steps": [
+        "平方差公式：a^2 - b^2 = (a + b)(a - b)",
+        "x^2 - 9 = x^2 - 3^2",
+        "所以 x^2 - 9 = (x + 3)(x - 3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 3)^2",
+          "typical_error_code": "formula_misapply",
+          "explanation": "把平方差当成完全平方，算成 (x - 3)^2"
+        },
+        {
+          "answer": "x(x - 9)",
+          "typical_error_code": "expand_not_factor",
+          "explanation": "误把 9 拆成 x 的因式提出，分解对象判断错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_003",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "分解因式：x^2 + 6x + 9 = ____。",
+      "options": null,
+      "answer": "(x + 3)^2",
+      "solution_steps": [
+        "完全平方公式：a^2 + 2ab + b^2 = (a + b)^2",
+        "x^2 + 6x + 9 = x^2 + 2·x·3 + 3^2",
+        "所以 x^2 + 6x + 9 = (x + 3)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 9)(x - 9)",
+          "typical_error_code": "formula_misapply",
+          "explanation": "把三项的完全平方当成二项平方差"
+        },
+        {
+          "answer": "(x + 3)(x - 3)",
+          "typical_error_code": "formula_misapply",
+          "explanation": "中间项 6x 被忽略，只用首尾两项套平方差"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_004",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "分解因式：2a^2 - 8 = ____。",
+      "options": null,
+      "answer": "2(a + 2)(a - 2)",
+      "solution_steps": [
+        "先提公因式 2：2(a^2 - 4)",
+        "再用平方差公式：a^2 - 4 = (a + 2)(a - 2)",
+        "所以 2a^2 - 8 = 2(a + 2)(a - 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(a + 2)(a - 2)",
+          "typical_error_code": "common_incomplete",
+          "explanation": "忘记先提公因式 2，结果漏了系数"
+        },
+        {
+          "answer": "2(a - 2)^2",
+          "typical_error_code": "formula_misapply",
+          "explanation": "提公因式后误用完全平方公式"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_005",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "分解因式：x^2 - 4x + 4 = ____。",
+      "options": null,
+      "answer": "(x - 2)^2",
+      "solution_steps": [
+        "完全平方公式：a^2 - 2ab + b^2 = (a - b)^2",
+        "x^2 - 4x + 4 = x^2 - 2·x·2 + 2^2",
+        "所以 x^2 - 4x + 4 = (x - 2)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 2)^2",
+          "typical_error_code": "sign_change_error",
+          "explanation": "中间项 -4x 的负号被忽略，错用加法公式"
+        },
+        {
+          "answer": "(x - 2)(x + 2)",
+          "typical_error_code": "formula_misapply",
+          "explanation": "漏看中间项，套了平方差公式"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_006",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "分解因式：5x + 10 = ____。",
+      "options": null,
+      "answer": "5(x + 2)",
+      "solution_steps": [
+        "公因式是 5",
+        "5x ÷ 5 = x，10 ÷ 5 = 2",
+        "所以 5x + 10 = 5(x + 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "5(x + 10)",
+          "typical_error_code": "common_incomplete",
+          "explanation": "只从第一项提出 5，第二项漏除"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_007",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "分解因式：x^2 - 25 = ____。",
+      "options": null,
+      "answer": "(x + 5)(x - 5)",
+      "solution_steps": [
+        "平方差公式：x^2 - 25 = x^2 - 5^2",
+        "a^2 - b^2 = (a + b)(a - b)",
+        "所以 x^2 - 25 = (x + 5)(x - 5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 5)^2",
+          "typical_error_code": "formula_misapply",
+          "explanation": "误用完全平方公式"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_008",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "分解因式：x^2 + 8x + 16 = ____。",
+      "options": null,
+      "answer": "(x + 4)^2",
+      "solution_steps": [
+        "完全平方公式：a^2 + 2ab + b^2 = (a + b)^2",
+        "x^2 + 8x + 16 = x^2 + 2·x·4 + 4^2",
+        "所以 x^2 + 8x + 16 = (x + 4)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 4)(x - 4)",
+          "typical_error_code": "formula_misapply",
+          "explanation": "忽略中间项 8x，误套平方差"
+        },
+        {
+          "answer": "(x + 8)^2",
+          "typical_error_code": "common_incomplete",
+          "explanation": "把 2ab 的 2 倍关系弄错，直接用 8 当 b"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_009",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "分解因式：-x^2 + 4 = ____。",
+      "options": null,
+      "answer": "-(x + 2)(x - 2)",
+      "solution_steps": [
+        "先提出负号：-(x^2 - 4)，注意括号内 4 变号",
+        "再用平方差公式：x^2 - 4 = (x + 2)(x - 2)",
+        "所以 -x^2 + 4 = -(x + 2)(x - 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "-(x^2 + 4)",
+          "typical_error_code": "sign_change_error",
+          "explanation": "提出负号后括号内 4 没变号"
+        },
+        {
+          "answer": "(x + 2)(x - 2)",
+          "typical_error_code": "sign_change_error",
+          "explanation": "提出负号这一步整个被跳过，首项符号被直接丢掉"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_010",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "分解因式：x^3 - 4x = ____。",
+      "options": null,
+      "answer": "x(x + 2)(x - 2)",
+      "solution_steps": [
+        "先提公因式 x：x(x^2 - 4)",
+        "再用平方差公式：x^2 - 4 = (x + 2)(x - 2)",
+        "所以 x^3 - 4x = x(x + 2)(x - 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "x(x - 2)^2",
+          "typical_error_code": "formula_misapply",
+          "explanation": "提公因式后误用完全平方公式"
+        },
+        {
+          "answer": "x(x^2 - 4)",
+          "typical_error_code": "common_incomplete",
+          "explanation": "只提了公因式，没有继续把 x^2 - 4 分解到底"
+        }
+      ]
+    },
+    {
+      "item_id": "q_cz_fact_011",
+      "knowledge_point": "math.cz.algebra.factoring",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "下列从左到右的变形，是因式分解的是（　）。",
+      "options": [
+        "(x - 2)(x + 2) = x^2 - 4",
+        "x^2 - 4x + 4 = (x - 2)^2",
+        "x^2 + 4 = (x + 2)^2",
+        "x^2 - 4x = x(x^2 - 4)"
+      ],
+      "answer": "x^2 - 4x + 4 = (x - 2)^2",
+      "solution_steps": [
+        "因式分解要求把多项式化成几个整式的乘积",
+        "A 项 (x - 2)(x + 2) = x^2 - 4 是乘法展开，方向反了",
+        "B 项 x^2 - 4x + 4 = (x - 2)^2 是把和差化成积，正确；C 项 x^2 + 4 提不出公因式也不是公式，不能分解；D 项是把 x^2 - 4x 写成 x(x - 4)，也是分解，但选项只有一个是「正确且彻底」的完全分解——按题目要求选 B",
+        "所以选 x^2 - 4x + 4 = (x - 2)^2。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x - 2)(x + 2) = x^2 - 4",
+          "typical_error_code": "expand_not_factor",
+          "explanation": "这是整式乘法（展开），不是因式分解"
+        },
+        {
+          "answer": "x^2 - 4x = x(x^2 - 4)",
+          "typical_error_code": "common_incomplete",
+          "explanation": "提出 x 后第二项应剩 x - 4，此处余项写错且未分解彻底"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "zhiwei",
+  "version": "0.1.0",
+  "private": true,
+  "description": "知微 · 迭代3：前端 10 页面 + 端到端闭环（单一工程，不用 npm workspaces）",
+  "//start": "一键启动：npm run all（同时起后端 8787 + 前端 5173；浏览器打开 http://127.0.0.1:5173）",
+  "scripts": {
+    "dev": "vite --config apps/web/vite.config.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p packages/engine/tsconfig.json",
+    "typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json",
+    "typecheck:all": "tsc --noEmit -p functions/api/tsconfig.json && tsc --noEmit -p packages/engine/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
+    "build:api": "esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js",
+    "build:web": "vite build --config apps/web/vite.config.ts",
+    "brand:favicon": "esbuild tools/brand-assets/gen-favicon.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/gen-favicon.cjs && node node_modules/.cache/gen-favicon.cjs",
+    "api": "npm run build:api && node functions/api/dist/server.js",
+    "all": "node scripts/dev-all.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "echarts": "5.5.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.26.2",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.7.5",
+    "@types/react": "18.3.5",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.2",
+    "autoprefixer": "10.4.20",
+    "esbuild": "0.21.5",
+    "jsdom": "25.0.1",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.13",
+    "typescript": "5.5.4",
+    "vite": "5.4.8",
+    "vitest": "2.1.1"
+  }
+}

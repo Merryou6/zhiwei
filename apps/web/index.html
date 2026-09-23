@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- dusk 常驻：全站深色主题的唯一开关（见 src/index.css 的 html.dusk 段）。
+     写在 HTML 上而不是由 JS 挂载，是为了让浏览器解析第一帧就是深色——
+     若等 React 挂载后再加，会先闪一下浅色底。 -->
+<html lang="zh-CN" class="dusk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>知微 · 学习伴侣</title>
+    <!-- 搜索引擎/分享卡片摘要（前端优化批二 · 2026-09-22） -->
+    <meta
+      name="description"
+      content="知微：先弄清你卡在哪个知识点，再陪你把它补上的初中数学学习伴侣。自适应测评 + 知识图谱归因 + 学长式对话辅导。"
+    />
+    <!-- 浏览器 UI 主题色（移动端状态栏/地址栏）。深色主题下取页面底色 dusk-base，
+         取浅色会在深色页顶部留一条亮带。 -->
+    <meta name="theme-color" content="#122139" />
+
+    <!-- 站点图标：SVG 为主，另给 apple-touch-icon 便于「添加到主屏」 -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./favicon.svg" />
+
+    <!-- 分享卡片（Open Graph / Twitter）。
+         注意：部署到公网后请把 og:url 与 og:image 换成本域绝对地址（当前无正式域名，先用相对路径）。 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="知微 · 学习伴侣" />
+    <meta property="og:title" content="知微 · 学习伴侣" />
+    <meta
+      property="og:description"
+      content="先弄清你卡在哪个知识点，再陪你把它补上。自适应测评、知识图谱归因、学长式对话辅导。"
+    />
+    <meta property="og:image" content="./og-cover.png" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="知微 · 学习伴侣" />
+    <meta name="twitter:description" content="先弄清你卡在哪个知识点，再陪你把它补上。" />
+    <meta name="twitter:image" content="./og-cover.png" />
+
+    <!-- 首屏底色与深色主题的 canvas 变量一致，避免 JS 加载前的白闪 -->
+    <style>
+      html {
+        background-color: #070c14;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

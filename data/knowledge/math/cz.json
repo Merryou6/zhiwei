@@ -1,0 +1,1232 @@
+{
+  "meta": {
+    "subject": "数学",
+    "stage": "初中",
+    "kb_id": "kb_math_cz",
+    "version": "1.1.0",
+    "primary_standard": "义务教育数学课程标准（2022年版）",
+    "node_count": 24,
+    "updated_at": "2026-09-23"
+  },
+  "nodes": [
+    {
+      "id": "math.cz.algebra.basic",
+      "name": "代数式与代入求值",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "代数式",
+      "difficulty": 1,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·代数式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.number.rational"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.algebra.identity",
+        "math.cz.function.linear"
+      ],
+      "typical_errors": [
+        {
+          "code": "negative_sign_drop",
+          "desc": "把 x=-2 代入 x^2 时算成 -2^2=-4（漏括号），结果符号错",
+          "error_type": "procedural_slip",
+          "remedy": "提醒：负数代入要加括号，写成 (-2)^2=(-2)x(-2)=4，再代入其他项"
+        },
+        {
+          "code": "term_merge",
+          "desc": "把 3x 与 3+x 直接合并成 6x",
+          "error_type": "concept_confusion",
+          "remedy": "让学生用 x=2 验算两式值，对比 3x=6 与 3+x=5，讲清 3 是系数还是加数"
+        },
+        {
+          "code": "order_confusion",
+          "desc": "先算加减后算乘除，忽略运算优先级",
+          "error_type": "procedural_slip",
+          "remedy": "每题先圈出最高优先级运算，按先乘方、再乘除、最后加减的顺序复算一遍"
+        },
+        {
+          "code": "misread_variable",
+          "desc": "把题干中的 2a 看成 2+a，或漏看负号",
+          "error_type": "misreading",
+          "remedy": "让学生把题干抄成自己的式子再动笔，抄完与原题逐字符对照一次"
+        }
+      ],
+      "sample_items": [
+        "q_cz_basic_001",
+        "q_cz_basic_006"
+      ]
+    },
+    {
+      "id": "math.cz.algebra.identity",
+      "name": "完全平方公式与配方变形",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "代数式",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·代数式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.algebra.basic",
+        "math.cz.algebra.multiply"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.eq_concept",
+        "math.cz.quadratic.completing_square"
+      ],
+      "typical_errors": [
+        {
+          "code": "square_expansion_missing_middle",
+          "desc": "(a+b)^2 写成 a^2+b^2，丢掉中间的 2ab",
+          "error_type": "concept_confusion",
+          "remedy": "用面积图（正方形分四块）演示 (a+b)^2=a^2+2ab+b^2，再复述首平方、尾平方、两倍乘积放中央"
+        },
+        {
+          "code": "middle_sign_error",
+          "desc": "(a-b)^2 展开时 2ab 项符号写成加号",
+          "error_type": "procedural_slip",
+          "remedy": "提醒把 (a-b)^2 写成 (a+(-b))^2 再套公式，让符号自己露出来"
+        },
+        {
+          "code": "half_coefficient_error",
+          "desc": "配方时取一次项系数的一半写错（x^2+6x 取 6 而非 3）",
+          "error_type": "procedural_slip",
+          "remedy": "强调取一半再平方：6/2=3，3^2=9，先写一半再写平方，不跳步"
+        },
+        {
+          "code": "perfect_square_unrecognized",
+          "desc": "看不出 x^2+6x+9 是完全平方式，无法配方",
+          "error_type": "concept_confusion",
+          "remedy": "对照 (x+3)^2 的展开结果反查：中间项是否恰为两端平方根乘积的 2 倍"
+        }
+      ],
+      "sample_items": [
+        "q_cz_identity_001",
+        "q_cz_identity_006"
+      ]
+    },
+    {
+      "id": "math.cz.function.concept",
+      "name": "函数的概念与自变量取值范围",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "函数",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数",
+        "type": "direct"
+      },
+      "prerequisites": [],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.function.graph",
+        "math.cz.function.linear",
+        "math.cz.quadratic.concept"
+      ],
+      "typical_errors": [
+        {
+          "code": "missing_domain_condition",
+          "desc": "求自变量取值范围时只写 x不为0，漏掉被开方数非负的条件",
+          "error_type": "procedural_slip",
+          "remedy": "按分母不为零、被开方数非负两条清单逐条打勾后再给结论"
+        },
+        {
+          "code": "one_to_many_confusion",
+          "desc": "把一对多的对应关系也当成函数（如 y^2=x）",
+          "error_type": "concept_confusion",
+          "remedy": "用电梯比喻：同一楼层按一次按钮不能到两个楼层，一个 x 只能对应一个 y"
+        },
+        {
+          "code": "inequality_direction_error",
+          "desc": "解 x-2>=0 得 x<=2，不等号方向写反",
+          "error_type": "procedural_slip",
+          "remedy": "移项后让学生用 x=3 代回原不等式验算，自行发现方向写反"
+        },
+        {
+          "code": "domain_ignored_in_substitution",
+          "desc": "代入求值时不检查该 x 是否在定义域内",
+          "error_type": "prerequisite_gap",
+          "remedy": "先复述定义域再代入，养成先看范围、再算数值的两步习惯"
+        }
+      ],
+      "sample_items": [
+        "q_cz_func_concept_001",
+        "q_cz_func_concept_006"
+      ]
+    },
+    {
+      "id": "math.cz.function.graph",
+      "name": "函数的图像与描点法",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "函数",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.function.concept"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.graph_basic",
+        "math.cz.quadratic.vertex_form"
+      ],
+      "typical_errors": [
+        {
+          "code": "point_order_reversed",
+          "desc": "把点 (x,y) 描成 (y,x)，横纵坐标位置颠倒",
+          "error_type": "procedural_slip",
+          "remedy": "描点前先读出横坐标在前、纵坐标在后并写在点旁边，再落笔"
+        },
+        {
+          "code": "negative_axis_misread",
+          "desc": "从图像读点时把负半轴刻度读成正的",
+          "error_type": "misreading",
+          "remedy": "读点先判断所在象限再数格数，负数点用往左/往下数几个格口述一遍"
+        },
+        {
+          "code": "curve_as_polyline",
+          "desc": "把平滑曲线画成折线，或把两端点直接连成直线",
+          "error_type": "procedural_slip",
+          "remedy": "强调描点后要用平滑曲线连接，两侧自然延伸，不能首尾直连"
+        }
+      ],
+      "sample_items": [
+        "q_cz_func_graph_001",
+        "q_cz_func_graph_006"
+      ]
+    },
+    {
+      "id": "math.cz.function.linear",
+      "name": "一次函数与待定系数法",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "函数",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.function.concept",
+        "math.cz.algebra.basic",
+        "math.cz.equation.linear_one"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.three_points"
+      ],
+      "typical_errors": [
+        {
+          "code": "slope_sign_error",
+          "desc": "解方程组求 k 时符号写反（k=-2 写成 2）",
+          "error_type": "procedural_slip",
+          "remedy": "求出 k 后代回任一点验算，等式不成立即回查消元步骤的符号"
+        },
+        {
+          "code": "k_zero_as_linear",
+          "desc": "把 y=3 这类常函数当成一次函数",
+          "error_type": "concept_confusion",
+          "remedy": "回到定义 y=kx+b（k不为0），用 k=0 反例说明它不是一次函数"
+        },
+        {
+          "code": "intercept_misread",
+          "desc": "把 y=kx+b 中的 b 当成与 y 轴交点的横坐标",
+          "error_type": "concept_confusion",
+          "remedy": "令 x=0 求交点得 (0,b)，强调 b 是纵坐标"
+        },
+        {
+          "code": "two_point_solve_slip",
+          "desc": "代入两点后方程组减法符号出错，k、b 全错",
+          "error_type": "procedural_slip",
+          "remedy": "把两个方程并排写，标出①-②的逐项减法过程，先算 k 再代回求 b"
+        }
+      ],
+      "sample_items": [
+        "q_cz_linear_001",
+        "q_cz_linear_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.eq_concept",
+      "name": "一元二次方程的概念与直接开平方法",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "一元二次方程",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·方程与不等式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.algebra.identity"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.completing_square",
+        "math.cz.quadratic.factoring",
+        "math.cz.quadratic.concept"
+      ],
+      "typical_errors": [
+        {
+          "code": "lost_negative_root",
+          "desc": "由 x^2=9 只取 x=3，漏掉 x=-3",
+          "error_type": "concept_confusion",
+          "remedy": "强调开平方有两个根，写成 x=±3，并用数轴标出两个对应点"
+        },
+        {
+          "code": "non_quadratic_misjudge",
+          "desc": "把 x^2+1/x=0、x^3-1=0 判定为一元二次方程",
+          "error_type": "concept_confusion",
+          "remedy": "按整式方程、只含一个未知数、最高次为 2 三条标准逐条核对"
+        },
+        {
+          "code": "divide_by_variable",
+          "desc": "两边同除 x 导致丢掉根 x=0",
+          "error_type": "method_gap",
+          "remedy": "改写成 x^2-x=0 后用因式分解 x(x-1)=0 求根，禁止两边同除含未知数的因式"
+        },
+        {
+          "code": "radical_simplify_error",
+          "desc": "根号18 化简成 2 根号3（系数与根号内数字取错）",
+          "error_type": "procedural_slip",
+          "remedy": "先分解 18=9x2，把完全平方数 9 开出来得 3 根号2，再用平方还原验算"
+        }
+      ],
+      "sample_items": [
+        "q_cz_eq_concept_001",
+        "q_cz_eq_concept_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.completing_square",
+      "name": "配方法解一元二次方程",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "一元二次方程",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·方程与不等式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.algebra.identity",
+        "math.cz.quadratic.eq_concept"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.formula",
+        "math.cz.quadratic.vertex_form"
+      ],
+      "typical_errors": [
+        {
+          "code": "half_coefficient_misread",
+          "desc": "配方时取一次项系数的一半写错（4x 取 4 而非 2）",
+          "error_type": "procedural_slip",
+          "remedy": "把一半写成分数形式：4 的一半是 2，再平方得 4，分两步写不跳步"
+        },
+        {
+          "code": "constant_move_sign_error",
+          "desc": "常数项移到等号右边忘记变号",
+          "error_type": "procedural_slip",
+          "remedy": "移项时在纸面写出加3变减3，移完用原方程代回检查"
+        },
+        {
+          "code": "negative_rhs_ignored",
+          "desc": "配方后右边为负仍继续开平方求实根",
+          "error_type": "concept_confusion",
+          "remedy": "开平方前先判断右边符号：为负则说明原方程无实数根"
+        },
+        {
+          "code": "extra_constant_not_removed",
+          "desc": "配成 (x+3)^2 后忘了减去配平时多加的常数",
+          "error_type": "procedural_slip",
+          "remedy": "强调加了就要减：左边加 9，右边也必须加 9，最后统一化简"
+        }
+      ],
+      "sample_items": [
+        "q_cz_comp_sq_001",
+        "q_cz_comp_sq_007"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.formula",
+      "name": "公式法与根的判别式",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "一元二次方程",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·方程与不等式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.completing_square"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.eq_relation"
+      ],
+      "typical_errors": [
+        {
+          "code": "discriminant_sign_error",
+          "desc": "把判别式 b^2-4ac 中的 -4ac 算成 +4ac",
+          "error_type": "procedural_slip",
+          "remedy": "先把 a、b、c 的值连同符号列成表格再代入，避免心算符号"
+        },
+        {
+          "code": "denominator_misread",
+          "desc": "求根公式分母写成 a 而不是 2a",
+          "error_type": "procedural_slip",
+          "remedy": "抄写公式时把分母 2a 圈出来，代值后再核对一次"
+        },
+        {
+          "code": "discriminant_meaning_reversed",
+          "desc": "认为判别式等于 0 时方程无实数根",
+          "error_type": "concept_confusion",
+          "remedy": "用抛物线与 x 轴相交个数（2、1、0）依次对应大于 0、等于 0、小于 0"
+        },
+        {
+          "code": "plus_minus_omitted",
+          "desc": "求根时漏写正负号，只得到一个根",
+          "error_type": "concept_confusion",
+          "remedy": "强调正负号是两个根的来源，写完必须检查是否有两个解"
+        }
+      ],
+      "sample_items": [
+        "q_cz_formula_001",
+        "q_cz_formula_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.factoring",
+      "name": "因式分解法解一元二次方程",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "一元二次方程",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·方程与不等式",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.eq_concept",
+        "math.cz.algebra.factoring"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [],
+      "typical_errors": [
+        {
+          "code": "divide_by_factor",
+          "desc": "两边同除 (x-1)，丢掉根 x=1",
+          "error_type": "method_gap",
+          "remedy": "改成移项后提公因式，任何含未知数的因式都不能直接约掉"
+        },
+        {
+          "code": "factor_sign_error",
+          "desc": "x^2-5x+6 分解成 (x+2)(x+3)（符号取错）",
+          "error_type": "procedural_slip",
+          "remedy": "分解后展开验算：中间项 -5x 要求两数同负，故为 (x-2)(x-3)"
+        },
+        {
+          "code": "no_factorization_seen",
+          "desc": "看不出可用提公因式法，硬套求根公式",
+          "error_type": "method_gap",
+          "remedy": "先扫一眼各项是否有公因式、是否能十字相乘，再决定方法"
+        },
+        {
+          "code": "zero_product_misuse",
+          "desc": "由 (x-1)(x-3)=6 直接得 x-1=6 或 x-3=6",
+          "error_type": "concept_confusion",
+          "remedy": "强调乘积为零才能拆，右边是 6 必须先移项化为等于 0 的形式"
+        }
+      ],
+      "sample_items": [
+        "q_cz_factoring_001",
+        "q_cz_factoring_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.concept",
+      "name": "二次函数的概念与一般式",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.function.concept",
+        "math.cz.quadratic.eq_concept"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.graph_basic",
+        "math.cz.quadratic.three_points"
+      ],
+      "typical_errors": [
+        {
+          "code": "a_zero_misjudge",
+          "desc": "把 y=(x-1)^2-x^2 当成二次函数（化简后二次项系数为 0）",
+          "error_type": "concept_confusion",
+          "remedy": "先化简成一般式，确认二次项系数不为 0 再判定类型"
+        },
+        {
+          "code": "constant_as_vertex_y",
+          "desc": "把一般式中的 c 当成顶点的纵坐标",
+          "error_type": "concept_confusion",
+          "remedy": "举 y=x^2-4x+7 的反例（c=7，顶点纵坐标为 3），说明 c 只是 x=0 时的函数值"
+        },
+        {
+          "code": "coefficient_name_misread",
+          "desc": "把 y=ax^2+bx+c 中的 b 称作二次项系数",
+          "error_type": "misreading",
+          "remedy": "把 a、b、c 的名称与所在项写在式子下方，逐个指读一遍"
+        }
+      ],
+      "sample_items": [
+        "q_cz_concept_001",
+        "q_cz_concept_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.graph_basic",
+      "name": "y=ax2 的图像与性质",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.concept",
+        "math.cz.function.graph"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.opening",
+        "math.cz.quadratic.general_to_vertex"
+      ],
+      "typical_errors": [
+        {
+          "code": "opening_direction_reversed",
+          "desc": "把 a 小于 0 的抛物线说成开口向上",
+          "error_type": "concept_confusion",
+          "remedy": "记牢 a 正向上、a 负向下，判断后立刻看顶点是最低点还是最高点自检"
+        },
+        {
+          "code": "width_relation_reversed",
+          "desc": "认为 a 的绝对值越大开口越宽",
+          "error_type": "concept_confusion",
+          "remedy": "对比 y=x^2 与 y=3x^2 的图像格点，看出绝对值越大越窄"
+        },
+        {
+          "code": "axis_written_wrong",
+          "desc": "把 y=ax^2 的对称轴写成 x=a",
+          "error_type": "procedural_slip",
+          "remedy": "牢记 y=ax^2 的对称轴恒为 y 轴，即 x=0"
+        }
+      ],
+      "sample_items": [
+        "q_cz_graph_001",
+        "q_cz_graph_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.opening",
+      "name": "开口方向、对称轴与增减性",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.graph_basic"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.eq_relation"
+      ],
+      "typical_errors": [
+        {
+          "code": "axis_formula_sign_error",
+          "desc": "对称轴写成 x=b/2a（漏掉负号）",
+          "error_type": "procedural_slip",
+          "remedy": "把 -b/2a 作为整体记忆块，代值前先写负号再算数值"
+        },
+        {
+          "code": "monotonic_direction_error",
+          "desc": "a 大于 0 时把对称轴左侧说成递增",
+          "error_type": "concept_confusion",
+          "remedy": "画草图看走向：左半支从上往下（递减），右半支往上（递增）"
+        },
+        {
+          "code": "vertex_value_as_extremum",
+          "desc": "把对称轴处的 x 值当成函数最值",
+          "error_type": "concept_confusion",
+          "remedy": "强调对称轴只回答在哪里取到最值，最值要代回求 y"
+        },
+        {
+          "code": "prerequisite_graph_basic_gap",
+          "desc": "无法从 y=ax^2 的图像性质判断开口与对称轴，方向靠猜",
+          "error_type": "prerequisite_gap",
+          "remedy": "先回补 y=ax^2 的图像与性质：用描点法画出 y=x^2 与 y=-x^2 再谈对称轴与增减性"
+        }
+      ],
+      "sample_items": [
+        "q_cz_opening_001",
+        "q_cz_opening_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.vertex_form",
+      "name": "二次函数的顶点式",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.completing_square",
+        "math.cz.function.graph"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.general_to_vertex",
+        "math.cz.quadratic.translation",
+        "math.cz.quadratic.extremum"
+      ],
+      "typical_errors": [
+        {
+          "code": "sign_confusion",
+          "desc": "将 y=(x+2)^2+3 的顶点写成 (2,3)（括号内未取反）",
+          "error_type": "concept_confusion",
+          "remedy": "用 y=(x-h)^2+k 与 y=(x+2)^2+3 对照，强化括号内取反规则，写顶点前先改写成 (x-(-2))^2+3"
+        },
+        {
+          "code": "no_vertex_form",
+          "desc": "不会用配方法把一般式化为顶点式",
+          "error_type": "method_gap",
+          "remedy": "演示配方三步：提系数、配一次项一半的平方、把多加的常数减回去"
+        },
+        {
+          "code": "constant_as_abscissa",
+          "desc": "把顶点式里的常数项当作顶点横坐标",
+          "error_type": "concept_confusion",
+          "remedy": "指出横坐标来自括号内（取反后的 h），常数项对应纵坐标 k"
+        },
+        {
+          "code": "axis_as_constant",
+          "desc": "把对称轴写成 x 等于常数项",
+          "error_type": "procedural_slip",
+          "remedy": "写对称轴时回到 h：对称轴为 x=h，即括号内取反后的值"
+        }
+      ],
+      "sample_items": [
+        "q_cz_vertex_001",
+        "q_cz_vertex_007"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.general_to_vertex",
+      "name": "一般式与顶点式互化",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 4,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.vertex_form",
+        "math.cz.quadratic.graph_basic"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [],
+      "typical_errors": [
+        {
+          "code": "expand_middle_sign_error",
+          "desc": "展开 (x-2)^2-3 时中间项符号写错（得 x^2+4x+1）",
+          "error_type": "procedural_slip",
+          "remedy": "展开后回代 x=2 验算：顶点式在 x=2 时为 -3，一般式也应为 -3"
+        },
+        {
+          "code": "half_b_sign_lost",
+          "desc": "配方时 -b/2a 的负号丢失，顶点横坐标正负颠倒",
+          "error_type": "procedural_slip",
+          "remedy": "先写公式 -b/2a 整体再代值，算出后与配方法结果对照"
+        },
+        {
+          "code": "extra_constant_not_removed",
+          "desc": "配成 (x-2)^2+3 后没有把配平时多加的常数减回",
+          "error_type": "procedural_slip",
+          "remedy": "配方时同步记账：左边加了 4，右边也要加 4，最后合并常数项"
+        },
+        {
+          "code": "prerequisite_completing_square_gap",
+          "desc": "配方步骤不会（依赖配方法未掌握），互化时直接卡住",
+          "error_type": "prerequisite_gap",
+          "remedy": "先回补配方法：从 x^2-4x+5 起步做 3 道配方小题，再回到一般式与顶点式互化"
+        }
+      ],
+      "sample_items": [
+        "q_cz_g2v_001",
+        "q_cz_g2v_007"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.translation",
+      "name": "抛物线的平移变换",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.vertex_form"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [],
+      "typical_errors": [
+        {
+          "code": "direction_reversed",
+          "desc": "把 y=(x-2)^2 说成向左平移 2 个单位",
+          "error_type": "concept_confusion",
+          "remedy": "记口诀左右平移看括号：括号内减是向右，并用顶点从 (0,0) 到 (2,0) 验证"
+        },
+        {
+          "code": "only_axis_translated",
+          "desc": "平移时只改顶点横坐标，漏改纵坐标",
+          "error_type": "procedural_slip",
+          "remedy": "平移前先写出原顶点坐标，再按左右改 x、上下改 y 两次调整"
+        },
+        {
+          "code": "reverse_inference_sign_error",
+          "desc": "由平移后解析式反推原解析式时符号弄反",
+          "error_type": "procedural_slip",
+          "remedy": "反推即反向平移：向右平移过的图像要向左移回去，符号取反后再写解析式"
+        }
+      ],
+      "sample_items": [
+        "q_cz_translate_001",
+        "q_cz_translate_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.extremum",
+      "name": "二次函数的最值",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 3,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.vertex_form"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.application"
+      ],
+      "typical_errors": [
+        {
+          "code": "axis_value_as_extremum",
+          "desc": "把最值写成对称轴的 x 值（如最小值为 2）",
+          "error_type": "concept_confusion",
+          "remedy": "明确问最值要答 y 的最值，把对称轴 x 值代回函数式再报答案"
+        },
+        {
+          "code": "opening_direction_ignored",
+          "desc": "a 小于 0 时把顶点纵坐标当成最小值",
+          "error_type": "concept_confusion",
+          "remedy": "先判开口方向再判最值种类：a 大于 0 有最小值，a 小于 0 有最大值"
+        },
+        {
+          "code": "boundary_ignored",
+          "desc": "限定区间的实际最值直接取顶点，忽略端点比较",
+          "error_type": "method_gap",
+          "remedy": "三步走：看顶点是否在区间内、比较两个端点、三者一起比大小"
+        },
+        {
+          "code": "prerequisite_vertex_form_gap",
+          "desc": "不会配方求顶点，最值只能靠猜",
+          "error_type": "prerequisite_gap",
+          "remedy": "先回补顶点式（配方法求顶点），再做 2 道纯配方求顶点的小题"
+        }
+      ],
+      "sample_items": [
+        "q_cz_extremum_001",
+        "q_cz_extremum_007"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.three_points",
+      "name": "待定系数法求二次函数解析式",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 4,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.concept",
+        "math.cz.function.linear"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.geometry"
+      ],
+      "typical_errors": [
+        {
+          "code": "three_equation_solve_slip",
+          "desc": "三点代入后解三元一次方程组出错（消元符号错）",
+          "error_type": "procedural_slip",
+          "remedy": "消元时把两式并排相减并逐项写出，求出 a 后立刻回代验证一个已知点"
+        },
+        {
+          "code": "general_form_without_vertex",
+          "desc": "没有顶点信息却设顶点式求解",
+          "error_type": "method_gap",
+          "remedy": "先判断已知条件类型：三点用一般式，顶点加一点才用顶点式"
+        },
+        {
+          "code": "constant_term_missing",
+          "desc": "漏解常数项 c（默认 c=0）",
+          "error_type": "procedural_slip",
+          "remedy": "解完方程组后把三个点各代回解析式验算一遍，避免漏 c"
+        }
+      ],
+      "sample_items": [
+        "q_cz_three_pts_001",
+        "q_cz_three_pts_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.eq_relation",
+      "name": "二次函数与一元二次方程的关系",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 4,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.opening",
+        "math.cz.quadratic.formula"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [],
+      "typical_errors": [
+        {
+          "code": "discriminant_link_reversed",
+          "desc": "把交点个数与判别式符号的关系说反（判别式为负说成有两个交点）",
+          "error_type": "concept_confusion",
+          "remedy": "用图像记忆：与 x 轴交 2 点对应判别式大于 0，相切对应等于 0，不相交对应小于 0"
+        },
+        {
+          "code": "intersect_as_vertex",
+          "desc": "把与 x 轴交点的横坐标当成顶点横坐标",
+          "error_type": "concept_confusion",
+          "remedy": "交点横坐标是方程的根，顶点横坐标是两根的平均值，当场验算一个例子"
+        },
+        {
+          "code": "y_axis_intersect_wrong",
+          "desc": "把与 y 轴交点写成原点 (0,0)",
+          "error_type": "procedural_slip",
+          "remedy": "令 x=0 代入解析式求 y，得到 (0,c)，不要凭印象写原点"
+        },
+        {
+          "code": "prerequisite_formula_gap",
+          "desc": "判别式与求根公式不熟（依赖公式法未掌握），无法判断交点",
+          "error_type": "prerequisite_gap",
+          "remedy": "先回补根的判别式 b^2-4ac 的符号含义，再做 2 道纯判别式小题"
+        }
+      ],
+      "sample_items": [
+        "q_cz_eq_rel_001",
+        "q_cz_eq_rel_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.application",
+      "name": "二次函数的实际应用",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 4,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.extremum"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.geometry"
+      ],
+      "typical_errors": [
+        {
+          "code": "domain_ignored",
+          "desc": "求最值时忽略自变量在实际问题中的取值范围",
+          "error_type": "method_gap",
+          "remedy": "先写自变量取值范围（如长度大于 0、整数天数），再判断顶点是否落在范围内"
+        },
+        {
+          "code": "model_setup_sign_error",
+          "desc": "列函数关系式时符号写反（把下降写成上升）",
+          "error_type": "concept_confusion",
+          "remedy": "用一组小数据手算检验：x 增大 1 看 y 该增还是该减，与解析式对照"
+        },
+        {
+          "code": "prerequisite_extremum_gap",
+          "desc": "不会由顶点式求最值（依赖最值未掌握）",
+          "error_type": "prerequisite_gap",
+          "remedy": "先回补顶点式求最值，再做 1 道不涉及实际背景的纯最值题"
+        },
+        {
+          "code": "unit_omitted",
+          "desc": "只写数值漏写单位，或单位写错",
+          "error_type": "misreading",
+          "remedy": "答题最后一句按数值加单位加实际含义三件套复述一遍"
+        }
+      ],
+      "sample_items": [
+        "q_cz_applic_001",
+        "q_cz_applic_006"
+      ]
+    },
+    {
+      "id": "math.cz.quadratic.geometry",
+      "name": "抛物线与几何综合",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "九年级",
+      "chapter": "二次函数",
+      "difficulty": 5,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第三学段·数与代数·函数·二次函数",
+        "type": "derived"
+      },
+      "prerequisites": [
+        "math.cz.quadratic.application",
+        "math.cz.quadratic.three_points"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [],
+      "typical_errors": [
+        {
+          "code": "point_sign_dropped",
+          "desc": "从图像读点坐标时丢掉负号",
+          "error_type": "misreading",
+          "remedy": "读点先看象限再读数，负半轴的点用左几格、下几格口述确认"
+        },
+        {
+          "code": "area_without_half",
+          "desc": "三角形面积算成底乘高（漏除以 2）",
+          "error_type": "procedural_slip",
+          "remedy": "写面积公式时把二分之一先写上再填底和高，避免事后遗忘"
+        },
+        {
+          "code": "no_coordinate_method",
+          "desc": "不会用坐标表示线段长度（漏取绝对值）",
+          "error_type": "method_gap",
+          "remedy": "横向线段长为横坐标差的绝对值、纵向线段长为纵坐标差的绝对值，长度必须非负"
+        }
+      ],
+      "sample_items": [
+        "q_cz_geometry_001",
+        "q_cz_geometry_006"
+      ]
+    },
+    {
+      "id": "math.cz.number.rational",
+      "name": "有理数的运算",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "七年级",
+      "chapter": "有理数",
+      "difficulty": 1,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第四学段·数与代数·实数的运算",
+        "type": "direct"
+      },
+      "prerequisites": [],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.algebra.basic",
+        "math.cz.equation.linear_one",
+        "math.cz.algebra.multiply"
+      ],
+      "typical_errors": [
+        {
+          "code": "sign_rule_mix",
+          "desc": "异号两数相加时，结果符号取了绝对值较小加数的符号",
+          "error_type": "procedural_slip",
+          "remedy": "让学生先比较两个加数的绝对值大小，把「取较大者的符号」写成口诀并在每题旁标注"
+        },
+        {
+          "code": "sub_to_add",
+          "desc": "减法没有转化成加法：a - b 直接按 a + b 的绝对值处理",
+          "error_type": "concept_confusion",
+          "remedy": "让学生把每个减法先改写成「加上相反数」再动笔，改写完与原式对照一次"
+        },
+        {
+          "code": "muldiv_sign",
+          "desc": "乘除混合运算中负号的个数数错，结果符号反",
+          "error_type": "procedural_slip",
+          "remedy": "让学生先单独数负因数的个数定符号，再算绝对值，两步分开写"
+        },
+        {
+          "code": "power_meaning",
+          "desc": "把乘方当成乘法：如 (-2)^3 算成 (-2)×3",
+          "error_type": "concept_confusion",
+          "remedy": "让学生把乘方改写成连乘展开式再计算，如 (-2)^3 = (-2)×(-2)×(-2)"
+        },
+        {
+          "code": "order_of_ops",
+          "desc": "同级运算没有从左到右依次进行，如 -6÷3×2 先算了 3×2",
+          "error_type": "procedural_slip",
+          "remedy": "让学生在算式下方按步骤逐步划线，每算一步抄一行，强制从左到右"
+        }
+      ],
+      "sample_items": [
+        "q_cz_rat_001",
+        "q_cz_rat_003"
+      ]
+    },
+    {
+      "id": "math.cz.equation.linear_one",
+      "name": "一元一次方程的解法",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "七年级",
+      "chapter": "一元一次方程",
+      "difficulty": 1,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第四学段·数与代数·方程与不等式·一元一次方程",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.number.rational"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.function.linear"
+      ],
+      "typical_errors": [
+        {
+          "code": "move_sign",
+          "desc": "移项时忘记变号，如由 2x - 3 = 9 得 2x = 9 - 3",
+          "error_type": "procedural_slip",
+          "remedy": "让学生把要移的项圈出来，移一步写一步，移动即在旁边写「+变-」"
+        },
+        {
+          "code": "bracket_distribute",
+          "desc": "去括号时分配律漏乘或负号处理错，如 3(x - 2) 算成 3x - 2",
+          "error_type": "procedural_slip",
+          "remedy": "让学生用箭头把括号外的数指向括号内每一项，逐项标乘积后再去掉括号"
+        },
+        {
+          "code": "denom_multiply",
+          "desc": "去分母时不含分母的项漏乘最简公分母，如 x/2 - 1 = x/3 中 -1 没乘 6",
+          "error_type": "method_gap",
+          "remedy": "让学生先在等号两边各画一条长横线，把公分母依次乘到每一项上，逐项打勾"
+        },
+        {
+          "code": "coefficient_drop",
+          "desc": "化为 ax = b 后忘记除以系数，把 ax 的值当成 x 的值",
+          "error_type": "procedural_slip",
+          "remedy": "让学生养成最后一步必写「x = b ÷ a」的习惯，解完把 x 代回原方程验算"
+        }
+      ],
+      "sample_items": [
+        "q_cz_lineq_001",
+        "q_cz_lineq_005"
+      ]
+    },
+    {
+      "id": "math.cz.algebra.multiply",
+      "name": "整式的乘法与乘法公式",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "整式的乘法",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第四学段·数与代数·代数式·整式的乘法",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.number.rational"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.algebra.identity",
+        "math.cz.algebra.factoring"
+      ],
+      "typical_errors": [
+        {
+          "code": "exponent_multiply",
+          "desc": "同底数幂相乘把指数相加错做成指数相乘：a^3·a^2 = a^6",
+          "error_type": "concept_confusion",
+          "remedy": "让学生把同底数幂改写成因数连乘数个数：a^3·a^2 是 5 个 a 相乘，所以是 a^5"
+        },
+        {
+          "code": "power_power_add",
+          "desc": "幂的乘方把指数相乘错做成相加：(a^3)^2 = a^5",
+          "error_type": "concept_confusion",
+          "remedy": "让学生把 (a^3)^2 展开成 a^3·a^3，先按同底数幂相加算一遍，再对比公式"
+        },
+        {
+          "code": "distrib_miss",
+          "desc": "多项式乘多项式时漏乘某些项，或合并同类项出错",
+          "error_type": "procedural_slip",
+          "remedy": "让学生画 2×2 分配表格，每一格填一项乘积，凑齐四格再合并"
+        },
+        {
+          "code": "formula_sign",
+          "desc": "公式符号记错：把 (a-b)^2 算成 a^2 - b^2，或平方差结果符号弄反",
+          "error_type": "concept_confusion",
+          "remedy": "让学生用 a=1, b=1 代入检验：公式两边数值必须相等，(1-1)^2 = 0 而 1-1 = 0？再换 a=2 验一次即可发现错误"
+        },
+        {
+          "code": "coeff_square_miss",
+          "desc": "套平方差公式时 (3x)^2 漏给系数平方，算成 3x^2",
+          "error_type": "procedural_slip",
+          "remedy": "让学生把公式中的 a 整体加括号：(3x)^2 = 3^2·x^2，先算系数再算字母"
+        },
+        {
+          "code": "coeff_sign_drop",
+          "desc": "积的乘方中系数的负号丢失：(-2a^2b)^3 算成正系数",
+          "error_type": "procedural_slip",
+          "remedy": "让学生先定符号（负因数奇次为负）再算绝对值，符号单独写一步"
+        }
+      ],
+      "sample_items": [
+        "q_cz_mult_003",
+        "q_cz_mult_004"
+      ]
+    },
+    {
+      "id": "math.cz.algebra.factoring",
+      "name": "因式分解",
+      "subject": "数学",
+      "stage": "初中",
+      "grade": "八年级",
+      "chapter": "因式分解",
+      "difficulty": 2,
+      "source": {
+        "standard": "义务教育数学课程标准（2022年版）",
+        "item": "第四学段·数与代数·代数式·因式分解",
+        "type": "direct"
+      },
+      "prerequisites": [
+        "math.cz.algebra.multiply"
+      ],
+      "prerequisite_basis": "教材章节顺序 + 学科逻辑推导，非课标直接规定",
+      "successors": [
+        "math.cz.quadratic.factoring"
+      ],
+      "typical_errors": [
+        {
+          "code": "common_incomplete",
+          "desc": "公因式没提尽，或提完后剩余部分没有继续分解到底",
+          "error_type": "procedural_slip",
+          "remedy": "让学生提完公因式后对括号内再检查一遍「还能提吗？还能套公式吗？」，两问都答否才算完"
+        },
+        {
+          "code": "formula_misapply",
+          "desc": "公式选择错误：对三项式套平方差、对二项式套完全平方",
+          "error_type": "method_gap",
+          "remedy": "让学生先数字母个数：两项优先考虑平方差（提公因式后），三项优先考虑完全平方或十字相乘"
+        },
+        {
+          "code": "sign_change_error",
+          "desc": "提出负号或用公式时项的符号没有跟着变",
+          "error_type": "procedural_slip",
+          "remedy": "让学生提负号时把括号内每项都重新抄写并逐项核对符号，抄完展开验证一次"
+        },
+        {
+          "code": "expand_not_factor",
+          "desc": "把整式乘法（展开）当成因式分解，方向弄反",
+          "error_type": "concept_confusion",
+          "remedy": "让学生记住方向口诀「和差 → 积」才是分解，并检查结果是否为乘积形式"
+        }
+      ],
+      "sample_items": [
+        "q_cz_fact_002",
+        "q_cz_fact_010"
+      ]
+    }
+  ]
+}
