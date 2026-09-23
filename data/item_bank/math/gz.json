@@ -1,0 +1,3191 @@
+{
+  "meta": {
+    "subject": "数学",
+    "stage": "gz",
+    "kb_id": "kb_math_gz",
+    "version": "1.0.0",
+    "item_count": 132,
+    "pool_counts": {
+      "train": 60,
+      "retest": 72
+    },
+    "updated_at": "2026-09-23"
+  },
+  "items": [
+    {
+      "item_id": "q_gz_set_001",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知集合 A = {1, 2, 3}，B = {2, 3, 4}，则 A∩B = ____。",
+      "options": null,
+      "answer": "{2, 3}",
+      "solution_steps": [
+        "交集取两个集合的公共元素",
+        "A 与 B 的公共元素是 2 和 3",
+        "所以 A∩B = {2, 3}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{1, 2, 3, 4}",
+          "typical_error_code": "intersect_union_mix",
+          "explanation": "把交集当成了并集，取了所有元素"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_002",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知集合 A = {1, 2, 3}，B = {2, 3, 4}，则 A∪B = ____。",
+      "options": null,
+      "answer": "{1, 2, 3, 4}",
+      "solution_steps": [
+        "并集把两个集合的元素全部并在一起（重复的只算一次）",
+        "A∪B = {1, 2, 3, 4}",
+        "所以 A∪B = {1, 2, 3, 4}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{2, 3}",
+          "typical_error_code": "intersect_union_mix",
+          "explanation": "把并集当成了交集，只取了公共元素"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_003",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "集合 {a, b} 的子集个数是 ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "含 n 个元素的集合子集个数是 2^n",
+        "n = 2，2^2 = 4",
+        "所以子集个数是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "subset_count",
+          "explanation": "漏掉了空集或集合本身中的一个"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "subset_count",
+          "explanation": "只数了真子集又漏了空集"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_004",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "用区间表示不等式 -1 < x ≤ 3 的解集是 ____。",
+      "options": null,
+      "answer": "(-1, 3]",
+      "solution_steps": [
+        "区间左端点对应 x > -1，取不到等号，用小括号",
+        "右端点对应 x ≤ 3，能取到等号，用中括号",
+        "所以解集是 (-1, 3]。"
+      ],
+      "distractors": [
+        {
+          "answer": "[-1, 3]",
+          "typical_error_code": "interval_bracket",
+          "explanation": "左端点 -1 取不到等号，不能用中括号"
+        },
+        {
+          "answer": "(-1, 3)",
+          "typical_error_code": "interval_bracket",
+          "explanation": "右端点 3 能取到等号，不能用小括号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_005",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 A = {x | x > 1}，B = {x | x < 4}，则 A∩B = ____（用区间表示）。",
+      "options": null,
+      "answer": "(1, 4)",
+      "solution_steps": [
+        "交集要同时满足两个条件：1 < x 且 x < 4",
+        "合起来就是 1 < x < 4",
+        "所以 A∩B = (1, 4)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-∞, +∞)",
+          "typical_error_code": "intersect_union_mix",
+          "explanation": "把交集当成了并集，两个条件满足其一即可，取了全体实数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_006",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知集合 A = {x | x² = 4}，则 A = ____。",
+      "options": null,
+      "answer": "{-2, 2}",
+      "solution_steps": [
+        "x² = 4 开方得 x = ±2",
+        "两个解都要写进集合",
+        "所以 A = {-2, 2}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{2}",
+          "typical_error_code": "negative_root_miss",
+          "explanation": "开平方时漏掉了负根 -2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_007",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "用符号 ⊆ 或 ⊇ 填空：{1, 2} ____ {1, 2, 3}。",
+      "options": null,
+      "answer": "⊆",
+      "solution_steps": [
+        "子集符号开口朝向“更大”的集合",
+        "{1, 2} 的每个元素都在 {1, 2, 3} 里，所以 {1, 2} 是 {1, 2, 3} 的子集",
+        "所以填 ⊆。"
+      ],
+      "distractors": [
+        {
+          "answer": "⊇",
+          "typical_error_code": "subset_direction",
+          "explanation": "包含符号方向写反，把小集合写成了包含大集合"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_008",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 A = {x | x ≥ 0}，B = {x | x ≤ 2}，则 A∩B = ____（用区间表示）。",
+      "options": null,
+      "answer": "[0, 2]",
+      "solution_steps": [
+        "同时满足 x ≥ 0 与 x ≤ 2",
+        "两个端点都能取到等号",
+        "所以 A∩B = [0, 2]。"
+      ],
+      "distractors": [
+        {
+          "answer": "(0, 2)",
+          "typical_error_code": "interval_bracket",
+          "explanation": "两个端点都能取等号，都应使用中括号"
+        },
+        {
+          "answer": "(0, 2]",
+          "typical_error_code": "interval_bracket",
+          "explanation": "左端点 0 能取到等号，应该用中括号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_009",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "集合 {a, b, c} 的真子集个数是 ____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "含 n 个元素的集合真子集个数是 2^n - 1",
+        "n = 3，2³ - 1 = 7",
+        "所以真子集个数是 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "8",
+          "typical_error_code": "subset_count",
+          "explanation": "把集合本身也算进真子集，多算了 1 个"
+        },
+        {
+          "answer": "6",
+          "typical_error_code": "subset_count",
+          "explanation": "漏掉了空集又多扣了别的，计数混乱"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_010",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 A = {2, 4, 6}，B = {4, 6, 8}，则 A∩B = ____。",
+      "options": null,
+      "answer": "{4, 6}",
+      "solution_steps": [
+        "取两个集合的公共元素",
+        "公共元素是 4 和 6",
+        "所以 A∩B = {4, 6}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{2, 4, 6, 8}",
+          "typical_error_code": "intersect_union_mix",
+          "explanation": "把交集做成了并集"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_set_011",
+      "knowledge_point": "math.gz.set.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 A = {x | 1 ≤ x < 5}，B = {x | 2 < x ≤ 6}，则 A∪B = ____（用区间表示）。",
+      "options": null,
+      "answer": "[1, 6]",
+      "solution_steps": [
+        "并集覆盖两个区间扫过的所有点：[1, 5) 与 (2, 6] 首尾相接",
+        "两段在数轴上连成一片，最小端点 1（可取），最大端点 6（可取）",
+        "所以 A∪B = [1, 6]。"
+      ],
+      "distractors": [
+        {
+          "answer": "(2, 5)",
+          "typical_error_code": "intersect_union_mix",
+          "explanation": "把并集做成了交集，只取了重叠段"
+        },
+        {
+          "answer": "(1, 6)",
+          "typical_error_code": "interval_bracket",
+          "explanation": "左端点 1 能取到等号，应用中括号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_001",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知 f(x) = 2x + 1，则 f(3) = ____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "把 x = 3 代入：f(3) = 2×3 + 1",
+        "2×3 = 6，6 + 1 = 7",
+        "所以 f(3) = 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "f_value_confusion",
+          "explanation": "算出 2×3 = 6 后漏加了常数 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_002",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = 1/(x - 2) 的定义域是 ____。",
+      "options": null,
+      "answer": "{x | x ≠ 2}",
+      "solution_steps": [
+        "分式要求分母不为零：x - 2 ≠ 0",
+        "解得 x ≠ 2",
+        "所以定义域是 {x | x ≠ 2}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{x | x > 2}",
+          "typical_error_code": "domain_denominator",
+          "explanation": "把“分母不为零”误当成“分母大于零”，丢掉了一半取值"
+        },
+        {
+          "answer": "R",
+          "typical_error_code": "domain_denominator",
+          "explanation": "忽略了分母不能为零的限制"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_003",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 f(x) = √(x - 1) 的定义域是 ____（用区间表示）。",
+      "options": null,
+      "answer": "[1, +∞)",
+      "solution_steps": [
+        "偶次根式要求被开方数 ≥ 0：x - 1 ≥ 0",
+        "解得 x ≥ 1，端点 1 能取到",
+        "所以定义域是 [1, +∞)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-∞, 1]",
+          "typical_error_code": "domain_sqrt",
+          "explanation": "解不等式时方向弄反"
+        },
+        {
+          "answer": "(1, +∞)",
+          "typical_error_code": "domain_sqrt",
+          "explanation": "被开方数可以取等号，端点 1 不应舍去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_004",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 f(x) = √(x - 1) + 1/(x - 2) 的定义域是 ____（用区间表示）。",
+      "options": null,
+      "answer": "[1, 2) ∪ (2, +∞)",
+      "solution_steps": [
+        "根式要求 x ≥ 1；分式要求 x ≠ 2",
+        "两个条件同时满足：x ≥ 1 且 x ≠ 2",
+        "所以定义域是 [1, 2) ∪ (2, +∞)。"
+      ],
+      "distractors": [
+        {
+          "answer": "[1, +∞)",
+          "typical_error_code": "domain_denominator",
+          "explanation": "只考虑了根式的限制，漏掉分母 x ≠ 2"
+        },
+        {
+          "answer": "(1, 2) ∪ (2, +∞)",
+          "typical_error_code": "domain_sqrt",
+          "explanation": "根号下取等号时函数有意义，端点 1 不应舍去"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_005",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "下列各组函数中，表示同一函数的是（　）。",
+      "options": [
+        "f(x) = x 与 g(x) = (√x)^2",
+        "f(x) = |x| 与 g(x) = √(x^2)",
+        "f(x) = x^0 与 g(x) = 1",
+        "f(x) = x 与 g(x) = x^2"
+      ],
+      "answer": "f(x) = |x| 与 g(x) = √(x^2)",
+      "solution_steps": [
+        "同一函数要求定义域、对应法则都相同",
+        "A 中 g(x) = (√x)² 的定义域是 x ≥ 0，与 f(x) = x（定义域 R）不同",
+        "B 中 √(x²) = |x|，定义域都是 R，对应法则相同，是同一函数；C 中 f(x) = x^0 的定义域是 x ≠ 0，与 g(x) = 1（定义域 R）不同；D 中对应法则不同",
+        "所以选 f(x) = |x| 与 g(x) = √(x^2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "f(x) = x 与 g(x) = (√x)^2",
+          "typical_error_code": "same_function_judge",
+          "explanation": "只看化简后的式子都是 x，忽略了 g 的定义域是 x ≥ 0"
+        },
+        {
+          "answer": "f(x) = x^0 与 g(x) = 1",
+          "typical_error_code": "same_function_judge",
+          "explanation": "x^0 要求 x ≠ 0，与常数函数 1 的定义域不同"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_006",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知 f(x) = x² - 1，则 f(2) = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "把 x = 2 代入：f(2) = 2² - 1",
+        "2² = 4，4 - 1 = 3",
+        "所以 f(2) = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "f_value_confusion",
+          "explanation": "算出 2² = 4 后漏减了 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_007",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 f(x) = 3x - 2，且 f(a) = 7，则 a = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "f(a) = 7 即 3a - 2 = 7",
+        "3a = 9，a = 3",
+        "所以 a = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "7",
+          "typical_error_code": "f_value_confusion",
+          "explanation": "把函数值 f(a) = 7 直接当成了 a 的值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_008",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = √(2x + 4) 的定义域是 ____（用区间表示）。",
+      "options": null,
+      "answer": "[-2, +∞)",
+      "solution_steps": [
+        "被开方数 ≥ 0：2x + 4 ≥ 0",
+        "2x ≥ -4，x ≥ -2",
+        "所以定义域是 [-2, +∞)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2, +∞)",
+          "typical_error_code": "domain_sqrt",
+          "explanation": "被开方数取等号也成立，端点 -2 不应舍去"
+        },
+        {
+          "answer": "(-∞, -2]",
+          "typical_error_code": "domain_sqrt",
+          "explanation": "不等式求解方向弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_009",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 f(x) = (x + 1)/(x² - 1) 的定义域是 ____。",
+      "options": null,
+      "answer": "{x | x ≠ 1 且 x ≠ -1}",
+      "solution_steps": [
+        "分母不为零：x² - 1 ≠ 0",
+        "x² ≠ 1，即 x ≠ 1 且 x ≠ -1",
+        "所以定义域是 {x | x ≠ 1 且 x ≠ -1}。"
+      ],
+      "distractors": [
+        {
+          "answer": "{x | x ≠ 1}",
+          "typical_error_code": "domain_denominator",
+          "explanation": "漏掉了 x = -1 同样使分母为零"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_010",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 f(x) = 2x² - 3x，则 f(a + 1) = ____（用含 a 的式子表示）。",
+      "options": null,
+      "answer": "2a² + a - 1",
+      "solution_steps": [
+        "把 x = a + 1 整体代入：f(a+1) = 2(a+1)² - 3(a+1)",
+        "(a+1)² = a² + 2a + 1，所以 2(a+1)² = 2a² + 4a + 2；3(a+1) = 3a + 3",
+        "合并：2a² + 4a + 2 - 3a - 3 = 2a² + a - 1，所以 f(a+1) = 2a² + a - 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "2a² + a + 2",
+          "typical_error_code": "f_value_confusion",
+          "explanation": "-3(a+1) 漏乘了常数项，只减了 3a"
+        },
+        {
+          "answer": "2a² - 3a - 1",
+          "typical_error_code": "f_value_confusion",
+          "explanation": "展开 (a+1)² 时漏掉中间项 2a，得 2(a²+1) - 3a - 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_fc_011",
+      "knowledge_point": "math.gz.function.concept",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "函数 f(x) = 1/√(x - 2) 的定义域是 ____（用区间表示）。",
+      "options": null,
+      "answer": "(2, +∞)",
+      "solution_steps": [
+        "根号在分母上：既要求 x - 2 > 0（根号内非负），又要求分母不为零",
+        "x - 2 > 0（不能取等号，否则分母为零）",
+        "所以定义域是 (2, +∞)。"
+      ],
+      "distractors": [
+        {
+          "answer": "[2, +∞)",
+          "typical_error_code": "domain_denominator",
+          "explanation": "忽略了根号处在分母位置，x = 2 时分母为零"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_001",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = x² - 2x + 3 的图象的对称轴是直线 x = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "对称轴 x = -b/(2a)",
+        "a = 1，b = -2，x = -(-2)/(2×1) = 1",
+        "所以对称轴是直线 x = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "-1",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "代入公式时符号处理错，把 -b/(2a) 算成了 b/(2a)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_002",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 f(x) = x² - 2x + 3 的单调递减区间是 ____（用区间表示）。",
+      "options": null,
+      "answer": "(-∞, 1]",
+      "solution_steps": [
+        "抛物线开口向上（a = 1 > 0）",
+        "开口向上时，对称轴左侧递减、右侧递增",
+        "对称轴 x = 1，所以递减区间是 (-∞, 1]。"
+      ],
+      "distractors": [
+        {
+          "answer": "[1, +∞)",
+          "typical_error_code": "axis_direction",
+          "explanation": "把增减关系弄反：开口向上时对称轴右侧是递增的"
+        },
+        {
+          "answer": "(-∞, -1]",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "对称轴算错成 -1，区间跟着错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_003",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) 是 R 上的增函数，则 f(3) ____ f(5)（填 <、> 或 =）。",
+      "options": null,
+      "answer": "<",
+      "solution_steps": [
+        "增函数：自变量越大，函数值越大",
+        "3 < 5",
+        "所以 f(3) < f(5)，填 <。"
+      ],
+      "distractors": [
+        {
+          "answer": ">",
+          "typical_error_code": "direction_confusion",
+          "explanation": "增函数的自变量与函数值大小关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_004",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 f(x) = (x - 1)² + 2 在区间 [1, +∞) 上的最小值是 ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "顶点式 f(x) = (x - 1)² + 2 的顶点是 (1, 2)",
+        "x = 1 在区间 [1, +∞) 内，最小值在顶点处取得",
+        "所以最小值是 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "把顶点横坐标 1 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_005",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "函数 f(x) = x² - 4x + 5 在区间 [0, 3] 上的最大值是 ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "对称轴 x = 2，开口向上，最小值在顶点 f(2) = 1",
+        "最大值在区间端点处比较：f(0) = 5，f(3) = 9 - 12 + 5 = 2",
+        "5 > 2，所以最大值是 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "把顶点处的最小值当成了最大值"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "endpoint_compare",
+          "explanation": "没有把两个端点的函数值都比一遍，只算了 f(3)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_006",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = -x² + 4x 的图象的对称轴是直线 x = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "对称轴 x = -b/(2a)",
+        "a = -1，b = 4，x = -4/(2×(-1)) = 2",
+        "所以对称轴是直线 x = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "-2",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "公式代入时符号出错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_007",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = -x² + 4x 的单调递增区间是 ____（用区间表示）。",
+      "options": null,
+      "answer": "(-∞, 2]",
+      "solution_steps": [
+        "抛物线开口向下（a = -1 < 0）",
+        "开口向下时，对称轴左侧递增、右侧递减",
+        "对称轴 x = 2，所以递增区间是 (-∞, 2]。"
+      ],
+      "distractors": [
+        {
+          "answer": "[2, +∞)",
+          "typical_error_code": "axis_direction",
+          "explanation": "开口方向与增减关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_008",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) 是 R 上的减函数，且 a < b，则 f(a) ____ f(b)（填 >、< 或 =）。",
+      "options": null,
+      "answer": ">",
+      "solution_steps": [
+        "减函数：自变量越大，函数值越小",
+        "a < b，所以 f(a) > f(b)",
+        "填 >。"
+      ],
+      "distractors": [
+        {
+          "answer": "<",
+          "typical_error_code": "direction_confusion",
+          "explanation": "减函数的大小关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_009",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 f(x) = x² + 2x 在区间 [-1, +∞) 上的最小值是 ____。",
+      "options": null,
+      "answer": "-1",
+      "solution_steps": [
+        "对称轴 x = -2/2 = -1",
+        "-1 在区间 [-1, +∞) 内，最小值 f(-1) = 1 - 2 = -1",
+        "所以最小值是 -1。"
+      ],
+      "distractors": [
+        {
+          "answer": "0",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "没有找顶点，把区间左端点 x = -1 处的函数值 -1 之外的 x = 0 处的值 0 当成了最小值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_010",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 f(x) = (x + 2)² - 3 的单调递增区间是 ____（用区间表示）。",
+      "options": null,
+      "answer": "[-2, +∞)",
+      "solution_steps": [
+        "顶点式顶点为 (-2, -3)，开口向上",
+        "开口向上，对称轴右侧递增",
+        "所以递增区间是 [-2, +∞)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-∞, -2]",
+          "typical_error_code": "axis_direction",
+          "explanation": "增减区间与开口方向的关系弄反"
+        },
+        {
+          "answer": "(2, +∞)",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "把顶点横坐标 -2 的符号弄丢，当成 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_mono_011",
+      "knowledge_point": "math.gz.function.monotonic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "函数 f(x) = x² - 6x + 10 在区间 [2, 5] 上的最大值是 ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "对称轴 x = 3，开口向上，最小值 f(3) = 9 - 18 + 10 = 1",
+        "端点值：f(2) = 4 - 12 + 10 = 2，f(5) = 25 - 30 + 10 = 5",
+        "5 > 2，所以最大值是 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "vertex_mistake",
+          "explanation": "把顶点处的最小值当成了最大值"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "endpoint_compare",
+          "explanation": "只比较了一个端点的值，漏算了 f(5)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_001",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = x³ 是 ____（填“奇函数”或“偶函数”）。",
+      "options": null,
+      "answer": "奇函数",
+      "solution_steps": [
+        "先看定义域 R，关于原点对称",
+        "f(-x) = (-x)³ = -x³ = -f(x)",
+        "所以 f(x) 是奇函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "偶函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "奇偶定义混淆，验证方向弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_002",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = |x| 是 ____（填“奇函数”或“偶函数”）。",
+      "options": null,
+      "answer": "偶函数",
+      "solution_steps": [
+        "定义域 R 关于原点对称",
+        "f(-x) = |-x| = |x| = f(x)",
+        "所以 f(x) 是偶函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "奇函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "奇偶定义混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_003",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) 是奇函数，且 f(2) = 5，则 f(-2) = ____。",
+      "options": null,
+      "answer": "-5",
+      "solution_steps": [
+        "奇函数满足 f(-x) = -f(x)",
+        "f(-2) = -f(2) = -5",
+        "所以 f(-2) = -5。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "value_symmetry_error",
+          "explanation": "忘了奇函数要变号，直接用了偶函数的关系"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_004",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 f(x) 是偶函数，且 f(-3) = 7，则 f(3) = ____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "偶函数满足 f(-x) = f(x)",
+        "f(3) = f(-3) = 7",
+        "所以 f(3) = 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "-7",
+          "typical_error_code": "value_symmetry_error",
+          "explanation": "把偶函数当成奇函数，多乘了负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_005",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "train",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "函数 f(x) = x²，x ∈ [-2, 3) 的奇偶性是（　）。",
+      "options": [
+        "奇函数",
+        "偶函数",
+        "既是奇函数又是偶函数",
+        "非奇非偶函数"
+      ],
+      "answer": "非奇非偶函数",
+      "solution_steps": [
+        "判断奇偶性先看定义域是否关于原点对称",
+        "定义域 [-2, 3) 中，-2 在内而 3 不在内，不关于原点对称",
+        "定义域不对称，函数非奇非偶，无需再验证解析式。所以选非奇非偶函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "偶函数",
+          "typical_error_code": "domain_symmetry_ignore",
+          "explanation": "只看解析式 x² 是偶的，忽略定义域不对称"
+        },
+        {
+          "answer": "奇函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "奇偶定义混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_006",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = 1/x 是 ____（填“奇函数”或“偶函数”）。",
+      "options": null,
+      "answer": "奇函数",
+      "solution_steps": [
+        "定义域 {x | x ≠ 0} 关于原点对称",
+        "f(-x) = 1/(-x) = -1/x = -f(x)",
+        "所以 f(x) 是奇函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "偶函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "验证 f(-x) 时符号处理错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_007",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 f(x) = x⁴ 是 ____（填“奇函数”或“偶函数”）。",
+      "options": null,
+      "answer": "偶函数",
+      "solution_steps": [
+        "定义域 R 关于原点对称",
+        "f(-x) = (-x)⁴ = x⁴ = f(x)",
+        "所以 f(x) 是偶函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "奇函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "奇偶定义混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_008",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) 是奇函数，且 f(-1) = -4，则 f(1) = ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "奇函数满足 f(-x) = -f(x)，即 f(x) = -f(-x)",
+        "f(1) = -f(-1) = -(-4) = 4",
+        "所以 f(1) = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "-4",
+          "typical_error_code": "value_symmetry_error",
+          "explanation": "两次取负处理错，把 f(1) 算成与 f(-1) 相等"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_009",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 f(x) = x³ - x 是 ____（填“奇函数”或“偶函数”）。",
+      "options": null,
+      "answer": "奇函数",
+      "solution_steps": [
+        "定义域 R 关于原点对称",
+        "f(-x) = -x³ + x = -(x³ - x) = -f(x)",
+        "所以 f(x) 是奇函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "偶函数",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "验证 f(-x) 时各项符号没有全变，误得 f(-x) = f(x)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_010",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 f(x) 是偶函数，且当 x ≥ 0 时 f(x) = x² + 1，则 f(-2) = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "偶函数：f(-2) = f(2)",
+        "f(2) = 2² + 1 = 5",
+        "所以 f(-2) = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "-5",
+          "typical_error_code": "value_symmetry_error",
+          "explanation": "把偶函数当成奇函数，多乘了负号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_par_011",
+      "knowledge_point": "math.gz.function.parity",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "下列函数中，既是奇函数又在定义域上单调递增的是（　）。",
+      "options": [
+        "f(x) = x³",
+        "f(x) = x²",
+        "f(x) = 1/x",
+        "f(x) = |x|"
+      ],
+      "answer": "f(x) = x³",
+      "solution_steps": [
+        "逐项判断：f(x) = x² 是偶函数，排除",
+        "f(x) = 1/x 是奇函数，但定义域被 0 分成两段，整体不单调",
+        "f(x) = |x| 是偶函数，排除；f(x) = x³ 是奇函数且在 R 上单调递增。所以选 f(x) = x³。"
+      ],
+      "distractors": [
+        {
+          "answer": "f(x) = x²",
+          "typical_error_code": "odd_even_mix",
+          "explanation": "奇偶性判断错"
+        },
+        {
+          "answer": "f(x) = 1/x",
+          "typical_error_code": "one_side_test",
+          "explanation": "只验证了奇偶性，没有检查定义域不连续导致的整体不单调"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_001",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：2³ = ____。",
+      "options": null,
+      "answer": "8",
+      "solution_steps": [
+        "乘方是相同因数的连乘：2³ = 2×2×2",
+        "2×2×2 = 8",
+        "所以 2³ = 8。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "exponent_as_multiply",
+          "explanation": "把乘方当成乘法：2×3 = 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_002",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "指数函数 y = 2^x 的图象必过定点 ____（写成坐标形式）。",
+      "options": null,
+      "answer": "(0, 1)",
+      "solution_steps": [
+        "指数函数 y = a^x（a > 0 且 a ≠ 1）恒有 a^0 = 1",
+        "x = 0 时 y = 1",
+        "所以图象必过定点 (0, 1)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(1, 0)",
+          "typical_error_code": "fixed_point_error",
+          "explanation": "定点坐标横纵颠倒，记成了 (1, 0)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_003",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 y = (1/2)^x 是 ____（填“增函数”或“减函数”）。",
+      "options": null,
+      "answer": "减函数",
+      "solution_steps": [
+        "指数函数的增减性由底数决定：底数 > 1 时递增，0 < 底数 < 1 时递减",
+        "底数 1/2 ∈ (0, 1)",
+        "所以 y = (1/2)^x 是减函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "增函数",
+          "typical_error_code": "base_range_error",
+          "explanation": "底数范围与增减性的对应关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_004",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "解方程：2^x = 32，则 x = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "把 32 化成 2 的幂：32 = 2⁵",
+        "2^x = 2⁵，同底数幂相等则指数相等",
+        "所以 x = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "same_base_error",
+          "explanation": "把 32 误算成 2⁴ = 16 的幂"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_005",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "比较大小：2^0.3 ____ 2^0.5（填 <、> 或 =）。",
+      "options": null,
+      "answer": "<",
+      "solution_steps": [
+        "底数 2 > 1，y = 2^x 是增函数",
+        "增函数中自变量大的函数值大：0.3 < 0.5",
+        "所以 2^0.3 < 2^0.5，填 <。"
+      ],
+      "distractors": [
+        {
+          "answer": ">",
+          "typical_error_code": "growth_compare_error",
+          "explanation": "没有利用增函数性质，凭感觉比较"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_006",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：3² = ____。",
+      "options": null,
+      "answer": "9",
+      "solution_steps": [
+        "3² = 3×3",
+        "3×3 = 9",
+        "所以 3² = 9。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "exponent_as_multiply",
+          "explanation": "把乘方当成乘法：3×2 = 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_007",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "指数函数 y = a^x（a > 0 且 a ≠ 1）的图象必过定点 ____（写成坐标形式）。",
+      "options": null,
+      "answer": "(0, 1)",
+      "solution_steps": [
+        "无论底数 a 取何值，a^0 = 1 恒成立",
+        "x = 0 时 y = 1",
+        "所以必过定点 (0, 1)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(1, 1)",
+          "typical_error_code": "fixed_point_error",
+          "explanation": "定点记错成 (1, 1)"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_008",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "函数 y = 3^x 是 ____（填“增函数”或“减函数”）。",
+      "options": null,
+      "answer": "增函数",
+      "solution_steps": [
+        "底数 3 > 1",
+        "底数大于 1 的指数函数递增",
+        "所以 y = 3^x 是增函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "减函数",
+          "typical_error_code": "base_range_error",
+          "explanation": "底数范围与增减性的对应关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_009",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "解方程：3^x = 81，则 x = ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "81 = 3⁴",
+        "3^x = 3⁴，指数相等",
+        "所以 x = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "27",
+          "typical_error_code": "same_base_error",
+          "explanation": "用 3×27 = 81 的乘法关系代替了幂的关系"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_010",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "比较大小：(1/2)^3 ____ (1/2)^5（填 <、> 或 =）。",
+      "options": null,
+      "answer": ">",
+      "solution_steps": [
+        "底数 1/2 ∈ (0, 1)，y = (1/2)^x 是减函数",
+        "减函数中自变量大的函数值反而小：3 < 5，所以 (1/2)^3 > (1/2)^5（即 1/8 > 1/32）",
+        "填 >。"
+      ],
+      "distractors": [
+        {
+          "answer": "<",
+          "typical_error_code": "growth_compare_error",
+          "explanation": "忽略了底数在 (0,1) 时函数递减，仍按增函数比较"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_exp_011",
+      "knowledge_point": "math.gz.function.exponential",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 2^x = 8，则 2^(x+1) = ____。",
+      "options": null,
+      "answer": "16",
+      "solution_steps": [
+        "同底数幂相乘，指数相加：2^(x+1) = 2^x × 2",
+        "2^x × 2 = 8 × 2 = 16",
+        "所以 2^(x+1) = 16。"
+      ],
+      "distractors": [
+        {
+          "answer": "9",
+          "typical_error_code": "same_base_error",
+          "explanation": "把“指数加 1”当成了“值加 1”：8 + 1 = 9"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_001",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：log₂ 8 = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "对数式与指数式互化：log₂ 8 = x 即 2^x = 8",
+        "2³ = 8，所以 x = 3",
+        "所以 log₂ 8 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "convert_error",
+          "explanation": "用乘法关系 2×4 = 8 代替了幂的关系"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_002",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：lg 100 = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "lg 是以 10 为底：lg 100 = x 即 10^x = 100",
+        "10² = 100",
+        "所以 lg 100 = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "10",
+          "typical_error_code": "convert_error",
+          "explanation": "把对数值与底数混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_003",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "计算：log₂ 4 + log₂ 2 = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "分别求值：log₂ 4 = 2，log₂ 2 = 1",
+        "2 + 1 = 3",
+        "所以 log₂ 4 + log₂ 2 = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "log_rule_mix",
+          "explanation": "误用“对数相加等于对数相乘”：log₂4 × log₂2 = 2×1 = 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_004",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "解方程：log₂ x = 3，则 x = ____。",
+      "options": null,
+      "answer": "8",
+      "solution_steps": [
+        "对数式化指数式：log₂ x = 3 即 x = 2³",
+        "2³ = 8",
+        "所以 x = 8。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "convert_error",
+          "explanation": "把指数式当乘法：2×3 = 6"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_005",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "函数 y = log₂ x 是 ____（填“增函数”或“减函数”）。",
+      "options": null,
+      "answer": "增函数",
+      "solution_steps": [
+        "对数函数增减性由底数决定：底数 2 > 1",
+        "底数大于 1 的对数函数递增",
+        "所以 y = log₂ x 是增函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "减函数",
+          "typical_error_code": "monotonic_reverse",
+          "explanation": "底数与单调性的关系弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_006",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "计算：log₃ 9 = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "log₃ 9 = x 即 3^x = 9",
+        "3² = 9",
+        "所以 log₃ 9 = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "convert_error",
+          "explanation": "把底数 3 当成了对数值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_007",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：log₅ 5 = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "log₅ 5 = x 即 5^x = 5",
+        "5¹ = 5，x = 1",
+        "所以 log₅ 5 = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "0",
+          "typical_error_code": "convert_error",
+          "explanation": "与 log₅ 1 = 0 混淆：底数的 1 次方等于底数自己，对数是 1 不是 0"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_008",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "计算：log₂ (1/4) = ____。",
+      "options": null,
+      "answer": "-2",
+      "solution_steps": [
+        "log₂ (1/4) = x 即 2^x = 1/4",
+        "2⁻² = 1/4，x = -2",
+        "所以 log₂ (1/4) = -2。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "convert_error",
+          "explanation": "负指数的符号丢了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_009",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "函数 y = log_{1/2} x 是 ____（填“增函数”或“减函数”）。",
+      "options": null,
+      "answer": "减函数",
+      "solution_steps": [
+        "底数 1/2 ∈ (0, 1)",
+        "底数在 (0,1) 的对数函数递减",
+        "所以 y = log_{1/2} x 是减函数。"
+      ],
+      "distractors": [
+        {
+          "answer": "增函数",
+          "typical_error_code": "monotonic_reverse",
+          "explanation": "底数在 (0,1) 时的单调性弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_010",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "计算：log₂ 6 - log₂ 3 = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "同底对数相减等于真数相除的对数：log₂ 6 - log₂ 3 = log₂ (6/3)",
+        "log₂ 2 = 1",
+        "所以 log₂ 6 - log₂ 3 = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "log_rule_mix",
+          "explanation": "把法则用错，直接把真数相减后不再取对数：6 - 3 = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_log_011",
+      "knowledge_point": "math.gz.function.logarithm",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "解方程：log₂ (x - 1) = 2，则 x = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "对数式化指数式：x - 1 = 2² = 4",
+        "x = 4 + 1 = 5，且真数 x - 1 = 4 > 0 成立",
+        "所以 x = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "convert_error",
+          "explanation": "把对数值 2 直接当成真数：x - 1 = 2，得 x = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_001",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "sin 30° = ____。",
+      "options": null,
+      "answer": "1/2",
+      "solution_steps": [
+        "特殊角三角函数值：sin 30° = 1/2",
+        "直接记忆值",
+        "所以 sin 30° = 1/2。"
+      ],
+      "distractors": [
+        {
+          "answer": "√3/2",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 sin 60° = √3/2 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_002",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "cos 60° = ____。",
+      "options": null,
+      "answer": "1/2",
+      "solution_steps": [
+        "特殊角三角函数值：cos 60° = 1/2",
+        "直接记忆值",
+        "所以 cos 60° = 1/2。"
+      ],
+      "distractors": [
+        {
+          "answer": "√3/2",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 cos 30° = √3/2 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_003",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "sin(π/6) + cos(π/3) = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "π/6 = 30°，π/3 = 60°",
+        "sin 30° + cos 60° = 1/2 + 1/2 = 1",
+        "所以 sin(π/6) + cos(π/3) = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "(1 + √3)/2",
+          "typical_error_code": "special_value_error",
+          "explanation": "把 cos(π/3) 记成 √3/2，得 1/2 + √3/2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_004",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 sin α = 3/5，且 α 是第一象限角，则 cos α = ____。",
+      "options": null,
+      "answer": "4/5",
+      "solution_steps": [
+        "同角关系：sin²α + cos²α = 1",
+        "cos²α = 1 - (3/5)² = 1 - 9/25 = 16/25",
+        "第一象限余弦为正，cos α = 4/5。"
+      ],
+      "distractors": [
+        {
+          "answer": "-4/5",
+          "typical_error_code": "quadrant_sign",
+          "explanation": "第一象限角的正弦余弦都为正，符号判断错"
+        },
+        {
+          "answer": "3/5",
+          "typical_error_code": "same_angle_error",
+          "explanation": "没有用同角平方关系，直接把 sin 的值当成了 cos 的值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_005",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "tan 45° = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "特殊角三角函数值：tan 45° = 1",
+        "直接记忆值",
+        "所以 tan 45° = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "√3",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 tan 60° = √3 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_006",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "cos 30° = ____。",
+      "options": null,
+      "answer": "√3/2",
+      "solution_steps": [
+        "特殊角三角函数值：cos 30° = √3/2",
+        "直接记忆值",
+        "所以 cos 30° = √3/2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1/2",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 cos 60° = 1/2 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_007",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "sin 45° = ____。",
+      "options": null,
+      "answer": "√2/2",
+      "solution_steps": [
+        "特殊角三角函数值：sin 45° = √2/2",
+        "直接记忆值",
+        "所以 sin 45° = √2/2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1/2",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 sin 30° = 1/2 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_008",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "tan(π/4) = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "π/4 = 45°",
+        "tan 45° = 1",
+        "所以 tan(π/4) = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "0",
+          "typical_error_code": "special_value_error",
+          "explanation": "与 tan 0° = 0 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_009",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "sin²(π/3) + cos²(π/3) = ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "同角平方关系：sin²α + cos²α = 1 对任意角恒成立",
+        "无需算出具体数值",
+        "所以 sin²(π/3) + cos²(π/3) = 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "√3/2 + 1/2",
+          "typical_error_code": "same_angle_error",
+          "explanation": "不知道恒等式，把两个函数值直接相加而忘了平方"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_010",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 cos α = -3/5，且 α 是第二象限角，则 sin α = ____。",
+      "options": null,
+      "answer": "4/5",
+      "solution_steps": [
+        "同角关系：sin²α = 1 - cos²α = 1 - 9/25 = 16/25",
+        "第二象限正弦为正",
+        "所以 sin α = 4/5。"
+      ],
+      "distractors": [
+        {
+          "answer": "-4/5",
+          "typical_error_code": "quadrant_sign",
+          "explanation": "第二象限正弦应为正，符号判断错"
+        },
+        {
+          "answer": "3/5",
+          "typical_error_code": "same_angle_error",
+          "explanation": "没有用平方关系，把余弦值直接当成了正弦值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_trig_011",
+      "knowledge_point": "math.gz.trig.definition",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "角 2π/3 化为角度是 ____°。",
+      "options": null,
+      "answer": "120",
+      "solution_steps": [
+        "π 弧度 = 180°",
+        "2π/3 = (2/3) × 180° = 120°",
+        "所以 2π/3 = 120°。"
+      ],
+      "distractors": [
+        {
+          "answer": "60",
+          "typical_error_code": "radian_convert",
+          "explanation": "换算时用 180÷3×1 只算了 π/3 的度数"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_001",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知点 A(1, 2)、B(4, 6)，则向量 AB 的坐标是 ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(3, 4)",
+      "solution_steps": [
+        "向量坐标 = 终点坐标 - 起点坐标",
+        "AB = (4 - 1, 6 - 2) = (3, 4)",
+        "所以 AB 的坐标是 (3, 4)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-3, -4)",
+          "typical_error_code": "vector_order",
+          "explanation": "用起点减终点，方向反了"
+        },
+        {
+          "answer": "(5, 8)",
+          "typical_error_code": "coord_add",
+          "explanation": "把两个点的坐标相加当成向量坐标"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_002",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 a = (2, -1)，则 3a = ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(6, -3)",
+      "solution_steps": [
+        "实数与向量相乘，把每个分量都乘以该实数",
+        "3a = (3×2, 3×(-1)) = (6, -3)",
+        "所以 3a = (6, -3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(6, -1)",
+          "typical_error_code": "scalar_miss",
+          "explanation": "只乘了第一个分量，漏乘第二个"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_003",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 a = (3, 4)，则 |a| = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "模长公式：|a| = √(x² + y²)",
+        "|a| = √(9 + 16) = √25 = 5",
+        "所以 |a| = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "7",
+          "typical_error_code": "modulus_formula",
+          "explanation": "把两个分量直接相加：3 + 4 = 7"
+        },
+        {
+          "answer": "25",
+          "typical_error_code": "modulus_formula",
+          "explanation": "算出平方和 25 后忘了开根号"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_004",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 a = (1, 2)，b = (2, k)，且 a ∥ b，则 k = ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "平面向量平行的坐标条件：x₁y₂ - x₂y₁ = 0",
+        "1×k - 2×2 = 0，即 k = 4",
+        "所以 k = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "2",
+          "typical_error_code": "parallel_condition",
+          "explanation": "误用“对应坐标相等”，把 k 当成 2"
+        },
+        {
+          "answer": "-4",
+          "typical_error_code": "parallel_condition",
+          "explanation": "行列式展开时符号算错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_005",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 a = (1, -2)，b = (3, 1)，则 a + b = ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(4, -1)",
+      "solution_steps": [
+        "向量加法：对应坐标相加",
+        "a + b = (1 + 3, -2 + 1) = (4, -1)",
+        "所以 a + b = (4, -1)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2, -3)",
+          "typical_error_code": "add_sub_mix",
+          "explanation": "把加法当成了减法：1 - 3 = -2，-2 - 1 = -3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_006",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "已知 A(0, 0)、B(2, 5)，则向量 AB 的坐标是 ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(2, 5)",
+      "solution_steps": [
+        "终点减起点：AB = (2 - 0, 5 - 0)",
+        "AB = (2, 5)",
+        "所以 AB 的坐标是 (2, 5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2, -5)",
+          "typical_error_code": "vector_order",
+          "explanation": "用起点减终点，方向反了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_007",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 a = (-2, 4)，则 2a = ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(-4, 8)",
+      "solution_steps": [
+        "数乘：每个分量都乘 2",
+        "2a = (-4, 8)",
+        "所以 2a = (-4, 8)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-4, 4)",
+          "typical_error_code": "scalar_miss",
+          "explanation": "第二个分量漏乘了 2"
+        },
+        {
+          "answer": "(-2, 8)",
+          "typical_error_code": "scalar_miss",
+          "explanation": "第一个分量漏乘了 2"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_008",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "已知 a = (-3, 4)，则 |a| = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "模长 = √(x² + y²)",
+        "|a| = √(9 + 16) = 5",
+        "所以 |a| = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "7",
+          "typical_error_code": "modulus_formula",
+          "explanation": "把 -3 + 4 = 1 或分量绝对值相加 3 + 4 = 7 当成模长"
+        },
+        {
+          "answer": "1",
+          "typical_error_code": "modulus_formula",
+          "explanation": "把两个分量直接相加 -3 + 4 = 1 当成模长"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_009",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 a = (2, 3)，b = (-4, y)，且 a ∥ b，则 y = ____。",
+      "options": null,
+      "answer": "-6",
+      "solution_steps": [
+        "平行条件：x₁y₂ - x₂y₁ = 0",
+        "2y - 3×(-4) = 0，即 2y + 12 = 0",
+        "y = -6，所以 y = -6。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "parallel_condition",
+          "explanation": "行列式展开时 -12 与 +12 的符号弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_010",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "已知 a = (5, -2)，b = (1, 3)，则 a - b = ____（写成 (x, y) 形式）。",
+      "options": null,
+      "answer": "(4, -5)",
+      "solution_steps": [
+        "向量减法：对应坐标相减",
+        "a - b = (5 - 1, -2 - 3) = (4, -5)",
+        "所以 a - b = (4, -5)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(6, 1)",
+          "typical_error_code": "add_sub_mix",
+          "explanation": "把减法当成了加法：5 + 1 = 6，-2 + 3 = 1"
+        },
+        {
+          "answer": "(-4, 5)",
+          "typical_error_code": "vector_order",
+          "explanation": "减数与被减数顺序颠倒，算成了 b - a"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_vec_011",
+      "knowledge_point": "math.gz.vector.plane",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知 a = (1, 1)，b = (0, 2)，则 |a + b| = ____。",
+      "options": null,
+      "answer": "√10",
+      "solution_steps": [
+        "先求和：a + b = (1 + 0, 1 + 2) = (1, 3)",
+        "再求模：|a + b| = √(1² + 3²) = √10",
+        "所以 |a + b| = √10。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "modulus_formula",
+          "explanation": "求和后把分量相加 1 + 3 = 4 当成模长"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_001",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "等差数列 1, 4, 7, 10, … 的公差 d = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "公差 = 相邻两项之差（后项 - 前项）",
+        "d = 4 - 1 = 3（可再用 7 - 4 = 3 验证）",
+        "所以 d = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-3",
+          "typical_error_code": "diff_sign",
+          "explanation": "用前项减后项，公差符号反了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_002",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "等差数列 {aₙ} 中，a₁ = 2，d = 3，则 a₁₀ = ____。",
+      "options": null,
+      "answer": "29",
+      "solution_steps": [
+        "通项公式：aₙ = a₁ + (n - 1)d",
+        "a₁₀ = 2 + 9×3 = 2 + 27",
+        "a₁₀ = 29，所以 a₁₀ = 29。"
+      ],
+      "distractors": [
+        {
+          "answer": "32",
+          "typical_error_code": "index_offset",
+          "explanation": "把 (n-1)d 算成了 nd：2 + 10×3 = 32"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_003",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等差数列 {aₙ} 中，a₁ = 1，d = 2，则 S₁₀ = ____。",
+      "options": null,
+      "answer": "100",
+      "solution_steps": [
+        "先求 a₁₀ = 1 + 9×2 = 19",
+        "求和公式：Sₙ = n(a₁ + aₙ)/2，S₁₀ = 10×(1 + 19)/2",
+        "S₁₀ = 100，所以 S₁₀ = 100。"
+      ],
+      "distractors": [
+        {
+          "answer": "121",
+          "typical_error_code": "sum_term_count",
+          "explanation": "项数错当成 11 项，按 S₁₁ = 11×(1+21)/2 = 121 计算"
+        },
+        {
+          "answer": "38",
+          "typical_error_code": "formula_mix",
+          "explanation": "把通项公式当求和公式，只算出 a₁₀ = 19 附近的单个值"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_004",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等差数列 {aₙ} 中，a₃ = 7，a₅ = 13，则公差 d = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "a₅ - a₃ = 2d（下标差几，公差就乘几）",
+        "2d = 13 - 7 = 6",
+        "d = 3，所以 d = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "diff_index",
+          "explanation": "忘记 a₅ 与 a₃ 之间隔了 2 个公差，把 6 直接当成 d"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_005",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "等差数列 {aₙ} 中，a₁ = 3，d = -2，则 a₈ = ____。",
+      "options": null,
+      "answer": "-11",
+      "solution_steps": [
+        "通项公式：a₈ = a₁ + 7d",
+        "a₈ = 3 + 7×(-2) = 3 - 14",
+        "a₈ = -11，所以 a₈ = -11。"
+      ],
+      "distractors": [
+        {
+          "answer": "-13",
+          "typical_error_code": "index_offset",
+          "explanation": "把 7d 算成 8d：3 - 16 = -13"
+        },
+        {
+          "answer": "11",
+          "typical_error_code": "diff_sign",
+          "explanation": "公差 -2 的负号丢了，算成 3 + 14 = 17 后又错写为 11 一类符号混乱"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_006",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "等差数列 5, 8, 11, … 的公差 d = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "公差 = 后项 - 前项",
+        "d = 8 - 5 = 3（11 - 8 = 3 验证一致）",
+        "所以 d = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "-3",
+          "typical_error_code": "diff_sign",
+          "explanation": "减法顺序颠倒，符号反了"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_007",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "等差数列 {aₙ} 中，a₁ = 4，d = 2，则 a₆ = ____。",
+      "options": null,
+      "answer": "14",
+      "solution_steps": [
+        "a₆ = a₁ + 5d",
+        "a₆ = 4 + 5×2 = 14",
+        "所以 a₆ = 14。"
+      ],
+      "distractors": [
+        {
+          "answer": "16",
+          "typical_error_code": "index_offset",
+          "explanation": "把 5d 算成 6d：4 + 12 = 16"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_008",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等差数列 {aₙ} 中，a₁ = 2，aₙ = 20，d = 3，则 n = ____。",
+      "options": null,
+      "answer": "7",
+      "solution_steps": [
+        "通项公式：20 = 2 + (n - 1)×3",
+        "18 = 3(n - 1)，n - 1 = 6",
+        "n = 7，所以 n = 7。"
+      ],
+      "distractors": [
+        {
+          "answer": "6",
+          "typical_error_code": "index_offset",
+          "explanation": "解出 n - 1 = 6 后忘了加 1，把 6 当成 n"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_009",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等差数列 {aₙ} 中，a₁ = 5，d = 3，则 S₈ = ____。",
+      "options": null,
+      "answer": "124",
+      "solution_steps": [
+        "先求 a₈ = 5 + 7×3 = 26",
+        "S₈ = 8×(5 + 26)/2 = 4×31",
+        "S₈ = 124，所以 S₈ = 124。"
+      ],
+      "distractors": [
+        {
+          "answer": "136",
+          "typical_error_code": "index_offset",
+          "explanation": "a₈ 误算成 5 + 8×3 = 29，再求和得 8×(5+29)/2 = 136"
+        },
+        {
+          "answer": "98",
+          "typical_error_code": "sum_term_count",
+          "explanation": "只求了前 7 项的和 S₇ = 7×(5+23)/2 = 98"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_010",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "等差数列 {aₙ} 中，a₂ = 5，a₄ = 11，则 a₁ = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "a₄ - a₂ = 2d = 11 - 5 = 6，d = 3",
+        "a₂ = a₁ + d，即 5 = a₁ + 3",
+        "a₁ = 2，所以 a₁ = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "8",
+          "typical_error_code": "diff_index",
+          "explanation": "把 a₂ 与 a₄ 当成相邻两项，用 11 - 5 = 6 当公差，再倒推 a₁ 出错"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_ar_011",
+      "knowledge_point": "math.gz.sequence.arithmetic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "已知等差数列 {aₙ} 的前 n 项和 Sₙ = n² + n，则 a₅ = ____。",
+      "options": null,
+      "answer": "10",
+      "solution_steps": [
+        "aₙ = Sₙ - Sₙ₋₁ = (n² + n) - ((n-1)² + (n-1))",
+        "化简得 aₙ = 2n",
+        "a₅ = 10，所以 a₅ = 10。"
+      ],
+      "distractors": [
+        {
+          "answer": "30",
+          "typical_error_code": "formula_mix",
+          "explanation": "把前 n 项和 S₅ = 25 + 5 = 30 直接当成了第 5 项 a₅"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_001",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "等比数列 1, 2, 4, 8, … 的公比 q = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "公比 = 后项 ÷ 前项",
+        "q = 2 ÷ 1 = 2（4 ÷ 2 = 2 验证一致）",
+        "所以 q = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "当成等差数列求公差：2 - 1 = 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_002",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "等比数列 {aₙ} 中，a₁ = 3，q = 2，则 a₄ = ____。",
+      "options": null,
+      "answer": "24",
+      "solution_steps": [
+        "通项公式：aₙ = a₁·q^(n-1)",
+        "a₄ = 3×2³ = 3×8",
+        "a₄ = 24，所以 a₄ = 24。"
+      ],
+      "distractors": [
+        {
+          "answer": "12",
+          "typical_error_code": "index_offset",
+          "explanation": "指数少算一次，按 3×2² = 12 计算（这是 a₃）"
+        },
+        {
+          "answer": "48",
+          "typical_error_code": "index_offset",
+          "explanation": "指数多算一次，按 3×2⁴ = 48 计算（这是 a₅）"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_003",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等比数列 {aₙ} 中，a₁ = 1，q = 2，则 S₅ = ____。",
+      "options": null,
+      "answer": "31",
+      "solution_steps": [
+        "求和公式（q ≠ 1）：Sₙ = a₁(1 - qⁿ)/(1 - q)",
+        "S₅ = 1×(1 - 2⁵)/(1 - 2) = (1 - 32)/(-1)",
+        "S₅ = 31，所以 S₅ = 31。"
+      ],
+      "distractors": [
+        {
+          "answer": "32",
+          "typical_error_code": "sum_formula",
+          "explanation": "分子分母约分时漏了减 1，把 2⁵ = 32 当成和"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_004",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "2 与 8 的等比中项是 ____（写出全部值）。",
+      "options": null,
+      "answer": "±4",
+      "solution_steps": [
+        "等比中项 x 满足 x² = 2×8 = 16",
+        "x = ±4（两个解都要写）",
+        "所以等比中项是 ±4。"
+      ],
+      "distractors": [
+        {
+          "answer": "4",
+          "typical_error_code": "mean_sign_miss",
+          "explanation": "开方时漏掉了负值 -4"
+        },
+        {
+          "answer": "5",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "当成等差中项算平均值：(2 + 8)/2 = 5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_005",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "等比数列 {aₙ} 中，a₁ = 2，q = -3，则 a₃ = ____。",
+      "options": null,
+      "answer": "18",
+      "solution_steps": [
+        "a₃ = a₁·q² = 2×(-3)²",
+        "(-3)² = 9，2×9 = 18",
+        "所以 a₃ = 18。"
+      ],
+      "distractors": [
+        {
+          "answer": "-18",
+          "typical_error_code": "ratio_sign",
+          "explanation": "平方后仍保留负号，算成 2×(-9) = -18"
+        },
+        {
+          "answer": "-6",
+          "typical_error_code": "ratio_sign",
+          "explanation": "公比只乘了一次：2×(-3) = -6（这是 a₂）"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_006",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "等比数列 3, 6, 12, … 的公比 q = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "公比 = 后项 ÷ 前项",
+        "q = 6 ÷ 3 = 2（12 ÷ 6 = 2 验证一致）",
+        "所以 q = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "3",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "当成等差数列求公差：6 - 3 = 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_007",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "等比数列 {aₙ} 中，a₁ = 2，q = 3，则 a₃ = ____。",
+      "options": null,
+      "answer": "18",
+      "solution_steps": [
+        "a₃ = 2×3²",
+        "3² = 9，2×9 = 18",
+        "所以 a₃ = 18。"
+      ],
+      "distractors": [
+        {
+          "answer": "8",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "当成等差数列：2 + 2×3 = 8"
+        },
+        {
+          "answer": "54",
+          "typical_error_code": "index_offset",
+          "explanation": "指数多算一次，算成了 a₄ = 2×3³ = 54"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_008",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "等比数列 {aₙ} 中，a₁ = 1，q = 3，则 S₄ = ____。",
+      "options": null,
+      "answer": "40",
+      "solution_steps": [
+        "S₄ = 1×(1 - 3⁴)/(1 - 3) = (1 - 81)/(-2)",
+        "(1 - 81)/(-2) = (-80)/(-2) = 40",
+        "所以 S₄ = 40。"
+      ],
+      "distractors": [
+        {
+          "answer": "164",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "误用等差求和公式：4×(1 + 81)/2 = 164"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_009",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "4 与 16 的等比中项是 ____（写出全部值）。",
+      "options": null,
+      "answer": "±8",
+      "solution_steps": [
+        "x² = 4×16 = 64",
+        "x = ±8",
+        "所以等比中项是 ±8。"
+      ],
+      "distractors": [
+        {
+          "answer": "8",
+          "typical_error_code": "mean_sign_miss",
+          "explanation": "漏掉负值 -8"
+        },
+        {
+          "answer": "10",
+          "typical_error_code": "diff_ratio_mix",
+          "explanation": "当成等差中项：(4 + 16)/2 = 10"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_010",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "等比数列 {aₙ} 中，a₂ = 6，q = 2，则 a₁ = ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "a₂ = a₁·q，即 6 = a₁×2",
+        "a₁ = 6 ÷ 2 = 3",
+        "所以 a₁ = 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "12",
+          "typical_error_code": "ratio_sign",
+          "explanation": "把“除以 q”做成了“乘以 q”：6×2 = 12"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_geo_011",
+      "knowledge_point": "math.gz.sequence.geometric",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "等比数列 {aₙ} 中，a₁ = 1，公比 q = 1，则 S₅ = ____。",
+      "options": null,
+      "answer": "5",
+      "solution_steps": [
+        "q = 1 时求和公式失效（分母为零），此时每项都等于 a₁",
+        "S₅ = 5×a₁ = 5×1",
+        "所以 S₅ = 5。"
+      ],
+      "distractors": [
+        {
+          "answer": "0",
+          "typical_error_code": "q1_sum_formula",
+          "explanation": "仍硬套公式 (1 - 1⁵)/(1 - 1)，得 0/0 后误写为 0"
+        },
+        {
+          "answer": "1",
+          "typical_error_code": "q1_sum_formula",
+          "explanation": "把 a₁ = 1 当成了和"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_001",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "直线经过点 (1, 2) 与 (3, 6)，则它的斜率 k = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "斜率公式：k = (y₂ - y₁)/(x₂ - x₁)",
+        "k = (6 - 2)/(3 - 1) = 4/2",
+        "k = 2，所以 k = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1/2",
+          "typical_error_code": "slope_formula",
+          "explanation": "横纵坐标颠倒，算成 (3-1)/(6-2) = 1/2"
+        },
+        {
+          "answer": "4",
+          "typical_error_code": "slope_formula",
+          "explanation": "只算了纵坐标差 6 - 2 = 4，忘了除以横坐标差"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_002",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "圆 (x - 2)² + (y + 3)² = 16 的圆心坐标是 ____（写成 (a, b) 形式）。",
+      "options": null,
+      "answer": "(2, -3)",
+      "solution_steps": [
+        "标准方程 (x - a)² + (y - b)² = r² 的圆心是 (a, b)",
+        "x - 2 = 0 得 a = 2；y + 3 = 0 得 b = -3",
+        "所以圆心是 (2, -3)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(-2, 3)",
+          "typical_error_code": "circle_extract",
+          "explanation": "提取圆心时符号全部弄反"
+        },
+        {
+          "answer": "(2, 3)",
+          "typical_error_code": "circle_extract",
+          "explanation": "纵坐标符号弄错：y + 3 对应 b = -3 而不是 3"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_003",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "圆 (x - 2)² + (y + 3)² = 16 的半径是 ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "标准方程右端 = r²",
+        "r² = 16，r = 4（半径取正值）",
+        "所以半径是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "16",
+          "typical_error_code": "circle_extract",
+          "explanation": "忘了开平方，把 r² = 16 当成了半径"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_004",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "点 P(2, 3) 到直线 3x + 4y - 7 = 0 的距离是 ____。",
+      "options": null,
+      "answer": "11/5",
+      "solution_steps": [
+        "点到直线距离公式：d = |Ax₀ + By₀ + C| / √(A² + B²)",
+        "d = |3×2 + 4×3 - 7| / √(9 + 16) = |6 + 12 - 7| / 5",
+        "d = 11/5，所以距离是 11/5。"
+      ],
+      "distractors": [
+        {
+          "answer": "11",
+          "typical_error_code": "distance_formula",
+          "explanation": "忘除分母 √(3² + 4²) = 5，直接把分子 11 当距离"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_005",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "直线 y = x + 1 与圆 x² + y² = 2 的位置关系是 ____（填“相切”“相交”或“相离”）。",
+      "options": null,
+      "answer": "相交",
+      "solution_steps": [
+        "圆心 (0, 0)，半径 r = √2；直线 x - y + 1 = 0",
+        "圆心到直线距离 d = |0 - 0 + 1|/√2 = √2/2",
+        "d = √2/2 < √2 = r，直线与圆相交。"
+      ],
+      "distractors": [
+        {
+          "answer": "相切",
+          "typical_error_code": "tangent_condition",
+          "explanation": "把 d 与 r 的大小关系比错，误判为 d = r"
+        },
+        {
+          "answer": "相离",
+          "typical_error_code": "tangent_condition",
+          "explanation": "距离公式分母漏算或比较出错，误判 d > r"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_006",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "直线经过点 (0, 0) 与 (2, 4)，则它的斜率 k = ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "k = (4 - 0)/(2 - 0)",
+        "k = 4/2 = 2",
+        "所以 k = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1/2",
+          "typical_error_code": "slope_formula",
+          "explanation": "横纵颠倒"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_007",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "圆 (x + 1)² + (y - 2)² = 9 的圆心坐标是 ____（写成 (a, b) 形式）。",
+      "options": null,
+      "answer": "(-1, 2)",
+      "solution_steps": [
+        "标准方程圆心 (a, b)：x + 1 = 0 得 a = -1；y - 2 = 0 得 b = 2",
+        "圆心是 (-1, 2)",
+        "所以圆心是 (-1, 2)。"
+      ],
+      "distractors": [
+        {
+          "answer": "(1, -2)",
+          "typical_error_code": "circle_extract",
+          "explanation": "符号弄反"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_008",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "圆 (x + 1)² + (y - 2)² = 9 的半径是 ____。",
+      "options": null,
+      "answer": "3",
+      "solution_steps": [
+        "r² = 9",
+        "r = 3（取正值）",
+        "所以半径是 3。"
+      ],
+      "distractors": [
+        {
+          "answer": "9",
+          "typical_error_code": "circle_extract",
+          "explanation": "忘开平方"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_009",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "点 P(0, 0) 到直线 3x + 4y - 5 = 0 的距离是 ____。",
+      "options": null,
+      "answer": "1",
+      "solution_steps": [
+        "d = |3×0 + 4×0 - 5| / √(9 + 16)",
+        "d = |-5|/5 = 5/5",
+        "d = 1，所以距离是 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "distance_formula",
+          "explanation": "忘除分母 5"
+        },
+        {
+          "answer": "1/5",
+          "typical_error_code": "distance_formula",
+          "explanation": "把分母算成 25（没有开根号），得 5/25 = 1/5"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_010",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "圆心为 (1, 0)、半径为 2 的圆的标准方程是 ____。",
+      "options": null,
+      "answer": "(x - 1)² + y² = 4",
+      "solution_steps": [
+        "标准方程 (x - a)² + (y - b)² = r²",
+        "a = 1，b = 0，r² = 4",
+        "所以标准方程是 (x - 1)² + y² = 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "(x + 1)² + y² = 4",
+          "typical_error_code": "circle_extract",
+          "explanation": "圆心横坐标符号写反：圆心 x = 1 对应 (x - 1)"
+        },
+        {
+          "answer": "(x - 1)² + y² = 2",
+          "typical_error_code": "circle_extract",
+          "explanation": "把半径 2 直接写在等号右边，忘了平方"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_lc_011",
+      "knowledge_point": "math.gz.analytic.line_circle",
+      "pool": "retest",
+      "type": "choice",
+      "difficulty": 5,
+      "stem": "直线 l：x = 2 与圆 (x - 1)² + y² = 1 的位置关系是（　）。",
+      "options": [
+        "相切",
+        "相交但不过圆心",
+        "相交且过圆心",
+        "相离"
+      ],
+      "answer": "相切",
+      "solution_steps": [
+        "圆心 (1, 0)，半径 r = 1；直线 x = 2 是竖直直线，斜率不存在，不能套 y = kx + b 的斜率式",
+        "圆心到直线 x = 2 的距离：|1 - 2| = 1",
+        "d = 1 = r，所以直线与圆相切。"
+      ],
+      "distractors": [
+        {
+          "answer": "相离",
+          "typical_error_code": "tangent_condition",
+          "explanation": "代入或距离计算出错，误判无交点"
+        },
+        {
+          "answer": "相交且过圆心",
+          "typical_error_code": "vertical_slope",
+          "explanation": "没有实际计算，凭竖直直线的直觉误判它穿过圆心"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_001",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "(x³)' = ____。",
+      "options": null,
+      "answer": "3x²",
+      "solution_steps": [
+        "幂函数求导法则：(xⁿ)' = n·x^(n-1)",
+        "(x³)' = 3x²",
+        "所以 (x³)' = 3x²。"
+      ],
+      "distractors": [
+        {
+          "answer": "3x",
+          "typical_error_code": "power_rule",
+          "explanation": "指数漏减 1，写成 3x¹ = 3x"
+        },
+        {
+          "answer": "x²",
+          "typical_error_code": "power_rule",
+          "explanation": "系数 n = 3 漏乘"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_002",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "(2x³)' = ____。",
+      "options": null,
+      "answer": "6x²",
+      "solution_steps": [
+        "常数倍法则：(c·xⁿ)' = c·n·x^(n-1)",
+        "(2x³)' = 2×3x² = 6x²",
+        "所以 (2x³)' = 6x²。"
+      ],
+      "distractors": [
+        {
+          "answer": "2x²",
+          "typical_error_code": "power_rule",
+          "explanation": "只把指数减 1，忘了把指数 3 乘下来作系数"
+        },
+        {
+          "answer": "6x³",
+          "typical_error_code": "power_rule",
+          "explanation": "系数算对但指数漏减 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_003",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "(5)' = ____。",
+      "options": null,
+      "answer": "0",
+      "solution_steps": [
+        "常数的导数为 0",
+        "5 是常数",
+        "所以 (5)' = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "constant_zero",
+          "explanation": "以为常数的导数还是它本身"
+        },
+        {
+          "answer": "1",
+          "typical_error_code": "constant_zero",
+          "explanation": "与 x 的导数是 1 混淆"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_004",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) = x² + 2x，则 f'(x) = ____。",
+      "options": null,
+      "answer": "2x + 2",
+      "solution_steps": [
+        "和的导数等于导数的和，逐项求导",
+        "(x²)' = 2x，(2x)' = 2",
+        "f'(x) = 2x + 2，所以 f'(x) = 2x + 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "2x",
+          "typical_error_code": "linear_combo",
+          "explanation": "只求了 x² 的导数，漏掉 2x 这一项的导数"
+        },
+        {
+          "answer": "x + 2",
+          "typical_error_code": "power_rule",
+          "explanation": "x² 求导时系数 2 漏乘，得 x"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_005",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "train",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "曲线 y = x² 在点 (1, 1) 处的切线斜率是 ____。",
+      "options": null,
+      "answer": "2",
+      "solution_steps": [
+        "切线斜率 = 导数在切点处的值",
+        "y' = 2x，x = 1 时 y' = 2",
+        "所以切线斜率是 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "1",
+          "typical_error_code": "tangent_slope",
+          "explanation": "把切点的纵坐标（函数值）1 当成了斜率"
+        },
+        {
+          "answer": "2x",
+          "typical_error_code": "tangent_slope",
+          "explanation": "求出导函数 2x 后忘了代入 x = 1"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_006",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 1,
+      "stem": "(x⁴)' = ____。",
+      "options": null,
+      "answer": "4x³",
+      "solution_steps": [
+        "(xⁿ)' = n·x^(n-1)",
+        "(x⁴)' = 4x³",
+        "所以 (x⁴)' = 4x³。"
+      ],
+      "distractors": [
+        {
+          "answer": "4x",
+          "typical_error_code": "power_rule",
+          "explanation": "指数漏减 1"
+        },
+        {
+          "answer": "x³",
+          "typical_error_code": "power_rule",
+          "explanation": "系数 4 漏乘"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_007",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "(3x²)' = ____。",
+      "options": null,
+      "answer": "6x",
+      "solution_steps": [
+        "(c·xⁿ)' = c·n·x^(n-1)",
+        "(3x²)' = 3×2x = 6x",
+        "所以 (3x²)' = 6x。"
+      ],
+      "distractors": [
+        {
+          "answer": "3x",
+          "typical_error_code": "power_rule",
+          "explanation": "指数减 1 后忘了乘系数 2"
+        },
+        {
+          "answer": "3x²",
+          "typical_error_code": "constant_zero",
+          "explanation": "把 3x² 当成了常数，导数写成 0 或原式"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_008",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 2,
+      "stem": "(7)' = ____。",
+      "options": null,
+      "answer": "0",
+      "solution_steps": [
+        "常数的导数为 0",
+        "7 是常数",
+        "所以 (7)' = 0。"
+      ],
+      "distractors": [
+        {
+          "answer": "7",
+          "typical_error_code": "constant_zero",
+          "explanation": "常数的导数记错成它本身"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_009",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 3,
+      "stem": "已知 f(x) = x³ - x，则 f'(x) = ____。",
+      "options": null,
+      "answer": "3x² - 1",
+      "solution_steps": [
+        "逐项求导：(x³)' = 3x²",
+        "(-x)' = -1（x 的导数是 1，再乘系数 -1）",
+        "f'(x) = 3x² - 1，所以 f'(x) = 3x² - 1。"
+      ],
+      "distractors": [
+        {
+          "answer": "3x²",
+          "typical_error_code": "linear_combo",
+          "explanation": "漏掉了 -x 这一项的导数"
+        },
+        {
+          "answer": "3x² - x",
+          "typical_error_code": "power_rule",
+          "explanation": "-x 这一项没有求导，原样保留"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_010",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 4,
+      "stem": "曲线 y = x² + 1 在点 (2, 5) 处的切线斜率是 ____。",
+      "options": null,
+      "answer": "4",
+      "solution_steps": [
+        "y' = 2x（常数 1 的导数为 0）",
+        "x = 2 时 y' = 4",
+        "所以切线斜率是 4。"
+      ],
+      "distractors": [
+        {
+          "answer": "5",
+          "typical_error_code": "tangent_slope",
+          "explanation": "把切点纵坐标 5 当成了斜率"
+        },
+        {
+          "answer": "2",
+          "typical_error_code": "tangent_slope",
+          "explanation": "把切点横坐标 2 当成了斜率"
+        }
+      ]
+    },
+    {
+      "item_id": "q_gz_der_011",
+      "knowledge_point": "math.gz.derivative.basic",
+      "pool": "retest",
+      "type": "fill",
+      "difficulty": 5,
+      "stem": "曲线 y = x² - 2x + 3 在点 (1, 2) 处的切线方程是 ____（写成 y = kx + b 或 y = c 的形式）。",
+      "options": null,
+      "answer": "y = 2",
+      "solution_steps": [
+        "y' = 2x - 2，x = 1 时斜率 k = 0",
+        "切线过点 (1, 2)，斜率为 0，是水平直线",
+        "切线方程为 y = 2，所以答案是 y = 2。"
+      ],
+      "distractors": [
+        {
+          "answer": "y = 0",
+          "typical_error_code": "tangent_slope",
+          "explanation": "把切点横坐标 1 或斜率 0 当成了直线在 y 轴上的截距"
+        },
+        {
+          "answer": "y = 2x",
+          "typical_error_code": "power_rule",
+          "explanation": "求导出错得 k = 2，又把过点 (1, 2) 代错"
+        }
+      ]
+    }
+  ]
+}

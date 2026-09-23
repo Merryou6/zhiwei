@@ -1,0 +1,41 @@
+=== 学习空间  失败 0 项（豁免禁用态 0 项）
+--- 令牌校验（掌握程度色/强调色 在 4 种表面上的对比度，需 ≥4.5 文字 / ≥3 图形）
+    --ink         on canvas  12.41:1  ok
+    --ink         on surface 12.43:1  ok
+    --ink         on raised  10.69:1  ok
+    --ink         on sunken  12.67:1  ok
+    --ink-2       on canvas  6.85:1  ok
+    --ink-2       on surface 6.86:1  ok
+    --ink-2       on raised  5.9:1  ok
+    --ink-2       on sunken  6.99:1  ok
+    --ink-label   on canvas  5.52:1  ok
+    --ink-label   on surface 5.52:1  ok
+    --ink-label   on raised  4.75:1  ok
+    --ink-label   on sunken  5.63:1  ok
+    --accent      on canvas  5.52:1  ok
+    --accent      on surface 5.53:1  ok
+    --accent      on raised  4.75:1  ok
+    --accent      on sunken  5.63:1  ok
+    --band-solid  on canvas  4.88:1  ok
+    --band-solid  on surface 4.88:1  ok
+    --band-solid  on raised  4.2:1  ok
+    --band-solid  on sunken  4.98:1  ok
+    --band-basic  on canvas  7.55:1  ok
+    --band-basic  on surface 7.56:1  ok
+    --band-basic  on raised  6.5:1  ok
+    --band-basic  on sunken  7.71:1  ok
+    --band-waver  on canvas  7.25:1  ok
+    --band-waver  on surface 7.26:1  ok
+    --band-waver  on raised  6.25:1  ok
+    --band-waver  on sunken  7.41:1  ok
+    --band-weak   on canvas  5.43:1  ok
+    --band-weak   on surface 5.44:1  ok
+    --band-weak   on raised  4.68:1  ok
+    --band-weak   on sunken  5.55:1  ok
+--- 令牌不达标数 = 0
+=== 测评  失败 0 项（豁免禁用态 0 项）
+=== 对话辅导  失败 0 项（豁免禁用态 0 项）
+=== 知识图谱  失败 0 项（豁免禁用态 0 项）
+=== 学习报告  失败 0 项（豁免禁用态 0 项）
+=== 云盘  失败 0 项（豁免禁用态 0 项）
+TOTAL_FAILED=0

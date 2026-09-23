@@ -367,7 +367,7 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
     // 处方 path = 根因先修链（上游→根因，图谱高亮用）；必须覆盖归因回溯路径的节点
     const extremumPath = planFromExtremum.body.data!.path;
     expect(extremumPath[extremumPath.length - 1]).toBe('math.cz.quadratic.extremum');
-    expect(extremumPath[0]).toBe('math.cz.algebra.basic');
+    expect(extremumPath[0]).toBe('math.cz.function.concept');
     for (const kp of analyzed.body.data!.path) {
       expect(extremumPath).toContain(kp);
     }
@@ -405,7 +405,7 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
       token,
     );
     expect(report.body.code).toBe(0);
-    expect(report.body.data!.mastery).toHaveLength(20);
+    expect(report.body.data!.mastery).toHaveLength(SD.nodesForKb('kb_math_cz').length);
 
     const row = report.body.data!.accuracy.find((entry) => entry.kp_id === TRANSLATION_KP)!;
     expect(row.baseline).toBe(0);

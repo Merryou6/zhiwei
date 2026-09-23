@@ -62,8 +62,9 @@ export async function summary(req: RouteRequest, ctx: AppContext): Promise<ApiRe
   const profiles = await ctx.store.listProfiles(user.user_id, space.space_id);
   const masteryByKp = new Map(profiles.map((profile) => [profile.knowledge_point, profile.mastery]));
 
-  // ---- mastery + gaps
-  const mastery: MasteryRow[] = ctx.data.nodes.map((node) => {
+  // ---- mastery + gaps（按空间所属学段：gz 空间的报告不出现 cz 节点）
+  const kbNodes = ctx.data.nodesForKb(space.knowledge_source[0]);
+  const mastery: MasteryRow[] = kbNodes.map((node) => {
     const value = masteryByKp.get(node.id) ?? 0;
     return {
       kp_id: node.id,
@@ -109,7 +110,7 @@ export async function summary(req: RouteRequest, ctx: AppContext): Promise<ApiRe
     counters.set(event.knowledge_point, bucket);
   }
 
-  const accuracy: AccuracyRow[] = ctx.data.nodes
+  const accuracy: AccuracyRow[] = kbNodes
     .filter((node) => counters.has(node.id))
     .map((node) => {
       const bucket = counters.get(node.id)!;

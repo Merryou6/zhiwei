@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { createSpace, listSpaces } from '../api/endpoints';
@@ -17,15 +17,20 @@ import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
-import { SELF_REPORT_PATH, isSelfReportDone } from '../router';
+import { CONSOLE_PATH, SELF_REPORT_PATH, isSelfReportDone } from '../router';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 
-const KB_MATH_CZ = 'kb_math_cz';
+/** 可选学段（与 data/knowledge/index.json 的 stages 对应；新增学科在此扩）。 */
+const STAGES = [
+  { id: 'kb_math_cz', label: '初中数学' },
+  { id: 'kb_math_gz', label: '高中数学' },
+] as const;
 
 export default function SpacesPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [stage, setStage] = useState<(typeof STAGES)[number]['id']>('kb_math_cz');
   const [conflictSpaceId, setConflictSpaceId] = useState<string | null>(null);
 
   const spaces = useSpaceStore((state) => state.spaces);
@@ -55,7 +60,7 @@ export default function SpacesPage() {
     if (creating) return;
     setCreating(true);
     try {
-      const created = await createSpace({ knowledge_source: KB_MATH_CZ });
+      const created = await createSpace({ knowledge_source: stage });
       toast(`已建好「${created.name}」`);
       setActive(created.space_id);
       await load();
@@ -72,12 +77,17 @@ export default function SpacesPage() {
     }
   }
 
-  /** 主按钮：按本机自报标记决定「开始自报」还是「进入测评」（第一屏就让用户开始）。 */
-  function primaryAction(space: SpaceView): { label: string; path: string } {
-    return isSelfReportDone(space.space_id)
-      ? { label: '进入测评', path: '/assessment' }
-      : { label: '开始 30 秒自报', path: SELF_REPORT_PATH };
-  }
+/** 主按钮：按本机自报标记决定「开始自报」还是「进入测评」（第一屏就让用户开始）。 */
+function primaryAction(space: SpaceView): { label: string; path: string } {
+  return isSelfReportDone(space.space_id)
+    ? { label: '进入测评', path: '/assessment' }
+    : { label: '开始 30 秒自报', path: SELF_REPORT_PATH };
+}
+
+/** 知识库 id → 学段标签（卡片副标题用）。 */
+function stageLabel(kbId: string | undefined): string {
+  return STAGES.find((s) => s.id === kbId)?.label ?? '数学';
+}
 
   const ordered = [...spaces].sort((a, b) => Number(b.is_default) - Number(a.is_default));
 
@@ -148,7 +158,7 @@ export default function SpacesPage() {
                       ) : null}
                     </div>
                     <p className="mt-1 text-[13px] text-ink-soft">
-                      {space.subject} · 创建于 {formatTime(space.created_at)} · {space.space_id}
+                      {stageLabel(space.knowledge_source[0])} · 创建于 {formatTime(space.created_at)}
                     </p>
                   </div>
 

@@ -6,7 +6,8 @@
  * 视觉改版（2026-09-22）：Toast 出口抽到 ToastHost，与「无外壳」的登录页共用一份队列。
  */
 
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import ToastHost from './ToastHost';
 import TopNav from './TopNav';

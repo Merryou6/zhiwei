@@ -1,6 +1,9 @@
 /**
- * 紧凑顶栏（PRD §6「空间不占首屏」）：主内容区只放学习动作；
- * 图谱 / 测评 / 对话 / 报告 / 云盘 五个入口常驻，空间管理收进二级菜单（点开才展开）。
+ * 顶栏 —— 2026-09-23 对齐 B 端控制台原型（zhiwei-console）的结构：
+ *   · 固定高 56px、底色 canvas-deep（比画布更深一档的 chrome 层）、底部 1px 半透明描边；
+ *   · 品牌（标识 +「知微」字距 .1em）→ 竖分隔线 → 五个全高下划线式 Tab → 右侧空间胶囊；
+ *   · Tab 当前态 = 文字提亮 + 2px 下划线（原型 .tab[aria-current]::after），
+ *     不再用胶囊底色——整条 Tab 栏与顶栏同高，active 由下划线表达。
  *
  * 空间列表懒加载：已登录且 store 为空时取一次（#3 space/list）；失败静默——页 3 会给提示。
  *
@@ -16,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { listSpaces } from '../api/endpoints';
-import { SPACES_PATH, navRoutes } from '../router';
+import { CONSOLE_PATH, SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
 import ZhiweiLogo from './ZhiweiLogo';
@@ -62,9 +65,12 @@ export default function TopNav() {
 
         {token ? (
           <>
-            <ul className="flex flex-1 items-center gap-1">
+            {/* 原型 .nav-sep：18px 竖分隔线，窄屏隐藏 */}
+            <span className="h-[18px] w-px flex-none bg-line max-[720px]:hidden" aria-hidden="true" />
+
+            <ul className="flex h-full min-w-0 flex-1 items-stretch gap-0.5">
               {navRoutes().map((route) => (
-                <li key={route.path}>
+                <li key={route.path} className="flex items-stretch">
                   <NavLink
                     to={route.path}
                     className={({ isActive }) =>
@@ -80,14 +86,24 @@ export default function TopNav() {
               ))}
             </ul>
 
-            <div className="relative">
+            {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头 */}
+            <div className="relative ml-auto flex flex-none items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
                 className="rounded-control px-3 py-1.5 text-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
                 aria-expanded={open}
               >
-                空间 · {active ? active.name : '未选择'}
+                <span className="grid h-5 w-5 place-items-center rounded-[5px] border border-accent/40 bg-accent-veil text-accent" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 5.4 8 2.4l6 3v5.2l-6 3-6-3z" />
+                    <path d="M2 5.4 8 8.4l6-3M8 8.4v5.2" />
+                  </svg>
+                </span>
+                <span className="max-[720px]:hidden">空间·{active ? active.name : '未选择'}</span>
+                <svg className="text-[#93a0b4]" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m4 6.5 4 4 4-4" />
+                </svg>
               </button>
 
               {open ? (
@@ -113,7 +129,7 @@ export default function TopNav() {
                       </li>
                     ))}
                     {spaces.length === 0 ? (
-                      <li className="px-2 min-h-9 py-2 text-[13px] text-ink-soft">还没有空间</li>
+                      <li className="min-h-9 px-2 py-2 text-[13px] text-ink-soft">还没有空间</li>
                     ) : null}
                   </ul>
                   <Link
