@@ -31,7 +31,7 @@ export interface DriveFileView {
 }
 
 /**
- * 预置文件清单（课标 + 教材）。
+ * 预置文件清单（课标 + 教材 + 初高中数学知识点资料）。
  * 【留桩】真实云盘列目录：后续迭代接入 COS/云存储 SDK 遍历 `{env}/preset/`
  * （DATA_SCHEMA §5 路径约定），本地形态返回固定清单 + 用户文件（本地恒为空）。
  */
@@ -47,6 +47,68 @@ export const PRESET_FILES: readonly DriveFileView[] = [
     name: '人教版初中数学九年级上册（教材）.pdf',
     type: 'pdf',
     size: 5242880,
+  },
+  // ===== 初中数学知识点资料 =====
+  {
+    file_id: 'file_preset_003',
+    name: '初中数学知识归纳总结（打印版）.pdf',
+    type: 'pdf',
+    size: 2097152,
+  },
+  {
+    file_id: 'file_preset_004',
+    name: '初中数学定理公式大全.pdf',
+    type: 'pdf',
+    size: 1572864,
+  },
+  {
+    file_id: 'file_preset_005',
+    name: '初中数学知识点总结（代数+几何）.pdf',
+    type: 'pdf',
+    size: 2621440,
+  },
+  {
+    file_id: 'file_preset_006',
+    name: '中考数学核心知识点清单.pdf',
+    type: 'pdf',
+    size: 1835008,
+  },
+  {
+    file_id: 'file_preset_007',
+    name: '初中数学必考公式定律与知识梳理.pdf',
+    type: 'pdf',
+    size: 1310720,
+  },
+  // ===== 高中数学知识点资料 =====
+  {
+    file_id: 'file_preset_008',
+    name: '高考数学思维导图及公式汇总.pdf',
+    type: 'pdf',
+    size: 3145728,
+  },
+  {
+    file_id: 'file_preset_009',
+    name: '高中数学100个常考知识点汇总.pdf',
+    type: 'pdf',
+    size: 2359296,
+  },
+  {
+    file_id: 'file_preset_010',
+    name: '高中数学公式定理大全.pdf',
+    type: 'pdf',
+    size: 1835008,
+  },
+  {
+    file_id: 'file_preset_011',
+    name: '高考数学核心基础知识清单（含二级结论与易错点）.pdf',
+    type: 'pdf',
+    size: 2883584,
+  },
+  {
+    file_id: 'file_preset_012',
+    name: '高中数学高分必背公式手册.pdf',
+    type: 'pdf',
+    size: 1572864,
   },
 ];
 
