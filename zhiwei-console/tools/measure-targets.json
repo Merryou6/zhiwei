@@ -1,0 +1,37 @@
+[
+  {
+    "page": 0,
+    "label": "学习空间：分段条比例（期望 7:6:4:3 = 35/30/20/15%）",
+    "expr": "(function(){var b=document.querySelector('.segbar');var w=b.getBoundingClientRect().width;var o=['segbar width='+w.toFixed(1)];var acc=0;Array.prototype.forEach.call(b.children,function(s){var r=s.getBoundingClientRect();acc+=r.width;o.push('  '+String(s.className)+' width='+r.width.toFixed(1)+' 占比='+(r.width/w*100).toFixed(1)+'% bg='+getComputedStyle(s).backgroundColor);});o.push('  合计='+acc.toFixed(1));return o.join('\\n');})()"
+  },
+  {
+    "page": 0,
+    "label": "学习空间：文字数值与色值核对",
+    "expr": "(function(){var o=[];o.push('meta: '+Array.prototype.map.call(document.querySelectorAll('.feature-meta div'),function(d){return d.querySelector('dt').textContent+'='+d.querySelector('dd').textContent;}).join(' | '));o.push('legend: '+Array.prototype.map.call(document.querySelectorAll('.legend-inline li'),function(d){return d.textContent.trim();}).join(' | '));o.push('segbar --band: '+Array.prototype.map.call(document.querySelectorAll('.segbar span'),function(s){return getComputedStyle(s).getPropertyValue('--band').trim();}).join(' | '));o.push('其他空间: '+Array.prototype.map.call(document.querySelectorAll('.space-card'),function(c){return c.querySelector('h3').textContent+':'+c.querySelector('.space-card-pct').textContent+':'+getComputedStyle(c.querySelector('.meter-fill')).backgroundColor;}).join(' | '));return o.join('\\n');})()"
+  },
+  {
+    "page": 4,
+    "label": "学习报告：章节条比例与 KPI 数值",
+    "expr": "(function(){var o=[];o.push('KPI: '+Array.prototype.map.call(document.querySelectorAll('.kpi'),function(k){return k.querySelector('.kpi-label').textContent+'='+k.querySelector('.num').textContent+k.querySelector('.unit').textContent;}).join(' | '));Array.prototype.forEach.call(document.querySelectorAll('.chap-row'),function(r){var m=r.querySelector('.meter').getBoundingClientRect(),f=r.querySelector('.meter-fill').getBoundingClientRect();o.push('  '+r.querySelector('.chap-name').textContent+'  '+r.querySelector('.chap-meta').textContent+'  填充占比='+(f.width/m.width*100).toFixed(1)+'%  文案='+r.querySelector('.chap-pct').textContent+'  fill色='+getComputedStyle(r.querySelector('.meter-fill')).backgroundColor);});o.push('表格行数='+document.querySelectorAll('.table tbody tr').length);return o.join('\\n');})()"
+  },
+  {
+    "page": 3,
+    "label": "知识图谱：真实渲染下的标签重叠/越界检查（屏幕坐标）",
+    "expr": "(function(){var svg=document.getElementById('graphSvg');var sr=svg.getBoundingClientRect();var L=Array.prototype.map.call(svg.querySelectorAll('.node-label'),function(t){var r=t.getBoundingClientRect();return {n:t.textContent,x:r.left,y:r.top,w:r.width,h:r.height};});var D=Array.prototype.map.call(svg.querySelectorAll('.node-dot'),function(c){var r=c.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height};});function ov(a,b,g){return a.x-g<b.x+b.w&&b.x-g<a.x+a.w&&a.y-g<b.y+b.h&&b.y-g<a.y+a.h;}var ll=0,ld=0;for(var i=0;i<L.length;i++){for(var j=i+1;j<L.length;j++){if(ov(L[i],L[j],1))ll++;}}for(var i=0;i<L.length;i++){for(var j=0;j<D.length;j++){if(i===j)continue;if(ov(L[i],D[j],1))ld++;}}var esc=0;L.forEach(function(a){if(a.x<sr.left-1||a.x+a.w>sr.right+1||a.y<sr.top-1||a.y+a.h>sr.bottom+1)esc++;});var o=['标签互相重叠对='+ll+'  标签压到别的圆点对='+ld+'  标签越出画布='+esc];o.push('节点数='+D.length+' 连线数='+svg.querySelectorAll('.edge').length);o.push('SVG='+sr.width.toFixed(0)+'x'+sr.height.toFixed(0)+' viewBox='+svg.viewBox.baseVal.width+'x'+svg.viewBox.baseVal.height);o.push('标签字号='+getComputedStyle(svg.querySelector('.node-label')).fontSize+' 连线stroke='+getComputedStyle(svg.querySelector('.edge')).stroke);return o.join('\\n');})()"
+  },
+  {
+    "page": 1,
+    "label": "测评：三张卡片尺寸一致性",
+    "expr": "(function(){return Array.prototype.map.call(document.querySelectorAll('.assess'),function(c){var r=c.getBoundingClientRect();return c.querySelector('h2').textContent+' 高='+r.height.toFixed(1)+' 宽='+r.width.toFixed(1)+' 右侧栏左缘='+c.querySelector('.assess-side').getBoundingClientRect().left.toFixed(1)+' 说明宽='+c.querySelector('.assess-desc').getBoundingClientRect().width.toFixed(1);}).join('\\n');})()"
+  },
+  {
+    "page": 2,
+    "label": "对话辅导：消息区几何与输入框表面色",
+    "expr": "(function(){var s=document.querySelector('.chat-shell');var st=document.querySelector('.chat-stream');var cp=document.querySelector('.composer');var ta=document.querySelector('.composer-input');return ['shell 高='+s.getBoundingClientRect().height.toFixed(1),'stream scrollHeight='+st.scrollHeight+' clientHeight='+st.clientHeight+' 内容被裁='+(st.scrollHeight>st.clientHeight+1),'composer 高='+cp.getBoundingClientRect().height.toFixed(1),'消息数='+document.querySelectorAll('.msg').length,'textarea 背景='+getComputedStyle(ta).backgroundColor,'placeholder 色='+getComputedStyle(ta,'::placeholder').color].join('\\n');})()"
+  },
+  {
+    "page": 5,
+    "label": "云盘：工具栏分组与表格列",
+    "expr": "(function(){var tb=document.querySelector('.toolbar');var o=['toolbar 高='+tb.getBoundingClientRect().height.toFixed(1)];Array.prototype.forEach.call(tb.children,function(c){var r=c.getBoundingClientRect();o.push('  '+c.tagName+'.'+String(c.className).split(' ')[0]+' left='+r.left.toFixed(1)+' 宽='+r.width.toFixed(1)+' 右='+r.right.toFixed(1));});o.push('列右缘: '+Array.prototype.map.call(document.querySelectorAll('.table thead th'),function(t){return t.textContent.trim()+'@'+t.getBoundingClientRect().right.toFixed(0);}).join(' | '));o.push('行数='+document.querySelectorAll('.table tbody tr').length);return o.join('\\n');})()"
+  }
+]
