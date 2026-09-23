@@ -19,6 +19,7 @@ import { LOGIN_PATH, ROUTES, STORAGE_KEYS, guardPath } from './router';
 import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
 import ChatPage from './pages/ChatPage';
+import ConsoleHomePage from './pages/ConsoleHomePage';
 import DrivePage from './pages/DrivePage';
 import LoginPage from './pages/LoginPage';
 import PaperPage from './pages/PaperPage';
@@ -37,6 +38,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/login': LoginPage,
   '/self-report': SelfReportPage,
   '/spaces': SpacesPage,
+  '/console': ConsoleHomePage,
   '/assessment': AssessmentPage,
   '/paper': PaperPage,
   '/chat': ChatPage,

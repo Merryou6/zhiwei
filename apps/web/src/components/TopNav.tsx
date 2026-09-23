@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { listSpaces } from '../api/endpoints';
-import { SPACES_PATH, navRoutes } from '../router';
+import { CONSOLE_PATH, SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
 import ZhiweiLogo from './ZhiweiLogo';
@@ -54,7 +54,7 @@ export default function TopNav() {
         {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」）。
             原型 .brand-word：15px / 600 / 字距 .1em */}
         <Link
-          to={token ? SPACES_PATH : '/login'}
+          to={token ? CONSOLE_PATH : '/login'}
           className="flex flex-none items-center gap-[9px] rounded-control text-ink"
         >
           <ZhiweiLogo size={27} />

@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { createSpace, listSpaces } from '../api/endpoints';
@@ -17,7 +17,7 @@ import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
-import { SELF_REPORT_PATH, isSelfReportDone } from '../router';
+import { CONSOLE_PATH, SELF_REPORT_PATH, isSelfReportDone } from '../router';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 
@@ -130,6 +130,12 @@ function stageLabel(kbId: string | undefined): string {
           >
             {creating ? '正在新建…' : '+ 新建空间'}
           </button>
+          <Link
+            to={CONSOLE_PATH}
+            className="min-h-9 rounded-lg bg-accent px-3 py-2 text-sm text-on-accent transition-opacity hover:opacity-90"
+          >
+            进入控制台 →
+          </Link>
         </div>
       </header>
 
