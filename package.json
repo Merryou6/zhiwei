@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "知微 · 迭代3：前端 10 页面 + 端到端闭环（单一工程，不用 npm workspaces）",
-  "//start": "一键启动说明：1) npm run api   2) npm run dev   3) 浏览器打开 http://127.0.0.1:5173",
+  "//start": "一键启动：npm run all（同时起后端 8787 + 前端 5173；浏览器打开 http://127.0.0.1:5173）",
   "scripts": {
     "dev": "vite --config apps/web/vite.config.ts",
     "test": "vitest run",
@@ -13,7 +13,8 @@
     "build:api": "esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js",
     "build:web": "vite build --config apps/web/vite.config.ts",
     "brand:favicon": "esbuild tools/brand-assets/gen-favicon.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/gen-favicon.cjs && node node_modules/.cache/gen-favicon.cjs",
-    "api": "npm run build:api && node functions/api/dist/server.js"
+    "api": "npm run build:api && node functions/api/dist/server.js",
+    "all": "node scripts/dev-all.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
