@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 """知微 · 静态数据校验闸门（DATA_SCHEMA §6，CI 必跑）
 
+2026-09-23 起支持多学段知识库：遍历 data/knowledge/index.json 的全部 stages（cz/gz/…），
+图谱与题库按 stage.key 路由（data/knowledge/math/<key>.json + data/item_bank/math/<key>.json），
+校验在拼接后的全量数据上进行——item_id 全局唯一、题库总量红线都是跨学段口径。
+source.standard 按节点 stage 字段分学段断言（初中=义务教育2022，高中=普通高中2017版2020修订）。
+
 覆盖 DATA_SCHEMA §6 全部 6 项校验：
   1 图谱：id 唯一 / 引用存在 / prerequisites 与 successors 互逆 / DAG 无环
   2 typical_errors.error_type ∈ 五类枚举；每节点 ≥3 条
@@ -47,7 +52,13 @@ SOURCE_TYPES = ("direct", "derived")
 TRAIN_MIN = 5
 RETEST_MIN = 6
 
-ITEM_ID_RE = re.compile(r"^q_cz_[a-z0-9_]+_\d{3}$")
+ITEM_ID_RE = re.compile(r"^q_(cz|gz)_[a-z0-9_]+_\d{3}$")
+
+# 学段 → 课标名（source.standard 必须与节点所在学段的课标一致）
+STAGE_STANDARDS = {
+    "初中": "义务教育数学课程标准（2022年版）",
+    "高中": "《普通高中数学课程标准（2017年版2020年修订）》",
+}
 
 # ALGORITHM §0 参数总表（17 项）
 PARAM_KEYS = {
@@ -123,17 +134,18 @@ def load_json(path: Path):
         return json.load(fh)
 
 
-def find_knowledge_file(root: Path) -> Path:
-    """经 data/knowledge/index.json 定位知识图谱文件（§2.1 路由约定）。"""
+def find_stages(root: Path) -> list[dict]:
+    """读 index.json，返回全部学段（多知识库：cz/gz/…，图谱与题库按 stage.key 路由）。"""
     index_path = root / "data" / "knowledge" / "index.json"
     index = load_json(index_path)
-    subjects = index.get("subjects") or []
-    for subject in subjects:
+    stages = []
+    for subject in index.get("subjects") or []:
         for stage in subject.get("stages") or []:
-            rel = stage.get("file")
-            if rel:
-                return root / rel
-    raise ValueError("index.json 中未找到任何 stages[].file 指向的知识库文件")
+            if stage.get("file"):
+                stages.append(stage)
+    if not stages:
+        raise ValueError("index.json 中未找到任何 stages[].file 指向的知识库文件")
+    return stages
 
 
 # ---------------------------------------------------------------- 校验 1：图谱结构
@@ -157,8 +169,8 @@ def check_graph_structure(nodes: list, rep: Report) -> list[str]:
             errs.append(f"id 重复：{nid}")
         seen.add(nid)
         ids.append(nid)
-        if not nid.startswith("math.cz."):
-            errs.append(f"{nid} id 前缀不符合 math.cz.{{chapter}}.{{point}}")
+        if not re.match(r"^math\.(cz|gz)\.[a-z0-9_]+\.[a-z0-9_]+$", nid):
+            errs.append(f"{nid} id 前缀不符合 math.{{cz|gz}}.{{chapter}}.{{point}}")
 
     id_set = set(ids)
 
@@ -492,8 +504,13 @@ def check_node_style(nodes: list) -> list[str]:
                 errs.append(f"{nid} source.{f} 缺失或为空")
         if src.get("type") not in SOURCE_TYPES:
             errs.append(f"{nid} source.type 非法：{src.get('type')!r}")
-        if src.get("standard") != "义务教育数学课程标准（2022年版）":
-            errs.append(f"{nid} source.standard 应固定为『义务教育数学课程标准（2022年版）』")
+        expected_standard = STAGE_STANDARDS.get(node.get("stage"))
+        if expected_standard is None:
+            errs.append(f"{nid} stage 非法（应为 初中/高中）：{node.get('stage')!r}")
+        elif src.get("standard") != expected_standard:
+            errs.append(
+                f"{nid} source.standard 与学段不符（应为 {expected_standard}）：{src.get('standard')!r}"
+            )
         if node.get("prerequisite_basis") != "教材章节顺序 + 学科逻辑推导，非课标直接规定":
             errs.append(f"{nid} prerequisite_basis 文案与规格不一致")
         d = node.get("difficulty")
@@ -567,33 +584,43 @@ def main(argv: list[str] | None = None) -> int:
     param_errs = check_params(root, rep)
     rep.section("附加a", "params.json 参数表（ALGORITHM §0 全部 17 键）", param_errs)
 
-    # ---- 载入数据（缺文件即阻断退出）
+    # ---- 载入数据：遍历 index.json 的全部学段（多知识库），图谱+题库按 stage 路由
     try:
-        knowledge_path = find_knowledge_file(root)
+        stages = find_stages(root)
     except Exception as exc:  # noqa: BLE001
         print(f"[FAIL] 载入知识库索引失败：{exc}")
         return 1
-    if not knowledge_path.exists():
-        print(f"[FAIL] 知识图谱文件不存在：{knowledge_path}")
-        return 1
-    graph = load_json(knowledge_path)
 
-    nodes = graph.get("nodes")
-    if not isinstance(nodes, list) or not nodes:
-        print(f"[FAIL] {knowledge_path} 的 nodes 缺失或为空")
-        return 1
-
-    bank_path = root / "data" / "item_bank" / "math" / "cz.json"
+    nodes: list = []
     items: list = []
-    if bank_path.exists():
+    for stage in stages:
+        stage_key = stage.get("key")
+        knowledge_path = root / stage["file"]
+        if not knowledge_path.exists():
+            print(f"[FAIL] 知识图谱文件不存在：{knowledge_path}")
+            return 1
+        graph = load_json(knowledge_path)
+        stage_nodes = graph.get("nodes")
+        if not isinstance(stage_nodes, list) or not stage_nodes:
+            print(f"[FAIL] {knowledge_path} 的 nodes 缺失或为空")
+            return 1
+        meta_errs = check_graph_meta(graph.get("meta") or {})
+        if meta_errs:
+            rep.section(f"meta-{stage_key}", f"{knowledge_path.name} 元信息", meta_errs)
+
+        bank_path = root / "data" / "item_bank" / "math" / f"{stage_key}.json"
+        if not bank_path.exists():
+            print(f"[FAIL] 题库文件不存在：{bank_path}")
+            return 1
         bank = load_json(bank_path)
-        items = bank.get("items") or []
-        if not isinstance(items, list):
+        stage_items = bank.get("items") or []
+        if not isinstance(stage_items, list):
             print(f"[FAIL] {bank_path} 的 items 必须为数组")
             return 1
-    else:
-        print(f"[FAIL] 题库文件不存在：{bank_path}")
-        return 1
+
+        nodes += stage_nodes
+        items += stage_items
+        print(f"[LOAD] {stage_key}: {len(stage_nodes)} 节点 / {len(stage_items)} 题（{knowledge_path.name}）")
 
     # ---- 校验 1：图谱结构（阻断）
     graph_errs, node_index = check_graph_structure(nodes, rep)
@@ -637,8 +664,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.json_out:
         stat = pool_stats(items, nodes)
         out = {
-            "knowledge_file": str(knowledge_path),
-            "bank_file": str(bank_path),
+            "stages": [
+                {"key": s.get("key"), "kb_id": s.get("kb_id"), "file": s.get("file")} for s in stages
+            ],
             "node_count": len(nodes),
             "typical_error_count": error_total,
             "item_count": len(items),
