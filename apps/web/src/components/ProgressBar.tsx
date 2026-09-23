@@ -17,7 +17,7 @@ export default function ProgressBar({ answered, total }: ProgressBarProps) {
     <div className="flex items-center gap-3">
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-300"
+          className="h-full rounded-full bg-accent transition-[width] duration-300"
           style={{ width: `${Math.round(ratio * 100)}%` }}
         />
       </div>

@@ -12,13 +12,14 @@ import { Link } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
+import PageSkeleton from '../components/PageSkeleton';
 import { reportSummary } from '../api/endpoints';
 import type { ReportSummaryData } from '../api/types';
 import { kpName } from '../data/graphSnapshot';
 import { deltaPercent, percent } from '../lib/format';
 import { ERROR_TYPE_LABEL, UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
-import { BAND_CLASS, BAND_HEX, BAND_ORDER, BAND_SOFT_HEX, masteryBandOf } from '../theme/bands';
+import { BAND_CLASS, BAND_HEX, BAND_ORDER, bandVeilHex, masteryBandOf } from '../theme/bands';
 import type { MasteryBand } from '../theme/bands';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
@@ -67,12 +68,12 @@ export default function ReportPage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">学习报告</h1>
-        <div className="mt-5 rounded-2xl border border-line bg-white p-5 shadow-card">
+        <div className="mt-5 rounded-2xl border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有选中的学习空间"
             hint={UI_TEXT.needSelfReport}
             action={
-              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90">
+              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
                 去选空间
               </Link>
             }
@@ -85,7 +86,7 @@ export default function ReportPage() {
   if (loading) {
     return (
       <section className="max-w-3xl">
-        <p className="text-sm text-ink-soft">正在整理你的报告…</p>
+        <PageSkeleton label="正在整理你的报告…" rows={3} />
       </section>
     );
   }
@@ -99,16 +100,16 @@ export default function ReportPage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">学习报告</h1>
-        <div className="mt-5 rounded-2xl border border-line bg-white p-5 shadow-card">
+        <div className="mt-5 rounded-2xl border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有你的学习数据"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，这里就会长出掌握度分布和缺口清单。`}
             action={
               <div className="flex flex-wrap items-center gap-3">
-                <Link to="/self-report" className="min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90">
+                <Link to="/self-report" className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
                   花 30 秒自报
                 </Link>
-                <Link to="/assessment" className="min-h-9 rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-canvas">
+                <Link to="/assessment" className="min-h-9 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised">
                   直接做几道题
                 </Link>
               </div>
@@ -128,12 +129,12 @@ export default function ReportPage() {
   return (
     <section className="max-w-3xl">
       <h1 className="text-xl font-medium text-ink">学习报告</h1>
-      <p className="mt-3 rounded-xl bg-white px-4 py-3 text-sm leading-relaxed text-ink">
+      <p className="mt-3 rounded-xl bg-surface px-4 py-3 text-sm leading-relaxed text-ink">
         {summaryLine(gaps.length)}
       </p>
 
       {/* ① 掌握度分布 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">掌握度分布（{mastery.length} 个知识点）</h2>
 
         <ul className="mt-3 space-y-2">
@@ -162,7 +163,7 @@ export default function ReportPage() {
                   <span
                     key={row.kp_id}
                     className="rounded-md px-2 py-0.5 text-xs text-ink"
-                    style={{ backgroundColor: BAND_SOFT_HEX[band as MasteryBand] }}
+                    style={{ backgroundColor: bandVeilHex(band as MasteryBand) }}
                     title={`${row.name} · ${percent(row.mastery)}`}
                   >
                     {row.name} {percent(row.mastery)}
@@ -176,7 +177,7 @@ export default function ReportPage() {
       </div>
 
       {/* ② 缺口清单 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
         {gaps.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
@@ -207,7 +208,7 @@ export default function ReportPage() {
       </div>
 
       {/* ③ 基线 vs 复测 */}
-      <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
         {accuracy.length === 0 ? (
           <EmptyState
@@ -215,7 +216,7 @@ export default function ReportPage() {
             title="还没有测量数据"
             hint="先做一次基线测量，干预后再复测一次，这里就会出现变化。"
             action={
-              <Link to="/assessment" className="text-[13px] text-primary hover:underline">
+              <Link to="/assessment" className="text-[13px] text-accent hover:underline">
                 去做基线测量 →
               </Link>
             }

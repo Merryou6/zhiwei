@@ -61,6 +61,26 @@ export const BAND_SOFT_HEX: Record<MasteryBand, string> = {
 /** 状态带固定展示序（低 → 高；图例、报告分布条形图、图例项顺序）。 */
 export const BAND_ORDER: readonly MasteryBand[] = ['待巩固', '不稳定', '基本掌握', '已掌握'];
 
+/**
+ * 状态带面纱色：把实色降到低不透明度，用作 chip / 浅色底的背景。
+ *
+ * 为什么不直接用 BAND_SOFT_HEX：那四个值是「在白色底上」配出来的浅色。
+ * 深色主题下它们会变成一块发亮的色纸，而 ink 文字在深色下是浅色——
+ * 浅底浅字，实测对比度会掉到 1.1:1 附近，等于读不出来。
+ *
+ * 用实色的低透明度则两套主题同时成立：叠在白底上 ≈ 原来的软色（通道差 ≤4），
+ * 叠在深底上则是同色相的暗面纱。色相语义不变，明度自动跟随底色。
+ *
+ * @param alpha 不透明度。0.14 是「看得出归属、又不抢正文」的取值。
+ */
+export function bandVeilHex(band: MasteryBand, alpha = 0.14): string {
+  const hex = BAND_HEX[band];
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 /** 状态带 → tailwind class（与 tailwind.config.js 令牌同名；禁止在组件里写 hex）。 */
 export const BAND_CLASS: Record<MasteryBand, { bg: string; text: string; border: string }> = {
   待巩固: { bg: 'bg-band-weak', text: 'text-band-weak', border: 'border-band-weak' },

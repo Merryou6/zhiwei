@@ -41,7 +41,7 @@ export default function ItemCard({
   return (
     <div
       className={[
-        'rounded-xl border bg-white p-4',
+        'rounded-xl border bg-surface p-4',
         tone === 'warn' ? 'border-band-weak' : 'border-line',
       ].join(' ')}
     >
@@ -58,14 +58,14 @@ export default function ItemCard({
                 <label
                   className={[
                     'flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 text-sm transition-colors',
-                    selected ? 'border-primary bg-primary-soft text-ink' : 'border-line hover:bg-canvas',
+                    selected ? 'border-accent bg-accent-veil text-ink' : 'border-line hover:bg-raised',
                     disabled ? 'cursor-not-allowed opacity-60' : '',
                   ].join(' ')}
                 >
                   <input
                     type="radio"
                     name={`item_${item.item_id}`}
-                    className="mt-1 accent-primary"
+                    className="mt-1 accent-accent"
                     checked={selected}
                     disabled={disabled}
                     onChange={() => onChange(option)}
@@ -81,7 +81,7 @@ export default function ItemCard({
         </ul>
       ) : (
         <textarea
-          className="mt-4 w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-primary"
+          className="mt-4 w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
           rows={3}
           value={value}
           placeholder={placeholder}
