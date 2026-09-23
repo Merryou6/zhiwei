@@ -84,14 +84,14 @@ export default function SelfReportPage() {
           <button
             type="button"
             onClick={() => navigate('/assessment')}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:opacity-90"
+            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
           >
             开始测评
           </button>
           <button
             type="button"
             onClick={() => navigate('/graph')}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-white"
+            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
           >
             先看看我的地图
           </button>
@@ -116,7 +116,7 @@ export default function SelfReportPage() {
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="min-h-9 shrink-0 rounded-lg border border-line bg-white px-3 py-2 text-[13px] text-ink hover:border-primary hover:text-primary"
+          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink hover:border-accent hover:text-accent"
         >
           按 3 档先填上
         </button>
@@ -124,7 +124,7 @@ export default function SelfReportPage() {
 
       <ul className="mt-4 space-y-3">
         {chapters.map((chapter) => (
-          <li key={chapter} className="rounded-2xl border border-line bg-white p-4 shadow-card">
+          <li key={chapter} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
             <div className="flex items-baseline justify-between">
               <h2 className="text-base font-medium text-ink">{chapter}</h2>
               <span className="text-[13px] text-ink-soft">
@@ -143,8 +143,8 @@ export default function SelfReportPage() {
                     className={[
                       'min-h-9 rounded-lg border px-3 py-2 text-left text-[13px] transition-colors',
                       selected
-                        ? 'border-primary bg-primary-soft font-medium text-ink ring-1 ring-primary'
-                        : 'border-line text-ink-soft hover:bg-canvas',
+                        ? 'border-accent bg-accent-veil font-medium text-ink ring-1 ring-accent'
+                        : 'border-line text-ink-soft hover:bg-raised',
                     ].join(' ')}
                   >
                     <span className="mr-1 font-medium">{level.label}</span>
@@ -161,7 +161,7 @@ export default function SelfReportPage() {
         type="button"
         onClick={() => void handleSubmit()}
         disabled={submitting}
-        className="mt-6 min-h-11 w-full rounded-lg bg-primary px-4 py-3 text-sm text-white hover:opacity-90 disabled:opacity-60"
+        className="mt-6 min-h-11 w-full rounded-lg bg-accent px-4 py-3 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
       >
         {submitting ? '正在记下…' : '记下来，开始测评'}
       </button>

@@ -10,13 +10,21 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import * as echarts from 'echarts';
+// 按需引入（前端优化批一）：本页只用到 graph 系列 + tooltip + canvas 渲染器，
+// 全量 `import * as echarts` 会把整个库（含未用图表类型）打进 echarts chunk（约 1MB）。
+import * as echarts from 'echarts/core';
+import { GraphChart } from 'echarts/charts';
+import { TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([GraphChart, TooltipComponent, CanvasRenderer]);
 
 import { ApiError } from '../api/client';
 import { reportSummary } from '../api/endpoints';
 import type { ReportSummaryData } from '../api/types';
 import BandLegend from '../components/BandLegend';
 import EmptyState from '../components/EmptyState';
+import PageSkeleton from '../components/PageSkeleton';
 import { GRAPH_NODES, kpName, snapshotNode } from '../data/graphSnapshot';
 import { computeGraphLayout, isPathEdge, parsePathParam } from '../lib/graphLayout';
 import { kpLabel, percent } from '../lib/format';
@@ -30,8 +38,25 @@ import { useUiStore } from '../stores/ui';
 
 /** 非路径元素的不透明度（高亮时其余节点降透明）。 */
 const DIM_OPACITY = 0.28;
-const EDGE_COLOR = '#C9D3D8';
-const TEXT_COLOR = '#22303A';
+/** 主题取不到时的兜底（浅色值）。正常情况下不会用到。 */
+const EDGE_COLOR_FALLBACK = '#C9D3D8';
+const TEXT_COLOR_FALLBACK = '#22303A';
+
+/**
+ * 读取主题变量的当前解析值。
+ *
+ * echarts 把图画在 canvas 上，拿不到 tailwind 的 class，所以它的配色必须由 JS 提供。
+ * 上一版把节点标签写成 #22303A、边线写成 #C9D3D8 —— 这是「按浅色底选的色」，
+ * 深色主题下标签会直接消失在深底里。改为回头读 CSS 变量，
+ * 图表与 DOM 就共用同一份主题真相，将来加主题切换也不必再改这里。
+ *
+ * 变量值是「R G B」三元组，需要补上 rgb() 外壳。
+ */
+function themeColor(name: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw ? `rgb(${raw})` : fallback;
+}
 
 export default function GraphPage() {
   const [params] = useSearchParams();
@@ -85,6 +110,12 @@ export default function GraphPage() {
     if (!container || !report) return;
 
     const chart = echarts.init(container);
+    // 图表配色随主题解析（见 themeColor 注释）。取值的时机放在这里而非模块顶层：
+    // 模块加载时样式表未必已生效，此时读变量会拿到空串。
+    const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
+    const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
+    // 高亮路径走 accent：深色下是原型主强调 #42A5F5，与页面强调色同源。
+    const accentColor = themeColor('--c-accent', PRIMARY_HEX);
     const onPath = (id: string): boolean => highlightPath.includes(id);
 
     chart.setOption(
@@ -111,7 +142,7 @@ export default function GraphPage() {
               show: true,
               position: 'bottom',
               fontSize: 10,
-              color: TEXT_COLOR,
+              color: textColor,
             },
             emphasis: { focus: 'adjacency', label: { fontSize: 11 } },
             data: layout.nodes.map((placed) => {
@@ -127,7 +158,7 @@ export default function GraphPage() {
                 symbolSize: onHighlight ? 30 : 22,
                 itemStyle: {
                   color: masteryHexOf(mastery),
-                  borderColor: onHighlight ? PRIMARY_HEX : BAND_HEX[band],
+                  borderColor: onHighlight ? accentColor : BAND_HEX[band],
                   borderWidth: onHighlight ? 3 : 1,
                   opacity: dim ? DIM_OPACITY : 1,
                 },
@@ -141,7 +172,7 @@ export default function GraphPage() {
                 source: edge.from,
                 target: edge.to,
                 lineStyle: {
-                  color: onHighlight ? PRIMARY_HEX : EDGE_COLOR,
+                  color: onHighlight ? accentColor : edgeColor,
                   width: onHighlight ? 2.5 : 1,
                   opacity: dim ? DIM_OPACITY * 0.8 : 1,
                   curveness: 0.06,
@@ -182,7 +213,7 @@ export default function GraphPage() {
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">知识图谱</h1>
         <p className="mt-3 text-sm text-ink-soft">{UI_TEXT.needSelfReport}</p>
-        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm text-white">
+        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-lg bg-accent px-4 py-2 text-sm text-on-accent">
           去选空间
         </Link>
       </section>
@@ -199,7 +230,7 @@ export default function GraphPage() {
           </p>
         </div>
         {highlightPath.length > 0 ? (
-          <span className="rounded-lg bg-primary-soft px-3 min-h-9 py-2 text-[13px] text-primary">
+          <span className="rounded-lg bg-accent-veil px-3 min-h-9 py-2 text-[13px] text-accent">
             {plan && plan.path.join(',') === highlightPath.join(',')
               ? `学习路径：${plan.strategy}`
               : '正在高亮一条路径（上游 → 根因）'}
@@ -208,9 +239,9 @@ export default function GraphPage() {
       </div>
 
       {loading ? (
-        <p className="mt-6 text-sm text-ink-soft">正在取你的掌握度…</p>
+        <PageSkeleton label="正在取你的掌握度…" rows={1} className="mt-6" />
       ) : !hasData ? (
-        <div className="mt-6 rounded-2xl border border-line bg-white p-5 shadow-card">
+        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="这张图还没有你的颜色"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，每个知识点就会按掌握度上色。`}
@@ -218,13 +249,13 @@ export default function GraphPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   to="/self-report"
-                  className="min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90"
+                  className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
                 >
                   花 30 秒自报
                 </Link>
                 <Link
                   to="/assessment"
-                  className="min-h-9 rounded-lg border border-line bg-white px-4 py-2 text-sm text-ink hover:bg-canvas"
+                  className="min-h-9 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised"
                 >
                   直接做几道题
                 </Link>
@@ -235,7 +266,7 @@ export default function GraphPage() {
       ) : (
         /* 窄屏适配：图例在 <sm 收成卡片内静态一行（不压图），图本身给最小宽度并允许横向滚动，
            保证 20 个节点在手机上不被压扁到标签重叠。 */
-        <div className="relative mt-4 rounded-2xl border border-line bg-white p-3 sm:p-0">
+        <div className="relative mt-4 rounded-2xl border border-line bg-surface p-3 sm:p-0">
           <BandLegend
             counts={counts}
             showPath={highlightPath.length > 0}
@@ -252,7 +283,7 @@ export default function GraphPage() {
           </div>
 
           {selectedNode ? (
-            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-line bg-white/95 p-3 text-xs shadow-sm">
+            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-line bg-surface/95 p-3 text-xs shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm text-ink">{selectedNode.name}</p>
                 <button

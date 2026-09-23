@@ -58,7 +58,7 @@ export interface SpaceListData {
 }
 
 export interface SpaceCreateRequest {
-  /** 当前唯一合法值：kb_math_cz。 */
+  /** 学科知识库 id（取 data/knowledge/index.json 的任一 stage.kb_id，如 kb_math_cz / kb_math_gz）。 */
   knowledge_source: string;
 }
 
