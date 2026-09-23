@@ -110,6 +110,81 @@ export const PRESET_FILES: readonly DriveFileView[] = [
     type: 'pdf',
     size: 1572864,
   },
+  // ===== 初中数学专项资料 =====
+  {
+    file_id: 'file_preset_013',
+    name: '初中数学易错点汇总（代数+几何）.pdf',
+    type: 'pdf',
+    size: 1835008,
+  },
+  {
+    file_id: 'file_preset_014',
+    name: '初中数学解题技巧与方法大全.pdf',
+    type: 'pdf',
+    size: 2359296,
+  },
+  {
+    file_id: 'file_preset_015',
+    name: '初中数学知识思维导图（全册）.pdf',
+    type: 'pdf',
+    size: 3670016,
+  },
+  {
+    file_id: 'file_preset_016',
+    name: '初中数学三年学习规划与进度表.pdf',
+    type: 'pdf',
+    size: 1048576,
+  },
+  {
+    file_id: 'file_preset_017',
+    name: '初中数学几何模型与辅助线技巧.pdf',
+    type: 'pdf',
+    size: 2097152,
+  },
+  // ===== 高中数学专项资料 =====
+  {
+    file_id: 'file_preset_018',
+    name: '高中数学易错点与易错题汇总.pdf',
+    type: 'pdf',
+    size: 2621440,
+  },
+  {
+    file_id: 'file_preset_019',
+    name: '高中数学解题方法与技巧（高考版）.pdf',
+    type: 'pdf',
+    size: 3145728,
+  },
+  {
+    file_id: 'file_preset_020',
+    name: '高中数学知识思维导图（全章节）.pdf',
+    type: 'pdf',
+    size: 4194304,
+  },
+  {
+    file_id: 'file_preset_021',
+    name: '高中数学三年学习规划与复习计划.pdf',
+    type: 'pdf',
+    size: 1310720,
+  },
+  {
+    file_id: 'file_preset_022',
+    name: '高中数学导数与圆锥曲线专项突破.pdf',
+    type: 'pdf',
+    size: 2883584,
+  },
+  // ===== 拓展与趣味 =====
+  {
+    file_id: 'file_preset_023',
+    name: '数学竞赛入门教程（初高中通用）.pdf',
+    type: 'pdf',
+    size: 3407872,
+  },
+  {
+    file_id: 'file_preset_024',
+    name: '数学趣味阅读与数学文化.pdf',
+    type: 'pdf',
+    size: 2097152,
+  },
 ];
 
 export function toSpaceView(space: SpaceRecord): SpaceView {
