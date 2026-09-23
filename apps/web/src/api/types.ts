@@ -83,6 +83,22 @@ export interface DriveData {
   files: DriveFileView[];
 }
 
+// ---------------------------------------------------------------- 图片上传
+
+export interface UploadImageRequest {
+  image_base64: string;
+  filename: string;
+}
+
+export interface UploadImageData {
+  file_id: string;
+  url: string;
+  filename: string;
+  size: number;
+  mime: string;
+  uploaded_at: string;
+}
+
 // ---------------------------------------------------------------- §3 自报
 
 export type SelfReportLevel = 1 | 2 | 3 | 4 | 5;

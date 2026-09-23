@@ -4,26 +4,24 @@
  * 契约：#18 POST /api/agent/chat（Content-Type: text/event-stream）
  *       事件序列：delta（≥1 段）→ meta（五字段）→ done；Accept 为 json 时返回 {reply, meta}
  * 交互：学长左 / 学生右；delta 增量追加渲染；流式期间禁发；meta 只读不自行判断——
- *   - kp_match.confidence < 0.6 → 学长气泡下加浅色注脚「我不太确定说的是哪个知识点…」（对应服务端 clarify 行为）
+ *   - kp_match.confidence < 0.6 → 学长气泡下加浅色注脚「我不太确定说的是哪个知识点…」
  *   - next_action=hint_down → 气泡标「方向提示」徽标
- *   - next_action=exit_channel → 显著退出提示条（PRD §6 话术「我们先往回看一眼「XX」」）+ 去图谱链接
- * 「传图读题」为演示态（D15）：本地无云存储直传接口，弹预置文件选择器，选中后以 image_file_id 随消息发送，
- * 按钮旁标注「演示态」，不伪造上传假象。
- * 降级（D5）：流中断 → sse.ts 自动 JSON 重发一次 → 仍失败出错误气泡，页面永不白屏。
+ *   - next_action=exit_channel → 显著退出提示条 + 去图谱链接
  *
- * 视图（2026-09-23 移植控制台原型）：视口型聊天——chat-shell 贴满内容宽，chat-stream 可滚，
- * composer 贴底；消息走 .msg / .msg-user / .msg-bubble，头像用控制台 AVATAR 几何。
+ * 传图读题：支持本地图片上传（点击选择 / 拖拽 / 粘贴），上传后随消息发送；
+ *           同时保留云盘预置文件选择（演示态）。
+ * 降级（D5）：流中断 → sse.ts 自动 JSON 重发一次 → 仍失败出错误气泡，页面永不白屏。
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
 import { InlineSkeletonRows } from '../components/PageSkeleton';
-import { drive } from '../api/endpoints';
+import { drive, uploadImage } from '../api/endpoints';
 import { streamChat } from '../api/sse';
-import type { ChatMeta, DriveFileView } from '../api/types';
+import type { ChatMeta, DriveFileView, UploadImageData } from '../api/types';
 import { kpName } from '../data/graphSnapshot';
 import { scrollBehavior } from '../lib/motion';
 import { UI_TEXT, exitChannelText } from '../lib/phrases';
@@ -78,11 +76,37 @@ const ICO_SEND = (
   </svg>
 );
 
+const ICO_CLOSE = (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+    <path d="M4 4l8 8M12 4l-8 8" />
+  </svg>
+);
+
+const ICO_FOLDER = (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h3l1.5 2h5.5A1.5 1.5 0 0 1 15 6.5v5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 2 11.5z" />
+  </svg>
+);
+
+/** 本地上传的图片数据 */
+interface LocalImage {
+  fileId: string;
+  url: string;
+  filename: string;
+  size: number;
+  /** 前端预览用的 blob URL（上传前） */
+  previewUrl?: string;
+}
+
 export default function ChatPage() {
   const [input, setInput] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [files, setFiles] = useState<DriveFileView[]>([]);
   const [imageFileId, setImageFileId] = useState<string | null>(null);
+  const [localImage, setLocalImage] = useState<LocalImage | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const store = useDialogStore();
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
@@ -91,13 +115,109 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    // 流式追加时把消息流滚到底（只滚 .chat-stream，不连带滚动窗口/顶栏）；
-    // 系统开启「减弱动态效果」时改为瞬时滚动（批三）
     const el = streamRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: scrollBehavior() });
   }, [store.messages.length, store.streaming]);
+
+  /** 将 File 转为 data URL */
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  /** 处理选中的图片文件 */
+  const handleImageFile = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast('请选择图片文件（PNG / JPG / GIF / WebP）', 'warn');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast('图片大小不能超过 10MB', 'warn');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const previewUrl = URL.createObjectURL(file);
+
+      const result: UploadImageData = await uploadImage({
+        image_base64: dataUrl,
+        filename: file.name,
+      });
+
+      setLocalImage({
+        fileId: result.file_id,
+        url: result.url,
+        filename: result.filename,
+        size: result.size,
+        previewUrl,
+      });
+      setImageFileId(null); // 清除云盘文件选择
+      toast('图片已上传，随下一条消息发送', 'info');
+    } catch (error) {
+      toast(error instanceof ApiError ? error.message : '图片上传失败', 'error');
+    } finally {
+      setUploading(false);
+    }
+  }, [toast]);
+
+  /** 点击选择图片 */
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) void handleImageFile(file);
+    e.target.value = ''; // 重置以便重复选择同一文件
+  };
+
+  /** 粘贴上传 */
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          void handleImageFile(file);
+          break;
+        }
+      }
+    }
+  }, [handleImageFile]);
+
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [handlePaste]);
+
+  /** 拖拽上传 */
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void handleImageFile(file);
+  };
+
+  /** 移除本地上传的图片 */
+  const removeLocalImage = () => {
+    if (localImage?.previewUrl) URL.revokeObjectURL(localImage.previewUrl);
+    setLocalImage(null);
+  };
 
   async function openPicker(): Promise<void> {
     setPickerOpen((value) => !value);
@@ -117,22 +237,27 @@ export default function ChatPage() {
       return;
     }
     const text = input.trim();
-    if (text.length === 0 || store.streaming) return;
+    const hasImage = !!localImage || !!imageFileId;
+    if (text.length === 0 && !hasImage) return;
+    if (store.streaming || uploading) return;
 
-    store.appendStudent(text, imageFileId);
+    const sentImageFileId = localImage?.fileId ?? imageFileId ?? null;
+    const sentImageUrl = localImage?.url ?? null;
+
+    store.appendStudent(text, sentImageFileId, sentImageUrl);
     setInput('');
-
-    const assistantId = store.startAssistant();
-    const sentImage = imageFileId;
+    removeLocalImage();
     setImageFileId(null);
     setPickerOpen(false);
+
+    const assistantId = store.startAssistant();
 
     await streamChat(
       {
         space_id: activeSpaceId,
         dialog_id: store.dialogId ?? undefined,
-        message: text,
-        image_file_id: sentImage ?? undefined,
+        message: text || '[图片]',
+        image_file_id: sentImageFileId ?? undefined,
       },
       {
         onDelta: (delta) => store.appendDelta(assistantId, delta),
@@ -162,7 +287,6 @@ export default function ChatPage() {
       ? exitChannelText(kpName(meta.kp_match.kp_id))
       : null;
 
-  /** 最近一条 AI 消息：在它的名字行挂「当前聊到的知识点」标签（控制台 .tag 语义）。 */
   const lastAgentId = (() => {
     for (let i = store.messages.length - 1; i >= 0; i -= 1) {
       if (store.messages[i].role === 'agent') return store.messages[i].id;
@@ -171,7 +295,7 @@ export default function ChatPage() {
   })();
 
   const pendingFile = imageFileId ? files.find((f) => f.file_id === imageFileId) : null;
-  const sendDisabled = store.streaming || (input.trim().length === 0 && !imageFileId);
+  const sendDisabled = store.streaming || uploading || (input.trim().length === 0 && !localImage && !imageFileId);
 
   return (
     <>
@@ -213,13 +337,38 @@ export default function ChatPage() {
         </div>
       ) : null}
 
-      <section className="chat-shell">
+      <section
+        className="chat-shell"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {/* 拖拽遮罩 */}
+        {dragOver ? (
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 20,
+              background: 'rgba(91,141,239,0.12)',
+              border: '2px dashed var(--accent)',
+              borderRadius: 12,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{ textAlign: 'center', color: 'var(--accent)' }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>{ICO_IMAGE}</div>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>松开鼠标上传图片</div>
+              <div style={{ fontSize: 12, marginTop: 4, opacity: 0.8 }}>支持 PNG / JPG / GIF / WebP，最大 10MB</div>
+            </div>
+          </div>
+        ) : null}
+
         <div className="chat-stream" role="log" aria-live="polite" ref={streamRef}>
           {store.messages.length === 0 ? (
             <EmptyState
               compact
               title="还没有聊天记录"
-              hint="可以从一句「我卡在这里」开始，也可以传张题图让我先读题。"
+              hint="可以从一句「我卡在这里」开始，也可以传张题图让我先读题。支持点击上传、拖拽、粘贴图片。"
             />
           ) : null}
 
@@ -242,7 +391,24 @@ export default function ChatPage() {
                       <strong>我</strong>
                     </div>
                     <div className="msg-bubble">
-                      {message.imageFileId ? (
+                      {message.imageUrl ? (
+                        <div
+                          style={{
+                            marginBottom: message.text ? 8 : 0,
+                            borderRadius: 8,
+                            overflow: 'hidden',
+                            cursor: 'zoom-in',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                          }}
+                          onClick={() => setPreviewImageUrl(message.imageUrl!)}
+                        >
+                          <img
+                            src={message.imageUrl}
+                            alt="题目图片"
+                            style={{ maxWidth: 280, maxHeight: 200, display: 'block', objectFit: 'contain', background: '#fff' }}
+                          />
+                        </div>
+                      ) : message.imageFileId ? (
                         <div className="msg-photo">
                           {ICO_IMAGE}
                           <span>已带题图（演示态 · {message.imageFileId}）</span>
@@ -255,7 +421,6 @@ export default function ChatPage() {
               );
             }
 
-            // AI 消息：pending 且还没收到任何 delta → 显示思考态
             const thinking = message.pending && message.text.length === 0;
             const kpTag =
               message.id === lastAgentId && meta ? kpName(meta.kp_match.kp_id) : null;
@@ -301,29 +466,71 @@ export default function ChatPage() {
 
         <div className="composer">
           <div className="composer-box">
-            <div className={`composer-attach${imageFileId ? ' is-on' : ''}`}>
-              <span className="attach-thumb">{ICO_IMAGE}</span>
-              <div className="attach-meta">
-                <div className="attach-name">{pendingFile?.name ?? '已选图片'}</div>
-                <div className="attach-sub">演示态传图 · 随下一条消息发送</div>
-              </div>
-              <button
-                type="button"
-                className="attach-x"
-                aria-label="移除图片"
-                onClick={() => setImageFileId(null)}
+            {/* 本地上传图片预览 */}
+            {localImage ? (
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px', margin: '0 14px 10px',
+                  background: 'var(--surface)', border: '1px solid var(--line)',
+                  borderRadius: 8,
+                }}
               >
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                  <path d="M4 4l8 8M12 4l-8 8" />
-                </svg>
-              </button>
-            </div>
+                <img
+                  src={localImage.previewUrl || localImage.url}
+                  alt={localImage.filename}
+                  style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {localImage.filename}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: 'var(--ink-label)', marginTop: 2 }}>
+                    {(localImage.size / 1024).toFixed(1)} KB · 随下一条消息发送
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="attach-x"
+                  aria-label="移除图片"
+                  onClick={removeLocalImage}
+                  style={{ flexShrink: 0 }}
+                >
+                  {ICO_CLOSE}
+                </button>
+              </div>
+            ) : null}
+
+            {/* 云盘预置文件选择（演示态） */}
+            {imageFileId && !localImage ? (
+              <div className={`composer-attach${imageFileId ? ' is-on' : ''}`}>
+                <span className="attach-thumb">{ICO_IMAGE}</span>
+                <div className="attach-meta">
+                  <div className="attach-name">{pendingFile?.name ?? '已选图片'}</div>
+                  <div className="attach-sub">演示态传图 · 随下一条消息发送</div>
+                </div>
+                <button
+                  type="button"
+                  className="attach-x"
+                  aria-label="移除图片"
+                  onClick={() => setImageFileId(null)}
+                >
+                  {ICO_CLOSE}
+                </button>
+              </div>
+            ) : null}
+
+            {uploading ? (
+              <div style={{ padding: '10px 14px', margin: '0 14px 10px', fontSize: 13, color: 'var(--accent)' }}>
+                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⟳</span> 正在上传图片…
+              </div>
+            ) : null}
 
             <textarea
               ref={inputRef}
               className="composer-input"
               rows={2}
-              placeholder="把你的思路或卡住的地方写下来，也可以直接拍题上传…"
+              placeholder="把你的思路或卡住的地方写下来，也可以直接拍题上传（支持拖拽 / 粘贴）…"
               value={input}
               disabled={store.streaming}
               onChange={(event) => setInput(event.target.value)}
@@ -336,17 +543,40 @@ export default function ChatPage() {
             />
 
             <div className="composer-bar">
-              <span className="composer-hint">Enter 发送 · Shift + Enter 换行</span>
+              <span className="composer-hint">Enter 发送 · Shift + Enter 换行 · 可拖拽/粘贴图片</span>
               <div className="composer-actions">
+                {/* 隐藏的文件选择器 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileSelect}
+                />
+
+                {/* 本地上传按钮 */}
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="选择本地图片（也支持拖拽和粘贴）"
+                  disabled={uploading || store.streaming}
+                >
+                  {ICO_IMAGE}
+                  上传图片
+                </button>
+
+                {/* 云盘预置文件选择 */}
                 <div style={{ position: 'relative' }}>
                   <button
                     type="button"
                     className="btn btn-ghost"
                     onClick={() => void openPicker()}
-                    title="本地演示态：选预置文件代替真实直传"
+                    title="从云盘选择预置文件（演示态）"
+                    disabled={uploading || store.streaming}
                   >
-                    {ICO_IMAGE}
-                    传图读题
+                    {ICO_FOLDER}
+                    云盘文件
                   </button>
                   {pickerOpen ? (
                     <div
@@ -366,7 +596,7 @@ export default function ChatPage() {
                       }}
                     >
                       <p style={{ padding: '6px 8px', fontSize: 11.5, color: 'var(--ink-label)' }}>
-                        传图读题（演示态）：选一张随消息发我。
+                        从云盘选择（演示态）：选一张随消息发我。
                       </p>
                       {files.map((file) => (
                         <button
@@ -374,6 +604,7 @@ export default function ChatPage() {
                           type="button"
                           onClick={() => {
                             setImageFileId(file.file_id);
+                            setLocalImage(null);
                             setPickerOpen(false);
                           }}
                           style={{
@@ -407,13 +638,45 @@ export default function ChatPage() {
                   onClick={() => void send()}
                 >
                   {ICO_SEND}
-                  {store.streaming ? '正在回…' : '发送'}
+                  {store.streaming ? '正在回…' : uploading ? '上传中…' : '发送'}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* 图片放大预览 */}
+      {previewImageUrl ? (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'zoom-out',
+          }}
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          <img
+            src={previewImageUrl}
+            alt="放大预览"
+            style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 8 }}
+          />
+          <button
+            type="button"
+            style={{
+              position: 'absolute', top: 20, right: 20,
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)', border: 'none',
+              color: '#fff', fontSize: 18, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+            onClick={() => setPreviewImageUrl(null)}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
 
       <p className="t-sub" style={{ marginTop: 14 }}>
         {activeSpaceId ? '' : `还没有空间，`}
@@ -425,6 +688,10 @@ export default function ChatPage() {
           看看我的地图
         </Link>
       </p>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </>
   );
 }

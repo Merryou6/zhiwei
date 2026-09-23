@@ -31,6 +31,7 @@ import { generate as generatePlan } from './services/plan';
 import { summary as reportSummary } from './services/report';
 import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
+import { getImage, uploadImage } from './services/upload';
 
 export interface SseEvent {
   event: 'delta' | 'meta' | 'done' | 'error';
@@ -103,6 +104,10 @@ export function createRoutes(): RouteDefinition[] {
 
     // 步骤 7：学习报告（#19）
     { method: 'GET', pattern: '/api/report/summary', handler: reportSummary },
+
+    // 图片上传（传图读题）
+    { method: 'POST', pattern: '/api/upload/image', handler: uploadImage },
+    { method: 'GET', pattern: '/api/upload/image/:fileId', handler: getImage },
   ];
 }
 

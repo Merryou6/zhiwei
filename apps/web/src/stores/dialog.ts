@@ -19,6 +19,8 @@ export interface ChatMessage {
   role: ChatRole;
   text: string;
   imageFileId?: string | null;
+  /** 本地上传图片的访问 URL（传图读题）。 */
+  imageUrl?: string | null;
   /** 学长气泡的注脚（如 kp 匹配低置信的澄清提示）。 */
   note?: string | null;
   /** 方向提示徽标（next_action=hint_down）。 */
@@ -32,7 +34,7 @@ export interface DialogState {
   messages: ChatMessage[];
   meta: ChatMeta | null;
   streaming: boolean;
-  appendStudent: (text: string, imageFileId?: string | null) => string;
+  appendStudent: (text: string, imageFileId?: string | null, imageUrl?: string | null) => string;
   startAssistant: () => string;
   appendDelta: (id: string, text: string) => void;
   setMeta: (meta: ChatMeta) => void;
@@ -54,9 +56,9 @@ export const useDialogStore = create<DialogState>((set, get) => ({
   meta: null,
   streaming: false,
 
-  appendStudent: (text: string, imageFileId: string | null = null) => {
+  appendStudent: (text: string, imageFileId: string | null = null, imageUrl: string | null = null) => {
     const id = nextId('msg');
-    set({ messages: [...get().messages, { id, role: 'student', text, imageFileId }] });
+    set({ messages: [...get().messages, { id, role: 'student', text, imageFileId, imageUrl }] });
     return id;
   },
 

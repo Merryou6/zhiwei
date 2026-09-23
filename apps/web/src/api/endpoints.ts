@@ -37,6 +37,8 @@ import type {
   SpaceCreateData,
   SpaceCreateRequest,
   SpaceListData,
+  UploadImageData,
+  UploadImageRequest,
 } from './types';
 
 // ---------------------------------------------------------------- §1 认证
@@ -145,4 +147,11 @@ export function generatePlan(body: PlanGenerateRequest): Promise<PlanData> {
 /** #19 GET /api/report/summary?space_id=xxx */
 export function reportSummary(spaceId: string): Promise<ReportSummaryData> {
   return request<ReportSummaryData>('/api/report/summary', { query: { space_id: spaceId } });
+}
+
+// ---------------------------------------------------------------- 图片上传
+
+/** POST /api/upload/image — 传图读题，base64 上传 */
+export function uploadImage(body: UploadImageRequest): Promise<UploadImageData> {
+  return request<UploadImageData>('/api/upload/image', { method: 'POST', body });
 }

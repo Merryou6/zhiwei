@@ -127,6 +127,18 @@ async function handleRequest(
     return;
   }
 
+  // 二进制响应（图片等）
+  if (typeof result === 'object' && result !== null && (result as { __binary?: boolean }).__binary) {
+    const binary = result as { mime: string; buffer: Buffer };
+    res.writeHead(200, {
+      'Content-Type': binary.mime,
+      'Content-Length': binary.buffer.length,
+      'Cache-Control': 'public, max-age=86400',
+    });
+    res.end(binary.buffer);
+    return;
+  }
+
   writeJson(res, toHttpStatus(result.code), result);
 }
 
