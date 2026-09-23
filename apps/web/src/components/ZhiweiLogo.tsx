@@ -31,9 +31,9 @@ export interface ZhiweiLogoProps {
 export default function ZhiweiLogo({
   size = 28,
   className,
-  from = '#5FA8FF',
-  mid = '#67E8F9',
-  to = '#7CF7B0',
+  from = '#2F92E6',
+  mid = '#42A5F5',
+  to = '#5DB3F8',
   outline = true,
   label,
 }: ZhiweiLogoProps) {
@@ -68,7 +68,7 @@ export default function ZhiweiLogo({
         </linearGradient>
         <radialGradient id={`zw-pupil-${uid}`}>
           <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="62%" stopColor="#D6F7FF" />
+          <stop offset="62%" stopColor="#E8EDF3" />
           <stop offset="100%" stopColor={to} />
         </radialGradient>
       </defs>
@@ -123,7 +123,7 @@ export default function ZhiweiLogo({
           cx={node.x}
           cy={node.y}
           r={node.r}
-          fill={node.core ? pupil : node.key ? '#F2FDFF' : gradient}
+          fill={node.core ? pupil : node.key ? '#E8EDF3' : gradient}
         />
       ))}
     </svg>

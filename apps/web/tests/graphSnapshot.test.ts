@@ -36,10 +36,10 @@ interface FrozenNode {
 const frozen = JSON.parse(readFileSync(CZ_PATH, 'utf8')) as { nodes: FrozenNode[] };
 
 describe('graphSnapshot · 与冻结数据逐字段守恒', () => {
-  it('节点数 20、章节数 4', () => {
-    expect(frozen.nodes).toHaveLength(20);
-    expect(GRAPH_NODES).toHaveLength(20);
-    expect(GRAPH_CHAPTERS).toHaveLength(4);
+  it('节点数 24、章节数 8', () => {
+    expect(frozen.nodes).toHaveLength(24);
+    expect(GRAPH_NODES).toHaveLength(24);
+    expect(GRAPH_CHAPTERS).toHaveLength(8);
   });
 
   it('每个节点的 id / name / chapter / difficulty / prerequisites / successors 逐项相等', () => {
@@ -56,7 +56,7 @@ describe('graphSnapshot · 与冻结数据逐字段守恒', () => {
     }
   });
 
-  it('章节清单（名称 + 知识点归属与顺序）与冻结数据一致，规模 2/3/4/11', () => {
+  it('章节清单（名称 + 知识点归属与顺序）与冻结数据一致，规模 2/3/4/11/1/1/1/1', () => {
     const expected: { name: string; kp_ids: string[] }[] = [];
     for (const node of frozen.nodes) {
       const bucket = expected.find((entry) => entry.name === node.chapter);
@@ -65,8 +65,26 @@ describe('graphSnapshot · 与冻结数据逐字段守恒', () => {
     }
 
     expect(GRAPH_CHAPTERS).toEqual(expected);
-    expect(chapterNames()).toEqual(['代数式', '函数', '一元二次方程', '二次函数']);
-    expect(CHAPTER_SIZES).toEqual({ 代数式: 2, 函数: 3, 一元二次方程: 4, 二次函数: 11 });
+    expect(chapterNames()).toEqual([
+      '代数式',
+      '函数',
+      '一元二次方程',
+      '二次函数',
+      '有理数',
+      '一元一次方程',
+      '整式的乘法',
+      '因式分解',
+    ]);
+    expect(CHAPTER_SIZES).toEqual({
+      代数式: 2,
+      函数: 3,
+      一元二次方程: 4,
+      二次函数: 11,
+      有理数: 1,
+      一元一次方程: 1,
+      整式的乘法: 1,
+      因式分解: 1,
+    });
   });
 
   it('prerequisites ↔ successors 互逆（有向边双向记录一致）', () => {
@@ -83,7 +101,7 @@ describe('graphSnapshot · 与冻结数据逐字段守恒', () => {
     }
   });
 
-  it('引用闭包：所有先修/后继 id 都在这 20 个节点内（无悬挂引用）', () => {
+  it('引用闭包：所有先修/后继 id 都在这 24 个节点内（无悬挂引用）', () => {
     const ids = new Set(GRAPH_NODES.map((node) => node.id));
     for (const node of GRAPH_NODES) {
       for (const id of [...node.prerequisites, ...node.successors]) {
@@ -92,8 +110,8 @@ describe('graphSnapshot · 与冻结数据逐字段守恒', () => {
     }
   });
 
-  it('kp 名表完备（20 项）且与节点名一致；未知 id 回退为 id 本身', () => {
-    expect(Object.keys(KP_NAMES)).toHaveLength(20);
+  it('kp 名表完备（24 项）且与节点名一致；未知 id 回退为 id 本身', () => {
+    expect(Object.keys(KP_NAMES)).toHaveLength(24);
     for (const node of GRAPH_NODES) expect(kpName(node.id)).toBe(node.name);
     expect(kpName('math.nc.unknown')).toBe('math.nc.unknown');
     expect(snapshotNode('math.cz.quadratic.extremum')?.chapter).toBe('二次函数');
@@ -133,7 +151,7 @@ describe('graphLayout · 分层坐标（纯函数、同输入恒同输出）', (
     for (const ys of byColumn.values()) {
       expect(new Set(ys).size).toBe(ys.length);
     }
-    expect(layout.nodes).toHaveLength(20);
+    expect(layout.nodes).toHaveLength(24);
   });
 
   it('边 = 全部直接先修关系，且指向真实节点', () => {

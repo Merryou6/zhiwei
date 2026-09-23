@@ -32,11 +32,12 @@ export interface ParticleLogoProps {
 
 type Rgb = [number, number, number];
 
-/** 主链配色：左下（根因）偏蓝 → 右上（掌握）偏薄荷绿。 */
+/** 主链配色：accent 单色相三档（active → base → hover，#2F92E6/#42A5F5/#5DB3F8）。
+ *  2026-09-23 对齐原型：此前是蓝→青→薄荷绿三套色相，与全站唯一的强调色不同源。 */
 const STOPS: { at: number; rgb: Rgb }[] = [
-  { at: 0, rgb: [95, 168, 255] },
-  { at: 0.52, rgb: [103, 232, 249] },
-  { at: 1, rgb: [124, 247, 176] },
+  { at: 0, rgb: [47, 146, 230] },
+  { at: 0.52, rgb: [66, 165, 245] },
+  { at: 1, rgb: [93, 179, 248] },
 ];
 
 const TAU = Math.PI * 2;
