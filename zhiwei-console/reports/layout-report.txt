@@ -1,0 +1,25 @@
+nodes=20 edges=27 crossChapter=10
+bands={"solid":7,"basic":6,"waver":4,"weak":3}  chapters=["代数式:2/80%","函数:3/62%","一元二次方程:4/81%","二次函数:11/45%"]
+LABEL_OVERLAP=0  MIN_DOT_GAP=31.5px  SCALE=1.200  LEGEND_HITS=0
+bbox=x[232,1016] y[108,584]
+---
+代数式求值　　　　 (159.5,205.7) r=11 ex=35 solid 94% ago=3d
+完全平方公式　　　 (349.3,166.2) r=12.8 ex=41 basic 85% ago=4d
+函数概念　　　　　 (248.2,550.5) r=12.8 ex=29 solid 97% ago=3d
+函数图像　　　　　 (455.9,553.5) r=12.8 ex=29 basic 77% ago=9d
+一次函数　　　　　 (257.3,383.8) r=14.8 ex=29 waver 66% ago=5d
+方程概念　　　　　 (468.3,262.5) r=12.8 ex=29 solid 91% ago=4d
+配方法　　　　　　 (605.1,244.4) r=14.8 ex=23 waver 70% ago=12d
+求根公式　　　　　 (782.8,174.4) r=14.8 ex=29 solid 94% ago=2d
+因式分解法　　　　 (514.8,78.7) r=14.8 ex=35 solid 95% ago=4d
+二次函数概念　　　 (484.3,475.3) r=12.8 ex=41 solid 92% ago=3d
+y=ax² 图像　 (681.9,531.2) r=12.8 ex=37 solid 91% ago=3d
+开口与对称轴　　　 (873.7,444.2) r=14.8 ex=41 basic 85% ago=5d
+顶点式　　　　　　 (735.2,460.8) r=14.8 ex=23 basic 83% ago=5d
+一般式↔顶点式　　 (854.8,596.7) r=16.6 ex=44 weak 45% ago=7d
+抛物线平移　　　　 (958.1,468.1) r=14.8 ex=35 waver 73% ago=6d
+最值　　　　　　　 (935.6,531.5) r=14.8 ex=22 waver 70% ago=4d
+待定系数法　　　　 (572.9,368.6) r=16.6 ex=35 basic 76% ago=6d
+与方程的关系　　　 (954.6,276.3) r=16.6 ex=41 weak 41% ago=20d
+实际应用　　　　　 (1027.7,395.6) r=16.6 ex=29 basic 79% ago=8d
+几何综合　　　　　 (819.5,368.5) r=18.4 ex=29 weak 57% ago=19d
