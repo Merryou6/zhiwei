@@ -441,6 +441,19 @@ a.btn.disabled {
   box-shadow: none; transform: none;
 }
 
+/* 全局触击反馈：所有可点击元素按下时微缩 + 快速回弹 */
+button:not([disabled]):active,
+[role='button']:not([aria-disabled='true']):active,
+.btn:not([disabled]):active,
+.card-hover:active {
+  transform: scale(0.96);
+  transition: transform 0.08s ease-out;
+}
+button:not([disabled]):active > *,
+[role='button']:not([aria-disabled='true']):active > * {
+  pointer-events: none;
+}
+
 /* ---- 标签 ---- */
 .tag {
   display: inline-flex; align-items: center; gap: 5px;
@@ -723,6 +736,31 @@ a.btn.disabled {
 .graph-svg.is-focus .node, .graph-svg.is-focus .edge { opacity: 0.28; transition: opacity var(--dur-slow) var(--ease); }
 .graph-svg.is-focus .node.is-on, .graph-svg.is-focus .edge.is-on { opacity: 1; }
 .graph-svg.is-focus .node.is-on .node-label { fill: var(--ink); font-weight: 600; }
+
+/* 粒子节点（登录logo同款手感） */
+.node-inner {
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.node.is-active .node-inner { transform: scale(1.35); }
+.particle-orbit {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: particle-spin var(--spin-dur, 5s) linear infinite;
+  animation-delay: var(--spin-delay, 0s);
+}
+.particle { fill: var(--band); opacity: 0.55; transition: opacity 0.2s ease, r 0.2s ease; }
+.node:hover .particle, .node.is-active .particle { opacity: 0.95; }
+.node.is-active .particle-orbit { animation: particle-burst 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes particle-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes particle-burst {
+  0% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(144deg) scale(2.4); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.node.is-active .node-halo { opacity: 0.38; r: 18; }
+.node.is-active .node-dot { stroke: var(--ink); stroke-width: 1.6; }
 
 /* 图例 */
 .legend {

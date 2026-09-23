@@ -1,9 +1,0 @@
-node=v22.22.2 ws=function chromeExists=true
-chrome=Chrome/153.0.8010.48
-01-学习空间  hash=#/space  cssHeight=1124  ->  3200x2248  343KB  {"els":146,"nodes":0,"edges":0,"frameW":0,"tip":false}
-02-测评  hash=#/assessment  cssHeight=1000  ->  3200x2000  241KB  {"els":60,"nodes":0,"edges":0,"frameW":0,"tip":false}
-03-对话辅导  hash=#/chat  cssHeight=1000  ->  3200x2000  282KB  {"els":95,"nodes":0,"edges":0,"frameW":0,"tip":false}
-04-知识图谱  hash=#/graph  cssHeight=1014  ->  3200x2028  397KB  {"els":154,"nodes":20,"edges":27,"frameW":1254,"tip":true}
-05-学习报告  hash=#/report  cssHeight=1482  ->  3200x2964  471KB  {"els":273,"nodes":0,"edges":0,"frameW":0,"tip":false}
-06-云盘  hash=#/drive  cssHeight=1013  ->  3200x2026  332KB  {"els":256,"nodes":0,"edges":0,"frameW":0,"tip":false}
-RESULT ok=6/6

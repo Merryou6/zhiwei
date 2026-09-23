@@ -68,6 +68,7 @@ export default function GraphPage() {
   const [report, setReport] = useState<ReportSummaryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [tipPos, setTipPos] = useState<{ left: number; top: number } | null>(null);
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
@@ -181,9 +182,10 @@ export default function GraphPage() {
     return accumulator;
   }, {});
 
-  const hoveredNode = hoveredId ? snapshotNode(hoveredId) : null;
-  const hoveredMastery = hoveredId ? (masteryById.get(hoveredId) ?? 0) : 0;
-  const hoveredBand = hoveredId ? masteryBandOf(hoveredMastery) : null;
+  const focusedId = activeId ?? hoveredId;
+  const hoveredNode = focusedId ? snapshotNode(focusedId) : null;
+  const hoveredMastery = focusedId ? (masteryById.get(focusedId) ?? 0) : 0;
+  const hoveredBand = focusedId ? masteryBandOf(hoveredMastery) : null;
 
   if (!activeSpaceId) {
     return (
@@ -242,11 +244,12 @@ export default function GraphPage() {
       ) : (
         <section className="graph-frame" ref={frameRef} onMouseLeave={hideTip}>
           <svg
-            className={`graph-svg${hoveredId ? ' is-focus' : ''}`}
+            className={`graph-svg${hoveredId || activeId ? ' is-focus' : ''}`}
             viewBox={`0 0 ${vbW} ${vbH}`}
             role="img"
             aria-label={`初中数学知识图谱，${GRAPH_NODES.length} 个知识点，${layout.edges.length} 条先修关系`}
             onMouseLeave={hideTip}
+            onClick={() => setActiveId(null)}
           >
             <defs>
               <marker
@@ -293,25 +296,56 @@ export default function GraphPage() {
                 const mastery = masteryById.get(placed.id) ?? 0;
                 const band = masteryBandOf(mastery);
                 const bandCss = BAND_CSS[band];
+                const focused = activeId ?? hoveredId;
                 const isOn =
-                  hoveredId === placed.id || Boolean(hoveredId && adj.get(placed.id)?.has(hoveredId));
+                  focused === placed.id || Boolean(focused && adj.get(placed.id)?.has(focused));
+                const isActive = activeId === placed.id;
                 const dim = dimOthers && !onPath(placed.id);
                 const weak = band === '待巩固';
                 return (
                   <g
                     key={placed.id}
-                    className={`node ${bandCss}${isOn ? ' is-on' : ''}`}
+                    className={`node ${bandCss}${isOn ? ' is-on' : ''}${isActive ? ' is-active' : ''}`}
                     tabIndex={0}
                     role="button"
                     transform={`translate(${placed.x + PAD_X},${placed.y * V_SCALE + PAD_TOP})`}
                     onMouseEnter={() => showTip(placed.id)}
                     onFocus={() => showTip(placed.id)}
                     onBlur={hideTip}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const next = isActive ? null : placed.id;
+                      setActiveId(next);
+                      if (next) showTip(next);
+                      else hideTip();
+                    }}
                     style={{ opacity: dim ? 0.28 : 1 }}
                   >
-                    <circle className="node-halo" r={NODE_R + 8} />
-                    {weak ? <circle className="node-ring" r={NODE_R + 3.6} /> : null}
-                    <circle className="node-dot" r={NODE_R} />
+                    <g className="node-inner">
+                      {[0, 1, 2, 3, 4, 5].map((i) => {
+                        const angle = (i / 6) * Math.PI * 2;
+                        const radius = NODE_R + 5 + (i % 2) * 4;
+                        const dur = 4 + (i % 3) * 1.5;
+                        const delay = -(i * 0.8);
+                        return (
+                          <g
+                            key={i}
+                            className="particle-orbit"
+                            style={{ '--spin-dur': `${dur}s`, '--spin-delay': `${delay}s` } as React.CSSProperties}
+                          >
+                            <circle
+                              className="particle"
+                              r={1.2 + (i % 2) * 0.6}
+                              cx={Math.cos(angle) * radius}
+                              cy={Math.sin(angle) * radius}
+                            />
+                          </g>
+                        );
+                      })}
+                      <circle className="node-halo" r={NODE_R + 8} />
+                      {weak ? <circle className="node-ring" r={NODE_R + 3.6} /> : null}
+                      <circle className="node-dot" r={NODE_R} />
+                    </g>
                     <text className="node-label" y={NODE_R + 15}>
                       {kpLabel(placed.id, 8)}
                     </text>
@@ -347,9 +381,9 @@ export default function GraphPage() {
           </div>
 
           <div
-            className={`tip${hoveredId ? ' is-on' : ''}`}
+            className={`tip${focusedId ? ' is-on' : ''}`}
             role="tooltip"
-            aria-hidden={!hoveredId}
+            aria-hidden={!focusedId}
             style={tipPos ? { left: tipPos.left, top: tipPos.top } : undefined}
           >
             {hoveredNode && hoveredBand ? (

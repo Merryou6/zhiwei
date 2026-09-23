@@ -45,8 +45,11 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     set({ currentItem: item, remaining, converged: item === null }),
 
   markSkipped: (itemId: string) => {
-    const { doneIds } = get();
-    set({ doneIds: doneIds.includes(itemId) ? doneIds : [...doneIds, itemId] });
+    const { doneIds, submittedCount } = get();
+    set({
+      doneIds: doneIds.includes(itemId) ? doneIds : [...doneIds, itemId],
+      submittedCount: submittedCount + 1,
+    });
   },
 
   markSubmitted: (itemId: string, nextItem: ClientItem | null, remaining: number, converged: boolean) => {
