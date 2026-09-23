@@ -27,8 +27,8 @@ interface SelfReportRow {
   level: number;
 }
 
-/** 校验并解析 reports（非法 → 400）。 */
-export function parseReports(raw: unknown, data: AppContext['data']): SelfReportRow[] {
+/** 校验并解析 reports（非法 → 400）。章节按空间所属学段校验（cz/gz 同名章节不串）。 */
+export function parseReports(raw: unknown, data: AppContext['data'], kbId: string): SelfReportRow[] {
   if (!Array.isArray(raw)) {
     throw httpError.badRequest('reports 必须是数组');
   }
@@ -53,7 +53,7 @@ export function parseReports(raw: unknown, data: AppContext['data']): SelfReport
     ) {
       throw httpError.badRequest(`reports[].level 必须是 ${MIN_LEVEL}–${MAX_LEVEL} 的整数`);
     }
-    if (data.nodesByChapter(chapter).length === 0) {
+    if (data.nodesByChapterForKb(kbId, chapter).length === 0) {
       throw httpError.badRequest(`章节不存在：${chapter}`);
     }
     return { chapter, level };
@@ -64,14 +64,15 @@ export function parseReports(raw: unknown, data: AppContext['data']): SelfReport
 export async function selfReport(req: RouteRequest, ctx: AppContext): Promise<ApiResponse> {
   const user = await authedUser(req, ctx);
   const space = await requireSpaceOwnership(ctx, user.user_id, req.body.space_id);
-  const reports = parseReports(req.body.reports, ctx.data);
+  const kbId = space.knowledge_source[0];
+  const reports = parseReports(req.body.reports, ctx.data, kbId);
 
   const timestamp = ctxNowIso(ctx);
   let updated = 0;
 
   for (const report of reports) {
     const pL0 = priorFor(report.level, ctx.params);
-    for (const node of ctx.data.nodesByChapter(report.chapter)) {
+    for (const node of ctx.data.nodesByChapterForKb(kbId, report.chapter)) {
       const existing = await ctx.store.getProfile(user.user_id, space.space_id, node.id);
       // 真实证据优先：已有观测的知识点不被先验覆盖
       if (existing && existing.evidence_count > 0) continue;
