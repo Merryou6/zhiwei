@@ -22,7 +22,7 @@ import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
-import { CONSOLE_PATH, SELF_REPORT_PATH, isSelfReportDone } from '../router';
+import { SELF_REPORT_PATH, isSelfReportDone } from '../router';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 
@@ -76,9 +76,9 @@ function bandForLevel(level: number): 'solid' | 'basic' | 'waver' | 'weak' {
 }
 /** 当前空间掌握程度分布（演示：4 段比例，对齐控制台 segbar）。 */
 const SEG_DIST = [
-  { key: 'solid', label: '熟练', count: 12, flex: 12 },
-  { key: 'basic', label: '达标', count: 18, flex: 18 },
-  { key: 'waver', label: '波动', count: 9, flex: 9 },
+  { key: 'solid', label: '已掌握', count: 12, flex: 12 },
+  { key: 'basic', label: '基本掌握', count: 18, flex: 18 },
+  { key: 'waver', label: '不稳定', count: 9, flex: 9 },
   { key: 'weak', label: '待巩固', count: 6, flex: 6 },
 ] as const;
 /** 最近活动流（演示数据：API 暂无活动流接口，格式对齐控制台 pageSpace 的 feed 数组）。 */
@@ -95,6 +95,7 @@ export default function SpacesPage() {
   const [creating, setCreating] = useState(false);
   const [stage, setStage] = useState<(typeof STAGES)[number]['id']>('kb_math_cz');
   const [conflictSpaceId, setConflictSpaceId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const spaces = useSpaceStore((state) => state.spaces);
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
@@ -157,31 +158,15 @@ export default function SpacesPage() {
           </p>
         </div>
         <div className="page-actions">
-          {/* 学段选择：新建空间时决定挂哪个知识库（初中 / 高中） */}
-          <div className="seg" role="group" aria-label="选择学段">
-            {STAGES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setStage(s.id)}
-                aria-pressed={stage === s.id}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
           <button
             type="button"
             className="btn btn-ghost"
-            onClick={() => void handleCreate()}
+            onClick={() => setShowCreateDialog(true)}
             disabled={creating}
           >
             <IconPlus />
             {creating ? '正在新建…' : '新建空间'}
           </button>
-          <Link to={CONSOLE_PATH} className="btn btn-ghost" style={{ textDecoration: 'none' }}>
-            进入控制台
-          </Link>
         </div>
       </header>
 
@@ -344,6 +329,62 @@ export default function SpacesPage() {
             </div>
           </section>
         </>
+      )}
+
+      {/* 新建空间对话框：选择学段 */}
+      {showCreateDialog && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateDialog(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          }}
+        >
+          <div
+            className="card card-pad"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: 420, maxWidth: '90vw' }}
+          >
+            <h3 className="t-h2" style={{ marginBottom: 8 }}>新建学习空间</h3>
+            <p className="page-lead" style={{ marginBottom: 20, fontSize: 13 }}>
+              选择学段，系统会基于对应课程标准构建知识图谱。
+            </p>
+            <div className="seg" role="group" aria-label="选择学段" style={{ marginBottom: 24 }}>
+              {STAGES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setStage(s.id)}
+                  aria-pressed={stage === s.id}
+                  style={{ flex: 1 }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setShowCreateDialog(false)}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowCreateDialog(false);
+                  void handleCreate();
+                }}
+                disabled={creating}
+              >
+                {creating ? '正在新建…' : '创建'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <ConfirmDialog

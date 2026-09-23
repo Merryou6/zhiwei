@@ -401,10 +401,6 @@ export default function GraphPage() {
           </div>
         </section>
       )}
-
-      <p className="t-sub" style={{ marginTop: 14 }}>
-        共 {GRAPH_NODES.length} 个知识点 / {layout.columns} 层先修链 · 节点颜色与四色阈值取自引擎同一份常量
-      </p>
     </>
   );
 }
