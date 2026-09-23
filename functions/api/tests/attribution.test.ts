@@ -164,12 +164,13 @@ function wrongAnswer(itemId: string): string {
 
   it('无先修可回溯的根节点 → 如实回落本节点（不硬猜）', async () => {
     const user = await app.register(uniqueIdentifier());
-    const res = await analyze(user, 'math.cz.algebra.basic', 'prerequisite_gap');
+    // 2026-09-23 图谱加深后 algebra.basic 有先修了；真正的根节点是有理数运算
+    const res = await analyze(user, 'math.cz.number.rational', 'prerequisite_gap');
 
     expect(res.code).toBe(0);
     expect(res.data?.suspect_scores).toEqual({});
-    expect(res.data?.root_cause).toBe('math.cz.algebra.basic');
-    expect(res.data?.path).toEqual(['math.cz.algebra.basic']);
+    expect(res.data?.root_cause).toBe('math.cz.number.rational');
+    expect(res.data?.path).toEqual(['math.cz.number.rational']);
     expect(res.data?.verification_item).toBeNull();
   });
 });

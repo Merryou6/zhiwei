@@ -68,13 +68,14 @@ async function seedEvent(
 }
 
 describe('report · 契约 §10 mastery 与 gaps', () => {
-  it('mastery 输出全部 20 节点；无画像者 mastery=0、status_band="待巩固"', async () => {
+  it('mastery 输出该空间学段的全部节点；无画像者 mastery=0、status_band="待巩固"', async () => {
     const user = await app.register(uniqueIdentifier());
     const res = await summary(user);
 
     expect(res.code).toBe(0);
-    expect(res.data?.mastery).toHaveLength(20);
-    expect(res.data?.mastery.map((row) => row.kp_id)).toEqual(SD.nodes.map((node) => node.id));
+    const czIds = SD.nodesForKb('kb_math_cz').map((node) => node.id);
+    expect(res.data?.mastery).toHaveLength(czIds.length);
+    expect(res.data?.mastery.map((row) => row.kp_id)).toEqual(czIds);
 
     for (const row of res.data!.mastery) {
       expect(Object.keys(row).sort()).toEqual(['kp_id', 'mastery', 'name', 'status_band'].sort());

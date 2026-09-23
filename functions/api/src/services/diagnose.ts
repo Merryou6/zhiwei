@@ -31,7 +31,7 @@ import { newId } from '../ids';
 import type { RouteRequest } from '../router';
 import { toClientItem } from '../serialization';
 import type { BankItemRecord } from '../data/staticData';
-import { authedUser } from './auth';
+import { authedUser, DEFAULT_KB_ID } from './auth';
 
 export const MODES: readonly SelectionMode[] = ['diagnose', 'baseline', 'retest'];
 
@@ -42,15 +42,20 @@ export function parseMode(value: unknown): SelectionMode {
   throw httpError.badRequest('mode 必须是 diagnose | baseline | retest');
 }
 
-/** 图谱：scope_chapter 非空时先按章节过滤（未命中章节 → 400）。 */
-export function buildGraph(ctx: AppContext, scopeChapter: unknown): GraphNode[] {
+/** 图谱：按空间的 kb 取该学段全图；scope_chapter 非空时再按章节过滤（未命中章节 → 400）。
+ *  kb 作用域是必须的：cz/gz 并存后，无作用域会把另一个学段的节点也画进图里。 */
+export function buildGraph(ctx: AppContext, kbId: string, scopeChapter: unknown): GraphNode[] {
+  const kbNodes = ctx.data.nodesForKb(kbId);
+  if (kbNodes.length === 0) {
+    throw httpError.badRequest(`知识库不存在或为空：${kbId}`);
+  }
   if (scopeChapter === undefined || scopeChapter === null || scopeChapter === '') {
-    return ctx.data.nodes.map((node) => ({ id: node.id, prerequisites: node.prerequisites }));
+    return kbNodes.map((node) => ({ id: node.id, prerequisites: node.prerequisites }));
   }
   if (typeof scopeChapter !== 'string') {
     throw httpError.badRequest('scope_chapter 必须是字符串');
   }
-  const nodes = ctx.data.nodesByChapter(scopeChapter);
+  const nodes = ctx.data.nodesByChapterForKb(kbId, scopeChapter);
   if (nodes.length === 0) {
     throw httpError.badRequest(`章节不存在：${scopeChapter}`);
   }
@@ -80,15 +85,24 @@ export interface SpaceSelectionState {
   retestKps: string[];
 }
 
-/** 取该 space 的选题态（掌握度 + 已做 + 已答数）。 */
+/** 空间的知识库 id（多学段：一个空间绑定一个 kb；缺省回落默认库，兼容旧数据）。 */
+export async function kbOfSpace(ctx: AppContext, spaceId: string): Promise<string> {
+  const space = await ctx.store.getSpace(spaceId);
+  return space?.knowledge_source[0] ?? DEFAULT_KB_ID;
+}
+
+/** 取该 space 的选题态（掌握度 + 已做 + 已答数）。
+ *  掌握度初值只铺该空间所属学段的节点——cz/gz 并存后，无作用域会把
+ *  另一个学段的节点也铺进 mastery，选题引擎的候选集就被污染了。 */
 export async function loadSelectionState(
   ctx: AppContext,
   userId: string,
   spaceId: string,
   mode: SelectionMode,
 ): Promise<SpaceSelectionState> {
+  const kbId = await kbOfSpace(ctx, spaceId);
   const mastery: Record<string, number> = {};
-  for (const node of ctx.data.nodes) mastery[node.id] = 0;
+  for (const node of ctx.data.nodesForKb(kbId)) mastery[node.id] = 0;
   for (const profile of await ctx.store.listProfiles(userId, spaceId)) {
     mastery[profile.knowledge_point] = profile.mastery;
   }
@@ -141,7 +155,7 @@ interface SelectionOutcome {
   nextItem: ReturnType<typeof toClientItem> | null;
 }
 
-/** 复跑选题（next 与 submit 共用）。 */
+/** 复跑选题（next 与 submit 共用）。bank 只喂该空间所属学段的题库。 */
 export async function computeSelection(
   ctx: AppContext,
   userId: string,
@@ -155,7 +169,7 @@ export async function computeSelection(
 
   const result = nextItem({
     graph,
-    bank: ctx.data.items,
+    bank: ctx.data.itemsForKb(await kbOfSpace(ctx, spaceId)),
     mastery: state.mastery,
     mode,
     usedItemIds,
@@ -178,7 +192,7 @@ export async function next(req: RouteRequest, ctx: AppContext): Promise<ApiRespo
   const user = await authedUser(req, ctx);
   const space = await requireSpaceOwnership(ctx, user.user_id, req.body.space_id);
   const mode = parseMode(req.body.mode);
-  const graph = buildGraph(ctx, req.body.scope_chapter);
+  const graph = buildGraph(ctx, space.knowledge_source[0], req.body.scope_chapter);
   const exclude = parseItemIdList(req.body.exclude_item_ids);
 
   const outcome = await computeSelection(ctx, user.user_id, space.space_id, mode, graph, exclude);
@@ -219,7 +233,7 @@ export async function submit(req: RouteRequest, ctx: AppContext): Promise<ApiRes
     unixTs: Math.floor(nowMs / 1000),
   });
 
-  const graph = buildGraph(ctx, undefined);
+  const graph = buildGraph(ctx, space.knowledge_source[0], undefined);
 
   // ---- 幂等（D7 事件级）：dedup_key 相同且 item_id 相同 → 静默返回当前状态
   const sameKeyEvents = await ctx.store.findEventsByDedupKey(space.space_id, dedupKey);

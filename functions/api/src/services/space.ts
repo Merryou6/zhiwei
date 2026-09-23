@@ -12,7 +12,7 @@ import type { ApiResponse } from '../errors';
 import { newId } from '../ids';
 import type { RouteRequest } from '../router';
 import type { SpaceRecord } from '../db/types';
-import { DEFAULT_KB_ID, authedUser } from './auth';
+import { authedUser } from './auth';
 
 export interface SpaceView {
   space_id: string;
@@ -68,16 +68,21 @@ export async function list(req: RouteRequest, ctx: AppContext): Promise<ApiRespo
   return ok({ spaces: spaces.map(toSpaceView) });
 }
 
-/** POST /api/space/create */
+/** POST /api/space/create
+ *  合法 knowledge_source = index 里的全部 kb（kb_math_cz / kb_math_gz / …），
+ *  每个学科每用户限建一个空间。 */
 export async function create(req: RouteRequest, ctx: AppContext): Promise<ApiResponse> {
   const user = await authedUser(req, ctx);
   const knowledgeSource = req.body.knowledge_source;
 
-  if (knowledgeSource !== DEFAULT_KB_ID) {
-    throw httpError.badRequest(`knowledge_source 当前唯一合法值为 ${DEFAULT_KB_ID}`);
+  const legalKbIds = ctx.data.kbIds();
+  if (typeof knowledgeSource !== 'string' || !legalKbIds.includes(knowledgeSource)) {
+    throw httpError.badRequest(
+      `knowledge_source 非法，可选值：${legalKbIds.join('、')}`,
+    );
   }
 
-  const existing = await ctx.store.findSpaceByUserAndKnowledgeSource(user.user_id, DEFAULT_KB_ID);
+  const existing = await ctx.store.findSpaceByUserAndKnowledgeSource(user.user_id, knowledgeSource);
   if (existing) {
     throw httpError.conflict('同学科空间已存在', { existing_space_id: existing.space_id });
   }
@@ -85,9 +90,9 @@ export async function create(req: RouteRequest, ctx: AppContext): Promise<ApiRes
   const space: SpaceRecord = {
     space_id: newId('sp_'),
     user_id: user.user_id,
-    name: ctx.data.kbName(DEFAULT_KB_ID) ?? '初中数学',
-    subject: ctx.data.subjectOfKb(DEFAULT_KB_ID) ?? '数学',
-    knowledge_source: [DEFAULT_KB_ID],
+    name: ctx.data.kbName(knowledgeSource) ?? '学习空间',
+    subject: ctx.data.subjectOfKb(knowledgeSource) ?? '数学',
+    knowledge_source: [knowledgeSource],
     is_default: false,
     created_at: ctxNowIso(ctx),
   };
