@@ -5,11 +5,14 @@
  *   · Tab 当前态 = 文字提亮 + 2px 下划线（原型 .tab[aria-current]::after），
  *     不再用胶囊底色——整条 Tab 栏与顶栏同高，active 由下划线表达。
  *
- * 空间列表懒加载：已登录且 store 为空时取一次（#3 space/list）；失败静默——空间页会给提示。
+ * 空间列表懒加载：已登录且 store 为空时取一次（#3 space/list）；失败静默——页 3 会给提示。
  *
- * 设计规则走查（2026-09-22，沿袭）：
- *   · 顶栏用实底不用 backdrop-blur：半透明顶栏滚动时对比度一直在变，实底静态可算。
- *   · z-index 走令牌（z-nav），圆角走 rounded-control（8px，对齐原型 --r-ctl）。
+ * 设计规则走查（2026-09-22）：
+ *   · 顶栏原为 `bg-surface/90 + backdrop-blur`。半透明顶栏看着通透，但正文会从底下透上来，
+ *     滚动时对比度一直在变；改成实底后对比度是静态可算的，与内页的浅色表面也更一致。
+ *   · z-index 改走令牌（z-nav），不再散写 z-40。
+ *   · 圆角统一到 rounded-control / rounded-surface 两档，不再混用 rounded-lg / rounded-xl。
+ *   · 「管理空间 →」去掉箭头：给导航文字加箭头是模板套件里的固定装饰，不携带信息。
  */
 
 import { useEffect, useState } from 'react';
@@ -49,16 +52,15 @@ export default function TopNav() {
   const active = spaces.find((space) => space.space_id === activeSpaceId) ?? null;
 
   return (
-    <header className="sticky top-0 z-nav border-b border-line/50 bg-canvas-deep">
-      <nav className="mx-auto flex h-14 max-w-[1320px] items-center gap-[18px] px-8 max-[720px]:px-6">
-        {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」）。
-            原型 .brand-word：15px / 600 / 字距 .1em */}
+    <header className="sticky top-0 z-nav border-b border-line bg-surface">
+      <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 py-3">
+        {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」） */}
         <Link
-          to={token ? CONSOLE_PATH : '/login'}
-          className="flex flex-none items-center gap-[9px] rounded-control text-ink"
+          to={token ? SPACES_PATH : '/login'}
+          className="mr-4 flex items-center gap-2 rounded-control text-base font-medium tracking-wide text-ink"
         >
-          <ZhiweiLogo size={27} />
-          <span className="text-[15px] font-semibold tracking-[0.1em]">知微</span>
+          <ZhiweiLogo size={22} />
+          知微
         </Link>
 
         {token ? (
@@ -73,11 +75,8 @@ export default function TopNav() {
                     to={route.path}
                     className={({ isActive }) =>
                       [
-                        'relative inline-flex items-center rounded-t-control px-3.5 text-[13.5px] font-medium',
-                        'transition-colors duration-150 ease-out',
-                        isActive
-                          ? 'font-semibold text-ink after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:rounded-t-[2px] after:bg-accent after:content-[""]'
-                          : 'text-ink-soft hover:bg-accent-veil hover:text-ink',
+                        'rounded-control px-3 py-1.5 text-sm transition-colors duration-150 ease-out',
+                        isActive ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
                       ].join(' ')
                     }
                   >
@@ -92,7 +91,7 @@ export default function TopNav() {
               <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
-                className="inline-flex h-[34px] items-center gap-[9px] rounded-control border border-line bg-surface pl-2 pr-[9px] text-[12.5px] font-medium text-ink transition-colors duration-150 ease-out hover:border-[#475569] hover:bg-raised"
+                className="rounded-control px-3 py-1.5 text-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
                 aria-expanded={open}
               >
                 <span className="grid h-5 w-5 place-items-center rounded-[5px] border border-accent/40 bg-accent-veil text-accent" aria-hidden="true">
@@ -108,7 +107,7 @@ export default function TopNav() {
               </button>
 
               {open ? (
-                <div className="absolute right-0 top-full mt-2 w-56 rounded-control border border-line bg-surface p-2 shadow-card">
+                <div className="absolute right-0 mt-2 w-56 rounded-surface border border-line bg-surface p-2 shadow-card">
                   <p className="px-2 py-1 text-[13px] text-ink-soft">切到另一个空间</p>
                   <ul>
                     {spaces.map((space) => (

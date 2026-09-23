@@ -12,17 +12,13 @@
  */
 
 import { chatTurn as localChatTurn } from './localChat';
-import { chatTurn as remoteChatTurn, readRemoteChatConfig } from './remoteChat';
+import { chatTurn as remoteChatTurn } from './remoteChat';
 import { classify } from './localClassify';
 import { recognizePaper } from './localRecognize';
 import type { ChatTurnInput, ChatTurnOutput, ModelAdapter } from './types';
 
 function resolveChatTurn(): (input: ChatTurnInput) => Promise<ChatTurnOutput> {
-  // 配了 LLM 凭证（ZHIWEI_LLM_BASE_URL/API_KEY/MODEL）即自动走远程；
-  // 或显式 ZHIWEI_MODEL_MODE=remote。否则走本地确定性实现。
-  return process.env.ZHIWEI_MODEL_MODE === 'remote' || readRemoteChatConfig()
-    ? remoteChatTurn
-    : localChatTurn;
+  return process.env.ZHIWEI_MODEL_MODE === 'remote' ? remoteChatTurn : localChatTurn;
 }
 
 export function createModels(): ModelAdapter {

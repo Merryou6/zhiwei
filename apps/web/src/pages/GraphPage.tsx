@@ -114,7 +114,7 @@ export default function GraphPage() {
     // 模块加载时样式表未必已生效，此时读变量会拿到空串。
     const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
     const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
-    // 高亮路径走 accent：深色下是原型主强调 #42A5F5，与页面强调色同源。
+    // 高亮路径走 accent：深色下是提亮过的 #6FB3D4，与页面强调色同源。
     const accentColor = themeColor('--c-accent', PRIMARY_HEX);
     const onPath = (id: string): boolean => highlightPath.includes(id);
 

@@ -159,17 +159,19 @@ export default function LoginPage() {
   }
 
   /* ── 控件样式 ─────────────────────────────────────────────────────
-     版式批五：表单没有外壳，输入框必须自己立住，所以给它们一块实心底
-     （dusk-surface #1e293b，比页面底 #122139 亮一档，边界可感知）。
+     版式批五：表单不再有外壳，输入框必须自己立住，所以给它们一块实心底
+     （dusk-surface #111A26，比页面底 #070C14 亮一档 ≈1.12:1，边界可感知）。
 
-     2026-09-23 换血到原型世界后的取值依据：
-       placeholder 用原型 ink-label(#93A0B4) 落在 surface(#1e293b) 上约 5.5:1，过 AA；
-       dusk-muted 现在是原型的 ink-3(#6B7280)，按纪律只服务禁用态，不承载占位文字。
+     表面选择有依据，不是随手取：
+       placeholder 用 dusk-muted(#7A8798) 落在 surface 上是 **4.79:1**，过 AA；
+       落在更亮的 raised(#18222F) 上只有 4.13:1，不到 AA。
+     所以输入框一律用 surface 档，不要"再亮一层"。
 
-     边框策略：默认无边框（靠底色分层），聚焦时才出现主色边 + 柔 ring。 */
+     边框策略：默认无边框（靠底色分层），聚焦时才出现主色边 + 柔 ring。
+     深色下「无边框 + 实心底」比「有边框 + 透明底」更干净，也更接近我们要的开场感。 */
   const fieldClass = [
     'mt-3 block min-h-12 w-full rounded-control border bg-dusk-surface px-4 py-3',
-    'text-[15px] text-dusk-title placeholder:text-[#93A0B4]',
+    'text-[15px] text-dusk-title placeholder:text-dusk-muted',
     'transition-colors duration-150 ease-out',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-lift/45',
   ].join(' ');
@@ -182,7 +184,7 @@ export default function LoginPage() {
           刻意只用一个色相——多色光晕是生成式页面的固定配色，也会让登录页冒出
           内页没有的第二套强调色。 */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 [background-image:radial-gradient(122%_86%_at_50%_-12%,rgba(66,165,245,0.22),transparent_64%)]" />
+        <div className="absolute inset-0 [background-image:radial-gradient(122%_86%_at_50%_-12%,rgba(78,143,176,0.26),transparent_64%)]" />
       </div>
 
       {/* 粒子开场：全页唯一一处「被编排过的动效」，也是这一屏的主角。

@@ -24,8 +24,6 @@
 :root {
   /* 浅色基线 —— 与原令牌字面 hex 逐字相同，未挂 dusk 时外观零变化 */
   --c-canvas: 245 248 249; /* #F5F8F9 */
-  --c-canvas-deep: 238 243 246; /* #EEF3F6 顶栏 chrome（比画布深半档） */
-  --c-sunken: 240 244 246; /* #F0F4F6 内凹区域 */
   --c-surface: 255 255 255; /* #FFFFFF */
   --c-raised: 245 248 249; /* #F5F8F9 交互抬升态（与 canvas 同值：白卡上 hover 加深） */
   --c-ink: 34 48 58; /* #22303A */
@@ -37,30 +35,27 @@
   --shadow-card: 0 1px 2px rgba(34, 48, 58, 0.04), 0 2px 6px rgba(34, 48, 58, 0.05);
 }
 
-/* 深色主题 —— 值取自 B 端控制台原型（zhiwei-console/design.css）的 :root。
-   那套是按用户 brief 直接设计的唯一真相：深灰蓝画布替代纯黑（#162945），
-   分层靠 1px 描边而非重阴影，四层表面 + 微标签墨色一应俱全。
-   每项右侧标注其在 canvas (#162945) 上的实测对比度。 */
+/* 深色主题 —— 值取自 tailwind 的 dusk-* 令牌，与登录页同一套表面层次。
+   每项右侧标注其在 dusk-base (#070C14, 相对亮度 0.0035) 上的实测对比度。 */
 html.dusk {
-  --c-canvas: 22 41 69; /* #162945 页面底（深灰蓝，非纯黑） */
-  --c-canvas-deep: 18 33 57; /* #122139 顶栏等 chrome 层 */
-  --c-sunken: 24 39 66; /* #182742 画布、输入槽等内凹区域 */
-  --c-surface: 30 41 59; /* #1e293b 卡片、面板 */
+  --c-canvas: 7 12 20; /* #070C14 页面底 */
+  --c-surface: 17 26 38; /* #111A26 卡片、面板 */
   /* 交互抬升态。深色主题里 hover 必须**变亮**：浅色下「白卡 hover 转浅灰」是加深，
      同一套 class 搬到深色里就成了变暗，读起来像凹下去。
-     取比 surface 亮一档的 #25344A，与 surface 的明度差 1.27:1。 */
-  --c-raised: 37 52 74; /* #25344A */
-  --c-ink: 232 237 243; /* #E8EDF3 标题/正文    12.6:1 */
-  --c-ink-soft: 169 178 195; /* #A9B2C3 说明文字    7.4:1 */
-  --c-line: 51 65 85; /* #334155 边框与分隔线 */
-  /* 强调色：原型主强调 #42A5F5，承载近黑字 #0B1A2C 约 7.4:1。
-     浅色基线的 #4E8FB0 仍在守恒区原样保留（primary 语义未动）。 */
-  --c-accent: 66 165 245; /* #42A5F5 */
-  --c-accent-veil: 27 56 90; /* #1B385A 品牌色面纱（= 原型 accent 12% 叠 canvas 的实底等值） */
-  --c-on-accent: 11 26 44; /* #0B1A2C 落在 accent 底上的文字：深色主题下用近黑蓝 */
-  /* 原型的分层纪律：靠 1px 描边，不靠重阴影与渐变。
-     阴影只做极轻的空气感：低透明度、大负扩散。 */
-  --shadow-card: 0 1px 2px rgba(5, 13, 26, 0.4), 0 10px 26px -18px rgba(5, 13, 26, 0.7);
+     取比 surface 亮一档的 #202D3D，与 surface 的明度差 1.27:1。 */
+  --c-raised: 32 45 61; /* #202D3D */
+  --c-ink: 232 238 244; /* #E8EEF4 标题/正文    16.8:1 */
+  --c-ink-soft: 163 177 192; /* #A3B1C0 说明文字      8.9:1 */
+  --c-line: 38 55 74; /* #26374A 边框与分隔线 */
+  /* 强调色：浅色下的 #4E8FB0 承载白字只有 3.57:1，深底上必须提亮到同色相的
+     #6FB3D4，它承载近黑字有 8.5:1。两个值色相一致，全站仍只有一个强调色。 */
+  --c-accent: 111 179 212; /* #6FB3D4 */
+  --c-accent-veil: 15 31 42; /* #0F1F2A 品牌色极暗面纱，替代浅色下的 primary-soft */
+  --c-on-accent: 7 12 20; /* 落在 accent 底上的文字：深色主题下用近黑 */
+  /* 深色下的「抬起」不能靠深色阴影——深底上的黑影看不见。
+     改用上缘 1px 内高光定义边界，外羽化压得更深更近，才有浮起来的读感。 */
+  --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.055) inset,
+    0 10px 26px -14px rgba(2, 6, 14, 0.85);
 }
 
 /* 全局底色与字体（PRD §6：低饱和、不刺眼；界面色一律走 tailwind 令牌，见 theme/bands.ts）。 */
@@ -152,24 +147,24 @@ body {
    不必靠提高选择器权重去打补丁。 */
 html.dusk {
   color-scheme: dark;
-  scrollbar-color: #475569 transparent;
+  scrollbar-color: #26313f transparent;
 }
 html.dusk ::selection {
-  background-color: rgb(66 165 245 / 0.28);
+  background-color: rgb(111 179 212 / 0.3);
 }
 html.dusk input,
 html.dusk textarea,
 html.dusk [contenteditable] {
-  caret-color: #42a5f5;
+  caret-color: #6fb3d4;
 }
 html.dusk ::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: #26313f;
 }
 html.dusk ::-webkit-scrollbar-thumb:hover {
-  background-color: #566579;
+  background-color: #334154;
 }
 html.dusk :focus-visible {
-  outline-color: #42a5f5;
+  outline-color: #6fb3d4;
 }
 
 /* ── 原生表单控件 ─────────────────────────────────────────────────
@@ -202,69 +197,6 @@ input::placeholder,
 textarea::placeholder {
   color: rgb(var(--c-ink-soft));
   opacity: 0.8;
-}
-
-/* ── 交互触感：按钮触击反馈（2026-09-23）─────────────────────────
-   每个可点元件按下时轻微收缩 + 抬升过渡，给「按下去了」的实体感；
-   同步收起 hover 阴影，按下态更「实」。
-   过渡时长已被下面的 prefers-reduced-motion 降级为瞬时（前庭友好）。 */
-button,
-[role='button'],
-a.btn,
-.button {
-  transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.18s ease,
-    border-color 0.15s ease, color 0.15s ease;
-}
-button:active:not(:disabled),
-[role='button']:active:not(:disabled),
-a.btn:active:not(.disabled),
-.button:active:not(.disabled) {
-  transform: scale(0.97);
-}
-button:disabled,
-.button.disabled,
-a.btn.disabled {
-  cursor: not-allowed;
-}
-
-/* ── 卡片悬停抬升（原型分层纪律：1px 描边 + 极轻阴影，不靠重投影）── */
-.card-hover {
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.22s ease;
-}
-.card-hover:hover {
-  transform: translateY(-2px);
-  border-color: rgb(var(--c-line) / 0.9);
-  box-shadow: var(--shadow-card);
-}
-
-/* ── 页面内容入场（换路由即重播，见 Layout 的 keyed 容器）───────── */
-@keyframes contentRise {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.content-rise {
-  animation: contentRise 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* 返回顶部浮动按钮（BackToTop 组件）入场 */
-@keyframes fabIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-.fab-rise {
-  animation: fabIn 0.22s ease both;
 }
 
 /* 减弱动态效果（前端优化批三 · 2026-09-22）：系统开启后，全站 hover/过渡与
