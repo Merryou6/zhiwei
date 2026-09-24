@@ -41,6 +41,45 @@ import ThemeToggle from './ThemeToggle';
 /** 需特判为面板开合按钮的导航项（与 router.ROUTES 的 '/chat' 一致；路由数据本身不改）。 */
 const CHAT_PATH = '/chat';
 
+/**
+ * 导航收纳断点（**必须与 tailwind.config.js 的 `screens.nav` 同值**，
+ * 二者一致性由 `apps/web/tests/breakpoints.test.ts` 的静态断言锁死）。
+ *
+ * 【为什么 JS 侧还需要一份】抽屉根节点靠 `nav:hidden` 隐藏，但「开合」这个状态在 store 里。
+ * 若在 <720 打开抽屉后把视口拉宽到 ≥720（**手机横屏：375×812 转过来就是 812 宽，必然命中**），
+ * 根节点被 `display:none`，而 `open` 仍是 true，会同时坏两件事：
+ *   ① `Layout` 的正文 `aria-hidden={navOpen}` 继续挂着 → 读屏用户看到的是「空白页」；
+ *   ② 焦点陷阱仍以隐藏子树为边界：Tab 时判定「焦点不在 root 内」→ `preventDefault()` 后
+ *      `focus()` 落到 display:none 的元素上（无效）→ **Tab 键全站失效**，只能刷新恢复。
+ * 因此视口一旦越到 ≥720 就自动关闭抽屉——此时它本就不可能被看到，关闭是唯一自洽的状态。
+ */
+export const NAV_COLLAPSE_MIN_WIDTH_PX = 720;
+
+/** 视口是否 ≥ minWidth（matchMedia 订阅；不支持 matchMedia 的环境按窄屏处理）。 */
+function useViewportAtLeast(minWidth: number): boolean {
+  const query = `(min-width: ${minWidth}px)`;
+  const [matches, setMatches] = useState<boolean>(() => {
+    try {
+      return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+        ? window.matchMedia(query).matches
+        : false;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+    const onChange = (event: MediaQueryListEvent): void => setMatches(event.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [query]);
+
+  return matches;
+}
+
 /** 抽屉内可聚焦元素（焦点陷阱用）。与 :focus-visible 的可见性口径一致。 */
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -64,11 +103,19 @@ export default function MobileNav() {
   /** 记录「是否曾经打开过」，用于区分「关闭」与「初始未打开」，避免挂载即抢焦点。 */
   const wasOpen = useRef(false);
   const { pathname } = useLocation();
+  /** 视口是否已越到 ≥720（抽屉在此宽度不可能被看到，见 NAV_COLLAPSE_MIN_WIDTH_PX 注释）。 */
+  const wide = useViewportAtLeast(NAV_COLLAPSE_MIN_WIDTH_PX);
 
   // 路由变化即收起（兜底浏览器后退 / 抽屉内 Link 之外的程序化跳转）
   useEffect(() => {
     setOpen(false);
   }, [pathname, setOpen]);
+
+  // 视口越到 ≥720（横屏 / 旋转 / 拉宽窗口）即自行关闭：否则 open 残留会让正文 aria-hidden
+  // 与 Tab 焦点陷阱一起失灵（NAV_COLLAPSE_MIN_WIDTH_PX 注释里记的两个后果）。
+  useEffect(() => {
+    if (wide) setOpen(false);
+  }, [wide, setOpen]);
 
   // Esc 关闭 + Tab 焦点陷阱（仅在打开期间挂监听）
   useEffect(() => {

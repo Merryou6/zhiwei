@@ -15,6 +15,8 @@
  *                        工具类每个都有真实使用点（清尾轮 T1：.pt-safe/.pb-safe 两个零使用点的
  *                        死类已删，断言随之改锁实际在用的类）
  *   ⑦ 外壳高度单位    —— Layout.tsx 用 min-h-dvh，且不再有 min-h-screen
+ *   ⑧ 断点两处同源    —— MobileNav.tsx 的 NAV_COLLAPSE_MIN_WIDTH_PX（JS 侧「越界自动关闭」用，
+ *                        总控直接模式补丁，改后审查）必须与 tailwind 的 screens.nav 同值且真接线
  *
  * ⚠ 「合法保留」白名单（以下**不在**断言范围，别把它们当成破绽删掉）：
  *   · LoginPage.tsx 的 ERROR_TEXT 常量 text-[#FFB088]（深底既有色，实测 11.0:1）
@@ -89,6 +91,27 @@ describe('断点单一定义（tailwind.config.js 的 screens.nav）', () => {
 
   it('src/** 无任意值断点变体（/(min|max)-[NNNpx]:/，判别特征是任意值后紧跟冒号）', () => {
     expect(hits(/(?:min|max)-\[\d+px\]:/)).toEqual([]);
+  });
+
+  it('MobileNav 的 JS 侧收纳断点常量与 tailwind screens.nav 同值（CSS 一份 + JS 一份，必须同源）', () => {
+    // 抽屉的隐藏由 CSS（nav:hidden）负责，但「越到 ≥720 就自动关闭」必须由 JS 判断，
+    // 于是同一个数字存在两处。漂移的后果是真实缺陷（见 MobileNav.tsx 的注释：
+    // 拉宽后 open 残留 → 正文 aria-hidden 不撤 + Tab 焦点陷阱对隐藏子树无效），
+    // 所以此处把「同值」与「真的接上了」一起固化成断言。
+    const nav = readFileSync(resolve(SRC, 'components/MobileNav.tsx'), 'utf8');
+    const declared = /NAV_COLLAPSE_MIN_WIDTH_PX\s*=\s*(\d+)/.exec(nav);
+    expect(declared, 'MobileNav.tsx 里找不到 NAV_COLLAPSE_MIN_WIDTH_PX 常量').not.toBeNull();
+    const px = Number(declared![1]);
+
+    const config = readFileSync(resolve(WEB, 'tailwind.config.js'), 'utf8');
+    expect(config, `tailwind screens.nav 与 JS 常量（${px}）不同值`).toMatch(
+      new RegExp(`nav:\\s*['"]${px}px['"]`),
+    );
+
+    // 常量必须真被用于判定（只声明不接线 = 缺陷仍在）
+    expect(nav).toContain('useViewportAtLeast(NAV_COLLAPSE_MIN_WIDTH_PX)');
+    // 且越界分支必须真的关闭抽屉
+    expect(nav).toMatch(/if\s*\(wide\)\s*setOpen\(false\)/);
   });
 });
 
