@@ -53,6 +53,21 @@ res:  data = { "user_id": "u_1024", "token": "..." }
 > 明确不做：验证码、密码找回、刷新 token、登出接口（前端删 localStorage 即可）。
 > Token 机制：**无状态签名** `token = HMAC(user_id, SERVER_SECRET)`，不落库；SERVER_SECRET 放云函数环境变量。校验 = 解出 user_id + 验签。
 
+### GET /api/user/profile  【#20 · v1.2 新增，只读】
+```
+res:  data = { "user":  { "user_id": "u_1024", "identifier": "手机号或邮箱",
+                          "nickname": "可选，未设置为 null", "created_at": "2026-09-24T20:10:00Z" },
+               "spaces": [ { "space_id", "name", "subject", "knowledge_source": [],
+                             "is_default", "created_at" } ],
+               "model": { "mode": "local", "name": "模型名（仅 mode=remote 有值，否则 null）" } }
+```
+说明: 只读（无写路径）；`user` 为服务端显式构造的字段视图，`password_hash` 绝不下发；
+      `spaces` 序列化与本契约 §2 的 list 完全一致（前端一套类型两处复用）；
+      `model.mode` 取环境变量 ZHIWEI_MODEL_MODE（`=== "remote"` 才是 `"remote"`，否则 `"local"` 默认），
+      `model.name` 仅 remote 时取 ZHIWEI_LLM_MODEL（可为 null）；**ZHIWEI_LLM_API_KEY 绝不下发**。
+认证: 需 `Authorization: Bearer <token>`（401 同 §0）。
+越权: 无 space_id 入参，越权面在设计上不存在。
+
 ---
 
 ## 2. 学习空间
