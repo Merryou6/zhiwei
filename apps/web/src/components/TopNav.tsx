@@ -39,6 +39,7 @@ import { listSpaces } from '../api/endpoints';
 import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
+import { useMobileNavStore } from '../stores/mobileNav';
 import { useSpaceStore } from '../stores/space';
 import { DOCK_OFFSET_STYLE } from './panelDock';
 import SpaceCreateForm from './SpaceCreateForm';
@@ -61,6 +62,9 @@ export default function TopNav() {
   /** 右侧常驻面板（v1.3 D1d）：顶栏此项变成开合按钮。 */
   const panelOpen = useChatPanelStore((state) => state.open);
   const togglePanel = useChatPanelStore((state) => state.toggle);
+  /** 汉堡抽屉（B2/D5）：<720 唯一的导航入口。 */
+  const navOpen = useMobileNavStore((state) => state.open);
+  const toggleNav = useMobileNavStore((state) => state.toggle);
 
   useEffect(() => {
     if (!token || spaces.length > 0) return;
@@ -85,7 +89,7 @@ export default function TopNav() {
       className="sticky top-0 z-nav border-b border-line bg-surface transition-[padding] duration-200 ease-out"
       style={DOCK_OFFSET_STYLE}
     >
-      <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 py-3">
+      <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-4 py-3 nav:px-6">
         {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」） */}
         <Link
           to={token ? SPACES_PATH : '/login'}
@@ -100,7 +104,9 @@ export default function TopNav() {
             {/* 原型 .nav-sep：18px 竖分隔线，窄屏隐藏（具名断点 max-nav，见 tailwind.config.js） */}
             <span className="h-[18px] w-px flex-none bg-line max-nav:hidden" aria-hidden="true" />
 
-            <ul className="flex h-full min-w-0 flex-1 items-stretch gap-0.5">
+            {/* <720：整条 Tab 栏收进汉堡抽屉（移动端适配轮 D5/B2）。≥720 该 class 不生效，
+                桌面渲染逐像素不变。 */}
+            <ul className="flex h-full min-w-0 flex-1 items-stretch gap-0.5 max-nav:hidden">
               {navRoutes().map((route) => {
                 // 「对话辅导」特判（v1.3 D1d）：开合右侧常驻面板，不再跳整页
                 if (route.path === CHAT_PATH) {
@@ -138,11 +144,16 @@ export default function TopNav() {
               })}
             </ul>
 
-            {/* 主题切换（D3d）：空间胶囊左侧，与「我的」页共用 useThemeStore */}
-            <ThemeToggle />
+            {/* 主题切换（D3d）：空间胶囊左侧，与「我的」页共用 useThemeStore。
+                <720 收进抽屉（抽屉内另有一份），外层包一个 flex 壳承载 max-nav:hidden ——
+                不改 ThemeToggle 自身（它同时用在 /me 页，改组件会连带影响那一处）。 */}
+            <span className="flex max-nav:hidden">
+              <ThemeToggle />
+            </span>
 
-            {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头 */}
-            <div className="relative ml-auto flex flex-none items-center gap-2.5">
+            {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头。
+                <720 整个胶囊收进抽屉（D5）。 */}
+            <div className="relative ml-auto flex flex-none items-center gap-2.5 max-nav:hidden">
               <button
                 type="button"
                 onClick={() => {
@@ -225,6 +236,32 @@ export default function TopNav() {
                 </div>
               ) : null}
             </div>
+
+            {/* 汉堡键（B2/D5）：<720 顶栏唯一的导航入口。nav:hidden ⇒ ≥720 不渲染，
+                桌面布局与像素零变化；<720 时胶囊容器为 display:none，故这里自带 ml-auto。
+                aria-controls 指向 MobileNav 的抽屉 id（同一份 DOM，跨组件靠 id 关联）。 */}
+            <button
+              id="mobile-nav-toggle"
+              type="button"
+              onClick={toggleNav}
+              aria-expanded={navOpen}
+              aria-controls="mobile-nav-drawer"
+              aria-label={navOpen ? '关闭导航菜单' : '打开导航菜单'}
+              className="nav:hidden ml-auto grid h-9 w-9 flex-none place-items-center rounded-control border border-line text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
+              </svg>
+            </button>
           </>
         ) : (
           <span className="flex-1 text-sm text-ink-soft">学习伴侣</span>

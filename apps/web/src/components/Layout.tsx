@@ -33,7 +33,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
 
 import { useChatPanelStore } from '../stores/chatPanel';
+import { useMobileNavStore } from '../stores/mobileNav';
 import ChatPanel from './chat/ChatPanel';
+import MobileNav from './MobileNav';
 import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
 import ToastHost from './ToastHost';
 import TopNav from './TopNav';
@@ -116,6 +118,8 @@ export default function Layout({ children }: LayoutProps) {
   const wideEnough = useViewportAtLeast(DOCK_MIN_WIDTH_PX);
   /** 常驻态才挤压正文列；覆盖态（窄屏）正文一律不动（D1b）。 */
   const docked = open && wideEnough;
+  /** 汉堡抽屉（B2）：打开期间正文对读屏隐藏（D17 三条路径里的第三条）。 */
+  const navOpen = useMobileNavStore((state) => state.open);
 
   return (
     // 让位量写一次（单一来源）：顶栏 nav 与正文列外层都读这个自定义属性（L11）。
@@ -126,10 +130,20 @@ export default function Layout({ children }: LayoutProps) {
       <TopNav />
       {/* 常驻态：给面板让位的 padding 在外层（见文件头 D24 说明），main 的 max-w-5xl
           仍作用在「面板左边的可用宽度」上；覆盖态该变量为 0，正文一律不动。
-          顶栏读同一个变量，故两者左基线始终一致（L11）。 */}
-      <div className="transition-[padding] duration-200 ease-out" style={DOCK_OFFSET_STYLE}>
-        <main className="mx-auto w-full max-w-5xl px-6 py-8">{children}</main>
+          顶栏读同一个变量，故两者左基线始终一致（L11）。
+          aria-hidden：抽屉打开期间正文对读屏隐藏（关闭时不渲染该属性 → DOM 与改造前一致）。
+          px-4 nav:px-6（D9）：窄档页边距 48→32px，必须与 TopNav 的 nav padding 同步，
+          否则破坏「内容列与顶栏共用同一条左基线」这条不变量；≥720 仍是 px-6（桌面零变化）。 */}
+      <div
+        className="transition-[padding] duration-200 ease-out"
+        style={DOCK_OFFSET_STYLE}
+        aria-hidden={navOpen || undefined}
+      >
+        <main className="mx-auto w-full max-w-5xl px-4 py-8 nav:px-6">{children}</main>
       </div>
+      {/* 汉堡抽屉：挂在 TopNav 之后、面板之前（同 z-overlay，但二者互斥不同屏，D4）。
+          自身在 ≥720 不渲染（nav:hidden）+ 未登录不渲染（D15）。 */}
+      <MobileNav />
       <ChatPanelDock docked={docked} />
       <ToastHost />
     </div>
