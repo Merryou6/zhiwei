@@ -324,9 +324,13 @@ B5（4 文件，全部 max-nav: 作用域，D6）：
       根因：旧写法 min-[720px]（min-width:720px）与 max-[720px]（max-width:720px）在**恰好 720px 处同时命中**，
       而具名断点 nav: / max-nav: 是互斥互补的一对（max-nav: = not all and (min-width:720px)，不含 720）。
       于是 720px 处新增可见：顶栏竖分隔线（18px）与空间胶囊文字「空间·初中数学」（约 90px）
-      → 顶栏由 1 行变 2 行（+20px）。**未做任何自行调整**（总控明确：不要自行改断点），
-      已把 3 个可选裁决方向写进「十、遗留与建议」。
-      另注：720px 处汉堡键仍为 display:none（nav:hidden 命中），6 个 Tab 仍可见可用，只是多占一行；
+      → 顶栏高度 68 → 88px（+20px）。**顶栏仍是单行**（排版行数未变）：88px 与 721–767 档、
+      与桌面档（≥768）**同高**（767/768 档 header.h 实测同为 88），main.y 亦同为 88；
+      页面级溢出 0px、可读可点。差异只有 1px 的端点语义：旧 max-[720px]:hidden（max-width:720px
+      **含**端点）vs 新 max-nav:hidden（max-width:719.98px **不含**端点），恰好 720px 时分隔线与
+      胶囊文字由「隐藏」恢复为「显示」。
+      **未做任何自行调整**（总控明确：不要自行改断点），已把 3 个可选裁决方向写进「十、遗留与建议」。
+      另注：720px 处汉堡键仍为 display:none（nav:hidden 命中），6 个 Tab 仍可见可用；
       页面级溢出仍为 0px，未产生横向滚动。
 
 
@@ -398,12 +402,22 @@ D-05（B3）B3 不再改 Layout.tsx（计划 B3 的涉及清单列了它）。�
 十、未完成项 / 审计盲区（如实列出）
 -------------------------------------------------
 1) **恰好 720px 的顶栏边界差异未修**（总控明确「不要自行改断点」，故只报告不动作）。
-   实测：720px 处 header 高 68 → 88（+20px，11 个带顶栏页一致），原因是分隔线 + 空间胶囊文字
-   由「隐藏」变「显示」触发顶栏换行；页面级横向溢出仍为 0px。
+   ⚠ 定性已更正（清尾轮 T4，2026-09-24）：本报告原先在此把 720px 处 header 68 → 88px 的高度增长
+   误判为顶栏排版行数发生变化（该错误表述本轮已整段删改，见「十三、清尾轮修正记录 T4」）。
+   正确事实如下：
+   720px 处 header 高 68 → 88px（+20px，11 个带顶栏页一致），根因是 1px 的端点语义差：
+   旧 max-[720px]:hidden（max-width:720px **含**端点）与新 max-nav:hidden（max-width:719.98px
+   **不含**端点）在恰好 720px 处不同 → 分隔线（18px）与空间胶囊文字（约 90px）由「隐藏」
+   恢复为「显示」，把顶栏撑高 20px。88px 与 721–767 档、与桌面档（≥768）**同高**
+   （767/768 档 header.h 实测同为 88、main.y 同为 88）；无溢出、可读可点。
+   页面级横向溢出仍为 0px。
    建议总控裁决（三个方向，按我实测的代价从小到大）：
-     a) 保持现状（nav: 单一定义不动，接受恰好 720px 这一档顶栏两行；影响面 = 单个 CSS 宽度的 20px 高度）
+     a) 保持现状（nav: 单一定义不动，接受恰好 720px 这一档顶栏比 ≤719 档高 20px、多出分隔线与
+        胶囊文字；影响面 = 单个 CSS 宽度的 20px 高度）
      b) 把顶栏 Tab 容器（TopNav 的 nav <ul>）加 overflow-x-auto 兜底：不碰断点，
         但会在 720px 引入顶栏内横向滚动条（--hide-scrollbars 下走查看不见，真实浏览器可见）
+        （注：这是**未实施的备选**方向的推演，不是实测——720 档实测页面级溢出为 0px，
+         该方向是否真会产出滚动条未经测量，故保留原样、不在此写入未实测结论）
      c) 给「≤720 隐藏」这一侧也进 config：`screens` 再加一个 max 侧条目（如 'nav-max': { max: '720px' }），
         把 TopNav:101 / :163 的两处 max-nav: 换成它 —— 语义与被替换的 max-[720px]:hidden **逐字等价**，
         nav:'720px' 仍是唯一的最小侧来源；代价是 screens 不再只有一个键
@@ -418,8 +432,10 @@ D-05（B3）B3 不再改 Layout.tsx（计划 B3 的涉及清单列了它）。�
    · 面板展开态（≥1280 挤压正文列）下的锚点对比 —— 基线采样时面板未打开，两套 after 也未开。
    上述面均**未跑**几何量化，原因是本轮工具按计划 8.3.1 的口径只采默认态；已在报告标明，不冒充已验。
 
-3) `.pb-safe` 与 `.pt-safe` 两个工具类**定义在源码、未被任何组件使用**，因此不进构建产物
-   （Tailwind 按内容扫描产出 @layer utilities）。定义属计划 6.2 的要求，保留；无功能影响。
+3) ~~`.pb-safe` 与 `.pt-safe` 两个工具类定义在源码、未被任何组件使用~~ —— **清尾轮 T1 已删除这两个
+   零使用点的死类**（Tailwind 按内容扫描产出，它们本就不进构建产物）。原文的「保留」结论作废，
+   见文末「十三、清尾轮修正记录 T1」。当前 index.css 的 @layer utilities 只剩 5 个真实使用点：
+   top-safe-16 / right-safe-4 / bottom-safe-6 / right-safe-6 / pb-safe-3。
 
 4) 沙箱限制导致「原地 vite build」在最终代码上未跑（见「八、4)」），已用等价 --outDir 版本替代。
 
@@ -472,5 +488,108 @@ D-05（B3）B3 不再改 Layout.tsx（计划 B3 的涉及清单列了它）。�
         build:web 通过（--outDir 等价命令，原命令受沙箱限制见「八、4)」）
 [✔] 10. 业务红线：未改 answer/solution_steps 相关路径；未新增算法硬编码；令牌体系只做清偿
          （3 处裸 z 值 → 令牌，数值相同）；未引入组件内裸 hex（静态闸门 ④ 实测 0 处）
+
+
+-------------------------------------------------
+十三、清尾轮修正记录（2026-09-24 22:19–22:2x，基线 HEAD 61c1d3b）
+-------------------------------------------------
+背景：_pipeline/03_REVIEW.md（轮 2 审查，VERDICT: PASS，0H/1M/4L/4INFO）判 PASS 后，按项目惯例
+清掉审查报告里列明的可修项。范围严格限定 5 件（T1–T5），未扩大。开工前复核：git status 里
+他人未提交变更（_pipeline/01_PLAN.md、_pipeline/03_REVIEW.md、tools/e2e-smoke.cjs、
+_pipeline/PR-tempdeploy.md、知微-项目介绍.md、archive/01_PLAN_*.md、archive/03_REVIEW_*.md）
+一律未碰、未 stage。
+
+T1（审查 M1）删除零使用点的安全区死类
+  做什么：apps/web/src/index.css 的 @layer utilities 删掉 .pt-safe 与 .pb-safe 两条定义；
+  段头注释改写为「本层只定义实际在用的 5 个类」，并写明 top-safe-16 已覆盖顶部安全区
+  （Toast 定位）、pb-safe-3 覆盖底部安全区（MobileNav 抽屉滚动区 / ChatPanel 面板输入区）。
+  **零使用点核实（实施前实测，非推断）**：grep -rn -E "pt-safe|pb-safe" apps/web/src
+  → 命中仅在 index.css 自身的定义/注释处，无任何组件 class 使用点；全仓唯一「提及」是
+  apps/web/index.html:9 的说明性注释（不含 class 使用）。判定为可安全删除，**未强删**
+  （总控给的例外条件「若确有使用点就停下」未触发）。
+  grep -rn -E "pt-safe|pb-safe" apps/web/src（改后）→ 只剩 .pb-safe-3（另一个类）与其注释，
+  独立写法 .pt-safe / .pb-safe 定义已彻底消失。
+  产物口径：这两类本就不进构建产物（Tailwind 按内容扫描，7.3 节已实测「未产出」），
+  故本次删除对 CSS 体积与渲染的影响为 0；index.css 的安全区类由 7 个变 5 个。
+  测试同步：apps/web/tests/breakpoints.test.ts ⑥ 原先锁 .pt-safe/.pb-safe 两个已删类，
+  改为锁实际在用的 5 个类，且每个类**双查**「index.css 有定义 + src/** 至少一个使用点」，
+  从机制上挡住「定义了却没人用」的死代码复现（测试注释写明这条纪律）。
+  局部实测：vitest run apps/web/tests/breakpoints.test.ts → 7 passed（用例数不变：①⑥ 是改写）。
+
+T2（审查 L2）跨组件硬编码 id 收敛为共享常量
+  做什么：新增 apps/web/src/lib/ids.ts，导出 MOBILE_NAV_TOGGLE_ID / MOBILE_NAV_DRAWER_ID。
+  TopNav.tsx 的 button id={…} 与 aria-controls={…}、MobileNav.tsx 的 aside id={…} 与焦点归还用的
+  getElementById(…) 全部改引该常量；两个组件（含注释）里的 id 字面量清零。
+  实测：grep -n -E "mobile-nav-toggle|mobile-nav-drawer" apps/web/src/components/TopNav.tsx
+  apps/web/src/components/MobileNav.tsx → 0 行（grep exit=1）。
+  测试同步：apps/web/tests/mobileNav.test.ts 新增 1 条静态断言（读两个组件源文件文本，仿
+  stages.test.ts 直读源文件先例）：二者都不得含硬编码字面量 id、且都必须 import 该常量模块。
+  断言里的 id 用数组 split/join **拆写**，避免断言文本自身成为匹配源（自证）。
+  局部实测：vitest run apps/web/tests/mobileNav.test.ts → 5 passed（4 → 5）。
+  范围说明：tools/responsive-audit.cjs --probe-nav 的 CDP eval 字符串里也引用这两个 id，
+  但它是独立 .cjs 探针（不参与前端构建、无法 import 本模块），未纳入本轮收敛（已在 ids.ts 注明）。
+
+T3（审查 L1）收紧 screens 解析正则
+  做什么：breakpoints.test.ts ① 的 /screens:\s*\{([\s\S]*?)\}/ 改为 /screens:\s*\{([^}]*)\}/
+  （只匹配平铺写法），并加注释：旧非贪婪正则在将来嵌套对象写法下会截断在第一个 } 之前、
+  keys 提取失真；嵌套写法需同步改本断言。
+  实测：改后 ① 读 tailwind.config.js 得 keys=['nav']、body 匹配 nav: '720px'，用例通过。
+
+T4（审查 INFO-1）执行报告 720px 定性更正
+  做什么：把本报告两处对 720px 处 68 → 88px 的错误定性（原写作顶栏排版行数发生了变化）改成
+  实测事实，见「七、7.5 补充档」与「十、1)」：顶栏**仍是单行**，header.h 68 → 88px（+20px）只是
+  分隔线（18px）+ 空间胶囊文字（约 90px）由「隐藏」恢复为「显示」把顶栏撑高的结果；
+  88px 与 721–767 档、与桌面档（≥768）**同高**（767/768 档 header.h 实测同为 88、main.y 同为 88）；
+  无溢出、可读可点；差异本质是 1px 的端点语义（max-width:720px 含端点 vs 719.98px 不含端点）。
+  **保留了「未自行改断点、按总控要求上报、三个可选方向待裁决」的事实**。
+  顺带把「十、3)」原先「.pt-safe/.pb-safe 保留」的旧结论标注为已由 T1 作废（同文件内的
+  事实一致性，避免报告自相矛盾）；「十、1)」的备选方向 b) 加了一行注明「该方向是未实施的
+  推演、非实测」，不写入未实测结论。
+  自检（判据）：对报告全文按判据点名的两个措辞检索（第 41 行 B3 提交摘要的「输入区…」、
+  第 211 行 JSX 空白规则说明各 1 处）→ 命中行里**没有一行含「720」**，即全篇再无把 720px 档
+  描述成折行 / 多行的说法；原先那两处错误表述已整段删改为「顶栏仍是单行 / 排版行数未变」。
+  另：基线档那句「顶栏 1 行内容正常容纳…」（第 100 行）是**如实**的单行描述，非本次要删的措辞。
+
+T5 汇总验证（逐条独立命令，本次实测）
+  $NODE $WS/node_modules/vitest/vitest.mjs run packages
+      → Test Files 2 passed (2)    Tests 43 passed (43)     exit 0
+  $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+      → Test Files 14 passed (14)  Tests 169 passed (169)   exit 0
+  $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
+      → Test Files 16 passed (16)  Tests 151 passed (151)   exit 0
+      （逐文件：logoGeometry 17 / breakpoints 7 / sse 20 / authStore 5 / themeStore 7 / client 13 /
+        dialogStore 7 / chatPanel 5 / richText 10 / **mobileNav 5** / stages 14 / graphSnapshot 10 /
+        routerGuard 9 / phrases 6 / format 6 / bands 10）
+  $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
+      → stdout 空，exit 0
+  $NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts
+      → **失败（环境原因，非代码）**：走到「✓ 664 modules transformed」后在 prepareOutDir 阶段被
+        本机沙箱的安全删除闸门拦下，报 [safe-delete][SAFE_DELETE_BULK_REJECTED] count=54
+        threshold=50 targets=["apps/web/dist/assets"]（与「八、4)」记录的同一限制：vite 会先
+        emptyOutDir 清空 apps/web/dist/assets，其中 54 个文件触发批量删除拦截）。
+        本次按指令**未重试、也未改用 --outDir 等价命令**，故「build 在最终代码上通过」本轮
+        **不成立 / 未取得证据**（如实记录，不用等价结论冒充）。受影响面评估：本轮前端改动 =
+        index.css 删两条零使用点定义 + 新 lib/ids.ts + 两个组件 import 替换，均经 tsc(exit 0) 与
+        151 条前端用例覆盖；apps/web/dist 是 gitignore 的旧产物，程序侧无残留风险。
+  全仓合计 43 + 169 + 151 = **363 用例**（原 362，+1 = T2 新增的那条断言；breakpoints ①⑥ 与
+  mobileNav 原有 4 条是**改写**不是新增）。与总控预期「前端 151 / 全仓 363」逐数吻合。
+  提交：逐文件 git add（显式路径，全程未用 git add -A / git add .），未把他人未提交变更
+  （01_PLAN.md / 03_REVIEW.md / tools/e2e-smoke.cjs / PR-tempdeploy.md / 知微-项目介绍.md /
+  archive 两份）扫进任何提交；apps/web/dist 经 git check-ignore 实测被 .gitignore 忽略，未入库。
+    代码与测试提交（T1/T2/T3）：**a93f629**（6 files changed, 101 insertions(+), 31 deletions(-)，
+      含新增 apps/web/src/lib/ids.ts；提交前 HEAD=61c1d3b（rev-list --count 97），提交后 98）
+    本报告（T4 及其修正记录）落在紧随其后的第二次提交；该提交 hash 自指，故不写死，
+    以 git log --oneline -1 为准。
+
+与计划的偏差：无（本轮不适用 01_PLAN.md 的 B0–B6 批次，按总控下发的 T1–T5 清单执行；未碰
+packages/engine/、functions/、apps/web/src/router.tsx、4 份冻结文档、tools/e2e-smoke.cjs）。
+
+本轮遗留 / 需总控知悉（如实记录）：
+  · ①「原地 vite build 在最终代码上通过」本轮未取得证据（沙箱删除闸门，见 T5）；若需闭环，
+    请放行 apps/web/dist/assets 的清理，或授权改用 --outDir 临时目录。
+  · ② apps/web/index.html:9 的注释仍写「由 index.css 的 pt-safe/pb-safe/bottom-safe-* 工具类按
+    env() 避让」——T1 删掉那两个类后这句提及已略陈旧。本轮授权范围只到 index.css 与测试文件，
+    **未改 index.html**（纯注释、无功能影响），留待下次触碰该文件时顺手更正。
+  · ③ _pipeline/03_REVIEW.md 与 _pipeline/01_PLAN.md 仍是他人未提交状态，本轮未 stage（保持原样）。
 
 （完）
