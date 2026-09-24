@@ -8,14 +8,20 @@
  * v1.3（D1）：挂 <ChatPanelDock />。面板开合状态在 stores/chatPanel.ts（会话级）——
  * Layout 随路由切换会重挂载，放组件态会丢；对话上下文本就在全局 dialog store。
  * 形态按视口分两档（D1b）：
- *   · ≥1280（正文列 max-w-5xl 的宽度）：常驻挤压 —— main 让出与面板等宽的 padding-right
- *     （transition-[padding] 平滑过渡），无背景幕，正文列仍有 ~856px 可读；
+ *   · ≥1280（正文列 max-w-5xl 的宽度）：常驻挤压 —— 正文外层让出与面板等宽的 padding-right
+ *     （transition-[padding] 平滑过渡），无背景幕；
  *   · <1280：覆盖式 —— 半透明背景幕 + 右侧抽屉，正文不动（此宽度下 max-w-5xl 的正文列
  *     本就贴边，再挤压必不可读）。
  * z-index 走令牌 z-overlay（50）档：单一 fixed 容器（内部先背景幕后面板本体），
  * 面板 top 自顶栏下缘（56px）起不遮 TopNav；Toast（z-toast=60）仍在最上层。
  *
  * 登录页走 bare 外壳（App.tsx），不进本组件 ⇒ 面板天然只在登录后出现。
+ *
+ * ⚠ 让位的 padding 放在**外层包装**而不是 main 自己（F4 走查实测修正，D24）：
+ * max-w-5xl = 64rem = **1024px**（不是 1280px）。若把 padding-right 加在 main 上，
+ * padding 在 main 的盒内，1440 视口实测正文只剩 600px、且与面板之间空出 208px 死区；
+ * 放在外层后 main 的 max-width 作用在「面板左边的可用宽度」上，实测 1440 下正文 976px、
+ * 1280 下 832px，正文列始终紧贴面板左侧、无死区。
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
@@ -25,7 +31,7 @@ import ChatPanel from './chat/ChatPanel';
 import ToastHost from './ToastHost';
 import TopNav from './TopNav';
 
-/** 面板宽度（px）：常驻态 main 让出等宽 padding-right，覆盖态抽屉同宽（窄屏再受 92vw 约束）。 */
+/** 面板宽度（px）：常驻态正文外层让出等宽 padding-right，覆盖态抽屉同宽（窄屏再受 92vw 约束）。 */
 const PANEL_WIDTH_PX = 400;
 
 /** 常驻（挤压正文列）与覆盖（抽屉 + 背景幕）的分界，与正文列 max-w-5xl 同值（D1b）。 */
@@ -77,7 +83,8 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
       {docked ? null : (
         <button
           type="button"
-          aria-label="关闭对话面板"
+          // 与面板头部的关闭键区分开（同一可访问名会读屏歧义；F4 走查发现，D25）
+          aria-label="点击空白处关闭对话面板"
           onClick={() => setOpen(false)}
           className="absolute inset-0 bg-canvas/60"
         />
@@ -106,12 +113,14 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <TopNav />
-      <main
-        className="mx-auto w-full max-w-5xl px-6 py-8 transition-[padding] duration-200 ease-out"
+      {/* 常驻态：给面板让位的 padding 在外层（见文件头 D24 说明），main 的 max-w-5xl
+          仍作用在「面板左边的可用宽度」上；覆盖态不加 padding，正文一律不动。 */}
+      <div
+        className="transition-[padding] duration-200 ease-out"
         style={docked ? { paddingRight: PANEL_WIDTH_PX } : undefined}
       >
-        {children}
-      </main>
+        <main className="mx-auto w-full max-w-5xl px-6 py-8">{children}</main>
+      </div>
       <ChatPanelDock docked={docked} />
       <ToastHost />
     </div>

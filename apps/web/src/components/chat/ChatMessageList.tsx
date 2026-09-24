@@ -83,7 +83,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
                   <span className="rounded-md bg-band-weak/15 px-2 py-0.5 text-band-weak">换条路走走</span>
                 ) : null}
                 {!isStudent && message.note ? (
-                  <span className="text-ink-soft/80">注：{message.note}</span>
+                  <span className="text-ink-soft">注：{message.note}</span>
                 ) : null}
               </div>
             </div>

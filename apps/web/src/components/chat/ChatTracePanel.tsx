@@ -6,6 +6,9 @@
  *   - 一轮结束后回到用户手上的控制权：可折叠（组件本地态，用户手动折叠后不再自动弹开）；
  *   - 标题文案随模式区分（D4b）：本地模式「推理摘要」/ 远程模式「思考过程」
  *     （数据源 = #20 的 model.mode，由调用方传入；不额外开判断入口）。
+ *
+ * 对比度（F4 走查实测，D26）：小字标签不用半透明降级（`text-ink-soft/80` 浅色下 3.61:1
+ * 不达 AA），统一走纯 `text-ink-soft`；详见 ToolTimeline 文件头的实测数字。
  */
 
 import { useState } from 'react';
@@ -73,7 +76,7 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
       {expanded ? (
         <div className="border-t border-line px-4 py-3">
           <div>
-            <p className="mb-1.5 text-[11px] tracking-wide text-ink-soft/80">{title}</p>
+            <p className="mb-1.5 text-[11px] tracking-wide text-ink-soft">{title}</p>
             <ThoughtStream text={thought} done={!streaming} />
           </div>
           <div className="mt-4 border-t border-line pt-3">

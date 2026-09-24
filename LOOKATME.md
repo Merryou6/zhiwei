@@ -6,7 +6,7 @@
 > 2. **`AGENT.md`**（工作流与配置：权威文档优先级、流水线纪律、环境常量、常用命令、红线）
 > 3. **`.learnbuddy/memory/MEMORY.md`** + **`.learnbuddy/memory/2026-09-19.md`**（项目长期记忆 + 今日详细日志与续接步骤）
 
-最后更新：2026-09-24（赛前修整轮：3 项用户反馈 + 1 项仓库卫生已交付，第 5 条对话链路留轮 2；轮 1 审查返工修掉 H1 空间名长度上限不一致）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 74 次提交（实测口径 `git rev-list --count HEAD`：轮 1 末 `714f690` 为 71 次，本轮返工 +3；其中非合并 70 次，口径 `--no-merges`）
+最后更新：2026-09-24（**赛前修整轮 2 交付完成**：用户反馈第 5 条「对话链路透出 + 右侧常驻面板」——契约 v1.3 三过程事件 + 远程真流式 + 前端共享视图 + 右侧常驻面板 + 真浏览器走查）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 84 次提交（实测口径 `git rev-list --count HEAD`：轮 2 起点 `301708c` 为 75 次，E1–F4 八子步 +9；其中非合并 80 次，口径 `--no-merges`）
 
 ---
 
@@ -31,9 +31,14 @@
 赛前修整轮（2026-09-24，功能冻结日）已交付 **3 项用户反馈 + 1 项仓库卫生**：
 ① 空间新建真学科选择器（共享 SpaceCreateForm + 顶栏弹层）、② 深浅主题可切且首帧不闪、
 ③「我的」页 + 只读接口 #20；另完成仓库卫生收紧（env 忽略与模板对齐，属计划 D5、非用户反馈）。
-**用户反馈第 5 条（对话链路改造 + 右侧常驻面板）留轮 2，本轮零代码**。
+**用户反馈第 5 条（对话链路透出 + 右侧常驻面板）已于赛前修整轮 2 交付（2026-09-24，分支 `tempdeploy` 八子步 E1–F4）**：
+① 契约 v1.3 冻结（`#18` 新增 phase/thought/tool 三类过程事件 + JSON 降级 `trace` 字段，`delta/meta/done/error` 语义与顺序一字未改）；
+② 后端真实链路透出（`prepareChat/runChat` 拆分，tool.args/result 全是服务端真实中间量，未发生的步骤零事件）；
+③ 远程模型真流式（`stream:true` + 固定字段序 + 增量抽取；半截即断不拼接、零增量干净回落本地）；
+④ 前端共享对话视图七件套（全屏 `/chat` 与右侧面板**共用同一套实现**）+ 右侧常驻面板（≥1280 挤压正文列、<1280 覆盖式抽屉 + 背景幕）+ 顶栏「对话辅导」改开合按钮。
 轮 1 审查判 FAIL 后已返工：修掉 H1（前端空间名上限 40 ≠ 服务端 30，30 字重名自动后缀拼出 32 字必 400）。
-测试 **300 用例全绿**（26 文件）、tsc 三段 exit 0、数据闸门 6 项通过；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
+测试 **345 用例全绿**（29 文件：引擎 43 + 后端 169 + 前端 133）、tsc 三段 exit 0、数据闸门 6 项通过、
+**真浏览器走查 14 张截图**（四档宽度 × 两主题 + `/chat` 三档 + 打字机中途 + 图谱/报告页各一张）；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
 
 ---
 
@@ -46,16 +51,21 @@
 | 迭代 3 | 前端 10 页面（登录/自报/空间/测评/试卷/对话/归因/图谱/报告/云盘）+ Zustand 状态层 + API/SSE 客户端 + ECharts 图谱 + 端到端演示 | 完成 | **PASS** |
 | 修复 | ΔAccuracy 不可计算（测量一致性 D15）：复测优先落在已有基线证据的知识点 | 完成（已提交） | **PASS**（已并入终审；实测 delta 1/1/0 非 null） |
 | 赛前修整轮 | 3 项反馈 + 1 项仓库卫生：① 空间新建真学科选择器（共享 SpaceCreateForm：/spaces 完整态 + 顶栏弹层紧凑态，可填空间名、重名本地自动后缀）② 深浅主题（默认深色 + localStorage 记忆 + 首帧内联脚本防闪 + theme-color 跟随）③「我的」页 + 只读接口 #20 GET /api/user/profile；另：仓库卫生（`deploy/*.env` 通配忽略 + 两 env 模板变量集对齐，属计划 D5、非用户反馈）。第 5 条对话链路留轮 2。轮 1 审查 FAIL 后返工修 H1（空间名上限前端 40 → 与服务端同源的 30） | 完成（已提交，返工后待审查） | 轮 1 FAIL（已返工）；待复审 |
+| 赛前修整轮 2 | 用户反馈第 5 条（最后一条）「对话链路透出 + 右侧常驻面板」：E1 契约 v1.3 冻结 / E2 本地链路真透出（prepareChat+runChat 拆分、真实中间量）/ E3 远程真流式（stream:true + 增量抽取）/ E4 云函数入口同形 / F1 前端消费层（SSE 三新事件 + trace 状态）/ F2 共享视图七件套 + ChatPage 瘦身 / F3 右侧常驻面板 + 顶栏按钮 / F4 真浏览器走查 + env 复核 + 文档收尾 | 完成（已提交） | 待审查（轮 2 审查报告未出） |
 
-**关键数字（均已实跑核对，2026-09-24 赛前修整轮后）**
+**关键数字（均已实跑核对，2026-09-24 赛前修整轮 2 后）**
 
-- 测试：**300 用例全绿**（26 个测试文件）——引擎 43 + 后端 143 + 前端 114（返工新增 stages 长度边界 8 例）；本机单条命令约 60 秒被杀，故按
+- 测试：**345 用例全绿**（29 个测试文件）——引擎 43 + 后端 169 + 前端 133；本机单条命令约 60 秒被杀，故按
   `run packages` / `run functions/api/tests` / `run apps/web/tests` 三条分批实跑汇总（见 `_pipeline/02_EXEC_REPORT.md` 分批明细）
 - 类型检查：三段 `tsc --noEmit`（engine / functions/api / apps/web）**全部 exit 0**
-- 数据闸门：`scripts/validate_data.py` 6 项阻断校验**全通过**（16 条非阻断提醒与上轮一致）
-- 接口与页面：契约 **20 接口**（v1.2 新增只读 #20）+ 前端路由表 **12 页**（新增 `/me`「我的」）
-- 构建：前端已拆包 —— 首屏 `index` 86.69 kB + `react` 165.48 kB；`echarts` 改为**进图谱页才加载**；后端 `functions/api/dist/server.js` 95,350 B（上一轮数字，本轮未动构建产物）
-- 端到端：注册 → 自报 → 测评 → 试卷确认 → 归因 → 处方 → 对话 SSE → 基线/复测 → 报告，10 步全通（上一轮实测）
+- 数据闸门：`scripts/validate_data.py` 6 项阻断校验**全通过**（本轮不碰数据，与上轮同结论）
+- 接口与页面：契约 **20 接口**（v1.3 只扩 `#18` 事件，未新增接口编号）+ 前端路由表 **12 页**（ROUTES 零改动）
+- 构建：`vite build` 通过（3.76s）；`index` 123.01 kB + `react` 165.48 kB + `echarts` 434.35 kB（进图谱页才加载）+ `index.css` 33.26 kB
+- 走查（真实 Chrome 145 headless + CDP，非模拟）：**14 张截图**存 `_pipeline/screenshots/round2/`（含 `walkthrough.json` 几何/对比度原始数据）；
+  面板 1440 下正文列 **976px**、正文右缘 1008 < 面板左缘 1040（不重叠）；<1280 走覆盖式抽屉（正文不动，1024/720/375 实测正文宽 976/672/327）；
+  面板跨路由保持展开（`#/console → #/graph → #/report → #/me` 实测 `aria-pressed` 恒 true，375/1440 两档各验一次）
+- 对话链路实测：一轮真实消息产出 **6 个 tool 步骤**（load_graph → model_call → kp_match → dedup_check → apply_evidence → state_machine），
+  args/result 全为真实中间量（`kb_math_cz` / `node_count 24` / `confidence 0.85` / `threshold 0.6` / `adopted true` / 真实 ms 0.018–0.386）
 
 **本轮（赛前修整轮）逐项落点**
 
@@ -70,6 +80,23 @@
 - 「我的」页 `/me`：账号 / 当前空间 / 主题 / 对话模型（只读，明示「由服务端配置，不可自定义」）/ 退出登录
 - 仓库卫生：`.gitignore` 把 `deploy/zhiwei.env` 放宽为 `deploy/*.env` 通配（`!deploy/*.env.example` 例外），
   `.env.example` 补 `ZHIWEI_MODEL_MODE` 说明使两模板变量集一致；核查无任何真值 env 入库痕迹
+
+**轮 2（用户反馈第 5 条）逐项落点**（提交：`7171083` E1 / `d98cc59` E2 / `150b57c` E3 / `6f790fe` E4 / `7c13687` F1 / `296cfc6` F2 / `4b63568` F3）
+
+- 契约 v1.3（E1）：`API_CONTRACT.md` **只增不删**（+51 行 / 删除 0 行，实测 `git diff | grep -c '^-'` = 0），§9 追加 phase/thought/tool
+  事件表 + ToolName 七项闭集对照表 + 顺序约定 + JSON 降级 `trace`；§11 追加变更行
+- 后端真实链路（E2）：`services/chat.ts` 拆 `prepareChat`（认证/归属/校验/加载，401/403/400/404 仍是流开始前的 JSON 错误体）
+  与 `runChat(prepared, ctx, emit)`（按真实执行序 emit）；`tool.args/result` 全为真实中间量，**未发生的步骤零事件**（clarify 轮无 dedup/evidence 事件有测试锚点）
+- 远程真流式（E3）：`models/remoteChat.ts` 改 `stream:true` 并去掉 `response_format`，新增 `parseOpenAiStreamLines` 与
+  增量抽取器（转义跨块暂存）；已发出 reply 增量后失败 → 抛 `RemoteChatAborted` **不拼接不回落**，零增量失败 → 干净回落本地
+- 前端消费层（F1）：`api/sse.ts` 增 `phase/thought/tool` 三 case 与降级 trace 按序重放；`stores/dialog.ts` 增 `thought/toolSteps/phase`
+  （`startAssistant` 清空 = 只留最新一轮）；新增 `stores/chatPanel.ts`
+- 共享视图（F2）：`components/chat/` 七件套（useChatSend / ChatMessageList / ChatComposer / ThoughtStream / ToolTimeline /
+  ChatTracePanel / ModelBadge），`ChatPage` 由 298 行瘦身为布局壳，全屏与面板**共用同一套实现**
+- 常驻面板（F3）：`Layout` 挂 `ChatPanelDock`（单一 `fixed` 容器 `z-overlay`，面板 top 56px）——≥1280 让位 padding（外层包装，
+  实测正文 976px）、<1280 覆盖式抽屉 + 背景幕 + 正文不动；顶栏「对话辅导」特判为 `aria-pressed` 开合按钮；`ROUTES`/`router`/守卫**零改动**
+- 走查与收尾（F4）：真实 Chrome headless + CDP 走查（见上「关键数字」），对照度实测修掉本轮组件浅色下 3 处不达 AA 的小字
+  （`text-ink-soft/70-/80` → 纯 `text-ink-soft`：2.97/3.61:1 → 5.51:1）；env 复核四条命令留痕；本文件与执行报告按实测数字更新
 
 ---
 
@@ -112,7 +139,7 @@ PY=/Users/Merryou/.workbuddy/binaries/python/envs/default/bin/python3
 
 cd /Users/Merryou/LearnBuddy/zhiwei
 
-# 1) 全量测试（26 文件 300 用例）
+# 1) 全量测试（29 文件 345 用例）
 #    ⚠ 本机单条命令约 60 秒被 SIGKILL，全量 run 很可能被杀；建议分批跑：
 $NODE $WS/node_modules/vitest/vitest.mjs run packages
 $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests

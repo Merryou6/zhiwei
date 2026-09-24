@@ -5,6 +5,10 @@
  *   label（中文可读名）+ name（闭集标识）+ ms（真实耗时）+ args/result（真实中间量，紧凑键值行）。
  * 状态图标：running 转圈 / ok ✓（band-basic）/ error（tone-error）。
  * 阶段进度条：analyze → retrieve → judge → generate 四档。
+ *
+ * 对比度（F4 走查实测，D26）：组件内小字（步骤名 10px / 键值行 10–11px）**不用**
+ * `text-ink-soft/70` 这类半透明降级 —— 浅色主题下实测 2.97:1 / 3.61:1，不达 WCAG AA（4.5:1）；
+ * 改为纯 `text-ink-soft` 后浅色 5.4:1、深色 8.9:1。降级靠字号与字重表达，不靠透明度。
  */
 
 import type { ChatSsePhaseData, ChatPhaseName, ChatToolStep, ChatToolStatus } from '../../api/types';
@@ -53,7 +57,7 @@ function KeyValueRows({ title, data }: { title: string; data?: Record<string, un
   if (entries.length === 0) return null;
   return (
     <div className="mt-1.5">
-      <p className="text-[10px] uppercase tracking-wide text-ink-soft/70">{title}</p>
+      <p className="text-[10px] uppercase tracking-wide text-ink-soft">{title}</p>
       <dl className="mt-0.5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5">
         {entries.map(([key, value]) => (
           <div key={key} className="col-span-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-2">
@@ -84,7 +88,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
         <p className="text-[11px] text-ink-soft" role="status">
           {phase ? `阶段 ${phaseIndex + 1}/${PHASE_ORDER.length} · ${phase.label}` : '等待开始'}
         </p>
-        <p className="font-mono text-[10px] text-ink-soft/70">
+        <p className="font-mono text-[10px] text-ink-soft">
           {steps.length > 0 ? `第 ${steps.length} 步` : ''}
         </p>
       </div>
@@ -96,7 +100,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
       </div>
 
       {steps.length === 0 ? (
-        <p className="mt-3 text-[11px] text-ink-soft/80">还没有调用工具。</p>
+        <p className="mt-3 text-[11px] text-ink-soft">还没有调用工具。</p>
       ) : (
         <ol className="mt-3 space-y-2">
           {steps.map((step, index) => (
@@ -118,7 +122,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
                       {typeof step.ms === 'number' ? `${step.ms}ms` : '—'}
                     </span>
                   </div>
-                  <p className="font-mono text-[10px] text-ink-soft/70">{step.name}</p>
+                  <p className="font-mono text-[10px] text-ink-soft">{step.name}</p>
                   <KeyValueRows title="入参" data={step.args} />
                   <KeyValueRows title="产出" data={step.result} />
                 </div>

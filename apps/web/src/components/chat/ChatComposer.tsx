@@ -101,7 +101,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
-          <span className="ml-1 text-[10px] text-ink-soft/70">演示态</span>
+          <span className="ml-1 text-[10px] text-ink-soft">演示态</span>
         </button>
         <button
           type="button"

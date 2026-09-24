@@ -64,7 +64,7 @@ export default function ModelBadge({ mode, name }: ModelBadgeProps) {
         {mode === 'remote' ? '远程大模型' : '本地规则'}
       </span>
       {mode === 'remote' && name ? <span className="font-mono text-ink">{name}</span> : null}
-      <span className="text-ink-soft/80">{MODEL_READONLY_NOTE}</span>
+      <span className="text-ink-soft">{MODEL_READONLY_NOTE}</span>
     </span>
   );
 }
