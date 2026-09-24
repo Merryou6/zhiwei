@@ -34,7 +34,12 @@ import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
 export interface SseEvent {
-  event: 'delta' | 'meta' | 'done' | 'error';
+  /**
+   * 事件名：delta / meta / done / error 为 v1.1 四类（语义未变）；
+   * phase / thought / tool 为 v1.3 新增的过程事件（契约 §9「v1.3 变更」块，
+   * 类型与标签表见 services/chatTrace.ts）。旧客户端对未知事件直接忽略。
+   */
+  event: 'delta' | 'meta' | 'done' | 'error' | 'phase' | 'thought' | 'tool';
   data: unknown;
 }
 
