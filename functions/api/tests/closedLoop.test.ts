@@ -171,7 +171,7 @@ function wrongOf(itemId: string): string {
   return SD.itemById.get(itemId)?.distractors[0]?.answer ?? '';
 }
 
-describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
+describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
   it('register→自报→测评→试卷→诊断→归因→处方→复测→报告 全链路可跑通', async () => {
     const { token, spaceId } = await newLearner();
 

@@ -6,7 +6,7 @@
 > 2. **`AGENT.md`**（工作流与配置：权威文档优先级、流水线纪律、环境常量、常用命令、红线）
 > 3. **`.learnbuddy/memory/MEMORY.md`** + **`.learnbuddy/memory/2026-09-19.md`**（项目长期记忆 + 今日详细日志与续接步骤）
 
-最后更新：2026-09-24（赛前修整轮：4 项用户反馈中 3 项已交付，第 5 条对话链路留轮 2）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 68 次提交（截至本文件更新时）
+最后更新：2026-09-24（赛前修整轮：3 项用户反馈 + 1 项仓库卫生已交付，第 5 条对话链路留轮 2；轮 1 审查返工修掉 H1 空间名长度上限不一致）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 74 次提交（实测口径 `git rev-list --count HEAD`：轮 1 末 `714f690` 为 71 次，本轮返工 +3；其中非合并 70 次，口径 `--no-merges`）
 
 ---
 
@@ -28,10 +28,12 @@
 ## 一句话进度
 
 **项目已收官：三个开发迭代（引擎与数据、后端接口、前端页面与闭环）全部完成并通过审查（3/3 PASS）。**
-赛前修整轮（2026-09-24，功能冻结日）已交付 4 项用户反馈中的 3 项：空间新建真学科选择器（共享 SpaceCreateForm +
-顶栏弹层）、深浅主题可切且首帧不闪、「我的」页 + 只读接口 #20、仓库卫生收紧（env 忽略与模板对齐）；
-**第 5 条（对话链路改造 + 右侧常驻面板）留轮 2，本轮零代码**。
-测试 **292 用例全绿**（26 文件）、tsc 三段 exit 0、数据闸门 6 项通过；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
+赛前修整轮（2026-09-24，功能冻结日）已交付 **3 项用户反馈 + 1 项仓库卫生**：
+① 空间新建真学科选择器（共享 SpaceCreateForm + 顶栏弹层）、② 深浅主题可切且首帧不闪、
+③「我的」页 + 只读接口 #20；另完成仓库卫生收紧（env 忽略与模板对齐，属计划 D5、非用户反馈）。
+**用户反馈第 5 条（对话链路改造 + 右侧常驻面板）留轮 2，本轮零代码**。
+轮 1 审查判 FAIL 后已返工：修掉 H1（前端空间名上限 40 ≠ 服务端 30，30 字重名自动后缀拼出 32 字必 400）。
+测试 **300 用例全绿**（26 文件）、tsc 三段 exit 0、数据闸门 6 项通过；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
 
 ---
 
@@ -43,11 +45,11 @@
 | 迭代 2 | 后端 19 接口全量（认证/空间/自报/测评/试卷/诊断/归因/处方/对话 SSE/报告；本地 HTTP + CloudBase 双入口；DB 与模型适配层）+ 迭代 1 遗留 5 条 MINOR 清偿 | 完成 | **PASS** |
 | 迭代 3 | 前端 10 页面（登录/自报/空间/测评/试卷/对话/归因/图谱/报告/云盘）+ Zustand 状态层 + API/SSE 客户端 + ECharts 图谱 + 端到端演示 | 完成 | **PASS** |
 | 修复 | ΔAccuracy 不可计算（测量一致性 D15）：复测优先落在已有基线证据的知识点 | 完成（已提交） | **PASS**（已并入终审；实测 delta 1/1/0 非 null） |
-| 赛前修整轮 | 4 项反馈之 3 项：① 空间新建真学科选择器（共享 SpaceCreateForm：/spaces 完整态 + 顶栏弹层紧凑态，可填空间名、重名本地自动后缀）② 深浅主题（默认深色 + localStorage 记忆 + 首帧内联脚本防闪 + theme-color 跟随）③「我的」页 + 只读接口 #20 GET /api/user/profile ④ 仓库卫生：`deploy/*.env` 通配忽略 + 两 env 模板变量集对齐。第 5 条对话链路留轮 2 | 完成（已提交，待审查） | 待审查 |
+| 赛前修整轮 | 3 项反馈 + 1 项仓库卫生：① 空间新建真学科选择器（共享 SpaceCreateForm：/spaces 完整态 + 顶栏弹层紧凑态，可填空间名、重名本地自动后缀）② 深浅主题（默认深色 + localStorage 记忆 + 首帧内联脚本防闪 + theme-color 跟随）③「我的」页 + 只读接口 #20 GET /api/user/profile；另：仓库卫生（`deploy/*.env` 通配忽略 + 两 env 模板变量集对齐，属计划 D5、非用户反馈）。第 5 条对话链路留轮 2。轮 1 审查 FAIL 后返工修 H1（空间名上限前端 40 → 与服务端同源的 30） | 完成（已提交，返工后待审查） | 轮 1 FAIL（已返工）；待复审 |
 
 **关键数字（均已实跑核对，2026-09-24 赛前修整轮后）**
 
-- 测试：**292 用例全绿**（26 个测试文件）——引擎 43 + 后端 143 + 前端 106；本机单条命令约 60 秒被杀，故按
+- 测试：**300 用例全绿**（26 个测试文件）——引擎 43 + 后端 143 + 前端 114（返工新增 stages 长度边界 8 例）；本机单条命令约 60 秒被杀，故按
   `run packages` / `run functions/api/tests` / `run apps/web/tests` 三条分批实跑汇总（见 `_pipeline/02_EXEC_REPORT.md` 分批明细）
 - 类型检查：三段 `tsc --noEmit`（engine / functions/api / apps/web）**全部 exit 0**
 - 数据闸门：`scripts/validate_data.py` 6 项阻断校验**全通过**（16 条非阻断提醒与上轮一致）
@@ -59,10 +61,15 @@
 
 - 空间新建：#4 space/create 新增可选 `name`（1–30 字，缺省取知识库名），唯一约束由「每学科每用户一个」改为
   **同用户内空间名唯一**（409 与 `existing_space_id` 语义保留）；前端共享 `components/SpaceCreateForm.tsx`
-  （学科单选 = `lib/stages.ts` 的 STAGES，与 `data/knowledge/index.json` 有逐项一致性测试）
+  （学科单选 = `lib/stages.ts` 的 STAGES，与 `data/knowledge/index.json` 有逐项一致性测试）。
+  返工（H1）：前端上限 40 → `SPACE_NAME_MAX = 30`（与后端 `MAX_SPACE_NAME_LENGTH` 同值同源，
+  有测试读后端源文件核对），`suggestSpaceName` 追加序号时先给后缀预留字符并截断 base，
+  返回值恒 ≤ 30 ⇒ 输入框 maxLength、本地重名预检、服务端校验三处同数字，任何输入都不会因长度被 400
 - 主题：`<html>` 不再常驻 `class="dusk"`，改由 index.html head 区同步脚本按 `zhiwei_theme` 裁决（默认深色、
   异常兜底深色）；`stores/theme.ts` + `components/ThemeToggle.tsx` 两处入口共用
 - 「我的」页 `/me`：账号 / 当前空间 / 主题 / 对话模型（只读，明示「由服务端配置，不可自定义」）/ 退出登录
+- 仓库卫生：`.gitignore` 把 `deploy/zhiwei.env` 放宽为 `deploy/*.env` 通配（`!deploy/*.env.example` 例外），
+  `.env.example` 补 `ZHIWEI_MODEL_MODE` 说明使两模板变量集一致；核查无任何真值 env 入库痕迹
 
 ---
 
@@ -105,7 +112,7 @@ PY=/Users/Merryou/.workbuddy/binaries/python/envs/default/bin/python3
 
 cd /Users/Merryou/LearnBuddy/zhiwei
 
-# 1) 全量测试（26 文件 292 用例）
+# 1) 全量测试（26 文件 300 用例）
 #    ⚠ 本机单条命令约 60 秒被 SIGKILL，全量 run 很可能被杀；建议分批跑：
 $NODE $WS/node_modules/vitest/vitest.mjs run packages
 $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests

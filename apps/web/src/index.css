@@ -16,8 +16,10 @@
    逐处改 class 既会漏，也把「配色」散进几百行 JSX；改成变量后，
    一个 class 开关就能整体换肤，且浅色主题的定义完整保留、随时可切回。
 
-   当前默认深色：index.html 的 <html class="dusk"> 常驻挂载。
-   浅色只作为 :root 的基线保留，供将来做主题切换。
+   主题（v1.2，D3）：默认深色、可切浅色。根元素上不再常驻挂载 dusk class，改由 index.html
+   head 区的内联同步脚本按 localStorage 的 zhiwei_theme 裁决（读不到 / 抛异常 → 深色，与默认
+   观感一致，首帧不闪）；运行期切换由 src/stores/theme.ts 改写同一处 class 与 theme-color。
+   :root 是浅色基线，html.dusk 是深色覆盖，两套值都完整保留、可随时互换。
 
    变量值是「R G B」三元组（不带 rgb() 外壳），这样 tailwind 的
    <alpha-value> 机制仍可用，bg-surface/80 这类透明度修饰不会被破坏。 */
