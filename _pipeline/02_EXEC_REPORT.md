@@ -1,258 +1,225 @@
-知微 · 赛前最终修整（4 项用户反馈）执行报告 —— 批次 B / C / D（轮 1，接续批 A）
+知微 · 赛前修整轮返工（轮 1 审查 FAIL 后）执行报告
 ====================================================================================
-执行角色：implementer（接续；上一任实现者完成批 A 后因网络故障中断）
-执行日期：2026-09-24
+执行角色：implementer（返工轮：修 reviewer 在 _pipeline/03_REVIEW.md「六、问题清单」列出的 H1 + L1/L2/L3/L4）
+执行日期：2026-09-24 17:18–17:23
 工作区：/Users/Merryou/LearnBuddy/zhiwei（分支 tempdeploy，不切分支、不 rebase）
-依据：_pipeline/01_PLAN.md 第 4 版（严格照办；执行歧义按「二、决策记录」裁决，计划外裁决续写 D11+）
-本报告归档说明：本轮开工前的 02_EXEC_REPORT.md（迭代 3 版，45,575 B）已先复制归档为
-  _pipeline/archive/02_EXEC_REPORT_20260924_1708.md，然后才覆写本文件（先归档再覆写，归档只增不删）。
-接手时 HEAD：8a52835（= 01_PLAN 第 4 版入库 commit；批 A 的 4 个 commit 均已落盘）
+基线：f31643e（轮 1 起点）→ 轮 1 末 714f690（审查对象）→ 本报告落盘时 HEAD 94c96aa
+依据：用户（项目方）本次返工指令 > _pipeline/03_REVIEW.md 问题清单 > _pipeline/01_PLAN.md 第 4 版 > AGENT.md §6 红线
+环境：$NODE=/Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node
+      $WS=/Users/Merryou/.workbuddy/binaries/node/workspace
 
-------------------------------------------------------------------------------------
-一、实际做了什么（按批）
-------------------------------------------------------------------------------------
-【批 A —— 未重做】前任实现者已完成并提交，总控亲验通过：
-  23c9f81 空间创建 v1.2（后端）/ 1599e42 前端学科选择器 + 共享 SpaceCreateForm + 顶栏弹层 /
-  f564cfe 契约 §2/§0/§11 变更记录 / 890e4cf 修复 Layout.tsx 未使用导入（基线遗留，apps/web tsc 曾红）。
-  本轮我没有改动 A 批任何文件；但通过分批跑 functions/api/tests 与 apps/web/tests 全量，
-  重新覆盖了 A 批引入的 space.test.ts（15 例）与 stages.test.ts（6 例），均绿（见三）。
+--------------------------------------------------------------------------------
+零、结论速览
+--------------------------------------------------------------------------------
+- H1（唯一功能缺陷）：已修，且「任何输入长度下提交都不会因长度被 400」经**真实 HTTP 实验**证明（见四）。
+- L1 / L2 / L3：已清（L1 只改 describe 标题这一行字符串，断言零改动）。
+- L4：裁决为「需要最小化改动」——列表为空时提交前补拉一次再预检；残留的「列表非空但过期」仍走 409 兜底，
+  已在代码注释写明前提（见五）。
+- 全部验证命令亲自跑过并全绿：4 条 vitest 分批 + 3 段 tsc（见三）。
+- 未完成项：无（本轮用户指令列出的 4 项问题全部落地）。M1（浏览器走查）属 reviewer 给轮 2 的建议、不在本次指令范围。
 
-【批 B —— 深浅主题（D3）】commit e6e8288
-  1. apps/web/index.html：
-     - <html lang="zh-CN"> 去掉硬编码 class="dusk"；
-     - head 区新增内联同步脚本（读 localStorage 'zhiwei_theme'，只有 === 'light' 才不挂 dusk；
-       同时改写 meta[name=theme-color]；catch 兜底挂 dusk = 深色，与默认一致）；
-     - 首屏底色由单值 #070c14 改为双分支：html{background-color:#f5f8f9} / html.dusk{...:#070c14}；
-     - 顶部注释改为「首帧主题裁决」说明；meta theme-color 初始 content 保持 #070C14。
-  2. apps/web/src/stores/theme.ts（新增）：Theme 类型、THEME_COLOR 映射、resolveInitialTheme 纯函数、
-     useThemeStore（setTheme = 写 localStorage + classList.toggle('dusk', dark) + 改写 meta + set；
-     toggle = 互切）；DOM 与 localStorage 操作全部 try/catch（隐私模式不崩，与 auth/space store 同款纪律）。
-  3. apps/web/src/components/ThemeToggle.tsx（新增）：36×36 触控目标，太阳/月亮线框 SVG（aria-hidden），
-     aria-label「切换深浅主题」、aria-pressed、title 文案随当前主题；样式全走语义令牌（border-line /
-     text-ink-soft / hover:bg-raised），零裸 hex。
-  4. apps/web/src/components/TopNav.tsx：空间胶囊左侧挂 <ThemeToggle />；
-     下拉箭头 className 由 text-[#93a0b4] 改 text-ink-soft（D3f-1：浅底对比度约 2.9:1 不达标 + 违反
-     「组件只写语义类名」纪律）；文件头补主题相关说明。本批未动 TopNav 其他部分。
-  5. apps/web/src/router.tsx：STORAGE_KEYS 增 theme: 'zhiwei_theme'（注释同步）。
-  6. apps/web/tests/themeStore.test.ts（新增 7 例）。
-  未改（按计划不改）：pages/LoginPage.tsx（D3e 登录页常驻深色）、tailwind.config.js 守恒区（D3g）、
-  index.css 既有双分支变量体系（D3f-5）。
+--------------------------------------------------------------------------------
+一、实际做了什么（按问题编号）
+--------------------------------------------------------------------------------
+H1 空间名长度上限不一致（前端 40 / 服务端 30）
+  1) apps/web/src/lib/stages.ts
+     - 新增导出 `SPACE_NAME_MAX = 30`，注释写明「与后端 functions/api/src/services/space.ts 的
+       MAX_SPACE_NAME_LENGTH 同值同源（契约 §2 v1.2「1–30 字」），改一处必须同步另一处」，
+       并点明 H1 的两种必 400 路径（31–40 字直输、30 字重名自动后缀拼成 32 字）。
+     - 重写 `suggestSpaceName(base, taken)`：
+       · 先 `base.trim()`（后端校验与入库都用 trim 后的名字；不 trim 会出现「返回带尾随空格的名字、被
+         后端 trim 后撞上已有空间名」的假预检）、再 `slice(0, SPACE_NAME_MAX)`；
+       · base 为空/纯空白 → 退回 `学习空间`（与后端 create 的 `?? '学习空间'` 兜底一致，绝不返回空串，
+         否则服务端 400「name 不能为空白」）；
+       · 追加序号时**先给后缀预留字符**：`head = safeBase.slice(0, SPACE_NAME_MAX - suffix.length)`，
+         故 30 字原名已占用时得到「前 28 字 + ' 2'」= 恰好 30 字；连号 →「前 28 字 + ' 3'」…
+       · 返回值长度恒 ≤ 30（有全长度扫描测试锁死）；截断后仍保留 base 的可辨识前缀，不退化成空串或纯序号；
+       · 序号循环加了 999 上界，保证必然终止（该分支实际不可达，已在注释说明此时退回截断名、冲突交 409 兜底）。
+  2) apps/web/src/components/SpaceCreateForm.tsx
+     - `maxLength={40}` → `maxLength={SPACE_NAME_MAX}`（单一来源，前端不再有自己的魔数）。
+     - 表单提示文案补「（最多 30 字）」——reviewer 指出用户撞 400 时表单里没有任何字数提示。
+     - L4：`taken` 的组装改为「store.spaces 为空时先 `await listSpaces()` 补拉一次」，只用于本次预检、
+       不写 store（不干扰 activeSpace）；补拉失败则退回本地列表，不阻断提交。
+     - 文件头补两段说明：长度口径（H1）+ 本地预检的前提与残留风险（L4）。
+  3) apps/web/tests/stages.test.ts：6 → 14 例（新增 8 例，明细见三）。
 
-【批 C1 —— 后端 #20 GET /api/user/profile（D4c）】commit 7347125
-  1. functions/api/src/services/profile.ts（新增）：profile(req, ctx) →
-     authedUser（401 统一）→ listSpacesByUser → ok({ user, spaces, model })；
-     - user 为显式字面构造（user_id / identifier / nickname / created_at），不 spread 整记录，
-       password_hash 无法进入响应；
-     - spaces 复用 services/space 的 toSpaceView（与 §2 list 完全同形）；
-     - model.mode = ZHIWEI_MODEL_MODE === 'remote' ? 'remote' : 'local'；model.name 仅 remote 时取
-       ZHIWEI_LLM_MODEL（trim 后非空，否则 null）；API Key 绝不出现在任何分支。
-  2. functions/api/src/router.ts：追加 { GET, '/api/user/profile', userProfile }（第 8 组，注释 #20 · v1.2）；
-     文件头「19 个接口」注释改为 20。
-  3. functions/api/tests/profile.test.ts（新增 5 例）：未认证 401 / 键集与 §2 同形 + model 默认 local /
-     全文不含 password_hash 与 salt / nickname 透传与 null / stubEnv remote 分支（含非 remote 值名不下发）。
-  4. functions/api/tests/closedLoop.test.ts：E1「路由闭合」由 19 → 20 并补 'GET /api/user/profile'
-     （更新而非删除；计划八、总表未列此用例 —— 见 D11）。
+L1 functions/api/tests/closedLoop.test.ts:174
+  `describe('closedLoop · 19 接口全链路（真实 HTTP）')` → `... 20 接口 ...`。
+  只改这一处字符串；`git diff` 实测 1 file / 1 insertion / 1 deletion。
+  同文件的 `#19 报告`（第 400 行，是接口编号本身）与第 519 行注释「路由表计数 19 → 20」语义本来就对，未动。
+  断言零改动，跑完 functions/api/tests 仍 143 全绿。
 
-【批 C2 —— 前端「我的」页（D4a/D4b）】commit 33b4931
-  1. apps/web/src/router.tsx：新增 ME_PATH = '/me'；ROUTES 追加 { path:'/me', label:'我的', page:12,
-     requiresAuth:true, nav:true }（末位）→ 路由表 12 页；文件头注释同步 11 页→12 页。
-  2. apps/web/src/App.tsx：PAGE_COMPONENTS 增 '/me': MePage（import MePage）；注释 10 页→12 页。
-  3. apps/web/src/pages/MePage.tsx（新增）：五区块（账号 / 当前学习空间 / 主题 / 对话模型只读 / 退出登录），
-     沿用 max-w-3xl + rounded-2xl border border-line bg-surface shadow-card 卡片结构；
-     - 数据源 getUserProfile()（进入时拉账号 + 空间 + 模型），当前空间另读 useSpaceStore 的 activeSpaceOf；
-     - 昵称为空显示「未设置」；注册时间用 lib/format.ts 的 formatTime；
-     - 空间区块用 lib/stages.ts 的 stageLabel 显示学科，附「去管理」→ /spaces（无活跃空间时给「去选空间」）；
-     - 模型区只展示 mode 徽标（本地规则 / 远程大模型）+ remote 模型名 + 固定文案
-       「对话模型由服务端配置，不可在此自定义。」—— 不提供任何自定义入口（用户反馈第 4 条）；
-     - 退出登录走 ConfirmDialog（全站唯一 modal）→ useAuthStore.clear() + useSpaceStore.clear() → navigate('/login')。
-  4. apps/web/src/api/endpoints.ts：追加 getUserProfile()（#20；请求头注释 19→20 接口）。
-  5. apps/web/src/api/types.ts：追加 ProfileUserView / ProfileModelView / ProfileData（末尾 §1 #20 段）；
-     文件头 19→20 接口、v1.1→v1.2。
-  6. apps/web/tests/routerGuard.test.ts（更新而非删除）：11 页→12 页、编号数组补 12、navRoutes 补 '/me'（6 项）、
-     PROTECTED 10→11、另补 STORAGE_KEYS.theme === 'zhiwei_theme' 断言（见 D15）。
+L2 apps/web/src/index.css:19-20
+  过期注释「当前默认深色：index.html 的 <html class="dusk"> 常驻挂载。浅色只作为 :root 的基线保留，
+  供将来做主题切换。」改写为现状：默认深色、可切浅色；根元素不再常驻 dusk，改由 index.html head 区
+  内联同步脚本按 localStorage 的 zhiwei_theme 裁决（读不到/抛异常 → 深色，首帧不闪）；运行期切换由
+  src/stores/theme.ts 改写同一处 class 与 theme-color；:root 浅色基线 + html.dusk 深色覆盖并存。
+  新注释**不含尖括号标签名**（D14 坑：Vite 按 head 标签注入会误命中注释）。
+  说明：本文件原有第 23 行的 `<alpha-value>` 属轮 1 之前就存在的 CSS 注释，与本问题无关，未动（不扩大范围）。
 
-【批 C3 —— 契约文档（D4c 文档侧）】commit 8eff2e3
-  API_CONTRACT.md §1 认证小节末尾纯追加 #20 接口块（res / 说明 / 认证 / 越权 四条）。
-  §11 变更记录的 v1.2 合并行（含 ② 新增 #20）在 A3 已落盘，本批未重复追加（见 D12）。
+L3 LOOKATME.md
+  · 提交数：`68` → 实测口径。实测 `git rev-list --count HEAD`：轮 1 末 714f690 = 71 次；本轮返工 +3 = 74 次
+    （写完时 HEAD 94c96aa = 73，本报告 commit 落盘后为 74）；`--no-merges` = 70 次。文中已标注口径命令。
+  · 「4 项用户反馈中的 3 项」→「3 项用户反馈 + 1 项仓库卫生（属计划 D5、非用户反馈）」，
+    并把第 5 条（对话链路）与 4 项的界线说清；表格行同步改写。
+  · 顺带把本轮会变动的测试数字一并按实跑改正：292 → 300（26 文件；引擎 43 + 后端 143 + 前端 106→114）。
+  · 「本轮逐项落点」补第 4 条（仓库卫生）与 H1 返工说明（否则该节只有 3 条，与「4 项」口径仍不自洽）。
 
-【批 D —— 仓库卫生 + 文档收尾（D5 + D9）】commit afb7796（卫生）+ e6d0b4f（文档）
-  1. .gitignore：`deploy/zhiwei.env` 单条 → `deploy/*.env` + `!deploy/*.env.example`（注释同步）。
-  2. .env.example：模型段前补 ZHIWEI_MODEL_MODE 说明块（`# ZHIWEI_MODEL_MODE=local` + local 默认 /
-     remote 需 ZHIWEI_LLM_* 三项），与 deploy/zhiwei.env.example 变量集对齐。
-  3. LOOKATME.md：最后更新行（2026-09-24 / 分支 tempdeploy / 68 次提交）、必读文档表 API_CONTRACT 行标注
-     v1.2 与「20 个接口」、一句话进度、进度快照表追加「赛前修整轮」行、关键数字改为实跑口径、
-     「怎么跑起来」补分批跑测试提示、迭代 3 终审的 225 用例口径标注为「历史快照」。
-  未改：PRD.md（D9 明确不改）；未触碰 tools/e2e-smoke.cjs / _pipeline/PR-tempdeploy.md / 知微-项目介绍.md。
+L4 SpaceCreateForm 本地重名预检依赖 store.spaces 新鲜度 —— 裁决「改，最小化」：
+  详见五、裁决记录 D18。
 
-【提交清单（本轮，均为中文 commit，逻辑分离）】
-  e6e8288  深浅主题（B）
-  7347125  后端 #20（C1）
-  33b4931  「我的」页（C2）
-  8eff2e3  契约 #20 文档（C3）
-  afb7796  仓库卫生（D · 1/2）
-  e6d0b4f  LOOKATME 更新（D · 2/2）
+--------------------------------------------------------------------------------
+二、改了哪些文件及关键位置
+--------------------------------------------------------------------------------
+commit 58de0eb（H1 代码 + 测试）：
+  apps/web/src/lib/stages.ts                    新增 SPACE_NAME_MAX / FALLBACK_SPACE_NAME /
+                                                MAX_SUFFIX_INDEX；重写 suggestSpaceName（第 34–72 行区段）
+  apps/web/src/components/SpaceCreateForm.tsx   头注释（长度 + L4 前提）；import 加 SPACE_NAME_MAX；
+                                                handleSubmit 的 taken 补拉；maxLength；
+                                                提示文案（第 62–82、147、165 行附近）
+  apps/web/tests/stages.test.ts                 新增 describe「空间名长度上限（H1）」，8 例
 
-------------------------------------------------------------------------------------
-二、运行的测试命令与逐条结果（全量按批实跑，遵守 60 秒限制）
-------------------------------------------------------------------------------------
-说明：本机单条命令约 60 秒被 SIGKILL，故**不跑**单条全量 `vitest run`，改为三条分批；所有 git 命令
-      一律加 --no-pager（默认分页器会挂住直至被杀）。
+commit 94c96aa（四条文档瑕疵 L1/L2/L3）：
+  functions/api/tests/closedLoop.test.ts:174    describe 标题 19 → 20（仅此一行）
+  apps/web/src/index.css:19-22                  主题注释改写为现状（无尖括号标签名）
+  LOOKATME.md:9 / 30-34 / 46 / 50 / 58-66 / 108 提交数与口径、「3 项反馈 + 1 项仓库卫生」表述、
+                                                测试数 292 → 300、逐项落点补仓库卫生与 H1 返工
 
-逐子步局部验证（按实施顺序）
-  [B]  tsc --noEmit -p apps/web/tsconfig.json                      → exit 0
-  [B]  vitest run apps/web/tests/themeStore.test.ts apps/web/tests/bands.test.ts
-                                                                   → 2 files / 17 passed
-                                                                     （themeStore 7 + bands 10；bands 为守恒区回归哨兵，全绿）
-  [B]  起 vite（--port 5179 --strictPort）→ node 忙等 6s → curl / → pkill（同一调用内）
-       → 落地 HTML 断言：<html lang="zh-CN"> 无 class="dusk"；内联主题脚本（含 zhiwei_theme）
-         出现在样式块之前；零散 <style> 已为双分支（#f5f8f9 / #070c14）
-  [C1] tsc --noEmit -p functions/api/tsconfig.json                 → exit 0
-  [C1] vitest run functions/api/tests/profile.test.ts               → 1 file / 5 passed
-  [C1] vitest run functions/api/tests                             → 13 files / 143 passed
-  [C2] tsc --noEmit -p apps/web/tsconfig.json                      → exit 0
-  [C2] vitest run apps/web/tests/routerGuard.test.ts apps/web/tests/authStore.test.ts
-                                                                   → 2 files / 14 passed
-  [C2] vitest run apps/web/tests                                   → 11 files / 106 passed
-  [D]  git check-ignore -v .env .env.local deploy/zhiwei.env deploy/prod.env
-       → 四条全部命中：.env→.gitignore:17:.env；.env.local→.gitignore:18:.env.*；
-         deploy/zhiwei.env 与 deploy/prod.env→.gitignore:22:deploy/*.env
-       git check-ignore -v .env.example / deploy/zhiwei.env.example
-       → 两者均不命中（退出码非 0，正确）
-  [D]  git --no-pager log --all -p -- .env '*.env' | head          → 输出为空（历史无任何真值 env 提交）
-       git ls-files | grep -i env                                  → 仅 .env.example 与 deploy/zhiwei.env.example
-  [D]  python3 scripts/validate_data.py                            → [PASS] 数据闸门 6 项阻断校验全通过
-                                                                     （16 条非阻断提醒，与上轮一致）
+本报告 commit（本文件 + 归档）：
+  _pipeline/02_EXEC_REPORT.md                   覆写为本轮报告
+  _pipeline/archive/02_EXEC_REPORT_20260924_1722.md   轮 1 执行报告原件归档（只增不删），
+                                                md5 = dc7d0017fc337629f1b0c21e45916738，与覆写前文件一致
 
-收尾全量（分批）实跑
-  批次 1/3  vitest run packages              → 2 files / **43 passed**（bkt 20 + selection 23）
-  批次 2/3  vitest run functions/api/tests   → 13 files / **143 passed**
-  批次 3/3  vitest run apps/web/tests        → 11 files / **106 passed**
-  ── 合计：26 个测试文件 / **292 例全绿，0 failed，0 skipped**
-  三段 tsc：engine=0 / functions/api=0 / apps/web=0
-  （另外单独复跑过 apps/web/tests 与 functions/api/tests 各多次，结果一致，无 flaky 现象）
+未改（明确不动）：packages/engine/**、data/**、config/params.json、scripts/**、PRD/ALGORITHM/DATA_SCHEMA/
+  参赛方案 v4、API_CONTRACT.md（契约已定稿，服务端上限 30 这个数字未动，改的是前端对齐）、
+  functions/api/**（本轮零后端改动）、tools/e2e-smoke.cjs、_pipeline/PR-tempdeploy.md、知微-项目介绍.md
+  （后三项是他人未提交变更，未 add、未提交、未回退）。
 
-额外端到端验证（真实 HTTP，非 dispatch 直调；补偿「不能起常驻服务」的限制）
-  同一条命令内：esbuild 打包 server.ts → 临时 storeDir（/tmp mkdtemp，不污染 data/local_db）→
-  startApiServer(:8791) → 真实 fetch 注册 + fetch #20 → 关闭并删临时目录。
-  实测响应：{"code":0,"msg":"success","data":{"user":{"user_id":"u_...","identifier":"e2e...@example.com",
-  "nickname":"小测","created_at":"2026-09-24T09:08:20Z"},"spaces":[{"space_id":"sp_...","name":"初中数学",
-  "subject":"数学","knowledge_source":["kb_math_cz"],"is_default":true,...}],"model":{"mode":"local","name":null}}}
-  断言：code=0 ✓；user 键集恰为 created_at,identifier,nickname,user_id ✓；spaces 1 条且与 §2 同形 ✓；
-  model={"mode":"local","name":null} ✓；响应全文不含 password_hash ✓、不含 salt ✓；
-  未带 token 的真实 HTTP → 状态 401、body code=401 ✓
+--------------------------------------------------------------------------------
+三、运行的测试命令与逐条结果（全部亲自实跑）
+--------------------------------------------------------------------------------
+[1] $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests/stages.test.ts
+    → Test Files 1 passed (1) / Tests 14 passed (14)   （改前 6 例 → 新增 8 例）
+[2] $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
+    → Test Files 11 passed (11) / Tests 114 passed (114)   （改前 106 → +8，符合「比 106 多出新增用例数」）
+[3] $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+    → Test Files 13 passed (13) / Tests 143 passed (143)   （与 L1 前一致 ⇒ L1 只改标题、没伤断言）
+[4] $NODE $WS/node_modules/vitest/vitest.mjs run packages
+    → Test Files 2 passed (2) / Tests 43 passed (43)       （引擎未受影响）
+    合计 43 + 143 + 114 = 300 用例 / 26 文件
+[5] tsc --noEmit -p apps/web/tsconfig.json          → exit 0
+[6] tsc --noEmit -p functions/api/tsconfig.json     → exit 0
+[7] tsc --noEmit -p packages/engine/tsconfig.json   → exit 0（附跑，确认无跨包影响）
 
-------------------------------------------------------------------------------------
-三、失败详情与修复尝试
-------------------------------------------------------------------------------------
-1. [已修复] apps/web/tests/themeStore.test.ts 首跑 1 例红：
-   setTheme('light') 后 meta content 仍为 '#070C14'（expected '#F5F8F9'）。
-   原因：测试辅助函数 ensureMeta() 每次调用都重写 document.head.innerHTML（重建 meta，把 content 复位）。
-   修复：把「建 meta」与「读 meta」拆成两个函数（ensureMeta 仅 beforeEach 调用；新增只读 metaContent()）。
-   重跑：17/17 绿。属测试自身缺陷，非产品代码问题。
-2. [已修复] functions/api/tests/closedLoop.test.ts E1 用例红：
-   expected routes to have length 19 but got 20。
-   原因：新增 #20 路由后，既有「路由闭合」断言与精确路由清单需同步 —— 计划八、总表判断该文件
-   「不受影响」有误（见 D11）。修复：19→20 并补 'GET /api/user/profile' 一行（更新而非删除）。
-   重跑：functions/api/tests 143/143 绿。
-3. [已修复] 首帧脚本被 Vite 注入错位（实测发现，非测试红）：
-   首版 index.html 的 HTML 注释里写了尖括号标签名，Vite 的 head 注入正则误命中注释内的标签名，
-   把 @vite/client 与 react-refresh 预置脚本注入了**注释内部**（脚本不执行 → dev HMR 失效）。
-   证据：curl 落地 HTML 显示注入脚本落在 <!-- ... --> 中间。
-   修复：注释改写为非标签写法，并留「注释里不要写尖括号标签名」的警示；重跑落地 HTML 断言，
-   注释完整、注入脚本正常位于 head 内。此问题为运行时实测发现，静态 tsc/vitest 均无法覆盖。
-（无遗留失败：收尾全量 292 例 0 failed、三段 tsc exit 0、数据闸门 PASS。）
+新增 8 个用例（stages.test.ts）逐条：
+  1. SPACE_NAME_MAX 与后端 MAX_SPACE_NAME_LENGTH 同值（**读 functions/api/src/services/space.ts 源文件**
+     正则取字面量，防两处漂移）+ 断言等于 30（契约口径）
+  2. base 恰 30 字且未占用 → 原样返回、长度 = 30
+  3. base 恰 30 字且已占用 → 长度 ≤ 30、不与 taken 冲突、以 base 的可辨识前缀开头（断言 head 恰为
+     base 前 28 字、以 ' 2' 结尾，排除「退化成空串或纯序号」）
+  4. base 恰 30 字且连号占用 → 依次拿到 2、3，长度都 ≤ 30
+  5. base 超长（40 字）→ 返回值 ≤ 30，且等于 base 前 30 字（不把超长名原样发服务端）
+  6. base 自带首尾空格 → 先 trim 再判重（`'初中数学  '` + taken ['初中数学'] → '初中数学 2'）
+  7. base 为空 / 纯空白 → 退回「学习空间」（不返回空串）
+  8. 性质扫描：base 长度 0–60 × 5 种占用情形 → 结果恒非空、恒 ≤ 30、恒不与 taken 冲突
 
-------------------------------------------------------------------------------------
-四、计划「八、测试影响总表」实跑对账
-------------------------------------------------------------------------------------
-计划口径：基线 225 用例（引擎 38 + 后端 123 + 前端 64，20 文件）；预计总数 ≈ 243。
-实跑口径（开工前 commit f31643e 逐文件核数）：**269 例 / 23 文件**（引擎 43 + 后端 133 + 前端 93）。
-  → 计划的 225 是迭代 3 时期的旧快照，未计入 b8d5581 合并 main 引入的测试（如 remoteChat.test.ts 15 例）
-    等增量。以实跑为准，不以此改写计划（计划只读）。
-逐条对账（计划表 4 条 + 新增用例）：
-  1. space.test.ts「create」组 4 → 9 例（A1）               —— 已落实（本轮实跑 space.test.ts 15 例绿）。
-     明细：409 默认同名 / 非法 kb 400 / (a) 清表后不传 name / (b) 同学科多空间 / (c) 同名 409 /
-     (d) name 空串·空白·32 字·非字符串 400 / (e) kb_math_gz 缺省名 / (f) trim 与恰 30 字边界 /
-     未认证 401，共 9；list 2 + drive 4 未动。
-  2. routerGuard.test.ts「2 处断言更新」（C2）              —— 已落实，且**必须多改 1 处**：
-     11→12 页与编号 1–12、navRoutes 5→6 项（补 '/me'）之外，PROTECTED toHaveLength(10) 必须改 11
-     （requiresAuth 的页面由 10 增至 11），计划「其余守卫用例不动」在此处不成立（见 D15）。
-     另在同一用例内补 STORAGE_KEYS.theme 断言（该用例本就以「STORAGE_KEYS 键名一致」为主题）。
-  3. client.test.ts（createSpace 可选 name）                —— 无需改：13 例原样全绿。
-  4. closedLoop.test.ts / 其余后端例「不受影响」             —— **不符**：closedLoop E1 路由闭合断言 19→20
-     （更新而非删除），见 D11；其余后端例确实不受影响。
-  新增用例实跑：stages.test.ts **6**（计划写 4；A2 实际落 6）+ themeStore.test.ts **7**（计划写 4）
-     + profile.test.ts **5** = 18；计划预计 13。
-  总数实跑：269（基线，非 225）+ 5（A1 space 净增）+ 6（A2 stages）+ 7（B themeStore）+ 5（C1 profile）
-     + 0（C2 routerGuard 更新不增例）= **292 / 26 文件**，与三条分批实跑汇总完全一致。
-  「更新而非删除」纪律：本轮所有测试改动均为改断言或新增文件，无整段删除（见 git diff --stat：
-     closedLoop.test.ts 改 2 处；routerGuard.test.ts 改 4 处；其余为新增文件）。
+--------------------------------------------------------------------------------
+四、H1 的「不会因长度被 400」如何证明（不靠结论，靠实验）
+--------------------------------------------------------------------------------
+新用例本身不是空断言：用旧实现复算，`suggestSpaceName(base30, [base30])` 返回 32 字、
+`(base40, [])` 返回 40 字——两条都违反新用例的「≤ 30」断言，即旧代码下这些用例必红。
 
-------------------------------------------------------------------------------------
-五、与计划的偏差清单（计划外裁决续写 D11+）
-------------------------------------------------------------------------------------
-D11【必须偏离，计划判断有误】closedLoop.test.ts 的「E1 路由闭合：19 个接口全部挂载」用例
-  计划八、总表第 4 条判断 closedLoop.test.ts「不受影响」，但该用例含精确路由计数与清单断言，
-  新增 #20 后必然红。裁决：按「更新而非删除」纪律把 19 → 20 并补一行路由断言，用例名与注释同步为
-  v1.2/#1–#20。理由：该断言正是「路由表与契约逐项一致」的守门测试，删它等于丢护栏。
-D12【偏离】计划三、3.4 要求 C3 在 §11 追加 v1.2 合并行（①②）。实际 A3（f564cfe）已把该合并行落盘
-  （含「② 新增 #20 GET /api/user/profile」）。裁决：C3 只补 3.2 的 §1 接口块，不重复追加 §11 行
-  （重复 = 表格碎片化，违背 3.4「避免表格碎片化」的本意）。
-D13【自行裁决】index.html 内联脚本的插入位置。计划 D3b 只说「head 内、charset 之后」，而 3.2 步的
-  验证又要求「内联脚本先于 style」，同时 D3c 要求脚本改写 meta theme-color。若把脚本放在 charset
-  正后方，则 document.querySelector('meta[name="theme-color"]') 取不到（meta 尚未解析）→ 浅色首帧
-  theme-color 无法被改写。裁决：置于 theme-color meta 之后、样式块之前 —— 同时满足「charset 之后」
-  「先于 style」「能改写 meta」三条。实测（curl 落地 HTML）三者均成立。
-D14【自行裁决 + 实测修复】HTML 注释禁止出现尖括号标签名。首版注释含标签名写法，被 Vite 的 head
-  注入正则误命中，导致 @vite/client / react-refresh 预置脚本被注入注释内部（dev HMR 失效）。
-  裁决：注释改用非标签写法，并在文件内留警示注释。理由：这是构建链的实际行为，不是风格偏好。
-D15【必须偏离，计划语句不准确】routerGuard.test.ts 的 PROTECTED toHaveLength(10) 必须改 11。
-  计划 C2 写「其余守卫用例不动」；但 /me 为 requiresAuth:true，该断言必然从 10 变 11。
-  裁决：改 11 并在用例内加注释说明来源；同用例补 STORAGE_KEYS.theme 断言（主题键与 index.html
-  内联脚本同源，属该用例主题范围内的正当补充，非新增用例，例数不变）。
-D16【轻微偏离】.env.example 的 MODEL_MODE 说明。计划 D5c 说「补一行注释」；实际写了 3 行注释块
-  （模式含义 + remote 前提），与 deploy/zhiwei.env.example 的写法风格对齐（后者也是多行说明）。
-  内容为纯注释、不激活任何变量（仍是 `# ZHIWEI_MODEL_MODE=local`），无功能影响。
+更强的一条：**真实 HTTP 端到端实验**（独立进程起真实服务端，非单测桩）
+  · 数据隔离：ZHIWEI_ROOT=/tmp/zw_root（knowledge/item_bank/config 软链到仓库，local_db 在临时根内新建），
+    仓库 data/local_db 的 mtime 实测未变（仍 15:52），无污染；
+  · 服务端形态：因 functions/api/dist/server.js 是轮 1 之前的旧 bundle（grep 无「同名空间已存在」），
+    先用 esbuild 按当前源码重建 dist，实验后已用备份按 md5 还原（aa6418b08a233077fd29e5de32cb2176 一致）；
+  · 被测函数：**真实 lib/stages.ts**（`node --experimental-strip-types` 直接 import 源文件，非手写复刻）；
+  · 结果：
+      旧路径 40 字直输              → 提交 40 字 → HTTP 400（复现 H1 路径 1）
+      旧路径 base30 + ' 2'（32 字）  → 提交 32 字 → HTTP 400（复现 H1 路径 2）
+      suggestSpaceName(base30, 0 占用) → 提交 30 字 → HTTP 200
+      suggestSpaceName(base30, 1 占用) → 提交 30 字 → HTTP 200
+      suggestSpaceName(base30, 2 占用) → 提交 30 字 → HTTP 200
+      **全长度扫描：base 长度 0–45 各提交一次（46 次），因长度被 400 的次数 = 0**，
+     累计占用名 49 个，最长 30 字。
+  · 结论链：suggestSpaceName 返回值恒 ≤ 30（性质扫描测试锁死）∧ 服务端对 ≤ 30 字一律接受
+    （space.test.ts (f) 恰 30 字 → 200；(d) 32 字 → 400）⇒ 表单提交的名字不可能因长度被 400。
+    SpaceCreateForm 的 maxLength 与预检都走同一常量，故输入框也不让用户打出 31+ 字。
+  · 清理：kill 服务端并 `pgrep -fl dist/server.js` 确认无残留；dist 已还原；实验脚本在 /tmp（不入库）。
 
-------------------------------------------------------------------------------------
-六、未完成项与未验证项及原因
-------------------------------------------------------------------------------------
-1.【未验证 · 环境限制】计划十、总验收第 5 条的**浏览器走查**未做：/spaces 选「高中数学」一键新建、
-   顶栏弹层内新建反馈、主题切换两处入口生效且刷新保持、/me 五区块目视、退出登录回登录页。
-   原因：本机单条命令约 60 秒被 SIGKILL，且**后台任务同样被杀**——无法在「起后端 + 起前端」与服务
-   存活的前提下跨多次工具调用做交互式浏览器操作。已做的补偿验证：
-   - 落地 HTML 断言（无硬编码 dusk、内联脚本先于样式）+ themeStore 单测 7 例（DOM/meta/localStorage 双写、隐私模式不崩）；
-   - #20 真实 HTTP 端到端（注册 → profile → 401 未认证）与 5 例契约用例；
-   - A 批前端学科选择器 / 顶栏弹层的有测试覆盖部分（stages 6 例）复跑全绿。
-   仍**未验证**的观感类事实：浅色下各页对比度（D3f 的观察项 ZhiweiLogo 渐变）、主题切换后刷新保持的
-   端到端表现、/me 页真实渲染布局。
-2.【未做（计划未要求）】MePage 的组件级渲染测试（jsdom + react-dom）未新增，避免超出计划测试范围；
-   该页数据路径已被 profile.test.ts（后端）+ tsc 覆盖，但「五区块渲染是否齐全」无自动化断言。
-3.【未做（计划未列为本轮验证项）】生产构建（vite build / esbuild 后端产物）未重跑；LOOKATME 中的构建
-   体积数字沿用上轮实测值并已标注。
-4.【未做（轮 2 范围）】用户反馈第 5 条（对话链路改造 + 右侧常驻面板）：本轮零代码，未触碰 Layout.tsx。
-5.【未做（明确排除项）】packages/engine、data/**、config/params.json、scripts/** 零改动；
-   PRD / ALGORITHM / DATA_SCHEMA / 参赛方案 v4 未改；状态带取色入口 theme/bands.ts 未改（bands.test 10 例回归绿）。
-6. 工作区他人未提交变更（tools/e2e-smoke.cjs 已修改、_pipeline/PR-tempdeploy.md 与 知微-项目介绍.md
-   未跟踪）全程未暂存、未提交、未回退；本轮 6 个 commit 均不含它们（已逐次以 git status 核对暂存清单）。
+--------------------------------------------------------------------------------
+五、裁决记录（续轮 1 的 D1–D16，按计划「十一、」要求继续编号）
+--------------------------------------------------------------------------------
+D17 长度常量的「单一来源」落在 lib/stages.ts（用户建议方案的落地）
+  采用 `export const SPACE_NAME_MAX = 30` + 注释「与后端 MAX_SPACE_NAME_LENGTH 同值同源」，
+  并**加了一条读后端源文件核对的测试**——比只写注释更强：两处一旦漂移，测试直接红。
+  未采用「前端从后端 import」：functions/api 与 apps/web 是两个 tsconfig / 两个构建目标，
+  跨包 import 会把服务端代码拉进浏览器 bundle，得不偿失（与 D6「静态副本 + 一致性测试」同一手法）。
+  服务端 30 这个数字**未改**（契约已定稿 1–30 字，且不是本轮授权范围）。
+D18 L4 裁决：**接受「并发/过期」的 409 降级，但消除「列表为空」这一可自解路径**（= 最小化改动）
+  理由：列表为空是**非并发**场景（刚登录 / 顶栏懒加载未回），用户完全可自解，且会让「一键新建必成功」
+  在该窗口静默退化为「切到已有空间」，与「想建第二个空间」的意图相悖 → 值得修，成本 6 行。
+  残留：store.spaces 非空但过期（多端并发新建）仍可能 409 → 走既有 ConfirmDialog「切换过去」。
+  该残留**接受**，依据：单实例 JSON 存储无并发锁是项目已知限制（LOOKATME「限制」节），
+  409 有明确反馈、非静默，与计划 R4「服务端 409 仅作并发兜底」一致；已在 SpaceCreateForm 头注释写明该前提。
+  未采用 reviewer 的备选方案「409 且用户输入为空时自动改用 base 2 重试一次」：会让「切到已有 vs 再建一个」
+  的语义变模糊（用户看到的名字与他预期不符），且与契约 §2「409 默认按钮仍是切换过去」的既定交互冲突。
+D19 suggestSpaceName 额外加了 trim 与空 base 兜底（reviewer 未明确要求，属边界正确性）
+  用户指令要求「base 自带尾随空格等边界都要正确」。若不 trim：返回 '初中数学 '（带空格）会被后端 trim 成
+  '初中数学' → 可能正好撞上已有空间名 → 本地预检失效、仍吃 409。空 base 若不兜底会返回空串 → 服务端 400
+  「name 不能为空白」。两处都按「与后端行为对齐」处理并写了测试，未改变非空 base 的既有行为（原 4 例全绿）。
+D20 表单提示文案补「（最多 30 字）」
+  依据 reviewer H1 的定级说明「表单无任何 30 字提示」。属 H1 的下游一致性，同批改动，未新增组件或令牌。
+D21 归档口径：覆写 _pipeline/02_EXEC_REPORT.md 前先把轮 1 报告归档
+  实测 _pipeline/archive/ 里只有迭代 3 版（02_EXEC_REPORT_20260924_1708.md 内容是「迭代 3」版），
+  轮 1 报告并未归档 → 直接覆写会毁掉审查依据，违反 AGENT §2「archive 只增不删」。
+  故按 reviewer 处理 03_REVIEW 的同款纪律（先归档再覆写）生成 02_EXEC_REPORT_20260924_1722.md。
+  与用户「只修改计划列出的文件」的关系：_pipeline/ 产物不是业务文件，且这是纪律要求，已在九、留痕。
 
-------------------------------------------------------------------------------------
-七、B 批「调用顺序陷阱」的验证说明（总控指定要点 2）
-------------------------------------------------------------------------------------
-本轮 B 批（主题）未触及 stores/space.ts 的 setActive/setSpaces 流程，C 批 MePage 也不新建空间，
-故本轮没有新增「新空间被回落逻辑顶掉」的风险点。为确认该机制未被破坏，我做了两项核对：
-  1. 复跑 A2 的 stages.test.ts（6 例）与 A 批后的 space.test.ts（15 例）、functions/api/tests 全量 143 例，
-     全部绿 —— A2 已按「先 setActive(新id) 再 setSpaces(新列表)」实现（SpaceCreateForm.tsx 第 61-63 行
-     有显式注释与顺序），本轮无改动。
-  2. 阅读确认 stores/space.ts 的 setSpaces 仍是「保留原 activeSpaceId，否则回落 pickDefaultSpace」语义，
-     本轮对其零改动（apps/web/src/stores/space.ts 在 git diff 中不存在）。
-结论：本轮改动不引入该陷阱；调用顺序纪律仍由 SpaceCreateForm 内注释 + A2 落的 stages.test.ts 守住。
+--------------------------------------------------------------------------------
+六、失败详情与修复尝试
+--------------------------------------------------------------------------------
+本轮**没有出现测试失败**（含改前基线）。为可核对，记录两类「差点踩」的点：
+  1) dist/server.js 陈旧：首次实验前 grep 发现 bundle 里没有 v1.2 的「同名空间已存在」，
+     说明它是轮 1 之前的构建。若直接用它跑 HTTP 实验，测的是 v1.1 服务端（name 会被忽略），
+     实验结论会误导。处置：用 esbuild 按当前源码重建、实验后按 md5 还原（见四）。
+  2) LOOKATME 的提交数是「会随本轮提交变化」的量：先按实测算出 714f690 = 71，本轮 3 个提交 → 74，
+     并在文中标注口径命令与参考点，避免再次出现「68 与任何口径都不吻合」的问题。
+未隐藏任何失败；无未修复的红项。
 
-------------------------------------------------------------------------------------
-八、结论
-------------------------------------------------------------------------------------
-批次 B / C1 / C2 / C3 / D 全部按计划落地并各自 commit；收尾分批实跑 292 例全绿（26 文件）、
-三段 tsc 全 exit 0、数据闸门 PASS、#20 真实 HTTP 端到端通过；无遗留失败。
-与计划的偏差 6 条（D11–D16）：2 条为计划判断/语句与现状不符的必须偏离（D11、D15），
-2 条为计划未覆盖细节的自行裁决（D13、D14，其中 D14 为实测发现的构建链问题），
-2 条为轻微/记录性偏离（D12、D16）。最需注意的未验证项是浏览器走查（环境限制，见六.1）。
+--------------------------------------------------------------------------------
+七、未完成项
+--------------------------------------------------------------------------------
+- 无（用户指令列出的 H1 与 L1–L4 全部落地）。
+- 明确不在本轮范围、故未做（避免擅自扩大范围，仅登记）：
+  a) M1 浏览器走查（reviewer 给轮 2 的建议：720/375 两档顶栏、浅色下 ZhiweiLogo 对比度、/me 真实渲染）；
+  b) MePage 组件级渲染测试（reviewer 8.2b 缺口）；
+  c) LOOKATME.md:71 仍写「_pipeline/03_REVIEW.md 现为迭代 3 版」——轮 1 审查已覆写该文件，此句同样过期，
+     但不在用户点名的 L1–L3 范围内，未擅自改动，特此留痕供总控裁决；
+  d) _pipeline/archive/03_REVIEW_20260924_1711.md 仍是未跟踪文件（reviewer 的 INFO 项，请总控随轮入库）；
+  e) _pipeline/03_REVIEW.md 在本轮开工前就是「已修改未提交」（reviewer 的产物），非我改动，未 add。
+
+--------------------------------------------------------------------------------
+八、与计划的偏差和原因
+--------------------------------------------------------------------------------
+本轮是「审查返工」，_pipeline/01_PLAN.md（第 4 版）里没有对应条目，故按用户本次返工指令执行；
+所有偏离都在上面 D17–D21 留痕。与计划文本直接相关的 3 处说明：
+  1) 计划「八、测试影响总表」写 closedLoop「不受影响」——轮 1 已按 D11 改为 19→20，本轮 L1 只补 describe
+     标题（该表的口径问题在轮 1 已发生，本轮不改计划文件）。
+  2) 计划 D1d「保证『一键新建必成功』」——H1 正是该保证被长度上限打破；本轮修法与该承诺同向，
+     并把「本地预检残留风险」的边界写进代码注释（D18），避免再次出现「注释承诺 > 实际保证」。
+  3) 计划「十、总验收」第 4 项 env 核查、第 5 项浏览器走查本轮未跑：env 规则本轮未动（且已由轮 1 审查复跑通过）；
+     走查属 M1、留给轮 2（用户本轮指令未要求）。
+另外，本轮比用户建议的「2 条 commit」多 1 条：报告与归档单独成条（AGENT §7「代码修复 / 文档产物 / 测试各成条目」、
+「归档文件与 _pipeline 产物同样入库」）。用户原文是「建议」，故按其精神再分一层，不混提。
+
+--------------------------------------------------------------------------------
+九、本轮工作区与入库留痕
+--------------------------------------------------------------------------------
+commit 58de0eb  H1 修复：空间名长度上限前端与服务端对齐为 30（唯一来源 SPACE_NAME_MAX）
+commit 94c96aa  文档瑕疵清偿：closedLoop 标题 19→20、index.css 主题注释对齐实现、LOOKATME 数字与表述按实测改正
+commit <本报告>  执行报告 + 轮 1 报告归档
+提交数实测：轮 1 末 714f690 = 71 次 → 本报告落盘后 `git rev-list --count HEAD` = 74 次（--no-merges = 70）。
+他人未提交变更（tools/e2e-smoke.cjs、_pipeline/PR-tempdeploy.md、知微-项目介绍.md）与 reviewer 的
+_pipeline/03_REVIEW.md、_pipeline/archive/03_REVIEW_20260924_1711.md 均未被本轮的 commit 包含。
