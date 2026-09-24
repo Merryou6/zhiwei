@@ -52,7 +52,7 @@ export default function ChatPanel() {
         <Link
           to={CHAT_PATH}
           onClick={() => setOpen(false)}
-          className="shrink-0 rounded-control border border-line px-2 py-1 text-[12px] text-ink-soft hover:bg-raised"
+          className="shrink-0 rounded-control border border-line px-2 py-1 text-[12px] text-ink-soft hover:bg-raised max-nav:min-h-9"
         >
           全屏打开
         </Link>
@@ -61,7 +61,7 @@ export default function ChatPanel() {
           onClick={() => setOpen(false)}
           aria-label="关闭对话面板"
           title="关闭（Esc）"
-          className="shrink-0 rounded-control border border-line p-1.5 text-ink-soft hover:bg-raised"
+          className="shrink-0 rounded-control border border-line p-1.5 text-ink-soft hover:bg-raised max-nav:min-h-9"
         >
           <svg
             className="h-3.5 w-3.5"
@@ -91,7 +91,9 @@ export default function ChatPanel() {
         </div>
       </div>
 
-      <div className="flex-none border-t border-line px-4 pb-3">
+      {/* pb-safe-3（R9/D14）：<720 面板是覆盖式抽屉，输入区要避让 home indicator；
+          ≥720 面板为常驻挤压态、非刘海设备 env()=0 → 仍是原 pb-3 的 12px。 */}
+      <div className="flex-none border-t border-line px-4 pb-safe-3">
         <ChatComposer disabled={store.streaming} />
       </div>
     </div>

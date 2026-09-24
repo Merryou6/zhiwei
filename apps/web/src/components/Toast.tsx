@@ -58,7 +58,7 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
             <button
               type="button"
               onClick={() => onDismiss(item.id)}
-              className="ml-1 shrink-0 rounded-md px-2 py-1 text-[13px] text-ink-soft hover:bg-raised"
+              className="ml-1 shrink-0 rounded-md px-2 py-1 text-[13px] text-ink-soft hover:bg-raised max-nav:min-h-9"
               aria-label="关闭提示"
             >
               知道了
