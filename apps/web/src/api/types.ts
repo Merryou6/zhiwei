@@ -60,6 +60,12 @@ export interface SpaceListData {
 export interface SpaceCreateRequest {
   /** 学科知识库 id（取 data/knowledge/index.json 的任一 stage.kb_id，如 kb_math_cz / kb_math_gz）。 */
   knowledge_source: string;
+  /**
+   * 空间名（契约 §2 v1.2 新增，可选）：1–30 字（trim 后计长），缺省由服务端取知识库名。
+   * 传空串/全空白/超 30 字/非字符串 → 400（服务端不猜测、不补默认值）。
+   * 仅当与本人已有空间同名时才 409（data.existing_space_id 语义不变）。
+   */
+  name?: string;
 }
 
 export interface SpaceCreateData {

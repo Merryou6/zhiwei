@@ -7,6 +7,10 @@
  *
  * 空间列表懒加载：已登录且 store 为空时取一次（#3 space/list）；失败静默——页 3 会给提示。
  *
+ * 空间下拉（D2）：v1.2 起下拉底部在「管理空间」Link 之前插入「+ 新建空间」——点击**原地展开**
+ * 紧凑态 SpaceCreateForm（与 /spaces 页共用同一组件），成功后收起弹层并切到新空间。
+ * 这样任意页面都有看得见的新建反馈，不再只有一条「点了也没反应」的 Link。
+ *
  * 设计规则走查（2026-09-22）：
  *   · 顶栏原为 `bg-surface/90 + backdrop-blur`。半透明顶栏看着通透，但正文会从底下透上来，
  *     滚动时对比度一直在变；改成实底后对比度是静态可算的，与内页的浅色表面也更一致。
@@ -19,13 +23,16 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { listSpaces } from '../api/endpoints';
-import { CONSOLE_PATH, SPACES_PATH, navRoutes } from '../router';
+import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
+import SpaceCreateForm from './SpaceCreateForm';
 import ZhiweiLogo from './ZhiweiLogo';
 
 export default function TopNav() {
   const [open, setOpen] = useState(false);
+  /** 弹层内的新建表单是否展开（D2：原地展开，不跳页）。 */
+  const [createOpen, setCreateOpen] = useState(false);
 
   const token = useAuthStore((state) => state.token);
   const spaces = useSpaceStore((state) => state.spaces);
@@ -90,7 +97,12 @@ export default function TopNav() {
             <div className="relative ml-auto flex flex-none items-center gap-2.5">
               <button
                 type="button"
-                onClick={() => setOpen((value) => !value)}
+                onClick={() => {
+                  setOpen((value) => {
+                    if (value) setCreateOpen(false);
+                    return !value;
+                  });
+                }}
                 className="rounded-control px-3 py-1.5 text-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
                 aria-expanded={open}
               >
@@ -132,9 +144,32 @@ export default function TopNav() {
                       <li className="min-h-9 px-2 py-2 text-[13px] text-ink-soft">还没有空间</li>
                     ) : null}
                   </ul>
+                  {createOpen ? (
+                    <div className="mt-1 border-t border-line pt-2">
+                      {/* 紧凑态共享表单（D2c）：成功后收起弹层，任意页面都有反馈 */}
+                      <SpaceCreateForm
+                        compact
+                        onCreated={() => {
+                          setCreateOpen(false);
+                          setOpen(false);
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCreateOpen(true)}
+                      className="mt-1 block w-full rounded-control px-2 py-1.5 text-left text-sm text-accent hover:bg-raised"
+                    >
+                      + 新建空间
+                    </button>
+                  )}
                   <Link
                     to={SPACES_PATH}
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setCreateOpen(false);
+                      setOpen(false);
+                    }}
                     className="mt-1 block rounded-control px-2 py-1.5 text-sm text-ink-soft hover:bg-raised"
                   >
                     管理空间
