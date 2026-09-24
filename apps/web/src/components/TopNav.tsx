@@ -21,6 +21,10 @@
  * 主题（D3，v1.2）：空间胶囊左侧加 ThemeToggle（顶栏与「我的」页共用 useThemeStore）；
  * 下拉箭头原为硬编码 `text-[#93a0b4]`（浅色下对白底约 2.9:1，且违反「组件只写语义类名」），
  * 改用令牌 `text-ink-soft`，两主题下对比度都由变量体系保证。
+ *
+ * v1.3（D1d）：「对话辅导」在 navRoutes().map 里**特判为 button**（aria-pressed + 开合右侧常驻
+ * 面板），其余项仍是 NavLink。改的只是渲染层——ROUTES / navRoutes / guardPath 数据结构零改动，
+ * 故 routerGuard.test.ts 的 12 页与 6 项导航断言不受影响。/chat 全屏形态仍在（面板头部「全屏打开」进入）。
  */
 
 import { useEffect, useState } from 'react';
@@ -29,10 +33,14 @@ import { Link, NavLink } from 'react-router-dom';
 import { listSpaces } from '../api/endpoints';
 import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
+import { useChatPanelStore } from '../stores/chatPanel';
 import { useSpaceStore } from '../stores/space';
 import SpaceCreateForm from './SpaceCreateForm';
 import ThemeToggle from './ThemeToggle';
 import ZhiweiLogo from './ZhiweiLogo';
+
+/** 需特判为面板开合按钮的导航项（与 router.ROUTES 的 '/chat' 一致；路由数据本身不改）。 */
+const CHAT_PATH = '/chat';
 
 export default function TopNav() {
   const [open, setOpen] = useState(false);
@@ -44,6 +52,9 @@ export default function TopNav() {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const setSpaces = useSpaceStore((state) => state.setSpaces);
   const setActive = useSpaceStore((state) => state.setActive);
+  /** 右侧常驻面板（v1.3 D1d）：顶栏此项变成开合按钮。 */
+  const panelOpen = useChatPanelStore((state) => state.open);
+  const togglePanel = useChatPanelStore((state) => state.toggle);
 
   useEffect(() => {
     if (!token || spaces.length > 0) return;
@@ -81,21 +92,41 @@ export default function TopNav() {
             <span className="h-[18px] w-px flex-none bg-line max-[720px]:hidden" aria-hidden="true" />
 
             <ul className="flex h-full min-w-0 flex-1 items-stretch gap-0.5">
-              {navRoutes().map((route) => (
-                <li key={route.path} className="flex items-stretch">
-                  <NavLink
-                    to={route.path}
-                    className={({ isActive }) =>
-                      [
-                        'rounded-control px-3 py-1.5 text-sm transition-colors duration-150 ease-out',
-                        isActive ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
-                      ].join(' ')
-                    }
-                  >
-                    {route.label}
-                  </NavLink>
-                </li>
-              ))}
+              {navRoutes().map((route) => {
+                // 「对话辅导」特判（v1.3 D1d）：开合右侧常驻面板，不再跳整页
+                if (route.path === CHAT_PATH) {
+                  return (
+                    <li key={route.path} className="flex items-stretch">
+                      <button
+                        type="button"
+                        onClick={togglePanel}
+                        aria-pressed={panelOpen}
+                        className={[
+                          'rounded-control px-3 py-1.5 text-sm transition-colors duration-150 ease-out',
+                          panelOpen ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
+                        ].join(' ')}
+                      >
+                        {route.label}
+                      </button>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={route.path} className="flex items-stretch">
+                    <NavLink
+                      to={route.path}
+                      className={({ isActive }) =>
+                        [
+                          'rounded-control px-3 py-1.5 text-sm transition-colors duration-150 ease-out',
+                          isActive ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
+                        ].join(' ')
+                      }
+                    >
+                      {route.label}
+                    </NavLink>
+                  </li>
+                );
+              })}
             </ul>
 
             {/* 主题切换（D3d）：空间胶囊左侧，与「我的」页共用 useThemeStore */}
