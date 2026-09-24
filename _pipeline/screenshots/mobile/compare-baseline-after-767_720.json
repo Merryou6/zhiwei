@@ -1,0 +1,714 @@
+{
+ "tagA": "baseline",
+ "tagB": "after",
+ "widths": [
+  767,
+  720
+ ],
+ "desktopMin": 768,
+ "perWidth": [
+  {
+   "width": 767,
+   "pages": 12,
+   "geometryDiffs": 0,
+   "rows": []
+  },
+  {
+   "width": 720,
+   "pages": 12,
+   "geometryDiffs": 68,
+   "rows": [
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 228.25,
+     "b": 248.25,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/self-report",
+     "kind": "text-len-info",
+     "a": 454,
+     "b": 462,
+     "delta": 8
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 180,
+     "b": 200,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/spaces",
+     "kind": "text-len-info",
+     "a": 222,
+     "b": 230,
+     "delta": 8
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 184,
+     "b": 204,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/console",
+     "kind": "text-len-info",
+     "a": 331,
+     "b": 339,
+     "delta": 8
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 205.5,
+     "b": 225.5,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/assessment",
+     "kind": "text-len-info",
+     "a": 213,
+     "b": 221,
+     "delta": 8
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 205.5,
+     "b": 225.5,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/paper",
+     "kind": "text-len-info",
+     "a": 200,
+     "b": 208,
+     "delta": 8
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "h",
+     "a": 476.25,
+     "b": 524.25,
+     "delta": 48
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "h",
+     "a": 412.25,
+     "b": 460.25,
+     "delta": 48
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 270.5,
+     "b": 290.5,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/chat",
+     "kind": "text-len-info",
+     "a": 201,
+     "b": 209,
+     "delta": 8
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 205.5,
+     "b": 225.5,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/attribution",
+     "kind": "text-len-info",
+     "a": 566,
+     "b": 574,
+     "delta": 8
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 172,
+     "b": 192,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/graph",
+     "kind": "text-len-info",
+     "a": 149,
+     "b": 157,
+     "delta": 8
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 206.75,
+     "b": 226.75,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/report",
+     "kind": "text-len-info",
+     "a": 898,
+     "b": 906,
+     "delta": 8
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 180,
+     "b": 200,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/drive",
+     "kind": "text-len-info",
+     "a": 183,
+     "b": 191,
+     "delta": 8
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "header",
+     "prop": "h",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "headerNav",
+     "prop": "h",
+     "a": 67,
+     "b": 87,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "main",
+     "prop": "y",
+     "a": 68,
+     "b": 88,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "mainChild",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "firstCard",
+     "prop": "y",
+     "a": 180,
+     "b": 200,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "anchor",
+     "key": "heading",
+     "prop": "y",
+     "a": 100,
+     "b": 120,
+     "delta": 20
+    },
+    {
+     "route": "/me",
+     "kind": "text-len-info",
+     "a": 232,
+     "b": 240,
+     "delta": 8
+    }
+   ]
+  }
+ ],
+ "hardFail": []
+}

@@ -57,12 +57,14 @@
 
 **关键数字（均已实跑核对，2026-09-24 赛前修整轮 2 后）**
 
-- 测试：**351 用例全绿**（30 个测试文件）——引擎 43 + 后端 169 + 前端 139；本机单条命令约 60 秒被杀，故按
+- 测试：**362 用例全绿**（32 个测试文件）——引擎 43 + 后端 169 + 前端 **150**（移动端适配轮 139 → 150：新增
+  `apps/web/tests/breakpoints.test.ts` 7 例 + `apps/web/tests/mobileNav.test.ts` 4 例）；本机单条命令约 60 秒被杀，故按
   `run packages` / `run functions/api/tests` / `run apps/web/tests` 三条分批实跑汇总（见 `_pipeline/02_EXEC_REPORT.md` 分批明细）
 - 类型检查：三段 `tsc --noEmit`（engine / functions/api / apps/web）**全部 exit 0**
 - 数据闸门：`scripts/validate_data.py` 6 项阻断校验**全通过**（本轮不碰数据，与上轮同结论）
 - 接口与页面：契约 **20 接口**（v1.3 只扩 `#18` 事件，未新增接口编号）+ 前端路由表 **12 页**（ROUTES 零改动）
-- 构建：`vite build` 通过（3.76s）；`index` 123.01 kB + `react` 165.48 kB + `echarts` 434.35 kB（进图谱页才加载）+ `index.css` 33.26 kB
+- 构建：`vite build` 通过（移动端适配轮后实测：`index` 129.12 kB + `react` 165.48 kB + `echarts` 434.35 kB
+  （进图谱页才加载）+ `index.css` **34.06 kB**；后一列与轮 2 的 33.26 kB 之差 = 具名断点 nav:720px + 安全区工具类）
 - 走查（真实 Chrome 145 headless + CDP，非模拟）：**18 张截图**存 `_pipeline/screenshots/round2/`（14 张轮 2 走查 + 清尾轮 `align_1440_{closed,open}_{dark,light}.png` 4 张；含 `walkthrough.json` 几何/对比度原始数据）；
   面板 1440 下正文列 **976px**、正文右缘 1008 < 面板左缘 1040（不重叠）；<1280 走覆盖式抽屉（正文不动，1024/720/375 实测正文宽 976/672/327）；
   **左基线（清尾 L11 修后实测，`getBoundingClientRect().left`）**：**四档宽度 × 开合两态 8/8 采样差 0px**
@@ -112,6 +114,31 @@
   ③ **L4 浮点显示**：新增 `lib/format.ts` 的 `metric()`（≤3 位小数 + 去尾随 0，只改显示不改真实值），
   `apply_evidence.result.after` 显示 `0.009000000000000001` → `0.009`（补 6 例单测，前端 133→139）；
   ④ **文档校正**：本文件行数/提交数改实测值、补记 `79675f6` 与 `9b24d46`、收紧「浅色小字全部 ≥5.17:1」这类过宽结论
+
+**移动端适配轮（2026-09-24，第 6 版计划 `_pipeline/01_PLAN.md`，批次 B0–B6 逐个 commit）**
+
+深度 = 修破绽（不做手机优先重构、不做报告表格卡片化、不做图谱移动端独立视图）。**第一验收项：桌面 ≥768px 渲染像素级零变化。**
+
+- 走查工具与判据：新增 `tools/responsive-audit.cjs`（零依赖 Edge CDP；12 路由 × 任意宽度档，采
+  页面级溢出量 / 溢出元素清单 / 6 个几何锚点 ×4 维 / 4 处字号 / 截图；`--compare` 逐页逐锚点 diff，
+  ≥768 档任一项 ≠0 即 exit 1）。改前基线先于任何改动采集（B0）
+- **桌面零变化实测**：`--compare baseline after --widths 1440,1024,768` → **3 档 × 12 页 × 6 锚点 × 4 维 + 4 字号采样 全部 diff = 0**（结论 PASS，exit 0）
+- 断点单一来源：`tailwind.config.js` 的 `theme.extend.screens = { nav: '720px' }`；产物实测
+  `nav:` → `@media (min-width:720px)`、`max-nav:` → `@media not all and (min-width:720px)`；
+  `src/**` 任意值断点变体 `(min|max)-[NNNpx]:` 实测 **0 处**、裸 `z-[` **0 处**（`breakpoints.test.ts` 锁死）
+- 手机形态：<720 顶栏只留「知微」+ 汉堡键，全高右滑抽屉承载 6 导航项 + 主题 + 空间切换；
+  真浏览器探针 `--probe-nav --widths 375` **16/16 全过**（Esc / 背景幕坐标点关闭 / 焦点陷阱 25 次 Tab 未逃出 /
+  Esc 后焦点归还 `#mobile-nav-toggle` / 点导航项收起并跳转 / 抽屉与对话面板双向互斥）
+- 窄档实测：**375 / 414 / 720 / 767 四档页面级横向溢出全部 0px**（`documentElement.scrollWidth === clientWidth`）；
+  图谱容器与报告页表格容器内仍是「有意横滚」（D7/D8：图谱 minWidth 720 保持、报告表格 min-w-[420px] 保持）
+- 其余破绽：外壳 100vh→`min-h-dvh`、窄档页边距 48→32px（顶栏与正文同步，保左基线）、输入区按钮换行 + `shrink-0`、
+  9 处 flex 行补 `flex-wrap`、7 处长串 ID / 行内 code 补 `break-all` / `break-words`、
+  触控目标 16→36px（全部 `max-nav:` 作用域，桌面不生效 D6）、`viewport-fit=cover` + 7 个安全区工具类
+  （`index.css` 单一来源；桌面 `env()`=0 → 数值不变）、图谱容器 `ResizeObserver` 重绘、
+  `PageSkeleton` 的 Bar prop 传反修正（渲染等价）
+- **已知遗留（建议总控裁决）**：恰好 **720px** 一处边界差异——旧写法 `min-[720px]` 与 `max-[720px]` 在 720 同时命中，
+  新的 `nav:` / `max-nav:` 是互斥互补的一对，故 720px 处空间胶囊文字与分隔线由「隐藏」变「显示」，顶栏换行
+  高 68→88px（+20px，11 个带顶栏的页面一致；**页面级溢出仍为 0px**）。767px 处实测 diff = 0（完全无变化）。
 
 ---
 

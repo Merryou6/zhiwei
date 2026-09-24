@@ -414,10 +414,30 @@ async function runSample(cdp, opts) {
   return true;
 }
 
+/**
+ * 导航并确认文档真的换成了目标 URL。
+ * 为什么要确认：CDP 的 Page.loadEventFired 可能与**上一次**导航（或启动时的 about:blank）
+ * 竞争，只 await 它会让紧随其后的 eval 跑在旧文档上（实测报 SecurityError: localStorage
+ * access denied on about:blank）。每次导航的 URL 都带唯一 query，用 location.href 回读即可确定。
+ */
 async function goto(cdp, url) {
+  const query = url.slice(url.indexOf('?')).split('#')[0];
   const loaded = Promise.race([cdp.once('Page.loadEventFired'), sleep(12000)]);
-  await cdp.send('Page.navigate', { url });
+  const res = await cdp.send('Page.navigate', { url });
+  if (res && res.errorText) say('!! Page.navigate 失败：' + res.errorText + '  url=' + url);
   await loaded;
+  let last = '';
+  let lastErr = '';
+  for (let i = 0; i < 60; i++) {
+    try {
+      last = String(await cdp.ev('location.href'));
+      if (last.includes(query)) return;
+    } catch (error) {
+      lastErr = error && error.message ? error.message.slice(0, 120) : String(error);
+    }
+    await sleep(120);
+  }
+  throw new Error('导航未就位：' + url + '  最后一次 href=' + last + '  err=' + lastErr);
 }
 
 // ---------------------------------------------------------------- 对比

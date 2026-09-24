@@ -1,0 +1,21 @@
+browser = Edg/153.0.4234.48
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/mobile
+tag     = after
+widths  = 375
+
+=== 宽度档 375 × 812（mobile=true）===
+  /login        溢出=   0px  溢出元素= 0
+  鉴权 via=login space=sp_muf82zhx02br0
+  /self-report  溢出=   0px  溢出元素= 0
+  /spaces       溢出=   0px  溢出元素= 0
+  /console      溢出=   0px  溢出元素= 0
+  /assessment   溢出=   0px  溢出元素= 0
+  /paper        溢出=   0px  溢出元素= 0
+  /chat         溢出=   0px  溢出元素= 0
+  /attribution  溢出=   0px  溢出元素= 0
+  /graph        溢出=   0px  溢出元素= 3
+  /report       溢出=   0px  溢出元素=10
+  /drive        溢出=   0px  溢出元素= 0
+  /me           溢出=   0px  溢出元素= 0
+  → _pipeline/screenshots/mobile/audit-after-375.json   页面级溢出合计 0px
