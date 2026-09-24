@@ -49,10 +49,12 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
         const isStudent = message.role === 'student';
         return (
           <div key={message.id} className={isStudent ? 'flex justify-end' : 'flex justify-start'}>
-            <div className={isStudent ? 'max-w-[80%] text-right' : 'max-w-[85%]'}>
+            {/* break-words（R6）：无空格长串（file_id / 行内 code）不再撑破气泡。
+                overflow-wrap 只在「确实放不下」时生效 → 桌面正常文本零变化。 */}
+            <div className={isStudent ? 'max-w-[80%] break-words text-right' : 'max-w-[85%] break-words'}>
               <div
                 className={[
-                  'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed',
+                  'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed break-words',
                   isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
                 ].join(' ')}
               >
@@ -72,7 +74,8 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
 
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
                 {isStudent && message.imageFileId ? (
-                  <span className="rounded-md bg-canvas px-2 py-0.5">
+                  // break-all（R6）：file_id 是无空格长串，只有强制断行才不溢出
+                  <span className="break-all rounded-md bg-canvas px-2 py-0.5">
                     已带题图（演示态 · {message.imageFileId}）
                   </span>
                 ) : null}

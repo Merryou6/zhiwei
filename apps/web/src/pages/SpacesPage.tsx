@@ -105,7 +105,8 @@ export default function SpacesPage() {
                   isActive ? 'border-accent' : 'border-line',
                 ].join(' ')}
               >
-                <div className="flex items-start justify-between gap-4">
+                {/* flex-wrap（R7）：窄屏「标题 + 徽标」与右侧按钮组换行堆叠，不再互相挤压 */}
+                <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-medium text-ink">{space.name}</h2>

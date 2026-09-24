@@ -29,7 +29,8 @@ export default function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30 px-4">
+    // z-index 走令牌（D12：原为裸 z-50，数值相同 → 像素零变化）
+    <div className="fixed inset-0 z-overlay flex items-center justify-center bg-ink/30 px-4">
       <div
         role="dialog"
         aria-modal="true"

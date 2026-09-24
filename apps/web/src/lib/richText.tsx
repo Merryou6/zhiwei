@@ -49,7 +49,8 @@ export function renderInline(text: string, keyPrefix: string): ReactNode[] {
       nodes.push(
         <code
           key={`${keyPrefix}-c${match.index}`}
-          className="rounded bg-canvas px-1 py-0.5 font-mono text-[0.95em] text-ink"
+          // break-all（R6）：行内 code 常见无空格串（file_id / 参数名），必须强制断行才不撑破容器
+          className="break-all rounded bg-canvas px-1 py-0.5 font-mono text-[0.95em] text-ink"
         >
           {code}
         </code>,
@@ -114,7 +115,8 @@ export default function RichText({ text, className }: RichTextProps): ReactEleme
       {blocks.map((block, index) => {
         if (block.type === 'p') {
           return (
-            <p key={`p${index}`} className="whitespace-pre-wrap">
+            // break-words（R6）：段落里的长串（URL / file_id）换行而不溢出；普通中文不受影响
+            <p key={`p${index}`} className="whitespace-pre-wrap break-words">
               {renderInline(block.text, `p${index}`)}
             </p>
           );

@@ -34,7 +34,9 @@ export default function PageSkeleton({ label, rows = 3, className }: PageSkeleto
 
       <div className="animate-pulse space-y-3" aria-hidden="true">
         <div className="rounded-2xl border border-line bg-surface p-5 shadow-card">
-          <Bar tone="h-5 w-40 bg-line" height="" />
+          {/* D11 修正：原先把 tone / height 两个 prop 传反了（tone 收了尺寸、height 收了空串）。
+              渲染出的类集合与修正后完全一致（只是拼接顺序与首个空格不同）→ 视觉零变化。 */}
+          <Bar tone="bg-line" height="h-5 w-40" />
           <div className="mt-3 space-y-2">
             <Bar tone="w-full max-w-md bg-line/70" height="h-3.5" />
             <Bar tone="w-2/3 bg-line/70" height="h-3.5" />
@@ -43,7 +45,7 @@ export default function PageSkeleton({ label, rows = 3, className }: PageSkeleto
 
         {blocks.map((index) => (
           <div key={index} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
-            <Bar tone="h-4 w-32 bg-line/80" height="" />
+            <Bar tone="bg-line/80" height="h-4 w-32" />
             <div className="mt-3 space-y-2">
               <Bar tone="w-full bg-line/60" height="h-3.5" />
               <Bar tone="w-1/2 bg-line/60" height="h-3.5" />

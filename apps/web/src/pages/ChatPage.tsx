@@ -95,7 +95,7 @@ export default function ChatPage() {
       ) : null}
 
       {/* 宽屏两栏（左消息流 / 右链路）；<720 上下堆叠，链路折叠为手风琴（D5f） */}
-      <div className="mt-5 grid grid-cols-1 items-start gap-5 min-[720px]:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 nav:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
         <div className="min-w-0 max-w-2xl">
           <ChatMessageList messages={store.messages} streaming={store.streaming} />
           <ChatComposer disabled={store.streaming} />

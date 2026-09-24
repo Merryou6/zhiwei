@@ -5,7 +5,10 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover（2026-09-24 移动端适配轮 D14）：让页面铺满刘海屏安全区，
+         再由 index.css 的 pt-safe/pb-safe/bottom-safe-* 工具类按 env() 避让。
+         桌面非刘海设备 env(safe-area-inset-*) 恒为 0 → 渲染数值不变。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>知微 · 学习伴侣</title>
     <!-- 搜索引擎/分享卡片摘要（前端优化批二 · 2026-09-22） -->

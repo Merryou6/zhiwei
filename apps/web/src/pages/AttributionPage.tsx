@@ -243,7 +243,7 @@ export default function AttributionPage() {
           ) : null}
         </header>
 
-        <p className="mt-2 text-[13px] text-ink-soft">
+        <p className="mt-2 break-all text-[13px] text-ink-soft">
           起点：{kpName(view.from_kp)} · 归因编号 {view.attribution_id}
         </p>
 
@@ -337,7 +337,7 @@ export default function AttributionPage() {
             <button
               type="button"
               onClick={() => setRejectOpen((value) => !value)}
-              className="shrink-0 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-soft hover:bg-raised"
+              className="shrink-0 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-soft hover:bg-raised max-nav:min-h-9"
             >
               反驳一下
             </button>
@@ -534,7 +534,7 @@ export default function AttributionPage() {
               知识点：{kpName(draft.kpId)}
             </p>
           </div>
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
               disabled={busy}
@@ -568,7 +568,7 @@ export default function AttributionPage() {
             value={clarifyInput}
             onChange={(event) => setClarifyInput(event.target.value)}
           />
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <button
               type="button"
               disabled={busy || clarifyInput.trim().length === 0}
@@ -643,7 +643,7 @@ export default function AttributionPage() {
               <p className="mt-1 text-[13px] text-ink-soft">
                 这类不属于知识缺口，所以我不往上游翻——你需要的只是再稳一遍手。
               </p>
-              <div className="mt-3 flex items-center gap-3">
+              <div className="mt-3 flex flex-wrap items-center gap-3">
                 <Link
                   to="/assessment"
                   className="rounded-lg bg-accent px-3 py-2 text-xs text-on-accent hover:opacity-90"
@@ -660,7 +660,10 @@ export default function AttributionPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
+              {/* R7：两个按钮由「同行 inline-block + 第二个 ml-3」改成「flex-wrap + gap-3」。
+                  JSX 会吃掉换行相邻的空白，故原先按钮之间只有 ml-3 的 12px、不含额外空格宽；
+                  gap-3 同为 12px ⇒ 桌面（不换行时）间距与位置逐像素不变，窄屏才换行堆叠。 */}
               <button
                 type="button"
                 disabled={busy}
@@ -672,7 +675,7 @@ export default function AttributionPage() {
               <button
                 type="button"
                 onClick={() => store.reset()}
-                className="ml-3 rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
+                className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
               >
                 换一道
               </button>

@@ -27,7 +27,9 @@ export default function BackToTop() {
       type="button"
       aria-label="返回顶部"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fab-rise fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-control border border-line bg-surface text-ink-soft shadow-[var(--shadow-card)] transition-colors hover:border-accent hover:text-accent"
+      // z-index 走令牌（D12：原为裸 z-40）；bottom/right 走安全区工具类（D14）——
+      // 桌面非刘海设备 env(safe-area-inset-*) 恒为 0，计算值与 1.5rem 逐字相同。
+      className="fab-rise fixed bottom-safe-6 right-safe-6 z-nav flex h-11 w-11 items-center justify-center rounded-control border border-line bg-surface text-ink-soft shadow-[var(--shadow-card)] transition-colors hover:border-accent hover:text-accent"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path

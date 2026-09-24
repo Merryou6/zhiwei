@@ -103,7 +103,9 @@ export default function DrivePage() {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm text-ink">{file.name}</p>
-                <p className="mt-0.5 text-[13px] text-ink-soft">{file.file_id}</p>
+                {/* break-all（R6）：file_id 是无空格长串（形如 file_xxxxxxxxxxxx），
+                    窄屏只有强制断行才不撑破卡片。桌面宽度足够，断行分支不触发。 */}
+                <p className="mt-0.5 break-all text-[13px] text-ink-soft">{file.file_id}</p>
               </div>
               <span className="shrink-0 text-[13px] text-ink-soft">
                 {file.type.toUpperCase()} · {fileSize(file.size)}

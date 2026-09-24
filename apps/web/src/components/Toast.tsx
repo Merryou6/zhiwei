@@ -34,8 +34,12 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
   return (
     // 走查修正：原为底部居中（inset-x-0 bottom-6 items-center），会压住页面底部主按钮；
     // 改为**右上角贴顶栏下方**堆叠，永不遮挡内容区操作。
+    //
+    // 移动端适配轮（2026-09-24，D12/D14）：z-50 → 令牌 z-overlay（同值 50，像素零变化）；
+    // top-16 / right-4 → 安全区工具类（见 index.css @layer utilities）——桌面非刘海设备
+    // env() 恒为 0，计算值与 4rem / 1rem 逐字相同。
     <div
-      className="pointer-events-none fixed right-4 top-16 z-50 flex w-[min(22rem,calc(100vw-2rem))] flex-col items-stretch gap-2"
+      className="pointer-events-none fixed right-safe-4 top-safe-16 z-overlay flex w-[min(22rem,calc(100vw-2rem))] flex-col items-stretch gap-2"
       role="status"
       aria-live="polite"
     >
@@ -54,7 +58,7 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
             <button
               type="button"
               onClick={() => onDismiss(item.id)}
-              className="ml-1 shrink-0 rounded-md px-2 py-1 text-[13px] text-ink-soft hover:bg-raised"
+              className="ml-1 shrink-0 rounded-md px-2 py-1 text-[13px] text-ink-soft hover:bg-raised max-nav:min-h-9"
               aria-label="关闭提示"
             >
               知道了
