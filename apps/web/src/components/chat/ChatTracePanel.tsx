@@ -1,0 +1,86 @@
+/**
+ * 思考与工具链面板（D5a/D5f）——全屏页与右侧面板共用。
+ *
+ * 折叠条 + 内容（ThoughtStream + ToolTimeline）：
+ *   - 流式期间**自动展开**（过程正在发生，这是用户想看的时刻）；
+ *   - 一轮结束后回到用户手上的控制权：可折叠（组件本地态，用户手动折叠后不再自动弹开）；
+ *   - 标题文案随模式区分（D4b）：本地模式「推理摘要」/ 远程模式「思考过程」
+ *     （数据源 = #20 的 model.mode，由调用方传入；不额外开判断入口）。
+ */
+
+import { useState } from 'react';
+
+import type { ChatSsePhaseData, ChatToolStep } from '../../api/types';
+import ThoughtStream from './ThoughtStream';
+import ToolTimeline from './ToolTimeline';
+
+export interface ChatTracePanelProps {
+  thought: string;
+  toolSteps: ChatToolStep[];
+  phase: ChatSsePhaseData | null;
+  /** 本轮是否在流式输出中（决定自动展开与思考流光标）。 */
+  streaming: boolean;
+  /** 模型模式（#20）：仅用于思考区标题文案，不影响数据。 */
+  mode: 'local' | 'remote';
+}
+
+export default function ChatTracePanel({ thought, toolSteps, phase, streaming, mode }: ChatTracePanelProps) {
+  /** null = 跟随流式（流式期间展开）；用户手动点过后固定为用户选择。 */
+  const [manualOpen, setManualOpen] = useState<boolean | null>(null);
+  const expanded = manualOpen === null ? streaming : manualOpen;
+
+  const title = streaming
+    ? mode === 'remote'
+      ? '思考过程（模型自述）'
+      : '推理摘要（本地规则）'
+    : mode === 'remote'
+      ? '思考过程'
+      : '推理摘要';
+
+  return (
+    <section className="rounded-2xl border border-line bg-surface shadow-card" aria-label="思考与工具链">
+      <button
+        type="button"
+        onClick={() => setManualOpen(!expanded)}
+        aria-expanded={expanded}
+        className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-2.5 text-left hover:bg-raised"
+      >
+        <span className="flex items-center gap-2">
+          <span className="text-[13px] font-medium text-ink">思考与工具链</span>
+          {streaming ? (
+            <span className="flex items-center gap-1 text-[11px] text-accent">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
+              进行中
+            </span>
+          ) : (
+            <span className="text-[11px] text-ink-soft">{toolSteps.length} 步</span>
+          )}
+        </span>
+        <svg
+          className={['h-3 w-3 shrink-0 text-ink-soft transition-transform duration-150', expanded ? 'rotate-180' : ''].join(' ')}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m4 6.5 4 4 4-4" />
+        </svg>
+      </button>
+
+      {expanded ? (
+        <div className="border-t border-line px-4 py-3">
+          <div>
+            <p className="mb-1.5 text-[11px] tracking-wide text-ink-soft/80">{title}</p>
+            <ThoughtStream text={thought} done={!streaming} />
+          </div>
+          <div className="mt-4 border-t border-line pt-3">
+            <ToolTimeline steps={toolSteps} phase={phase} />
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
