@@ -13,7 +13,7 @@
  *      ZHIWEI_SERVER_SECRET（契约 §1 token 无状态签名）。
  *
  * 【SSE 降级】云函数不支持长连接流式输出，agent/chat 的事件流在此收集后按
- * 契约 §9 降级为普通 JSON（{ reply 全文, meta }），保证「禁止白屏」。
+ * 契约 §9 降级为普通 JSON（{ reply 全文, meta, trace }，v1.3 起同携过程链路），保证「禁止白屏」。
  */
 
 import { createAppContext } from './context';
@@ -21,6 +21,12 @@ import type { AppContext } from './context';
 import { toHttpStatus } from './errors';
 import type { ApiResponse } from './errors';
 import { dispatch, isAsyncGenerator } from './router';
+import { createTraceRecorder } from './services/chatTrace';
+import type {
+  ChatPhaseEventData,
+  ChatThoughtEventData,
+  ChatToolEventData,
+} from './services/chatTrace';
 
 export interface CloudFunctionEvent {
   /** 请求路径（如 /api/space/list） */
@@ -105,15 +111,27 @@ export async function main(
 
   if (isAsyncGenerator(result)) {
     const segments: string[] = [];
+    const recorder = createTraceRecorder();
     let meta: unknown = null;
     for await (const ev of result) {
       if (ev.event === 'delta') {
         segments.push(String((ev.data as { text?: string }).text ?? ''));
       } else if (ev.event === 'meta') {
         meta = ev.data;
+      } else if (ev.event === 'phase') {
+        recorder.event({ event: 'phase', data: ev.data as ChatPhaseEventData });
+      } else if (ev.event === 'thought') {
+        recorder.event({ event: 'thought', data: ev.data as ChatThoughtEventData });
+      } else if (ev.event === 'tool') {
+        recorder.event({ event: 'tool', data: ev.data as ChatToolEventData });
       }
     }
-    return wrap({ code: 0, msg: 'success', data: { reply: segments.join(''), meta } });
+    // 与 wantsJson 降级同形（契约 §9 v1.3）：{ reply, meta, trace }，trace 顺序即执行顺序
+    return wrap({
+      code: 0,
+      msg: 'success',
+      data: { reply: segments.join(''), meta, trace: recorder.steps() },
+    });
   }
 
   return wrap(result);
