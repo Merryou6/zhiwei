@@ -206,7 +206,7 @@ export default function PaperPage() {
           ))}
         </ul>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/attribution')}
@@ -319,7 +319,7 @@ export default function PaperPage() {
           ))}
         </ul>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
             disabled={!allMarked || busy}
@@ -365,7 +365,8 @@ export default function PaperPage() {
                       {file.type.toUpperCase()} · {fileSize(file.size)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[13px] text-ink-soft">{file.file_id}</p>
+                  {/* break-all（R6）：file_id 无空格长串，窄屏强制断行 */}
+                  <p className="mt-1 break-all text-[13px] text-ink-soft">{file.file_id}</p>
                 </button>
               </li>
             );

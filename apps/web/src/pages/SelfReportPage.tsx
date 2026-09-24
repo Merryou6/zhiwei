@@ -80,7 +80,7 @@ export default function SelfReportPage() {
           已更新 {updated} 个知识点的起点。接下来我出几道题，看看猜得准不准——你把会做的做掉就行，
           不用纠结对错，我这边只看整体。
         </p>
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/assessment')}

@@ -85,9 +85,12 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
         </div>
       ) : null}
 
-      <div className="mt-4 flex items-end gap-2">
+      {/* flex-wrap（R3）：窄屏放不下时按钮换行到第二行，而不是被压扁成一行挤在一起；
+          空间充裕时（≥720）不触发换行。两个按钮 shrink-0 保住自身最小尺寸（不参与压缩），
+          textarea 给一个 12rem 的可用下限，避免被挤到不可读。 */}
+      <div className="mt-4 flex flex-wrap items-end gap-2">
         <textarea
-          className="min-h-[44px] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
+          className="min-h-[44px] min-w-[min(100%,12rem)] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
           rows={2}
           placeholder="写一句你的思路，或者直接说卡在哪"
           value={input}
@@ -97,7 +100,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
         <button
           type="button"
           onClick={() => void openPicker()}
-          className="rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-surface"
+          className="shrink-0 rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-surface"
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
@@ -107,7 +110,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
           type="button"
           disabled={disabled}
           onClick={() => void submit()}
-          className="rounded-xl bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
+          className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {disabled ? '正在回…' : '发送'}
         </button>
