@@ -97,8 +97,8 @@ export default function TopNav() {
 
         {token ? (
           <>
-            {/* 原型 .nav-sep：18px 竖分隔线，窄屏隐藏 */}
-            <span className="h-[18px] w-px flex-none bg-line max-[720px]:hidden" aria-hidden="true" />
+            {/* 原型 .nav-sep：18px 竖分隔线，窄屏隐藏（具名断点 max-nav，见 tailwind.config.js） */}
+            <span className="h-[18px] w-px flex-none bg-line max-nav:hidden" aria-hidden="true" />
 
             <ul className="flex h-full min-w-0 flex-1 items-stretch gap-0.5">
               {navRoutes().map((route) => {
@@ -160,7 +160,7 @@ export default function TopNav() {
                     <path d="M2 5.4 8 8.4l6-3M8 8.4v5.2" />
                   </svg>
                 </span>
-                <span className="max-[720px]:hidden">空间·{active ? active.name : '未选择'}</span>
+                <span className="max-nav:hidden">空间·{active ? active.name : '未选择'}</span>
                 <svg className="text-ink-soft" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="m4 6.5 4 4 4-4" />
                 </svg>

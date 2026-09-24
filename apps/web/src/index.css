@@ -72,6 +72,20 @@ body {
        没有副作用——所以可以无条件开。 */
     font-feature-settings: 'palt' 1;
     -webkit-text-size-adjust: 100%;
+    /* 移动端滚动行为（2026-09-24 移动端适配轮 R10）：关掉纵向 overscroll 的
+       rubber-band 与「下拉即刷新」误触——手机上下滑查看长页面时，到顶再滑会被浏览器
+       抢走手势。只改滚动行为，不产生任何布局或像素变化（桌面本来就不触发）。 */
+    overscroll-behavior-y: none;
+  }
+
+  /* 触屏环境才去「双击缩放」的 300ms 延迟（R10）。
+     包在 @media (pointer: coarse) 里：桌面鼠标环境不匹配，零影响。 */
+  @media (pointer: coarse) {
+    button,
+    a,
+    [role='button'] {
+      touch-action: manipulation;
+    }
   }
 
   /* 中文排版：标题与数据数字的默认字距收紧一点，避免大字号发散；
@@ -137,6 +151,44 @@ body {
   }
   ::-webkit-scrollbar-corner {
     background: transparent;
+  }
+}
+
+/* ── 安全区工具类（单一来源，2026-09-24 移动端适配轮 D14）──────────────
+   Tailwind 没有内置 safe-area 工具类，且组件里禁止写内联 style 或 env() 任意值
+   （否则「避让刘海」这件事会散进十几个 JSX）。统一在这里定义一次，组件只用类名。
+
+   基础值与被替换的 Tailwind 类**同值**：6 = 1.5rem、4 = 1rem、16 = 4rem、3 = 0.75rem。
+   桌面非刘海设备 env(safe-area-inset-*) 恒为 0 → calc() 结果与原值逐位相同，
+   故这是一次像素零变化的替换。
+
+   注：本层内容按 Tailwind 的内容扫描结果按需产出——未被使用的类不会进产物。 */
+@layer utilities {
+  /* 避让刘海（顶部） */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  /* 避让 home indicator（底部） */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* 固定定位元素贴右下角：在原有 1.5rem 间距上再叠加安全区 */
+  .bottom-safe-6 {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+  }
+  .right-safe-6 {
+    right: calc(env(safe-area-inset-right, 0px) + 1.5rem);
+  }
+  /* 固定定位元素贴右上角：顶栏 56px 之上再加 4rem（原 top-16） */
+  .top-safe-16 {
+    top: calc(env(safe-area-inset-top, 0px) + 4rem);
+  }
+  .right-safe-4 {
+    right: calc(env(safe-area-inset-right, 0px) + 1rem);
+  }
+  /* 容器内边距：底部避让 + 原 0.75rem（原 pb-3） */
+  .pb-safe-3 {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
   }
 }
 

@@ -119,7 +119,10 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     // 让位量写一次（单一来源）：顶栏 nav 与正文列外层都读这个自定义属性（L11）。
-    <div className="min-h-screen bg-canvas text-ink" style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}>
+    // 外壳最小高：100vh 档（sticky 视口高）→ 动态视口高 min-h-dvh（移动端适配轮 R4）。
+    // 手机上地址栏伸缩时 vh 不变而可视区变高，外壳会矮一截导致跳动；dvh 跟随动态视口。
+    // 与 LoginPage:182 统一。桌面 dvh === vh（无动态工具栏）→ 数值不变。
+    <div className="min-h-dvh bg-canvas text-ink" style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}>
       <TopNav />
       {/* 常驻态：给面板让位的 padding 在外层（见文件头 D24 说明），main 的 max-w-5xl
           仍作用在「面板左边的可用宽度」上；覆盖态该变量为 0，正文一律不动。
