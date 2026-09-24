@@ -193,8 +193,21 @@ export default function GraphPage() {
     const onResize = (): void => chart.resize();
     window.addEventListener('resize', onResize);
 
+    // 容器尺寸变化的重绘（R2）：window 的 resize 只在视口变化时触发，而正文列的宽度还会
+    // 因「右侧对话面板开合时的让位 padding」（≥1280 挤压态）而变化——那时 window 不 resize，
+    // 图表会留着旧尺寸的白边或裁切。ResizeObserver 观察的是容器本身，是标准信号；
+    // window 监听保留作兜底（极旧浏览器无 ResizeObserver 时行为不劣于改造前）。
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            chart.resize();
+          });
+    observer?.observe(container);
+
     return () => {
       window.removeEventListener('resize', onResize);
+      observer?.disconnect();
       chart.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,7 +302,8 @@ export default function GraphPage() {
                 <button
                   type="button"
                   onClick={() => setSelected(null)}
-                  className="text-ink-soft hover:text-ink"
+                  // 触控目标（R8/D6）：<720 把「×」撑到 36×36 并居中（桌面不加作用域不改像素）
+                  className="text-ink-soft hover:text-ink max-nav:grid max-nav:h-9 max-nav:w-9 max-nav:place-items-center"
                   aria-label="关闭"
                 >
                   ×
