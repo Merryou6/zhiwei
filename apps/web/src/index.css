@@ -8,24 +8,206 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── 主题变量（2026-09-22 视觉批四：全站深色化）──────────────────────
+   tailwind 的中性色令牌指向这些变量（见 tailwind.config.js 的「主题变量区」），
+   组件只写语义类名（bg-surface / text-ink / border-line），不关心当下是哪个主题。
+
+   为什么要这一层：内页 text-ink 出现 202 次、bg-white 54 次、border-line 68 次。
+   逐处改 class 既会漏，也把「配色」散进几百行 JSX；改成变量后，
+   一个 class 开关就能整体换肤，且浅色主题的定义完整保留、随时可切回。
+
+   当前默认深色：index.html 的 <html class="dusk"> 常驻挂载。
+   浅色只作为 :root 的基线保留，供将来做主题切换。
+
+   变量值是「R G B」三元组（不带 rgb() 外壳），这样 tailwind 的
+   <alpha-value> 机制仍可用，bg-surface/80 这类透明度修饰不会被破坏。 */
+:root {
+  /* 浅色基线 —— 与原令牌字面 hex 逐字相同，未挂 dusk 时外观零变化 */
+  --c-canvas: 245 248 249; /* #F5F8F9 */
+  --c-surface: 255 255 255; /* #FFFFFF */
+  --c-raised: 245 248 249; /* #F5F8F9 交互抬升态（与 canvas 同值：白卡上 hover 加深） */
+  --c-ink: 34 48 58; /* #22303A */
+  --c-ink-soft: 91 107 118; /* #5B6B76 */
+  --c-line: 220 228 233; /* #DCE4E9 */
+  --c-accent: 78 143 176; /* #4E8FB0 = primary */
+  --c-accent-veil: 234 242 246; /* #EAF2F6 = primary-soft */
+  --c-on-accent: 255 255 255;
+  --shadow-card: 0 1px 2px rgba(34, 48, 58, 0.04), 0 2px 6px rgba(34, 48, 58, 0.05);
+}
+
+/* 深色主题 —— 值取自 tailwind 的 dusk-* 令牌，与登录页同一套表面层次。
+   每项右侧标注其在 dusk-base (#070C14, 相对亮度 0.0035) 上的实测对比度。 */
+html.dusk {
+  --c-canvas: 7 12 20; /* #070C14 页面底 */
+  --c-surface: 17 26 38; /* #111A26 卡片、面板 */
+  /* 交互抬升态。深色主题里 hover 必须**变亮**：浅色下「白卡 hover 转浅灰」是加深，
+     同一套 class 搬到深色里就成了变暗，读起来像凹下去。
+     取比 surface 亮一档的 #202D3D，与 surface 的明度差 1.27:1。 */
+  --c-raised: 32 45 61; /* #202D3D */
+  --c-ink: 232 238 244; /* #E8EEF4 标题/正文    16.8:1 */
+  --c-ink-soft: 163 177 192; /* #A3B1C0 说明文字      8.9:1 */
+  --c-line: 38 55 74; /* #26374A 边框与分隔线 */
+  /* 强调色：浅色下的 #4E8FB0 承载白字只有 3.57:1，深底上必须提亮到同色相的
+     #6FB3D4，它承载近黑字有 8.5:1。两个值色相一致，全站仍只有一个强调色。 */
+  --c-accent: 111 179 212; /* #6FB3D4 */
+  --c-accent-veil: 15 31 42; /* #0F1F2A 品牌色极暗面纱，替代浅色下的 primary-soft */
+  --c-on-accent: 7 12 20; /* 落在 accent 底上的文字：深色主题下用近黑 */
+  /* 深色下的「抬起」不能靠深色阴影——深底上的黑影看不见。
+     改用上缘 1px 内高光定义边界，外羽化压得更深更近，才有浮起来的读感。 */
+  --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.055) inset,
+    0 10px 26px -14px rgba(2, 6, 14, 0.85);
+}
+
 /* 全局底色与字体（PRD §6：低饱和、不刺眼；界面色一律走 tailwind 令牌，见 theme/bands.ts）。 */
 body {
   @apply bg-canvas font-sans text-ink antialiased;
 }
 
-/* 键盘焦点可见性（2026-09-20 风格走查）：全站统一主色描边环。
-   用 :focus-visible 而非 :focus，鼠标点击不出现描边。 */
 @layer base {
+  html {
+    /* 中文标点挤压（palt）：让全角标点按半角宽度排，句读不再撑出空洞。
+       支持该 OpenType 特性的字体（PingFang SC 等）会立刻紧凑；不支持的字体会忽略它，
+       没有副作用——所以可以无条件开。 */
+    font-feature-settings: 'palt' 1;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* 中文排版：标题与数据数字的默认字距收紧一点，避免大字号发散；
+     标题求「平衡换行」（不留末行孤字），正文求「美观换行」（不留行尾孤词）。 */
+  h1,
+  h2 {
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+
+  /* 链接下划线排版：默认下划线紧贴字底，会压住中文与拉丁的降部。
+     统一抬高并减细，让下划线退到呼吸位。 */
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 0.075em;
+  }
+
+  /* 键盘焦点可见性（2026-09-20 风格走查）：全站统一主色描边环。
+     用 :focus-visible 而非 :focus，鼠标点击不出现描边。 */
   :focus-visible {
     outline: 2px solid #4e8fb0;
     outline-offset: 2px;
     border-radius: 8px;
   }
 
-  /* 中文排版：标题与数据数字的默认字距收紧一点，避免大字号发散 */
-  h1,
-  h2 {
-    letter-spacing: -0.01em;
-    text-wrap: balance;
+  /* ── 浏览器表面 ──────────────────────────────────────────────────
+     这些部件不是我们画的，但同样携带设计：选中色、文字光标、滚动条、
+     原生表单控件。用调色板统一主题化它们，是一个界面「被建造过」
+     最便宜、也最可靠的信号——恰恰也是生成式页面漏得最彻底的一环。 */
+
+  ::selection {
+    background-color: rgb(78 143 176 / 0.26);
+  }
+
+  input,
+  textarea,
+  [contenteditable] {
+    caret-color: #4e8fb0;
+  }
+
+  /* 滚动条：细轨 + 圆头滑块 + 悬停加深，颜色取自墨色系而非浏览器默认灰 */
+  html {
+    scrollbar-color: #c3d0d8 transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #c3d0d8;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #a9bac5;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/* ── 深色场景作用域 ────────────────────────────────────────────────
+   登录页把 html/body 底色临时压深（见 LoginPage 的 useEffect），
+   这里同步把依赖 color-scheme 的浏览器部件切成深色。
+   否则会出现「深色页面 + 亮白滚动条 / 亮白下拉菜单」这种露馅细节。
+
+   刻意不放进 @layer：未分层样式优先级最高，确保能覆盖上面的浅色取值，
+   不必靠提高选择器权重去打补丁。 */
+html.dusk {
+  color-scheme: dark;
+  scrollbar-color: #26313f transparent;
+}
+html.dusk ::selection {
+  background-color: rgb(111 179 212 / 0.3);
+}
+html.dusk input,
+html.dusk textarea,
+html.dusk [contenteditable] {
+  caret-color: #6fb3d4;
+}
+html.dusk ::-webkit-scrollbar-thumb {
+  background-color: #26313f;
+}
+html.dusk ::-webkit-scrollbar-thumb:hover {
+  background-color: #334154;
+}
+html.dusk :focus-visible {
+  outline-color: #6fb3d4;
+}
+
+/* ── 原生表单控件 ─────────────────────────────────────────────────
+   这一环是实测才暴露的：聊天页的 textarea 背景实测为 rgb(59,59,59)——
+   它的 class 里没有任何背景类，这个灰是 Chrome 在 color-scheme: dark 下
+   自己给的默认值。它不属于我们的调色板，放在蓝调深色页上像一块外来物。
+
+   刻意不放进 @layer base（与上面的 html.dusk 同理）：
+   Tailwind 的 preflight 也定义了 ::placeholder（硬编码 gray-400 #9CA3AF），
+   同层同特异性时谁后出现谁赢，把规则放进 base 层并不稳妥。
+   未分层样式优先级最高，写在这里就一定能盖住 preflight 与 UA 默认值。 */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+textarea,
+select {
+  background-color: rgb(var(--c-surface));
+}
+
+/* 复选框 / 单选框 / 进度条的选中色：UA 默认是系统蓝，与品牌强调色不同源 */
+input[type='checkbox'],
+input[type='radio'],
+progress {
+  accent-color: rgb(var(--c-accent));
+}
+
+/* 占位符：统一到次要文字色（深底上 UA 默认灰偏暗）。
+   选择器必须写成 input/textarea::placeholder 而不是裸 ::placeholder——
+   preflight 用的是带元素的选择器（特异性 0,0,2），裸伪元素（0,0,1）压不过它，
+   光靠写在后面对特异性更高的规则没用。这里对齐选择器再靠后覆盖。 */
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--c-ink-soft));
+  opacity: 0.8;
+}
+
+/* 减弱动态效果（前端优化批三 · 2026-09-22）：系统开启后，全站 hover/过渡与
+   平滑滚动降级为瞬时，避免前庭不适；不影响布局与状态变化本身。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

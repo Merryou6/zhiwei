@@ -35,7 +35,7 @@ import type { DialogMessage, DialogRecord } from '../db/types';
 import type { HandlerResult, RouteRequest, SseEvent } from '../router';
 import type { KnowledgeNode } from '../data/staticData';
 import { authedUser } from './auth';
-import { loadSelectionState } from './diagnose';
+import { kbOfSpace, loadSelectionState } from './diagnose';
 
 export interface ChatMeta {
   dialog_id: string;
@@ -190,7 +190,8 @@ async function applyExitChannel(
 
   const state = await loadSelectionState(ctx, userId, spaceId, 'diagnose');
   // ALGORITHM §5 未限定回溯深度 → 放开到全图上界，仅用于找「最近」的低掌握上游
-  const wide = { ...ctx.params, MAX_DEPTH: ctx.data.nodes.length };
+  // 上界取该空间学段的节点数（多学段并存后，另一个学段的节点与本图无关）
+  const wide = { ...ctx.params, MAX_DEPTH: ctx.data.nodesForKb(await kbOfSpace(ctx, spaceId)).length };
   const search = searchUpstream(ctx.data.nodeById, state.mastery, currentKpId, wide);
 
   const lowOnes = search.suspects
@@ -238,7 +239,7 @@ export async function runChat(req: RouteRequest, ctx: AppContext): Promise<ChatR
   const turn = await createModels().chatTurn({
     message,
     image_file_id: typeof imageFileId === 'string' ? imageFileId : null,
-    nodes: ctx.data.nodes,
+    nodes: ctx.data.nodesForKb(space.knowledge_source[0]),
     history: dialog.messages,
   });
 

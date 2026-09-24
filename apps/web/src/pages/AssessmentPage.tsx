@@ -19,6 +19,7 @@ import { ApiError } from '../api/client';
 import { diagnoseNext, diagnoseSubmit } from '../api/endpoints';
 import type { DiagnoseMode } from '../api/types';
 import ItemCard from '../components/ItemCard';
+import PageSkeleton from '../components/PageSkeleton';
 import ProgressBar from '../components/ProgressBar';
 import { MODE_LABEL } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
@@ -151,14 +152,14 @@ export default function AssessmentPage() {
           <button
             type="button"
             onClick={() => navigate(tooFast ? '/self-report' : '/graph')}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:opacity-90"
+            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
           >
             {tooFast ? '去花 30 秒自报' : '看看我的地图'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/report')}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-white"
+            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
           >
             打开学习报告
           </button>
@@ -168,7 +169,7 @@ export default function AssessmentPage() {
               store.reset();
               setPhase('select');
             }}
-            className="rounded-lg px-4 py-2.5 text-sm text-ink-soft hover:bg-white"
+            className="rounded-lg px-4 py-2.5 text-sm text-ink-soft hover:bg-surface"
           >
             换一种测评
           </button>
@@ -194,7 +195,7 @@ export default function AssessmentPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void startMode(card.value)}
-                className="w-full rounded-2xl border border-line bg-white p-5 shadow-card text-left hover:border-primary disabled:opacity-60"
+                className="w-full rounded-2xl border border-line bg-surface p-5 shadow-card text-left hover:border-accent disabled:opacity-60"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-base font-medium text-ink">{MODE_LABEL[card.value]}</span>
@@ -214,7 +215,7 @@ export default function AssessmentPage() {
   if (!item) {
     return (
       <section className="max-w-2xl">
-        <p className="text-sm text-ink-soft">正在取题…</p>
+        <PageSkeleton label="正在取题…" rows={1} />
       </section>
     );
   }
@@ -239,7 +240,7 @@ export default function AssessmentPage() {
           type="button"
           disabled={busy}
           onClick={() => void submitAnswer()}
-          className="rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:opacity-90 disabled:opacity-60"
+          className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {busy ? '记一下…' : '下一题'}
         </button>
@@ -247,7 +248,7 @@ export default function AssessmentPage() {
           type="button"
           disabled={busy}
           onClick={() => void skipItem()}
-          className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink-soft hover:bg-white disabled:opacity-60"
+          className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink-soft hover:bg-surface disabled:opacity-60"
         >
           这道先跳过
         </button>

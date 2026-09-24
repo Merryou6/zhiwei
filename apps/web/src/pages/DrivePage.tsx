@@ -15,6 +15,7 @@ import { drive } from '../api/endpoints';
 import type { DriveFileView } from '../api/types';
 import { fileSize } from '../lib/format';
 import EmptyState from '../components/EmptyState';
+import PageSkeleton from '../components/PageSkeleton';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
 import { useSpaceStore } from '../stores/space';
@@ -53,12 +54,12 @@ export default function DrivePage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">云盘</h1>
-        <div className="mt-5 rounded-2xl border border-line bg-white p-5 shadow-card">
+        <div className="mt-5 rounded-2xl border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有选中的学习空间"
             hint="先选一个学习空间，我再告诉你这个学科有哪些资料。"
             action={
-              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90">
+              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
                 去选空间
               </Link>
             }
@@ -90,7 +91,7 @@ export default function DrivePage() {
       </header>
 
       {loading ? (
-        <p className="mt-6 text-sm text-ink-soft">正在取文件列表…</p>
+        <PageSkeleton label="正在取文件列表…" rows={2} className="mt-6" />
       ) : files.length === 0 ? (
         <p className="mt-6 text-sm text-ink-soft">这个空间暂时没有资料。</p>
       ) : (
@@ -98,7 +99,7 @@ export default function DrivePage() {
           {files.map((file) => (
             <li
               key={file.file_id}
-              className="flex items-center justify-between gap-4 rounded-xl border border-line bg-white px-4 py-3"
+              className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface px-4 py-3"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm text-ink">{file.name}</p>

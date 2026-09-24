@@ -43,6 +43,13 @@ export class ApiError extends Error {
 
 export type QueryValue = string | number | boolean | null | undefined;
 
+/**
+ * 默认请求超时（前端优化批二 · 2026-09-22）：15s。
+ * 背景：原先只有调用方传 signal 才能取消，服务端挂起（如接入真实模型后的慢响应）时
+ * 按钮会一直转、用户只能干等。超时后按统一话术抛 ApiError（不新增错误码）。
+ */
+export const DEFAULT_TIMEOUT_MS = 15_000;
+
 export interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -51,6 +58,8 @@ export interface RequestOptions {
   query?: Record<string, QueryValue>;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  /** 覆盖默认超时（毫秒）；传 0 表示不限时（如大文件上传）。 */
+  timeoutMs?: number;
 }
 
 export function buildUrl(path: string, query?: Record<string, QueryValue>): string {
@@ -117,18 +126,44 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     throw new ApiError(ERROR_CODE.OK, UI_TEXT.networkError);
   }
 
+  // 超时 + 调用方 signal 合流：内部 controller 统一驱动 fetch（AbortSignal.any 兼容性不足，手动转发）
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer =
+    timeoutMs > 0
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, timeoutMs)
+      : null;
+
+  const externalSignal = options.signal;
+  const forwardAbort = (): void => controller.abort();
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort();
+    else externalSignal.addEventListener('abort', forwardAbort);
+  }
+  const cleanup = (): void => {
+    if (timer !== null) clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', forwardAbort);
+  };
+
   let response: Response;
   try {
     response = await fetch(buildUrl(path, options.query), {
       method,
       headers,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
-      signal: options.signal,
+      signal: controller.signal,
     });
   } catch (error) {
+    cleanup();
+    if (timedOut) throw new ApiError(ERROR_CODE.OK, UI_TEXT.timeoutError);
     if ((error as { name?: string } | null)?.name === 'AbortError') throw error;
     throw new ApiError(ERROR_CODE.OK, UI_TEXT.networkError);
   }
+  cleanup();
 
   const envelope = await readEnvelope(response);
 

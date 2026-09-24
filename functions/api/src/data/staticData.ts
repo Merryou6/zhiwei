@@ -1,10 +1,10 @@
 /**
  * 静态数据加载（知识图谱 + 题库 + 学科索引）
  *
- * 数据来源（DATA_SCHEMA §1）：
- *   data/knowledge/index.json        学科索引（kb_id → 知识库名）
- *   data/knowledge/math/cz.json      20 节点知识图谱
- *   data/item_bank/math/cz.json      228 题双池题库
+ * 数据来源（DATA_SCHEMA §1，2026-09-23 起多学段）：
+ *   data/knowledge/index.json        学科索引（kb_id → 知识库名；每 stage 一个图谱）
+ *   data/knowledge/math/cz.json      初中 24 节点 / gz.json 高中 12 节点
+ *   data/item_bank/math/<stage>.json 对应学段的题库（cz 272 题 / gz 132 题）
  *
  * 进程内缓存（按 rootDir 缓存，测试可注入不同 rootDir）；只读，永不写入。
  * CloudBase 形态下题库等价于读 item_bank 表（见 db/cloudbaseStore.ts 桩注释）；
@@ -111,8 +111,16 @@ export interface StaticData {
   nodeById: Map<string, KnowledgeNode>;
   items: BankItemRecord[];
   itemById: Map<string, BankItemRecord>;
-  /** 章节名 → 该章节全部节点（自报先验按章节展开）。 */
+  /** 章节名 → 该章节全部节点（自报先验按章节展开；跨学段全局口径）。 */
   nodesByChapter(chapter: string): KnowledgeNode[];
+  /** kb 作用域：该知识库的全部节点（多学段并存后，选题/报告/对话都要按空间隔离）。 */
+  nodesForKb(kbId: string): KnowledgeNode[];
+  /** kb 作用域的章节查询（防止 cz/gz 同名章节互相串）。 */
+  nodesByChapterForKb(kbId: string, chapter: string): KnowledgeNode[];
+  /** kb 作用域：该知识库的全部题目（选题引擎的 bank 输入）。 */
+  itemsForKb(kbId: string): BankItemRecord[];
+  /** 全部合法 kb_id（space/create 的合法值来源）。 */
+  kbIds(): string[];
   /** 知识点 → 该 kp 全部题（可再按 pool 过滤）。 */
   itemsByKp(kpId: string): BankItemRecord[];
   /** 知识点 → 指定池的题（按难度升序，同日同池顺序稳定）。 */
@@ -130,7 +138,6 @@ export interface StaticData {
 const DEFAULT_ROOT = process.env.ZHIWEI_ROOT ?? process.cwd();
 
 const knowledgeIndexPath = 'data/knowledge/index.json';
-const bankPath = 'data/item_bank/math/cz.json';
 
 const cache = new Map<string, StaticData>();
 
@@ -138,20 +145,46 @@ function readJson<T>(absolutePath: string): T {
   return JSON.parse(readFileSync(absolutePath, 'utf8')) as T;
 }
 
-/** 载入静态数据（进程内缓存）。rootDir 为仓库根；文件缺失时抛出可读错误。 */
+/** 载入静态数据（进程内缓存）。rootDir 为仓库根；文件缺失时抛出可读错误。
+ *  多学段：遍历 index 的全部 stages，图谱走 stage.file，题库按
+ *  data/item_bank/<subject.key>/<stage.key>.json 路由（cz / gz / …）。 */
 export function loadStaticData(rootDir: string = DEFAULT_ROOT): StaticData {
   const cached = cache.get(rootDir);
   if (cached) return cached;
 
   const index = readJson<SubjectIndex>(resolve(rootDir, knowledgeIndexPath));
-  const stage = index.subjects.flatMap((s) => s.stages).find((s) => s.kb_id === 'kb_math_cz');
-  if (!stage) throw new Error(`${knowledgeIndexPath} 中不存在 kb_math_cz`);
+  const subjects = index.subjects ?? [];
+  const stages = subjects.flatMap((s) => s.stages ?? []);
+  if (stages.length === 0) throw new Error(`${knowledgeIndexPath} 中没有任何 stages`);
 
-  const graphFile = readJson<{ nodes: KnowledgeNode[] }>(resolve(rootDir, stage.file));
-  const bankFile = readJson<{ items: BankItemRecord[] }>(resolve(rootDir, bankPath));
+  const nodes: KnowledgeNode[] = [];
+  const items: BankItemRecord[] = [];
+  const nodesByStage = new Map<string, KnowledgeNode[]>();
+  const itemsByStage = new Map<string, BankItemRecord[]>();
+  const stageByKb = new Map<string, KnowledgeStage>();
+  const subjectKeyByKb = new Map<string, string>();
 
-  const nodes = graphFile.nodes;
-  const items = bankFile.items;
+  for (const subject of subjects) {
+    for (const stage of subject.stages ?? []) {
+      stageByKb.set(stage.kb_id, stage);
+      subjectKeyByKb.set(stage.kb_id, subject.key);
+      const graphFile = readJson<{ nodes: KnowledgeNode[] }>(resolve(rootDir, stage.file));
+      const bankFile = readJson<{ items: BankItemRecord[] }>(
+        resolve(rootDir, 'data', 'item_bank', subject.key, `${stage.key}.json`),
+      );
+      if (!Array.isArray(graphFile.nodes) || graphFile.nodes.length === 0) {
+        throw new Error(`${stage.file} 的 nodes 缺失或为空`);
+      }
+      if (!Array.isArray(bankFile.items)) {
+        throw new Error(`${subject.key}/${stage.key}.json 的 items 必须为数组`);
+      }
+      nodesByStage.set(stage.key, graphFile.nodes);
+      itemsByStage.set(stage.key, bankFile.items);
+      nodes.push(...graphFile.nodes);
+      items.push(...bankFile.items);
+    }
+  }
+
   const nodeById = new Map(nodes.map((n) => [n.id, n]));
   const itemById = new Map(items.map((i) => [i.item_id, i]));
 
@@ -175,16 +208,27 @@ export function loadStaticData(rootDir: string = DEFAULT_ROOT): StaticData {
       .filter((i) => i.pool === pool)
       .sort(byDifficulty);
 
-  const stages = index.subjects.flatMap((s) => s.stages);
+  const kbIds = (): string[] => [...stageByKb.keys()];
+
+  const nodesForKb = (kbId: string): KnowledgeNode[] => {
+    const stage = stageByKb.get(kbId);
+    return stage ? (nodesByStage.get(stage.key) ?? []) : [];
+  };
+
+  const nodesByChapterForKb = (kbId: string, chapter: string): KnowledgeNode[] =>
+    nodesForKb(kbId).filter((n) => n.chapter === chapter);
+
+  const itemsForKb = (kbId: string): BankItemRecord[] => {
+    const stage = stageByKb.get(kbId);
+    return stage ? (itemsByStage.get(stage.key) ?? []) : [];
+  };
 
   const kbName = (kbId: string): string | null =>
     stages.find((s) => s.kb_id === kbId)?.name ?? null;
 
   const subjectOfKb = (kbId: string): string | null => {
     // 索引不含学科中文名，取该阶段任一节点的 subject 字段（图谱规格必填）
-    const st = stages.find((s) => s.kb_id === kbId);
-    if (!st) return null;
-    const node = nodes.find((n) => n.id.startsWith(`${st.key}.`));
+    const node = nodesForKb(kbId)[0];
     return node ? node.subject : null;
   };
 
@@ -236,6 +280,10 @@ export function loadStaticData(rootDir: string = DEFAULT_ROOT): StaticData {
     items,
     itemById,
     nodesByChapter,
+    nodesForKb,
+    nodesByChapterForKb,
+    itemsForKb,
+    kbIds,
     itemsByKp,
     itemsByKpPool,
     kbName,

@@ -3,16 +3,23 @@
  *
  * 守卫状态直接读 localStorage（与 stores/auth 的落盘键同源，见 router.tsx STORAGE_KEYS）：
  * 登录/登出/401 清理都会先同步写盘再导航，故守卫是「持久化会话」的纯函数，无额外订阅。
+ *
+ * 错误边界（前端优化批一）：页面级边界（保留顶栏，出错仍能切页）+ 顶层边界（Layout/守卫异常兜底）；
+ * 均以当前路由 pathname 作 key，换页即复位，不会一直卡在兜底态。
  */
 
 import { Suspense, lazy, type ComponentType, type ReactElement } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
+import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
+import PageSkeleton from './components/PageSkeleton';
+import ToastHost from './components/ToastHost';
 import { LOGIN_PATH, ROUTES, STORAGE_KEYS, guardPath } from './router';
 import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
 import ChatPage from './pages/ChatPage';
+import ConsoleHomePage from './pages/ConsoleHomePage';
 import DrivePage from './pages/DrivePage';
 import LoginPage from './pages/LoginPage';
 import PaperPage from './pages/PaperPage';
@@ -31,6 +38,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/login': LoginPage,
   '/self-report': SelfReportPage,
   '/spaces': SpacesPage,
+  '/console': ConsoleHomePage,
   '/assessment': AssessmentPage,
   '/paper': PaperPage,
   '/chat': ChatPage,
@@ -40,9 +48,9 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/drive': DrivePage,
 };
 
-/** 懒加载页面的占位（与页面内加载态同语气，避免白屏闪烁）。 */
+/** 懒加载页面的占位（骨架屏，批三）：与页面内加载态同语气，避免白屏闪烁。 */
 function PageLoading(): ReactElement {
-  return <p className="py-10 text-[13px] text-ink-soft">正在准备这一页…</p>;
+  return <PageSkeleton label="正在准备这一页…" rows={2} />;
 }
 
 function persist(slot: string): string | null {
@@ -61,33 +69,58 @@ export function readSession(): { token: string | null; hasActiveSpace: boolean }
   };
 }
 
-function Guarded({ children }: { children: ReactElement }) {
+/**
+ * 守卫 + 外壳。
+ *
+ * bare（视觉改版 2026-09-22）：登录页是「全屏深色开场 + 中央粒子标识」，不套带顶栏的
+ * Layout —— 未登录的人看到导航没有意义，而且深色开场必须占满视口。此时仍挂 ToastHost，
+ * 保证校验/服务端错误照旧走非阻断提示（与内页同一份队列实现）。
+ */
+function Guarded({ children, bare = false }: { children: ReactElement; bare?: boolean }) {
   const location = useLocation();
   const redirect = guardPath(location.pathname, readSession());
   if (redirect) return <Navigate to={redirect} replace />;
+
+  if (bare) {
+    return (
+      <>
+        {children}
+        <ToastHost />
+      </>
+    );
+  }
+
   return <Layout>{children}</Layout>;
 }
 
 export default function App() {
+  const location = useLocation();
+
   return (
-    <Routes>
-      {ROUTES.map((route) => {
-        const Page = PAGE_COMPONENTS[route.path];
-        return (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={
-              <Guarded>
-                <Suspense fallback={<PageLoading />}>
-                  <Page />
-                </Suspense>
-              </Guarded>
-            }
-          />
-        );
-      })}
-      <Route path="*" element={<Navigate to={LOGIN_PATH} replace />} />
-    </Routes>
+    // 顶层边界：Layout / 守卫自身异常也不白屏（此时无导航，兜底卡片自带出口）
+    <ErrorBoundary key={`root:${location.pathname}`}>
+      <Routes>
+        {ROUTES.map((route) => {
+          const Page = PAGE_COMPONENTS[route.path];
+          return (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <Guarded bare={route.path === LOGIN_PATH}>
+                  {/* 页面级边界：只兜内容区，顶栏导航保留 → 出错也能切到别的页 */}
+                  <ErrorBoundary key={`page:${route.path}`}>
+                    <Suspense fallback={<PageLoading />}>
+                      <Page />
+                    </Suspense>
+                  </ErrorBoundary>
+                </Guarded>
+              }
+            />
+          );
+        })}
+        <Route path="*" element={<Navigate to={LOGIN_PATH} replace />} />
+      </Routes>
+    </ErrorBoundary>
   );
 }

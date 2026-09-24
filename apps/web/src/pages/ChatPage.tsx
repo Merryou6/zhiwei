@@ -17,11 +17,14 @@ import { Link } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
+import { InlineSkeletonRows } from '../components/PageSkeleton';
 import { drive } from '../api/endpoints';
 import { streamChat } from '../api/sse';
 import type { ChatMeta, DriveFileView } from '../api/types';
 import { kpName } from '../data/graphSnapshot';
+import { scrollBehavior } from '../lib/motion';
 import { UI_TEXT, exitChannelText } from '../lib/phrases';
+import RichText from '../lib/richText';
 import { SPACES_PATH } from '../router';
 import { useDialogStore } from '../stores/dialog';
 import { useSpaceStore } from '../stores/space';
@@ -50,7 +53,8 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 流式追加时贴底；系统开启「减弱动态效果」时改为瞬时滚动（批三）
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, [store.messages.length, store.streaming]);
 
   async function openPicker(): Promise<void> {
@@ -140,14 +144,14 @@ export default function ChatPage() {
           </p>
           <Link
             to={`/graph?path=${encodeURIComponent(meta?.kp_match.kp_id ?? '')}`}
-            className="mt-2 inline-block rounded-lg bg-primary px-3 min-h-9 py-2 text-[13px] text-white"
+            className="mt-2 inline-block rounded-lg bg-accent px-3 min-h-9 py-2 text-[13px] text-on-accent"
           >
             去图谱看看这一环
           </Link>
         </div>
       ) : null}
 
-      <div className="mt-5 space-y-3 rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div className="mt-5 space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
         {store.messages.length === 0 ? (
           <EmptyState
             compact
@@ -171,11 +175,22 @@ export default function ChatPage() {
               <div className={isStudent ? 'max-w-[80%] text-right' : 'max-w-[85%]'}>
                 <div
                   className={[
-                    'inline-block whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed',
-                    isStudent ? 'bg-primary-soft text-ink' : 'bg-canvas text-ink',
+                    'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed',
+                    isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
                   ].join(' ')}
                 >
-                  {message.text.length > 0 ? message.text : message.pending ? '正在想…' : ''}
+                  {message.text.length > 0 ? (
+                    // 学长回复走轻量 Markdown 子集（加粗/列表/换行）；学生输入是纯文本，保持原样
+                    isStudent ? (
+                      message.text
+                    ) : (
+                      <RichText text={message.text} className="space-y-1.5" />
+                    )
+                  ) : message.pending ? (
+                    '正在想…'
+                  ) : (
+                    ''
+                  )}
                 </div>
 
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
@@ -200,7 +215,7 @@ export default function ChatPage() {
       </div>
 
       {pickerOpen ? (
-        <div className="mt-3 rounded-xl border border-line bg-white p-3">
+        <div className="mt-3 rounded-xl border border-line bg-surface p-3">
           <p className="text-[13px] text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
           <ul className="mt-2 space-y-1">
             {files.map((file) => (
@@ -210,21 +225,27 @@ export default function ChatPage() {
                   onClick={() => setImageFileId(file.file_id)}
                   className={[
                     'w-full rounded-lg px-3 py-1.5 text-left text-xs',
-                    imageFileId === file.file_id ? 'bg-primary-soft text-primary' : 'text-ink hover:bg-canvas',
+                    imageFileId === file.file_id ? 'bg-accent-veil text-accent' : 'text-ink hover:bg-raised',
                   ].join(' ')}
                 >
                   {file.name}
                 </button>
               </li>
             ))}
-            {files.length === 0 ? <li className="px-3 min-h-9 py-2 text-[13px] text-ink-soft">正在取文件…</li> : null}
+            {files.length === 0 ? (
+              <li className="px-3">
+                {/* 预置文件列表加载中：行内骨架（批三），原状态文字保留给屏幕阅读器 */}
+                <span className="sr-only">正在取文件…</span>
+                <InlineSkeletonRows rows={2} />
+              </li>
+            ) : null}
           </ul>
         </div>
       ) : null}
 
       <div className="mt-4 flex items-end gap-2">
         <textarea
-          className="min-h-[44px] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary"
+          className="min-h-[44px] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
           rows={2}
           placeholder="写一句你的思路，或者直接说卡在哪"
           value={input}
@@ -234,7 +255,7 @@ export default function ChatPage() {
         <button
           type="button"
           onClick={() => void openPicker()}
-          className="rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-white"
+          className="rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-surface"
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
@@ -244,7 +265,7 @@ export default function ChatPage() {
           type="button"
           disabled={store.streaming}
           onClick={() => void send()}
-          className="rounded-xl bg-primary px-4 py-2.5 text-sm text-white hover:opacity-90 disabled:opacity-60"
+          className="rounded-xl bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {store.streaming ? '正在回…' : '发送'}
         </button>

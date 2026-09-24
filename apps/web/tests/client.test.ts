@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, buildUrl, request } from '../src/api/client';
 import * as api from '../src/api/endpoints';
+import { UI_TEXT } from '../src/lib/phrases';
 import { STORAGE_KEYS } from '../src/router';
 import { useAuthStore } from '../src/stores/auth';
 
@@ -166,5 +167,59 @@ describe('client · 错误码分支（九码不扩展，msg 原样透出）', ()
     stubFetch(() => new Response('', { status: 204 }));
     const empty = await request('/api/space/list').catch((e: unknown) => e);
     expect(empty).toBeInstanceOf(ApiError);
+  });
+});
+
+describe('client · 超时（前端优化批二）', () => {
+  /** 永不返回的 fetch，直到 signal 被 abort（模拟服务端挂起）。 */
+  function hangingFetch(): void {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        (_input: unknown, init?: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => {
+              const error = new Error('aborted');
+              error.name = 'AbortError';
+              reject(error);
+            });
+          }),
+      ),
+    );
+  }
+
+  it('超过 timeoutMs → ApiError 用统一超时话术（不是网络错误）', async () => {
+    vi.useFakeTimers();
+    try {
+      hangingFetch();
+      const pending = request('/api/space/list', { timeoutMs: 200 }).catch((e: unknown) => e);
+      await vi.advanceTimersByTimeAsync(250);
+      const error = await pending;
+
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).code).toBe(0);
+      expect((error as ApiError).message).toBe(UI_TEXT.timeoutError);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('timeoutMs: 0 关闭超时，请求继续等待直到调用方 signal 取消', async () => {
+    vi.useFakeTimers();
+    try {
+      hangingFetch();
+      const controller = new AbortController();
+      const pending = request('/api/space/list', { timeoutMs: 0, signal: controller.signal }).catch(
+        (e: unknown) => e,
+      );
+
+      await vi.advanceTimersByTimeAsync(60_000); // 远超默认 15s 仍未超时
+      controller.abort();
+      const error = await pending;
+      // 调用方取消仍是原生 AbortError（保持原行为，不被包装成 ApiError）
+      expect((error as Error).name).toBe('AbortError');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

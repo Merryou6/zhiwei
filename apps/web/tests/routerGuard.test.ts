@@ -5,7 +5,7 @@
  *   - 未登录访问受保护页 → #/login
  *   - 已登录访问 #/login → #/spaces
  *   - 已登录无活跃空间 → #/spaces（/spaces 与 /self-report 豁免）
- *   - 路由表 10 页齐全、页面编号 1–10 无重复
+ *   - 路由表 11 页齐全、页面编号 1–11 无重复
  */
 
 import { describe, expect, it } from 'vitest';
@@ -25,11 +25,11 @@ import {
 const PROTECTED = ROUTES.filter((route) => route.requiresAuth).map((route) => route.path);
 
 describe('router · 路由表（PRD §5 十页）', () => {
-  it('10 页齐全、路径唯一、页面编号 1–10 各一次', () => {
-    expect(ROUTES).toHaveLength(10);
-    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(10);
+  it('11 页齐全、路径唯一、页面编号 1–11 各一次', () => {
+    expect(ROUTES).toHaveLength(11);
+    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(11);
     expect(ROUTES.map((route) => route.page).sort((a, b) => a - b)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     ]);
     expect(ROUTES.every((route) => route.label.length > 0)).toBe(true);
   });
@@ -74,7 +74,7 @@ describe('router · guardPath 守卫分支', () => {
       expect(guardPath(path, state)).toBeNull();
     }
     expect(guardPath(LOGIN_PATH, state)).toBe(SPACES_PATH);
-    expect(PROTECTED).toHaveLength(9);
+    expect(PROTECTED).toHaveLength(10);
   });
 
   it('未知路径：已登录去 #/spaces，未登录去 #/login（不白屏）', () => {
