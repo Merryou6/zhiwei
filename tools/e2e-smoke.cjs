@@ -70,6 +70,8 @@ function findChrome() {
     'C:/Program Files/Google/Chrome/Application/chrome.exe',
     'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    // macOS Edge（2026-09-24：本机无 Chrome 仅有 Edge，Chromium 内核 CDP 通用）
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
     'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
     'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
     '/usr/bin/google-chrome',
@@ -184,6 +186,11 @@ async function main() {
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-gpu',
+      // --no-sandbox：受限沙箱（如 LearnBuddy 命令沙箱）里，Chromium 自身沙箱层
+      // 会因权限被拒触发 SIGTRAP 崩溃——表现为 WS 1006 断开、本脚本 pending 永不
+      // 结算后静默退出(0)。加此开关后 2026-09-24 实测全链路 1.5s 跑通（仅 e2e
+      // 一次性临时 profile，风险可接受；agent-browser 同样这么跑）。
+      '--no-sandbox',
       '--hide-scrollbars',
       `--window-size=${W},${H}`,
       'about:blank',
