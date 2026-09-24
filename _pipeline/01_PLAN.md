@@ -1,696 +1,473 @@
-知微 · 用户反馈第 5 条（对话链路透出 + 右侧常驻面板）实施计划
+知微 · 移动端适配（修破绽深度，桌面像素级零变化）实施计划
 =================================================
-计划编号：01_PLAN（第 5 版，赛前修整轮 2：对话链路，最后一条用户反馈）
-编写日期：2026-09-24 17:33
-编写角色：planner（只读规划，implementer 严格照办；执行歧义按本计划「二、决策记录」裁决）
+计划编号：01_PLAN（第 6 版：移动端适配）
+编写日期：2026-09-24 20:47
+编写角色：planner（只读规划，implementer 严格照办；执行歧义按「二、决策记录」裁决）
 工作区：/Users/Merryou/LearnBuddy/zhiwei/
-基线：git HEAD = 20051db（分支 tempdeploy，rev-list --count HEAD = 74；测试 300 例全绿 / 26 文件，
-      tsc 三段 exit 0）。工作区他人未提交变更：M _pipeline/03_REVIEW.md、M tools/e2e-smoke.cjs、
-      ?? _pipeline/PR-tempdeploy.md、?? _pipeline/archive/03_REVIEW_20260924_1711.md、
-      ?? 知微-项目介绍.md —— 本计划不碰、不提交、不回退它们（D13）。
-归档：旧计划已先复制归档为 _pipeline/archive/01_PLAN_20260924_1729.md（md5 一致
-      8d939b8654a1b2ed57dc147030cbeac0，归档只增不删），然后才覆写本文件。
-权威依据：API_CONTRACT.md（冻结，本项目方已同意以 §9 追加 + §11 留痕方式演进，见 D2）
-      > ALGORITHM.md §5（退出通道状态机）> DATA_SCHEMA.md > PRD.md > 方案 v4。
-提问纪律：总控已声明优先自行裁决 + 决策记录留痕。本轮方向已由总控以 RD1–RD7 定死，
-      细节歧义全部在「二」留 D 编号决策记录；无阻塞项。
+基线：git HEAD 位于 tempdeploy 分支（rev-list --count HEAD = 90）。工作区他人未提交变更：
+      M tools/e2e-smoke.cjs（Edge 路径 + --no-sandbox，本计划 B0 会参考其 CDP 模式，不改回、不提交回退）、
+      ?? _pipeline/PR-tempdeploy.md、?? 知微-项目介绍.md —— 本计划不碰、不回退（延续上版 D13）。
+归档：旧计划已先复制归档为 _pipeline/archive/01_PLAN_20260924_2047.md（md5 e18ebf49… 两份一致，
+      归档只增不删），然后才覆写本文件。
+需求边界（总控已拍板，不再提问）：
+  · 深度 = 修破绽，桌面（≥768px）渲染像素级零变化；不做手机优先重构、不做报告表格卡片化、
+    不做图谱移动端独立视图。
+  · 顶栏收纳 = 汉堡抽屉（手机上顶栏只留「知微」+ 汉堡键；抽屉承载全部导航项 + 主题键 + 空间切换）。
+  · README 由总控另案负责，不在本计划范围（D13）。
+提问纪律：总控已声明不接受中途提问 → 全部歧义以 D 编号自行裁决留痕。无阻塞项。
 
 环境常量（本计划全部命令使用，展开即完整路径）：
   $NODE = /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node
-  $WS   = /Users/Merryou/LearnBuddy/binaries/node/workspace
+  $WS   = /Users/Merryou/.workbuddy/binaries/node/workspace
   $PY   = /Users/Merryou/.workbuddy/binaries/python/envs/default/bin/python3
   工作目录：cd /Users/Merryou/LearnBuddy/zhiwei
-  ⚠ 本机单条命令约 60 秒被 SIGKILL：测试一律分批跑；git diff 一律加 --no-pager；
-    起前后端做端到端只能在同一调用内「起→探→杀」；需等待用 node 忙等。
+  ⚠ 本机单条命令约 60 秒被 SIGKILL：vitest 一律分批；git diff 一律 --no-pager；
+    dev server / 后端可 run_in_background 存活（实测），走查脚本按宽度分档跑防超时。
 
 -------------------------------------------------
-一、目标与范围
+一、目标与验收清单（逐条可勾选）
 -------------------------------------------------
-1.1 用户原话（第 5 条，最后一条）：
-  「对话辅导的思维链、调用的工具链之类的要整的写炫酷一点，流式传输」。
-  此前已确认的取舍：对话做成**右侧常驻面板**（不替换顶栏导航）；链路**后端真实透出**
-  （不是前端拿现有 meta 演示）；模型**默认提供一个、不支持自定义**（配置只在服务端 env）。
-1.2 总控已定方向（RD1–RD7，本计划落实为 D1–D7 并给理由与依据）：
-  RD1 形态：右侧常驻面板 + 顶栏按钮 + /chat 全屏保留 + 面板/全屏共用视图组件。
-  RD2 事件契约：SSE 新增 thought / tool / phase 三类过程事件，delta / meta / done / error
-      语义不变；JSON 降级响应体同携 trace（详见「三、」字段表，F 批照此实现）。
-  RD3 远程模型真流式：stream: true + 结构化 JSON 固定字段序（thought → reply → progress →
-      progress_reason → kp_match → top_candidates）+ 服务端增量抽取 thought / reply。
-  RD4 本地模式真实链路：按 runChat 真实执行顺序产出事件，tool.args/result 填真实中间量，
-      严禁编造没有发生的步骤（边界定义见 D4）。
-  RD5 可视化：思考流打字机 + 工具链竖向时间轴 + 状态指示 + 步骤计数/阶段进度；语义令牌、
-      双主题、prefers-reduced-motion、窄屏、面板不挤压正文到不可读。
-  RD6 模型只读展示：数据源 = #20 GET /api/user/profile 的 model 字段，文案明示
-      「由服务端配置，不可自定义」；不新增任何切换/自定义 UI。
-  RD7 环境变量复核：模型配置只在服务端、两 env 模板对齐、真值不入库（轮 1 已做，
-      本轮只复核并在执行报告留痕）。
-1.3 批次划分（每批可独立提交、独立回滚；E 必须先落地并冻结契约，F 才能开工，见 D8）：
-  E 批（后端链路透出）：
-    E1 契约 v1.3 冻结（文档 + 后端类型 + trace 模块骨架）
-    E2 本地模式真实链路（services/chat.ts 拆分重构 + 事件产出）
-    E3 远程模型真流式（models/remoteChat.ts stream:true + 增量抽取）
-    E4 云函数入口对齐 + 后端全量回归
-  F 批（前端面板 + 可视化，消费 E 冻结的契约）：
-    F1 前端消费层（types / sse.ts / dialog store 追加 trace 状态 / chatPanel store）
-    F2 共享对话视图组件（消息流 / 输入区 / 思考流 / 工具时间轴）+ ChatPage 瘦身复用
-    F3 右侧常驻面板挂 Layout + 顶栏按钮改造
-    F4 视觉走查（双主题 × 四档宽度）+ env 复核 + 文档收尾
-1.4 现状核对（planner 编写本计划时实测读取代码所得）：
-  - services/chat.ts：runChat() 整轮算完后 toSseStream() 一次性吐 delta(1–3) → meta → done，
-    无真实流式过程；chat() 先 await runChat 再决定 JSON/SSE，故 401/403/400/404 均在
-    流开始前以普通 JSON 错误体返回（chat.test.ts 第 9/11 例依赖此行为，E2 必须保住）。
-  - functions/api/src/router.ts:36-39 SseEvent 的 event 联合类型只有
-    'delta' | 'meta' | 'done' | 'error' —— E1 需扩展。
-  - functions/api/src/index.ts:106-117（云函数入口）把生成器缓冲成
-    { reply, meta } JSON —— E4 需同步收集 trace，保证与 SSE/JSON 降级三路同形。
-  - models/remoteChat.ts：stream:false + response_format json_object（400 时去参重试一次）；
-    任何失败回落 localChat（E3 将改掉 response_format 重试语义，见测试总表）。
-  - apps/web/src/api/sse.ts dispatchSseMessage：default 分支忽略未知事件（向前兼容已具备，
-    有 sse.test.ts 用例锁定）；降级链三段式不变。
-  - apps/web/src/stores/dialog.ts：全局 zustand store（不挂组件），跨路由天然存活
-    —— 面板跨页保留上下文的数据基础已存在。
-  - apps/web/src/components/Layout.tsx：TopNav + main(max-w-5xl) + ToastHost，挂面板的宿主。
-  - tailwind.config.js z-index 刻度：nav=40 / overlay=50 / toast=60（禁 z-[9999]）。
-  - lib/motion.ts：prefersReducedMotion() / scrollBehavior() 先例。
-  - /chat 路由：router.tsx ROUTES 不含面板概念；navRoutes() 含 '/chat'；TopNav 用
-    NavLink 渲染全部 nav 项。ROUTES 保持零改动 ⇒ guardPath 与 routerGuard.test.ts
-    全部用例零影响（D1c）。
-  - #20 GET /api/user/profile 已返回 model: { mode, name }；MePage 已有只读模型展示先例。
-1.5 明确排除（一行相关代码都不写）：
-  (1) packages/engine/**、data/**、config/params.json、scripts/** 零改动。
-  (2) PRD.md / ALGORITHM.md / DATA_SCHEMA.md / 参赛方案 v4 不改；
-      API_CONTRACT.md 只做 §9 追加 + §11 留痕（D2），其余章节一字不动。
-  (3) 序列化白名单（serialization.ts）、theme/bands.ts、tailwind.config.js 守恒区不动。
-  (4) 不新增后端接口编号（仍是 #18，只扩事件）；不装任何新依赖。
-  (5) 不碰 D13 列出的他人未提交变更。
-  (6) 不给本地模式伪造耗时 / 伪造模型独白（D4 边界）。
+[ ] 1.【第一验收项】1440px（及 768/1024 档）桌面渲染像素级不变：用 tools/responsive-audit.cjs
+       采集「改造前基线」与「改造后」两份几何 JSON（每页顶栏/正文/首卡片 getBoundingClientRect +
+       字号采样），对比 ≥768 档全部几何项 diff = 0px，另附前后截图供人工复核（B0 采基线、B6 复测）。
+[ ] 2. 断点单一定义：tailwind.config.js 具名断点 nav:'720px'；全站 min-[720px]/max-[720px]
+       任意值断点清零（grep 0 行）；新增静态测试锁死（见「七、」）。
+[ ] 3. 375/414 档：顶栏只显示「知微」+ 汉堡键；抽屉可开合（背景幕/Esc/点导航项收起/焦点归还），
+       内含全部 navRoutes() 项 + 主题切换 + 空间切换（含新建/管理入口）。
+[ ] 4. 375/414 档每页 documentElement.scrollWidth === clientWidth（图谱页容器、报告页表格容器
+       这两处「有意横向滚动」的内部区域除外，见 D7/D8）。
+[ ] 5. 触控目标 <720 一律 ≥36px（max-nav: 作用域，桌面不变，D6）。
+[ ] 6. 长串（file_id / attribution_id / 行内 code）不再撑破容器（break-all / break-words 落位）。
+[ ] 7. 安全区：viewport-fit=cover + env() 工具类单一来源（index.css）；BackToTop/Toast/面板输入区/
+       抽屉底避让刘海与 home indicator；桌面非刘海设备 env()=0 → 数值不变。
+[ ] 8. Layout 地址栏伸缩不跳动（min-h-screen → min-h-dvh，与 LoginPage 统一）。
+[ ] 9. 测试全绿且分批可跑：packages / functions/api/tests / apps/web/tests 三条各 exit 0；
+       tsc 三段 exit 0；build:web 通过。
+[ ] 10. 不碰业务红线：answer/solution_steps 不下发、算法参数零硬编码、令牌体系（颜色/圆角/阴影/
+       z-index）不引入组件内裸值（本轮反而清掉 3 处既有裸 z 值，见 D12）。
 
 -------------------------------------------------
-二、决策记录（D1–D13）
+二、决策记录（歧义自行裁决，D 编号留痕）
 -------------------------------------------------
-D1 形态：右侧常驻面板（RD1 落实）
-  a) 挂载点：Layout.tsx 内新增 <ChatPanelDock />（登录页 bare 外壳不含 Layout，天然无面板）。
-     面板开合状态放新 zustand store stores/chatPanel.ts（会话级、不落盘，默认关闭）——
-     Layout 随路由切换会重挂载，组件态会丢，store 态不会；对话上下文本就在全局
-     useDialogStore，跨页面保留上下文由此达成。
-  b) 挤压 vs 覆盖（总控提问点，planner 裁决）：≥1280px（xl）无背景幕，正文列
-     （main 容器）加与面板等宽的 padding-right（transition-[padding] 平滑过渡），
-     即「挤压正文列但保证可读」；<1280px 改为覆盖式：fixed 右侧抽屉 + 半透明背景幕
-     （bg-canvas/60，点击关闭），正文不动。理由：max-w-5xl(1280px) 的正文列在 1280
-     以下本就贴边，再挤压必不可读；覆盖式 + 可关闭是窄屏唯一不牺牲正文的形态。
-  c) z-index 走 z-overlay（50）档：单一 fixed 容器（内部先背景幕后面板本体）；
-     面板 top 从顶栏下缘起（top-[56px]），不遮 TopNav；Toast(z-toast=60) 仍在最上层。
-  d) 顶栏「对话辅导」：TopNav 渲染 navRoutes() 时对 path==='/chat' 特判为 button
-     （aria-pressed={panel.open}，点击 toggle），其余项仍 NavLink。ROUTES / navRoutes /
-     guardPath 数据结构零改动 ⇒ routerGuard.test.ts 全部用例零影响（含 12 页计数、
-     navRoutes 6 项、PROTECTED 计数——均不因渲染层特判而变）。
-  e) /chat 路由保留为全屏形态（requiresAuth: true, nav: true 原样）；全屏页头部提供
-     「收进侧栏」入口（关闭面板态提示），面板头部提供「全屏打开」Link to /chat。
-     两形态共用 F2 的同一套视图组件，禁止复制两份实现（对照 A 批 SpaceCreateForm
-     完整态/紧凑态先例）。
-  f) Esc 关闭面板；面板内消息区自管滚动（overflow-y-auto），不劫持页面滚动。
-  依据：总控 RD1 原文 + 用户此前确认「右侧常驻面板，不是替换顶栏导航」。
-
-D2 事件契约 v1.3（RD2 落实，本轮核心）：
-  a) SSE 在既有 delta / meta / done / error 之外新增三类事件：thought / tool / phase。
-     原四类事件的字段、语义、相对顺序（delta…→meta→done，error 仅异常时）一字不改
-     —— 旧客户端 dispatchSseMessage 的 default 分支直接忽略新事件（向前兼容已具备
-     且有测试锁定），新客户端不解析也不会破坏 delta 拼接。
-  b) JSON 降级（Accept: application/json 或 X-Response-Format: json）响应体 data 在
-     { reply, meta } 基础上增 trace: TraceStep[]（顺序即执行顺序），保证降级时
-     前端把 trace 重放为 onThought/onTool/onPhase，视觉不塌。
-  c) 精确字段表 + 工具名与真实动作对照表见「三、」（F 批照此实现，E1 文档照此追加）。
-  d) API_CONTRACT.md 修改边界：§9 在原代码块之后追加「v1.3 变更」标注块（原文逐行
-     保留，沿用 v1.2 的裁剪式追加惯例）；§11 追加一行变更记录。其余章节零改动。
-  依据：总控 RD2 原文；「只增不删原条款语义」是 v1.2 已获项目方同意的演进方式。
-
-D3 远程模型真流式（RD3 落实）：
-  a) models/remoteChat.ts 改 stream: true，并**去掉 response_format: json_object**
-     （多数服务商不允许与 stream 组合；结构化输出改由系统提示约束固定字段序 +
-     增量抽取 + 最终完整解析三层保证）。原「400 去 response_format 重试」逻辑删除
-     —— remoteChat.test.ts 对应用例改为断言「stream:true 且不带 response_format」
-     （更新而非删除，见六、）。
-  b) 系统提示改为要求按固定字段序输出单个 JSON 对象：
-     {"thought", "reply", "progress", "progress_reason", "kp_match", "top_candidates"}；
-     thought 语义 = 「写给学生看的推理自述（此刻在想什么、为什么这么引导），1–2 句」，
-     不是隐藏 CoT。历史回传锚定格式维持现状（{"reply": ...}）。
-  c) 增量抽取（新纯状态机，导出可单测）：扫描流缓冲区定位 "thought": 与 "reply": 的
-     字符串值，逐段解码后增量回调 onIncrement({field, text})；转义序列（\n \" \uXXXX）
-     跨 chunk 未完整时暂存 pending 不回调（防止发错字）；字段值闭合后锁定；模型不守
-     字段序 → 增量为空、最终 extractJsonObject 完整解析兜底（不判失败）。
-     thought 增量 → 服务层转发 SSE thought 事件；reply 增量 → 转发 SSE delta 事件
-     （即远程模式下 reply 是真流式到达，先于 meta）。
-  d) 「半截即断，不拼接」规则（回落纪律的流式版）：适配器若在已发出 reply 增量之后
-     失败（网络断 / 最终 JSON 解析不出），**不再回落 localChat 把模板文拼在半截文本后**
-     （用户会看到两段不连贯文字），而是上抛；服务层对该轮发 SSE error 事件 + done
-     收尾，前端保留已到文本并出错误气泡（sse.ts 现有 failAssistant 语义正好如此：
-     text 非空保留原文）。失败发生在任何 reply 增量之前 → 维持现状干净回落 localChat。
-  e) 守住的纪律（不变）：适配器只产结构化字段；next_action 恒由服务层状态机裁决
-     （不采信模型）；kp_id 必须命中图谱（sanitizeKpFields 原样）；answer /
-     solution_steps 与本链路无交集。
-  依据：总控 RD3 原文 + 「失败回落 localChat、禁白屏」既有纪律；d) 是对「回落」在
-     流式半截场景的必要细化，避免「回落」反而制造更差的体验。
-
-D4 本地模式真实链路（RD4 落实，边界声明）：
-  a) 事件只允许对应 services/chat.ts 里**真实执行**的动作，枚举闭集见「三、」工具名
-     对照表（load_graph / model_call / kp_match / dedup_check / apply_evidence /
-     state_machine / exit_channel）。每个 tool.args / result 填真实中间量：真实 kp_id、
-     真实置信度、真实 before/after 掌握度、真实去重命中与否、真实 consecutive_false /
-     exit_count。测试断言 trace 步骤名 ⊆ 枚举闭集（防将来有人加「演」的步骤）。
-  b) thought 的边界（写给 implementer 的红线）：本地模式的 thought 是**由真实中间量
-     拼成的确定性推理摘要**（模板句 + 真实数值，见「三、3.4」示例），**不是**伪装成
-     大模型独白的文本；禁止出现任何「让我想想…」式的拟态话术。前端 UI 文案配合区分：
-     本地模式思考区标题显示「推理摘要」，远程模式显示「思考过程」（依 #20 的
-     model.mode 切换，数据同源，不额外开判断入口）。
-  c) 节奏诚实声明：本地计算在毫秒级完成，后端不人为 delay、不伪造 ms（ms 字段 = 真实
-     执行耗时，本地通常 <5ms）。「炫酷的流式感」由前端打字机动画呈现（D5），后端只
-     保证**顺序真实、内容真实**。此边界同时写进 API_CONTRACT §9 v1.3 变更块的说明行。
-  依据：总控 RD4 原文「严禁编造没有发生的步骤」「避免落进演的范畴」。
-
-D5 可视化（RD5 落实）：
-  a) 组件拆分与 props 见「五、F2」；取色全部走语义令牌（bg-surface / border-line /
-     text-ink-soft / text-accent / band-basic（成功）/ tone-error（失败）/ bg-canvas），
-     禁止硬编码 hex；状态带语义色复用既有 band 令牌，不新增取色入口。
-  b) 打字机（ThoughtStream）：rAF/interval 按字符渐进揭示，文本增长时追赶至最新；
-     prefersReducedMotion() 为 true 时直接全文显示（沿用 lib/motion.ts 先例；
-     CSS 侧 index.css 既有 reduced-motion 媒体查询管 spinner 等过渡）。
-  c) 工具时间轴（ToolTimeline）：竖向卡片，节点状态图标 = running（旋转 spinner）/
-     ok（✓，band-basic）/ error（tone-error）；显示 label + name + ms + 步骤计数
-     「第 n 步」+ 当前 phase 进度；args/result 以紧凑 key:value 行渲染（值过长截断）。
-  d) 同 id 的 tool 事件（running → ok/error）前端按 id upsert，不重复插卡。
-  e) 双主题达标：所有新组件类名只用变量化令牌（dusk 切换自动生效）；F4 走查必须
-     深浅两主题各截一轮对话链路。
-  f) 窄屏可用：面板 <1280 为覆盖式抽屉（D1b）；全屏页思考区/时间轴在 <720 折叠为
-     手风琴（默认收起，流式期间自动展开）。
-  依据：总控 RD5 原文 + AGENT §6 状态带唯一来源 + 轮 1 审查 M1 的走查教训。
-
-D6 模型只读展示（RD6 落实）：
-  数据源 = #20 GET /api/user/profile 的 model: { mode, name }（apps/web/src/api/
-  endpoints.ts 的 getUserProfile 已存在）；面板头部与 /chat 全屏页头部共用
-  ModelBadge 组件（props { mode, name }）：mode='local' 显示「本地规则适配器」、
-  'remote' 显示模型名；固定副文案「由服务端配置，不可自定义」。不新增任何模型
-  切换 / 自定义 UI（红线复核项）。依据：总控 RD6 + #20 契约。
-
-D7 环境变量复核（RD7 落实，只复核不改）：
-  F4 执行并留痕（命令见五、F4）：git check-ignore -v .env deploy/zhiwei.env 命中、
-  .env.example 与 deploy/zhiwei.env.example 不命中；git ls-files 环境变量相关仅两模板；
-  两模板变量集一致（含 ZHIWEI_MODEL_MODE 注释）；models/index.ts 默认 local 不动。
-  依据：轮 1 D5 已做且审查通过；本轮因新增 model_call 事件的 args.mode 读同一
-  环境变量，故需复核无新增读取面。
-
-D8 批次依赖与契约冻结（总控要求落实）：
-  E 必须先落地：E1 把「三、」字段表写进 API_CONTRACT.md §9 并提交（契约冻结点），
-  F1 才允许动 apps/web 的 types/sse/store——F 消费的是 E1 冻结的事件名与字段，
-  若 F 先行等于前端自造契约，联调必炸。E2/E3/E4 也都以 E1 的类型定义为编译基准。
-  子步严格串行 E1→E2→E3→E4→F1→F2→F3→F4，每子步完成即 commit，开工前用
-  git log --oneline -3 确认上一步已落盘（沿用上轮 D8 纪律）。
-
-D9 services/chat.ts 重构形态（E2 的实现路线，planner 裁决）：
-  a) 拆两段保住「流开始前错误走 JSON 错误体」的现状（chat.test 第 9/11 例 + 前端
-     降级链依赖）：prepareChat(req, ctx) = 认证 + 空间归属 + message/image_file_id
-     校验 + dialog 加载（401/403/400/404 全在这里抛，行为与现状逐字一致）；
-     runChat(prepared, ctx, emit) = 其余全部（模型调用 / 证据 / 状态机 / 分段 /
-     落库），过程中通过 emit 产出 phase/thought/tool 事件（含远程转发的
-     thought/delta 增量）。
-  b) SSE 桥接：chat() 对 SSE 路径返回 AsyncGenerator（async 队列桥）：emit 同步推
-     事件入队，生成器逐个 yield（远程模式下模型流的增量即到即发，真流式）；
-     runChat 完成后生成器补发 meta → done；runChat 抛错且队列已产出过事件 → 由
-     server.ts 既有 catch 输出 error + done（现状语义）；未产出过事件即抛错 =
-     理论上只剩模型适配器内部已兜底的错误面，不会破坏 JSON 错误路径。
-  c) JSON 路径：emit 换成收集器，runChat 完成后返回 ok({ reply, meta, trace })。
-  d) ChatResult（meta/deltas/reply）结构保留（closedLoop / 前端降级消费 reply），
-     deltas 数组保留但 SSE 的 delta 发送统一走 emit（远程=流式增量+收尾附加段，
-     本地=收尾一次性分段），保证「拼接即 reply」不变式仍成立（测试断言拼接 ==
-     reply / == dialog.messages 落库值）。
-  e) applySilentEvidence / applyExitChannel 签名扩展为返回真实中间量
-     （{ written, dedupHit, before, after } / ExitOutcome 已有 + exit_count），
-     供 tool.result 填充；行为零改动（证据三表写入逻辑一行不动）。
-
-D10 trace 归属范围（planner 裁决）：trace 状态（thought / toolSteps / phase）只保留
-  **最新一轮**（startAssistant 时 reset），不落库、不进 dialog.messages。理由：
-  面板空间有限，链路可视化的价值在「正在发生」的过程；历史轮次的结论已沉淀在
-  meta / mastery / 图谱里，回放每轮链路会显著推高 store 与 UI 复杂度，赛前来不及。
-  JSON 降级的 trace 同理只含当轮。
-
-D11 前端共享组件纪律（RD1「不复制两份」落实）：ChatMessageList / ChatComposer /
-  useChatSend / ThoughtStream / ToolTimeline / ChatTracePanel / ModelBadge 七件全部
-  从 ChatPage.tsx 抽出放 components/chat/，全屏页与面板只做布局壳（宽度、滚动容器、
-  开合件），业务与视觉一律在共享组件内（对照 SpaceCreateForm 完整态/紧凑态先例）。
-
-D12 远程模式下 delta 与 tool 事件的交错顺序（契约细节，planner 裁决）：远程模式
-  thought 增量与 reply 的 delta 增量在 phase retrieve 期间可交错到达（按模型实际
-  输出序），随后 judge/generate 阶段的 tool 事件与附加段 delta 依次发出；
-  meta 与 done 恒为最后两个事件。契约 §9 v1.3 说明行按此措辞（不承诺严格
-  「先全部 thought 后全部 delta」）。
-
-D13 分支与他人未提交变更（沿用上轮 D10）：在 tempdeploy 继续，不切分支、不 rebase；
-  M _pipeline/03_REVIEW.md、M tools/e2e-smoke.cjs、?? _pipeline/PR-tempdeploy.md、
-  ?? _pipeline/archive/03_REVIEW_20260924_1711.md、?? 知微-项目介绍.md 不进本计划
-  任何 commit。
+D1 断点命名与取值：nav:'720px'（theme.extend.screens）。理由：TopNav 现有 2 处
+   max-[720px]:hidden 与 ChatPage 两栏切换的 min-[720px] 已在用 720；720 落在 sm(640) 与
+   md(768) 之间，正是「顶栏收纳/双栏切换单栏」的现役分界，改取其他值反而引入新行为漂移。
+D2 sm:/lg: 保留 Tailwind 标准刻度、不并入 nav:。理由：它们不是散落的魔法数字（默认刻度本身
+   即集中定义）；若强行替换，lg:grid-cols-3(1024→720) 会让 768–1023 变三列、sm:*(640→720)
+   会改 640–719 行为——前者直接违反硬约束 1。「单一来源」的落点是：消灭任意值断点 +
+   具名断点进 config + 测试禁止清单锁死再犯（见「三、」与 breakpoints.test.ts）。
+D3 抽屉开合状态用 store（新建 apps/web/src/stores/mobileNav.ts，仿 stores/chatPanel.ts 先例），
+   不用组件态。理由：Layout 随路由切换重挂载会丢组件态（chatPanel.ts 文件头已论证过同一问题），
+   且互斥逻辑（D4）需要跨 store 读写。
+D4 抽屉与右侧对话面板互斥、单向调度：<720 时面板唯一打开路径是抽屉内的「对话辅导」按钮，
+   该按钮 onClick 先 mobileNav.setOpen(false) 再 chatPanel.setOpen(true)；mobileNav 的
+   open/toggle action 内部再调 useChatPanelStore.getState().setOpen(false) 兜底（面板开着时
+   开抽屉 → 关面板）。桌面（≥720）抽屉永不渲染（nav:hidden），无双向需求；避免两 store 互相
+   import 造成循环依赖。二者同为 z-overlay，互斥后不会同屏，不存在层叠竞争。
+D5 抽屉为全高覆盖式（fixed inset-0 z-overlay，从右滑入，覆盖 TopNav——z-nav 40 < z-overlay 50
+   天然被盖），自带头部（标题 + 关闭键），不与顶栏并排。理由：顶栏 56px 内塞第二排导航没有
+   空间；全高抽屉是「汉堡抽屉」的标准形态，也回避了 top:56px 与安全区 top 叠加计算的复杂度。
+D6 触控目标放大一律加 max-nav: 前缀（如 max-nav:min-h-9）。理由：硬约束 1（桌面像素零变化）
+   优先于触控目标；不加作用域的 min-h-9 会改变桌面按钮高度即违约。
+D7 图谱保持 minWidth ≥720 + overflow-x-auto 横向滚动，不改小、不做独立移动视图。理由：
+   LOOKATME 设计固化项明文「窄屏：图谱最小宽 720 并横向滚动」，20 节点压进 327px 不可读；
+   本轮只补容器尺寸变化的重绘（ResizeObserver，见「五、」R2）。
+D8 报告页表格保持 min-w-[420px] + overflow-x-auto。总控已拍板不做卡片化；横向滚动是既有
+   接受形态，验收按「容器内允许横滚、页面级不允许溢出」口径。
+D9 窄档页边距：TopNav nav（TopNav.tsx:88）与 Layout main（Layout.tsx:128）的 px-6 同步改为
+   「px-4 nav:px-6」——必须两处同步，否则破坏「内容列与顶栏共用同一条左基线」不变量；
+   ≥720 仍为 px-6（桌面零变化）。LoginPage 是 bare 外壳且居中布局，不动。
+D10 index.css 滚动条 10px 不动。理由：改它会影响桌面出现滚动条时的 clientWidth，属像素级
+   变化风险；且走查脚本用 --hide-scrollbars，改了也测不到收益。
+D11 PageSkeleton.tsx:37/46 的 Bar prop 传反纳入本轮（B3 批）。planner 实测判定：当前渲染
+   className 为 " h-5 w-40 bg-line rounded-md"（height 空串 + tone 含全部类），类集合与修正后
+   完全一致 → 视觉零变化，属「语义误用但渲染等价」的破绽，修正 = tone 只放底色、height 放尺寸。
+D12 顺带令牌化 3 处既有裸 z 值：Toast.tsx:38 z-50→z-overlay、ConfirmDialog.tsx:32 z-50→
+   z-overlay、BackToTop.tsx:30 z-40→z-nav。数值相同（50→50、40→40）→ 像素零变化，属令牌
+   纪律清偿，非新改动。
+D13 README 不在本计划范围（总控另案）。知微-项目介绍.md 为他人未提交文件，不碰。
+D14 安全区方案：加 index.css @layer utilities 工具类（单一来源），组件只用类名、不写内联
+   style、不引依赖。具体类名见「六、」。
+D15 未登录不渲染汉堡键：未登录顶栏只有品牌 +「学习伴侣」文案（TopNav.tsx:230），无导航可
+   收纳；登录页走 bare 外壳天然不进 Layout。
+D16 720–767 区间保持现状顶栏（不收纳）。理由：硬约束 1 的桌面下限是 768；且收纳边界若取
+   768 会与 ChatPage 既有的 720 双栏切换错位（D1），扩面收益低、回归风险高。
+D17 背景处理用「全屏背景幕 button + 正文容器 aria-hidden + role=dialog aria-modal + 焦点
+   陷阱」，不使用 inert。理由：React 18 对 inert 布尔属性支持不完整（需 inert="" 变通），
+   背景幕已拦截指针、焦点陷阱拦截键盘、aria-modal 声明读屏语义，三条路径已闭合。
 
 -------------------------------------------------
-三、事件契约 v1.3 · 精确字段表（E1 文档照此追加，F 批照此实现）
+三、断点单一定义与替换清单
 -------------------------------------------------
-3.1 SSE 事件总表（#18 POST /api/agent/chat，Content-Type: text/event-stream）
-  ┌─────────┬───────────────────────────────────────────┬──────────────────────┐
-  │ event   │ data 字段                                  │ 说明                 │
-  ├─────────┼───────────────────────────────────────────┼──────────────────────┤
-  │ phase   │ { "name": "analyze"|"retrieve"|"judge"     │ 阶段标记，可重复出现 │
-  │         │         |"generate",                       │ （judge 后回         │
-  │         │   "label": "分析"|"检索"|"判定"|"生成" }    │ generate 等）        │
-  │ thought │ { "text": "增量文本" }                     │ 拼接即本轮完整思考； │
-  │         │                                           │ 语义见 3.4           │
-  │ tool    │ { "id": "step_1",                         │ 同 id 至多两次下发   │
-  │         │   "name": <ToolName 枚举，见 3.2>,        │ （running→终态），    │
-  │         │   "label": "中文可读名",                   │ 前端按 id upsert     │
-  │         │   "status": "running"|"ok"|"error",       │                      │
-  │         │   "args"?: object, "result"?: object,     │ 真实中间量（D4a）    │
-  │         │   "ms"?: number }                          │ 真实耗时（D4c）      │
-  │ delta   │ { "text": "增量文本" }（v1.1 原样不变）    │                      │
-  │ meta    │ 五字段（v1.1 原样不变）                    │ 恒在 done 前         │
-  │ done    │ { }（原样不变）                            │ 恒为最后一个事件     │
-  │ error   │ { "msg" }（原样不变）                      │ 仅异常时             │
-  └─────────┴───────────────────────────────────────────┴──────────────────────┘
-  顺序约定：本地模式 phase/thought/tool 全部先于首个 delta；远程模式 thought 与
-  delta 可在 retrieve 阶段交错（D12）；meta → done 恒为末两个。旧客户端忽略新事件。
-
-3.2 ToolName 枚举与真实动作对照表（闭集，本地+远程共用）
-  ┌────────────────┬──────────────────┬────────────────────────────────────┐
-  │ name           │ label            │ 真实动作（代码落点，均真实执行）    │
-  ├────────────────┼──────────────────┼────────────────────────────────────┤
-  │ load_graph     │ 加载知识图谱     │ prepareChat: nodesForKb(           │
-  │                │                  │ space.knowledge_source[0])         │
-  │                │ args { kb, node_count }（result 省略）                │
-  │ model_call     │ 调用对话模型     │ createModels().chatTurn(...)       │
-  │                │                  │ args { mode: 'local'|'remote' }    │
-  │                │                  │ result { kp_id, confidence,        │
-  │                │                  │ progress }                         │
-  │ kp_match       │ 知识点匹配与采纳 │ CONF_ADOPT 判定 + 图谱命中校验     │
-  │                │                  │ args { message_excerpt(≤20字) }    │
-  │                │                  │ result { kp_id, confidence,        │
-  │                │                  │ threshold, adopted,                │
-  │                │                  │ fallback_kp_id? }                  │
-  │ dedup_check    │ 弱负证据去重检查 │ applySilentEvidence 内             │
-  │                │ （仅采纳时）     │ buildDedupKey+findEventsByDedupKey │
-  │                │                  │ args { kp_id } result { hit }      │
-  │ apply_evidence │ 写入证据与掌握度 │ applySilentEvidence 写三表         │
-  │                │ （仅 dedup 未命中）│ args { kp_id } result            │
-  │                │                  │ { before, after, event_id }        │
-  │ state_machine  │ 状态机判定       │ consecutive_false / next_action    │
-  │                │                  │ args { progress } result           │
-  │                │                  │ { consecutive_false, next_action,  │
-  │                │                  │ exit_threshold }                   │
-  │ exit_channel   │ 退出通道·上游回溯│ applyExitChannel: searchUpstream   │
-  │                │ （仅触发时）     │ + MAX_EXIT_HOPS                    │
-  │                │                  │ args { current_kp_id } result      │
-  │                │                  │ { upstream_kp_id?, upstream_name?, │
-  │                │                  │ jumped, exit_count, hop_limit }    │
-  └────────────────┴──────────────────┴────────────────────────────────────┘
-  phase 与动作的对应：analyze(load_graph) → retrieve(model_call, kp_match；远程
-  另有 thought/delta 增量) → judge(dedup_check, apply_evidence, state_machine,
-  exit_channel) → generate(附加段 delta)。
-
-3.3 JSON 降级（Accept: application/json / X-Response-Format: json）
-  data = { "reply": string, "meta": {...原样}, "trace": TraceStep[] }
-  TraceStep（顺序即执行顺序，前端重放为对应回调）：
-    { "type": "phase",  "name", "label" }
-    { "type": "tool",   "id", "name", "label", "status"（恒为终态 ok|error）,
-                        "args"?, "result"?, "ms"? }
-    { "type": "thought", "text": "该步思考文本（该 thought 增量原样）" }
-  云函数入口（functions/api/src/index.ts）缓冲结果与上形完全一致（E4）。
-
-3.4 thought 文案规范（本地模式，确定性拼接，D4b 边界）
-  模板句 + 真实数值，例（{} 内为真实中间量）：
-    - 匹配后：「学生这句话匹配到知识点「{kp name}」（{kp_id}），置信度 {confidence}
-      {≥|<} 采纳阈值 {CONF_ADOPT}，{采纳为本轮知识点|沿用上轮知识点}」
-    - 证据后：「写入弱负证据：掌握度 {before} → {after}」或「同小时已有证据，跳过写入」
-    - 状态机后：「本轮{无|有}有效进展，连续无进展 {n} 轮{，降至提示阶梯第 2 档|，
-      达到 {CONSEC_FALSE_EXIT} 轮，进入退出通道}」
-    - 退出后：「回溯先修：最近低掌握上游为「{upstream name}」，{执行跳转|已达跳转
-      上限 {MAX_EXIT_HOPS}，只提示不跳转}」
-  远程模式 thought = 模型流式输出的 thought 字段增量原样转发（不采信其决策字段）。
-
-3.5 API_CONTRACT.md 追加内容（E1 落地，只增不删）
-  a) §9 POST /api/agent/chat 代码块之后追加「v1.3 变更（2026-09-24，见 §11；
-     上行原文保留，本节为现行口径）」块：新增事件 thought / tool / phase 的字段表
-     （3.1 全文）+ ToolName 对照表（3.2 全文）+ 顺序约定 + trace 降级字段（3.3）+
-     thought 语义边界两行（本地=确定性推理摘要 / 远程=模型自述增量）+ 兼容性说明一行
-     （旧客户端忽略新事件，delta/meta/done/error 语义不变）。
-  b) §11 变更记录追加一行：
-     | 2026-09-24 | **v1.3**：① #18 /api/agent/chat 新增 SSE 过程事件 phase/thought/
-     tool（工具名闭集 7 项，tool.args/result 为服务端真实中间量）与 JSON 降级 trace
-     字段（delta/meta/done/error 语义不变，向后兼容）；② 远程模型适配器改 stream:true
-     增量抽取（结构化字段序 thought→reply→…，失败回落纪律不变） | 项目方 | 总控 |
+3.1 定义（apps/web/tailwind.config.js，theme.extend 内新增，位于 colors 之前）：
+      screens: {
+        // 导航收纳断点（单一来源）：<720 顶栏收进汉堡抽屉、ChatPage 双栏切单栏。
+        // 取 720：与 TopNav 既有 2 处 max-[720px] 与 ChatPage 两栏切换同值（D1/D2）。
+        nav: '720px',
+      },
+    生效后自动获得 nav:*（min-width:720px）与 max-nav:*（max-width:719.98px）两组变体，
+    语义与被替换的任意值写法逐像素一致。
+3.2 替换清单（planner 2026-09-24 20:47 实测行号，共 3 处任意值断点）：
+      1) apps/web/src/components/TopNav.tsx:101  max-[720px]:hidden → max-nav:hidden
+      2) apps/web/src/components/TopNav.tsx:163  max-[720px]:hidden → max-nav:hidden
+      3) apps/web/src/pages/ChatPage.tsx:98
+         min-[720px]:grid-cols-[minmax(0,1fr)_minmax(0,19rem)] → nav:grid-cols-[…同值…]
+3.3 保留不动（Tailwind 标准刻度，D2；列出仅为把「现状混用」清点闭环）：
+      GraphPage.tsx:269 sm:p-0；:273 sm:absolute sm:right-3 sm:top-3 sm:z-10 sm:mb-0；
+      LoginPage.tsx:198 sm:text-[42px]；ConsoleHomePage.tsx:173 sm:grid-cols-4；
+      ConsoleHomePage.tsx:217 sm:grid-cols-2 lg:grid-cols-3。
+      （planner 实测 sm: 共 8 处、lg: 共 1 处，与审计口径 9/1 相差 1 处为 GraphPage:269 的
+       计法差异，无实质影响。）
+3.4 禁止清单（由 breakpoints.test.ts 静态锁死，见「七、」）：
+      · src/** 不允许再出现任意值**断点变体** /(?:min|max)-\[\d+px\]:/（判别特征 = 中缀
+        任意值后紧跟冒号，如 max-[720px]:hidden；注意与 min-w-[420px] 这类宽度工具类
+        区分——后者无冒号后缀，是合法保留项，ReportPage 的两处 min-w-[420px] 不在禁列）；
+      · src/** 不允许 z-[ 任意值 z-index；
+      · src/** 的 JSX className 字面量属性不允许裸 hex（当前实测 0 处，保持 0；
+        令牌源 bands.ts/theme.ts、LoginPage 既有 ERROR_TEXT 常量、ECharts 画布色为
+        合法白名单，见 7.1 ④）；
 
 -------------------------------------------------
-四、E 批：后端链路透出（先冻结契约）
+四、汉堡抽屉（MobileNav）设计
 -------------------------------------------------
-E1 契约 v1.3 冻结（文档 + 后端类型 + trace 模块）
-  涉及文件（精确路径）：
-    API_CONTRACT.md（仅 §9 追加 + §11 一行，见三、3.5）
-    functions/api/src/router.ts（SseEvent.event 联合类型扩展为
-      'delta'|'meta'|'done'|'error'|'phase'|'thought'|'tool'）
-    functions/api/src/services/chatTrace.ts（新增）：
-      export type ChatPhaseName = 'analyze'|'retrieve'|'judge'|'generate';
-      export type ChatToolName = 'load_graph'|'model_call'|'kp_match'|'dedup_check'
-        |'apply_evidence'|'state_machine'|'exit_channel';
-      export type ChatToolStatus = 'running'|'ok'|'error';
-      export interface ChatToolStep { id; name: ChatToolName; label; status:
-        ChatToolStatus; args?; result?; ms? }
-      export type ChatTraceStep = { type:'phase'; name; label } | { type:'tool';
-        ChatToolStep } | { type:'thought'; text };
-      export const PHASE_LABEL: Record<ChatPhaseName,string>
-        = { analyze:'分析', retrieve:'检索', judge:'判定', generate:'生成' };
-      export const TOOL_LABEL: Record<ChatToolName,string>（与 3.2 的 label 逐字一致）;
-      createTraceRecorder()（双模式收集器：emit(ev) 转 trace 数组 + id 自增器，
-      E2 的 JSON 路径与测试复用）
-  改动要点：本子步**不改任何运行逻辑**，只落类型、常量表与文档；chat.ts / remoteChat.ts
-    尚不消费（E2/E3 才接线），tsc 必须已过。
-  新增测试：functions/api/tests/chatTrace.test.ts（新，~5 例）：TOOL_LABEL 键集 ===
-    3.2 枚举闭集；PHASE_LABEL 四值；createTraceRecorder 的 phase/tool(running→ok)/
-    thought 事件转 trace 顺序与形态；tool id 唯一递增；契约文档 grep 断言（§9 含
-    'v1.3 变更' 且原文 delta 行仍在——文档回归哨兵，防只增不删被破坏）。
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run functions/api/tests/chatTrace.test.ts
-    git --no-pager diff --stat API_CONTRACT.md（人工核对：仅 §9 追加块 + §11 一行）
-  commit 草案：「契约 v1.3 冻结：#18 新增 phase/thought/tool 过程事件 + JSON 降级
-    trace 字段（delta/meta/done/error 语义不变）；后端 SseEvent 类型扩展 + chatTrace
-    类型模块与标签表 + 5 例」
-
-E2 本地模式真实链路（services/chat.ts 拆分 + 事件产出）
-  涉及文件：
-    functions/api/src/services/chat.ts（按 D9 重构）
-    functions/api/tests/chat.test.ts（更新 6 例 + 新增 describe，见六、）
-  改动要点（函数级）：
-    - 拆 prepareChat(req, ctx)（认证/归属/校验/dialog 加载，抛错行为与现状逐字一致）
-      与 runChat(prepared, ctx, emit)。
-    - runChat 内按真实执行序 emit：phase analyze → tool load_graph → phase retrieve
-      → tool model_call → tool kp_match → thought(匹配摘要) →（采纳时）phase judge →
-      tool dedup_check →（未命中时）tool apply_evidence → tool state_machine →
-      thought(状态机摘要) →（触发时）tool exit_channel → phase generate →
-      thought(生成摘要，仅 hint/exit 时) → delta 各段 → meta → done。
-    - applySilentEvidence 扩展返回 { written, dedupHit, before, after }（写入逻辑
-      零改动）；applyExitChannel 返回值补 exit_count / hop_limit。
-    - chat()：wantsJson → 收集器跑 runChat 后 ok({ reply, meta, trace })；
-      SSE → async 队列桥生成器（D9b）。
-    - tool 事件两段式（先 running 后 ok）仅对耗时可见的动作（本地即 load_graph/
-      model_call 也毫秒级——**统一只发终态 ok 一次**，running 状态留给远程 model_call
-      真流场景；此为 planner 裁决：本地不演耗时，契约允许同 id 至多两次、至少一次）。
-      ——更正与简化：本地全部 tool 事件只发终态一次（status:'ok'），running 转换
-      仅远程 model_call 出现；「三、」字段表已兼容（status 枚举含 running）。
-    - model_call 的 args.mode 读 process.env.ZHIWEI_MODEL_MODE === 'remote' ?
-      'remote' : 'local'（与 models/index.ts 同源判定，不新开配置）。
-  新增测试（chat.test.ts 新 describe「过程链路 trace」~7 例）：
-    (1) 事件全序列：以 phase analyze 开头、meta/done 收尾；delta 前存在
-        load_graph/model_call/kp_match/state_machine 四个 tool 事件；
-    (2) tool 事件字段形态：name ∈ 枚举闭集、label 与 TOOL_LABEL 一致、
-        kp_match.result = 真实 { kp_id, confidence, threshold, adopted:true }；
-    (3) dedup 第二轮：dedup_check.result.hit === true 且无 apply_evidence 事件；
-    (4) 证据事件：apply_evidence.result.before/after === 0.5/0.45（与 mastery_logs
-        对账）；thought 文本含真实数值「0.5 → 0.45」；
-    (5) 第 3 轮：exit_channel.result.upstream_kp_id === 'math.cz.function.graph'、
-        jumped===true、exit_count===1、hop_limit === params.MAX_EXIT_HOPS；
-    (6) clarify 轮（无关键词）：无 dedup_check/apply_evidence 事件（未发生的步骤
-        不出现——「不演」的回归锚点）；
-    (7) JSON 降级：data.trace 与 SSE 事件序列一一对应（同请求参数两次调用比对
-        步骤名序列一致）、Object.keys 含 reply/meta/trace 三键。
-  既有 11 例去向见六、总表（6 改 5 不动）。
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run functions/api/tests/chat.test.ts functions/api/tests/chatTrace.test.ts
-  commit 草案：「对话链路透出（本地）：prepareChat/runChat 拆分 + 真实执行序产出
-    phase/thought/tool 事件（tool.args/result 全真实中间量，未发生步骤零出现）；
-    JSON 降级携 trace；chat 测试 11→18 例」
-
-E3 远程模型真流式（models/remoteChat.ts）
-  涉及文件：
-    functions/api/src/models/remoteChat.ts（D3 全部）
-    functions/api/src/models/types.ts（ChatTurnInput 增可选
-      onIncrement?: (chunk: { field: 'thought'|'reply'; text: string }) => void）
-    functions/api/src/services/chat.ts（model_call 改带 onIncrement 转发：thought 增量
-      → emit thought 事件；reply 增量 → emit delta 事件并置 liveReplySent；适配器
-      上抛的「半截失败」→ emit error 事件 + done 后终止，见 D3d）
-    functions/api/tests/remoteChat.test.ts（7 例改造 + ~7 新增，见六、）
-  改动要点：
-    - callChatCompletions 改 stream:true：body 带 stream:true、去 response_format；
-      读 response.body reader，逐行解析 OpenAI 流（data: {…} 行取 choices[0].
-      delta.content，data: [DONE] 结束）——新增导出纯函数 parseOpenAiStreamLines
-      （buffer 状态机，跨 chunk 断行安全，可单测）。
-    - 新增导出 createFieldStreamExtractor()（D3c）：push(chunk) 累积缓冲，对
-      thought/reply 两字段做定位→字符串增量解码（转义未完整暂存），每有确定增量
-      回调 onIncrement；字段闭合即锁定；finish() 返回完整累积文本。
-    - chatTurn(input, onIncrement?)：流式调用 → extractor 增量 → 流结束完整文本
-      extractJsonObject（原函数复用）→ 既有字段映射（sanitizeKpFields 原样）。
-      失败分支：任何 reply 增量已发出后的失败（网络/解析）→ 不回落，上抛
-      RemoteChatAborted（新导出错误类）；零增量失败 → 回落 localChatTurn（现状）。
-    - system prompt 改造（D3b 固定字段序 + thought 字段说明）。
-    - 远程 model_call 的 tool 事件：running 先发（真发起模型流时）、终态 ok/error
-      后发 —— 远程模式是唯一出现 status:'running' → 终态两段式的地方。
-  新增测试（remoteChat.test.ts ~7 例）：
-    (1) 请求体断言：stream === true 且无 response_format（替代原「400 重试」用例语义）；
-    (2) 流式 mock（ReadableStream 分块吐 data: 行）：thought/reply 增量按块到达、
-        顺序与内容正确（onIncrement 断言）；
-    (3) 转义跨 chunk：\" 与 \u4e2d 被拆在两块 → 增量文本正确解码、无错字；
-    (4) data: [DONE] 结束 + 完整 JSON 解析成功 → ChatTurnOutput 字段映射不变；
-    (5) 字段乱序（reply 在 thought 前）→ 无 thought 增量但不失败，最终输出正确；
-    (6) 流中段 network error 且已有 reply 增量 → 抛 RemoteChatAborted（不回落）；
-    (7) 流开始即失败（零增量）→ 回落 localChat（现状用例改流式 mock 后保留语义）。
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run functions/api/tests/remoteChat.test.ts functions/api/tests/chat.test.ts
-  commit 草案：「远程模型真流式：stream:true + 固定字段序结构化输出 + thought/reply
-    增量抽取（转义跨块安全）；半截即断不拼接、零增量干净回落本地；15→22 例」
-
-E4 云函数入口对齐 + 后端全量回归
-  涉及文件：
-    functions/api/src/index.ts（main() 生成器消费：delta 拼 reply 之外收集
-      phase/tool/thought → data.trace，与 wantsJson 降级同形（D9c/3.3））
-    functions/api/tests/closedLoop.test.ts（1 例更新：SSE 事件序列断言
-      events).toEqual(['delta','meta','done']) → 改为断言序列以 phase 开头、
-      以 meta/done 收尾、过滤后 delta→meta→done 相对序不变 + text 含 '"trace"' 的
-      JSON 降级断言；更新而非删除，见六、）
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run functions/api/tests
-  commit 草案：「云函数入口与本地降级同形（trace 收集）；closedLoop SSE 序列断言
-    同步 v1.3；后端全量回归」
+4.1 新增文件：
+      · apps/web/src/components/MobileNav.tsx（抽屉组件）
+      · apps/web/src/stores/mobileNav.ts（开合切片，仿 chatPanel.ts：open=false /
+        setOpen / toggle，会话级不落盘）
+4.2 顶栏改造（apps/web/src/components/TopNav.tsx，桌面 ≥720 渲染逐像素不变——
+    新增的全部是响应式类，≥720 不生效）：
+      · :103 的 nav <ul> 容器加 max-nav:hidden；
+      · :142 <ThemeToggle /> 外层（或组件自身根元素）加 max-nav:hidden；
+      · :145 空间胶囊容器 div 加 max-nav:hidden；
+      · nav 容器（:88）尾部新增汉堡键：
+        <button id="mobile-nav-toggle" type="button" onClick={toggle}
+          aria-expanded={open} aria-controls="mobile-nav-drawer"
+          aria-label={open ? '关闭导航菜单' : '打开导航菜单'}
+          className="nav:hidden ml-auto grid h-9 w-9 place-items-center rounded-control
+                     border border-line text-ink-soft hover:bg-raised">（三横线 SVG，
+          stroke=currentColor，与 ThemeToggle 同款线框风格）
+      · 顶栏 nav 的 px-6 → px-4 nav:px-6（D9，与 Layout main 同步）。
+4.3 抽屉结构（MobileNav.tsx）：
+      根：<div className="fixed inset-0 z-overlay nav:hidden">
+        ├ 背景幕：<button aria-label="关闭导航菜单" className="absolute inset-0 bg-canvas/60"
+        │          onClick={close}/>（与 ChatPanelDock 背景幕同款写法）
+        └ <aside id="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="导航菜单"
+             tabIndex={-1}
+             className="absolute inset-y-0 right-0 flex w-[min(20rem,85vw)] flex-col
+                        border-l border-line bg-surface shadow-card">
+             ├ 头部：标题「菜单」+ 关闭键（h-9 w-9，aria-label="关闭导航菜单"）
+             ├ 滚动区（overflow-y-auto）：① navRoutes() 全部 6 项列表
+             │   （测评/对话辅导/知识图谱/学习报告/云盘/我的）——NavLink 沿用 active 样式
+             │   bg-accent-veil text-accent，每项 min-h-11 px-4 py-2.5 text-sm（触控 ≥44px）；
+             │   「对话辅导」特判为 button（与 TopNav 同款 aria-pressed），onClick =
+             │   先关抽屉再开面板（D4）；② 分隔线；③ 主题切换行（<ThemeToggle /> + 文字
+             │   「深浅主题」标签）；④ 分隔线；⑤ 空间区：当前空间名、空间列表（每项
+             │   min-h-9，active 样式同 TopNav 弹层）、「+ 新建空间」（原地展开
+             │   <SpaceCreateForm compact />，成功后收起）、「管理空间」Link
+             │   （复用 TopNav :169-226 弹层的内容逻辑，平铺不套 popover）
+             └ 底部 pb-safe（安全区，见「六、」）
+4.4 开合与路由联动：
+      · 抽屉内所有导航 Link / 按钮 onClick 先 setOpen(false)（点导航项自动收起）；
+      · 另用 useEffect 订阅 useLocation().pathname，变化即 setOpen(false)（兜底浏览器后退
+        与键盘导航）。
+4.5 无障碍（D17）：
+      · 打开时：焦点移入 aside（ref.focus()）；关闭时：焦点归还
+        document.getElementById('mobile-nav-toggle')；
+      · Esc 关闭（useEffect keydown，与 ChatPanel.tsx:34-40 同款实现）；
+      · Tab 焦点陷阱：keydown 拦截 Tab/Shift+Tab，在 aside 内可聚焦元素首尾循环；
+      · 抽屉打开期间给 Layout 正文外层（Layout.tsx:127 的让位 wrapper）加 aria-hidden；
+      · 背景幕为全屏 button，指针路径已被拦截。
+4.6 挂载与互斥：
+      · MobileNav 挂在 Layout（TopNav 之后、ChatPanelDock 之前），token 存在才渲染
+        （D15——实际由 TopNav 汉堡键控制入口，组件内部再判 useAuthStore token 兜底）；
+      · 互斥见 D4；ChatPanelDock 自身逻辑零改动（<720 本就是覆盖抽屉 + 背景幕）。
+4.7 层叠关系（终局口径）：
+      TopNav z-nav(40) < 抽屉/面板 z-overlay(50) < Toast z-toast(60)。
+      手机上抽屉与面板互斥不同屏；Toast 永远最上（现状语义保留）。
 
 -------------------------------------------------
-五、F 批：前端面板 + 可视化（消费 E 冻结的契约）
+五、逐风险点处置方案（文件:行 → 改法 → 理由）
 -------------------------------------------------
-F1 前端消费层（types / sse / store）
-  涉及文件：
-    apps/web/src/api/types.ts（新增 ChatToolStep / ChatPhaseStep / ChatTraceStep /
-      ChatSseToolData 等；ChatJsonData 增 trace?: ChatTraceStep[]——字段名与
-      契约 3.3 逐字一致）
-    apps/web/src/api/sse.ts（ChatStreamHandlers 增可选 onThought?/onTool?/onPhase?；
-      dispatchSseMessage 增 'thought'|'tool'|'phase' 三 case；renderJson 在
-      onDelta(reply) 前按 trace 顺序重放 onPhase/onTool/onThought——降级视觉不塌）
-    apps/web/src/stores/dialog.ts（增 trace 状态：thought: string、toolSteps:
-      ChatToolStep[]、phase: {name;label}|null；动作 appendThought / upsertTool
-      （按 id upsert，running→终态覆盖）/ setPhase；startAssistant 内 resetTrace
-      （D10 只留最新一轮））
-    apps/web/src/stores/chatPanel.ts（新增：{ open: boolean; setOpen; toggle }，
-      会话级不落盘）
-    apps/web/tests/sse.test.ts（13 例不动 + 新增 ~6：三新事件路由、trace 重放、
-      tool 同 id upsert 语义、未知事件忽略仍生效）
-    apps/web/tests/dialogStore.test.ts（新增 ~6：appendThought 拼接、upsertTool
-      running→ok 覆盖不重复、setPhase、startAssistant 清 trace、finishAssistant
-      不清 trace（完成后仍可见）、reset）
-    apps/web/tests/chatPanel.test.ts（新增 ~3：默认关、toggle、setOpen）
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run apps/web/tests/sse.test.ts apps/web/tests/dialogStore.test.ts apps/web/tests/chatPanel.test.ts
-  commit 草案：「前端消费层：SSE 三新事件路由 + JSON 降级 trace 重放；dialog store
-    追加 thought/toolSteps/phase（仅最新一轮）；chatPanel store；22 例」
-
-F2 共享对话视图组件 + ChatPage 瘦身（D11）
-  涉及文件（均新增，目录 apps/web/src/components/chat/）：
-    useChatSend.ts（hook：现 ChatPage.send() 逻辑迁入 + onThought/onTool/onPhase
-      接线到 dialog store；暴露 { send, streaming }）
-    ChatMessageList.tsx（props { messages: ChatMessage[] }：气泡/徽标/注脚/notice，
-      自 ChatPage 原样迁出；流式追加贴底滚动 + scrollBehavior() 保留）
-    ChatComposer.tsx（props { disabled: boolean }：输入框 + 传图读题 picker +
-      发送，内部用 useChatSend；演示态标注保留）
-    ThoughtStream.tsx（props { text: string; done: boolean }：打字机渐进揭示，
-      prefersReducedMotion() → 直接全文；文本增长时追赶；无文本且 !done 显示
-      「正在整理思路…」骨架点）
-    ToolTimeline.tsx（props { steps: ChatToolStep[]; phase: {name;label}|null }：
-      竖向时间轴卡片 + 状态图标（running spinner / ok ✓ band-basic / error
-      tone-error）+ 步骤计数「第 n 步 / 共 N 步」+ phase 进度条；args/result
-      紧凑 key:value 行，超长截断）
-    ChatTracePanel.tsx（props { thought: string; toolSteps; phase; streaming:
-      boolean }：折叠条「思考与工具链」，流式期间自动展开、完成后可折叠（组件
-      本地态）；内部组合 ThoughtStream + ToolTimeline）
-    ModelBadge.tsx（props { mode: 'local'|'remote'; name: string | null }：徽标 +
-      固定文案「由服务端配置，不可自定义」；数据由调用方从 getUserProfile() 取，
-      页面/面板各自缓存一次）
-  改造：apps/web/src/pages/ChatPage.tsx 瘦身为布局壳：宽屏两栏（左消息流 max-w-2xl +
-    右 ChatTracePanel），<720 上下堆叠且 ChatTracePanel 折叠为手风琴（D5f）；
-    头部加 ModelBadge + 「收进侧栏」提示文案；文案/交互语义零变化。
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run apps/web/tests
-  commit 草案：「对话视图组件化（全屏/侧栏共用一套）：useChatSend + 消息流 + 输入区 +
-    思考流打字机（尊重 reduced-motion）+ 工具链时间轴 + 模型徽标；ChatPage 瘦身为
-    布局壳，行为零变化」
-
-F3 右侧常驻面板 + 顶栏按钮（D1）
-  涉及文件：
-    apps/web/src/components/chat/ChatPanel.tsx（新增：头部（标题 + ModelBadge +
-      「全屏打开」Link to /chat + 关闭按钮）+ ChatMessageList + ChatTracePanel +
-      ChatComposer；消息区 overflow-y-auto 自管滚动；Esc 关闭）
-    apps/web/src/components/Layout.tsx（挂 <ChatPanelDock />：内部渲染 ChatPanel；
-      ≥1280 且 open → main 容器 padding-right = 面板宽（transition-[padding]）；
-      <1280 且 open → 背景幕；容器 z-overlay）
-    apps/web/src/components/TopNav.tsx（navRoutes().map 中 path==='/chat' 特判渲染
-      button（aria-pressed、toggle 面板），其余 NavLink 原样；不改 ROUTES 数据）
-  注意：App.tsx / router.tsx / routerGuard.test.ts 零改动（D1c/d 已论证）。
-  验证命令：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run apps/web/tests/routerGuard.test.ts apps/web/tests/chatPanel.test.ts apps/web/tests/sse.test.ts
-  commit 草案：「右侧常驻对话面板：Layout 挂 dock（≥1280 挤压正文列 / <1280 覆盖式
-    抽屉 + 背景幕，z-overlay）；顶栏「对话辅导」改开合按钮（aria-pressed）；
-    /chat 全屏保留；ROUTES 与守卫零改动」
-
-F4 视觉走查 + env 复核 + 文档收尾
-  涉及文件：LOOKATME.md（非冻结，更新进度快照与本轮数字）；_pipeline/02_EXEC_REPORT.md
-    （implementer 产物，走查留痕写在这里，本计划只定要求）。
-  走查要求（轮 1 审查 M1 教训：不可静默跳过）：
-    - 优先用 agent-browser（或本机浏览器）真实截图：四档宽度 1440/1024/720/375 ×
-      深浅两主题，至少覆盖：面板展开态正文可读性、链路面板两主题对比度、
-      ToolTimeline running/ok 两态、窄屏面板抽屉 + 背景幕、/chat 全屏两栏与 <720 堆叠；
-    - 若环境不允许（60 秒杀进程），改在同一调用内「起后端 + 起 vite → node 忙等 →
-      curl 探活 → pkill」验证服务可用，截图部分在执行报告显式标注「未实测 + 原因」，
-      并以静态兜底：grep 新组件无裸 hex 类名、tsc/tests 全绿。
-  env 复核命令（RD7，结果贴执行报告）：
-    git check-ignore -v .env deploy/zhiwei.env          → 两条均命中
-    git check-ignore -v .env.example deploy/zhiwei.env.example → 不命中（exit 非 0）
-    git ls-files | grep -iE '(^|/)\.env|\.env$'          → 仅两模板
-    git --no-pager diff --stat .env.example deploy/zhiwei.env.example（本轮应为零改动）
-  验证命令（F 批总回归 + 构建）：
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vitest/vitest.mjs run apps/web/tests
-    /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node /Users/Merryou/.workbuddy/binaries/node/workspace/node_modules/vite/bin/vite.js build apps/web
-      （以 vite.config.ts 的实际调用形态为准：--config apps/web/vite.config.ts）
-    $PY scripts/validate_data.py（确认数据闸门不受影响）
-  commit 草案：「LOOKATME 更新轮 2 进度（对话链路 v1.3 + 右侧面板）」+ 走查截图/
-    结论随执行报告入库。
+R1 顶栏挤压（TopNav.tsx:88/103）→ 见「四、」汉堡抽屉整体方案。理由：375px 塞不下
+   品牌+6 Tab+主题+胶囊，收纳是唯一不破坏桌面的解。
+R2 图谱不随容器重绘（GraphPage.tsx:193-194 只监听 window.resize）：
+   → 在图表 useEffect 内新增 ResizeObserver，observe(containerRef.current)，回调
+     chart.resize()；卸载时 observer.disconnect()（与 window resize 监听并存）。
+   理由：面板开合挤压正文列时 window 不 resize，图表白边/裁切；ResizeObserver 是容器
+   尺寸变化的标准信号。图谱 minWidth 720 保持（D7）。
+R3 输入区按钮压扁（chat/ChatComposer.tsx:88 容器 flex 不换行、按钮无 shrink-0）：
+   → :88 容器加 flex-wrap；:97 传图读题与 :106 发送两按钮加 shrink-0；
+     :89 textarea 加 min-w-[min(100%,12rem)]。
+   理由：窄屏放不下时按钮换行而非压缩；≥720 空间充裕不触发 wrap、min-w 已满足 →
+   桌面像素零变化。
+R4 外壳高度跳动 + 页边距（Layout.tsx:122 min-h-screen；:128 px-6）：
+   → :122 min-h-screen → min-h-dvh（与 LoginPage.tsx:182 统一，桌面 dvh==vh 零变化；
+     目标浏览器为现代 Chromium/Safari，项目已有 dvh 先例）；
+   → :128 px-6 → px-4 nav:px-6，与 TopNav:88 同步（D9，左基线不变量）。
+R5 报告表格（ReportPage.tsx:186/226）→ 不改（D8：横向滚动为既有接受形态；页面级溢出
+   由 R6 类修复 + 走查验证兜底）。
+R6 长串撑破容器（全项目 break-all/break-words 0 处）：
+   → DrivePage.tsx:106 {file.file_id} 所在 p 加 break-all（同文件 :105 name 已 truncate）；
+   → PaperPage.tsx:368 {file.file_id} 所在 p 加 break-all；
+   → AttributionPage.tsx:247 归因编号行加 break-all；
+   → chat/ChatMessageList.tsx:52 学生气泡外层与 :56 气泡内层加 break-words（保留
+     whitespace-pre-wrap）；
+   → chat/ChatMessageList.tsx:76 「已带题图（演示态 · {imageFileId}）」span 加 break-all；
+   → lib/richText.tsx:52 行内 <code> 加 break-all；:117 段落 p（whitespace-pre-wrap）加
+     break-words。
+   理由：ID 是无空格长串，break-all 是唯一不溢出的断行方式；桌面本就不溢出，零视觉变化。
+R7 flex 行不换行（两按钮组等）：
+   → AttributionPage.tsx:537、:571、:646 加 flex-wrap；
+   → AttributionPage.tsx:663-678 容器加 flex-wrap + gap-3，第二个按钮 :675 的 ml-3 删除
+     （gap-3=12px 与 ml-3=12px 同值 → 桌面间距像素不变）；
+   → PaperPage.tsx:209、:322 加 flex-wrap；
+   → SelfReportPage.tsx:83 加 flex-wrap；
+   → AssessmentPage.tsx:238 加 flex-wrap；
+   → SpacesPage.tsx:108 卡片头 div 加 flex-wrap（标题+徽标+右侧按钮在窄屏换行堆叠）。
+   理由：flex-wrap 在空间充裕时不改变排布 → 桌面零变化；窄屏按钮掉到第二行可用。
+R8 触控目标 <36px（全部 max-nav: 作用域，D6）：
+   → GraphPage.tsx:289-296 关闭「×」：className 加
+     "max-nav:grid max-nav:h-9 max-nav:w-9 max-nav:place-items-center"；
+   → chat/ChatPanel.tsx:55「全屏打开」与 :64 关闭键：加 max-nav:min-h-9；
+   → components/Toast.tsx:57「知道了」：加 max-nav:min-h-9；
+   → chat/ChatComposer.tsx:69 文件项按钮：加 max-nav:min-h-9；
+   → AttributionPage.tsx:340「反驳一下」：加 max-nav:min-h-9；
+   → TopNav.tsx:114/129/154/182：<720 已收进抽屉，抽屉内项自设 min-h-9/min-h-11，
+     顶栏原项不再触屏可达，无需另改。
+   理由：硬约束 1 与触控目标的冲突解法就是「只在 <720 生效」。
+R9 安全区（viewport 缺 viewport-fit=cover；BackToTop/Toast 未避让）→ 见「六、」。
+R10 index.css 缺 overscroll-behavior / touch-action → 见「六、」；滚动条 10px 不动（D10）。
+R11 骨架 prop 传反（PageSkeleton.tsx:37/46）：
+   → <Bar tone="bg-line" height="h-5 w-40" /> 与 <Bar tone="bg-line/80" height="h-4 w-32" />
+     （:39/:40/:48/:49 的正确用法不动）。
+   理由：D11——渲染等价的语义修正，零视觉变化，属「修破绽」范畴。
+R12 裸 z 值（D12）：Toast.tsx:38 z-50→z-overlay；ConfirmDialog.tsx:32 z-50→z-overlay；
+   BackToTop.tsx:30 z-40→z-nav。数值相同，像素零变化。
 
 -------------------------------------------------
-六、测试影响总表（300 例的账；更新而非删除/放宽——上轮 reviewer 专项查过，本轮照此）
+六、安全区与全局 CSS 方案（D14：index.css 工具类单一来源）
 -------------------------------------------------
-既有用例逐条去向：
-  1. functions/api/tests/chat.test.ts（11 例，E2）：
-     (1)「事件序列 delta→meta→done」→ 改：全序列以 phase analyze 开头、meta/done
-         收尾；过滤 delta/meta/done 后相对序 ['delta','meta','done'] 不变（保留原
-         断言精神）+ 新断言 delta 前有 tool 事件。
-     (2)「第 2/3 轮 hint_down/exit（序列数组）」→ 改：两处 toEqual(['delta',…]) 数组
-         断言改为 delta 段数断言（deltaTexts 长度 2/3）+ 相对序；texts[1]/texts[2]
-         内容断言原样保留。
-     (3)「exit 上游回溯」→ 不动（只读 metaOf/dialog，无事件序列断言）。
-     (4)「silent 弱负证据」→ 不动。
-     (5)「dedup 命中」→ 不动。
-     (6)「clarify 零证据」→ 改：events[0].data 取首个 delta 事件（原 events[0] 将是
-         phase 事件）；其余断言原样。
-     (7)「首轮带图读题」→ 改：同 (6)，events[0] → 首个 delta。
-     (8)「Accept: application/json 降级」→ 改：键集 ['meta','reply'] →
-         ['meta','reply','trace']。
-     (9)「X-Response-Format: json」→ 不动（reply any String 仍成立）。
-     (10)「续聊/403/404」→ 不动（prepareChat 保住流前 JSON 错误路径）。
-     (11)「400/403/401」→ 不动（同上）。
-     净：6 改 5 不动，另新增 trace describe 7 例（E2 清单）→ 11→18。
-  2. functions/api/tests/remoteChat.test.ts（15 例，E3）：
-     readRemoteChatConfig 2 例不动；extractJsonObject 6 例不动；chatTurn describe
-     7 例全部改流式 mock（okResponse → ReadableStream 分块 data: 行；断言主体
-     保留：结构化映射 / 伪造 kp 丢弃 / 网络失败回落 / 非 JSON 回落 / 历史回传
-     {"reply":…} / 未配置零请求），其中「response_format 400 重试」1 例语义更新为
-     「stream:true 且无 response_format」（D3a，契约行为变更的必然同步，非放宽）。
-     净：7 改 8 不动，另新增 7 例（E3 清单）→ 15→22。
-  3. functions/api/tests/closedLoop.test.ts（20 例，E4）：仅「真实 SSE 流式通路」
-     1 例的事件序列断言更新（含降级 trace 断言）；路由表 20 条断言不动（无新接口）。
-  4. apps/web/tests/sse.test.ts（13 例，F1）：parseSseBuffer 6 + dispatch 2 +
-     streamChat 5 全部不动（delta/meta/done/error 语义未变）；新增 ~6 例。
-  5. apps/web/tests/routerGuard.test.ts（12 页断言等）：零改动（ROUTES 未动，D1c）。
-  6. apps/web/tests/bands.test.ts / themeStore / stages / profile / 其余后端
-     （auth/space/diagnose/report/…）：零改动；E4/F 的全量回归跑覆盖其不受影响。
-  新增文件：chatTrace.test.ts（E1，~5）+ dialogStore.test.ts（F1，~6）+
-    chatPanel.test.ts（F1，~3）。
-  预计总数：300 + 7(chat) + 7(remoteChat) + 5(chatTrace) + 6(sse) + 6(dialogStore)
-    + 3(chatPanel) ≈ 334（以实跑为准，写入执行报告对账；任何用例不得删除或放宽，
-    reviewer 按本表核对 git diff 只见改写与新增）。
+6.1 apps/web/index.html:8：
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    （只追加 viewport-fit=cover，其余属性不动。）
+6.2 apps/web/src/index.css 新增（@layer utilities，全部带 0px 兜底；桌面非刘海设备
+    env() 恒为 0 → 与原值逐像素相同）：
+      @layer utilities {
+        /* 安全区工具类（单一来源）：Tailwind 无内置 safe-area 工具，统一在这里定义，
+           组件不得写内联 style 或 env() 任意值。基础值与被替换的 Tailwind 类同值：
+           6=1.5rem、4=1rem、16=4rem、3=0.75rem。 */
+        .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .bottom-safe-6 { bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem); }
+        .right-safe-6 { right: calc(env(safe-area-inset-right, 0px) + 1.5rem); }
+        .top-safe-16 { top: calc(env(safe-area-inset-top, 0px) + 4rem); }
+        .right-safe-4 { right: calc(env(safe-area-inset-right, 0px) + 1rem); }
+        .pb-safe-3 { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem); }
+      }
+6.3 应用点（连同被替换的定位类一起改，桌面数值不变）：
+      · BackToTop.tsx:30：bottom-6 right-6 → bottom-safe-6 right-safe-6；
+      · Toast.tsx:38：top-16 right-4 → top-safe-16 right-safe-4；
+      · chat/ChatPanel.tsx:94 输入区容器：pb-3 → pb-safe-3（<720 面板为覆盖抽屉时避让
+        home indicator；≥720 pb 值不变 12px）；
+      · MobileNav 抽屉滚动区底部：pb-safe。
+6.4 index.css 全局行为（@layer base 的 html 段追加；只影响滚动/触摸行为，不产生任何
+    布局或像素变化）：
+      html { overscroll-behavior-y: none; }   /* 消 rubber-band / 下拉刷新误触 */
+      @media (pointer: coarse) {
+        button, a, [role='button'] { touch-action: manipulation; }  /* 去双击缩放延迟 */
+      }
+    （touch-action 包在 pointer: coarse 里，桌面鼠标环境零影响。）
 
 -------------------------------------------------
-七、风险与回滚
+七、测试计划（新增 2 个测试文件，预计 11 用例）
 -------------------------------------------------
-R1 流式改造破坏既有 11 例 chat 用例
-  面：事件序列断言（(1)(2)(6)(7)(8)）与错误路径行为。
-  对策：六、总表逐条写死去向；prepareChat 前置全部校验错误（401/403/400/404 四类
-    用例零改动是验收锚点——若它们红了说明拆分破坏了「流前 JSON 错误」契约）；
-    (3)(4)(5)(9)(10)(11) 七例不动本身即回归哨兵。
-  回滚：E2 独立 commit，git revert <E2> 即回到 v1.2 行为（契约文档 revert E1）。
-R2 远程流式解析失败 / 半截文本（remote 模式专属，默认 local 不受影响）
-  面：转义跨块错字、字段乱序、流中断。
-  对策：D3c 转义未完整暂存不回调；乱序 → 增量为空最终解析兜底；半截即断不拼接
-    （D3d，error 事件 + 前端保留半截文本出气泡，sse.ts failAssistant 现有语义）；
-    零增量失败干净回落 localChat（现状）；单测 (2)(3)(5)(6)(7) 逐面覆盖。
-  回滚：revert E3 → 回到 stream:false（chat.ts 的 onIncrement 参数可选、E2 不依赖）。
-R3 面板与既有页面布局冲突
-  面：GraphPage 最小宽 720 横滚、报告表格、max-w-5xl 左基线。
-  对策：<1280 覆盖式抽屉不挤压；≥1280 挤压但正文列仍有 ≥880px（1280-400）；
-    F4 四档宽度走查含图谱页 + 报告页各一张截图；z-overlay 不与 nav/toast 冲突。
-  回滚：revert F3 → 顶栏回到 NavLink（F2 组件仍在但仅全屏页使用，无副作用）。
-R4 新事件在旧客户端上的兼容
-  面：旧前端（已部署 dist）遇到 thought/tool/phase。
-  对策：sse.ts default 分支忽略未知事件（现状即有 + 有测试）；契约 v1.3 只增不改
-    delta/meta/done/error；JSON 降级增 trace 键，旧前端按多余键忽略（renderJson 只
-    读 reply/meta）——E1 文档兼容性说明行写明。
-R5 本地与远程链路表现不一致
-  面：thought 语义差异（确定性摘要 vs 模型自述）、running 状态只在远程出现。
-  对策：事件契约同一套（工具名闭集共用）；差异点在契约 3.4 与 UI 文案（「推理摘要」/
-    「思考过程」按 #20 model.mode 切换）显式声明，不藏着；本地不发 running 不发
-    伪造 ms（D4c），一致性以「步骤名序列在同等输入下相同」为准（chat 测试 (7) 的
-    JSON/SSE 比对即对账锚点）。
-R6 60 秒 SIGKILL / 走查做不了
-  对策：测试三条分批；起服务同调用「起→探→杀」；走查优先 agent-browser，不行则
-    执行报告显式标注未实测 + 静态兜底（上轮 M1 教训：不可静默跳过）。
-R7 双写手 / 中断续接
-  对策：D8 串行 + 每子步即 commit；重派前按 AGENT §8-2 查文件 mtime / commit 活跃。
-R8 契约只增不删被破坏
-  对策：E1 的 chatTrace.test.ts 含契约文档 grep 哨兵（原文 delta 行仍在 + v1.3
-    块存在）；reviewer 复核 git diff API_CONTRACT.md 仅 §9 追加 + §11 一行。
+7.1 新增 apps/web/tests/breakpoints.test.ts（静态源码扫描，仿 stages.test.ts「直接读
+    源文件核对」先例；node:fs 读文本 + 正则断言）：
+      ① 读 apps/web/tailwind.config.js（文本解析或 import），断言含 nav: '720px'
+        的 screens 定义；
+      ② 递归扫描 apps/web/src/**/*.tsx 与 *.ts：断言无 /(?:min|max)-\[\d+px\]:/（任意值
+        断点变体禁止清单，3.4；必须带冒号后缀，避免误伤 min-w-[420px] 这类宽度工具类）；
+      ③ 同上扫描：断言无 'z-['；
+      ④ 扫描 JSX 里的 className 字面量属性（/className="[^"]*#[0-9a-fA-F]{3,8}/）：断言 0 处
+        （planner 实测当前 0 处）。⚠ 口径说明：仅限字面量属性——LoginPage.tsx:51 的
+        ERROR_TEXT 常量（text-[#FFB088]，注释实测 11.0:1 的深底既有色）、theme/bands.ts
+        与 stores/theme.ts（令牌源本身）、GraphPage 的 ECharts 画布回退色，均属**合法
+        保留**，不在断言范围，测试注释里写明白名单边界；
+      ⑤ 读 apps/web/index.html：断言 viewport 含 viewport-fit=cover；
+      ⑥ 读 apps/web/src/index.css：断言含 overscroll-behavior、touch-action 与
+        .pb-safe 定义；
+      ⑦ 读 apps/web/src/components/Layout.tsx：断言含 min-h-dvh 且无 min-h-screen。
+      预计 7 用例。
+7.2 新增 apps/web/tests/mobileNav.test.ts（纯逻辑，仿 chatPanel.test.ts）：
+      ① 初始 open === false；setOpen(true) / toggle() 状态机正确；
+      ② 互斥：mobileNav.setOpen(true) 后 useChatPanelStore.getState().open === false；
+      ③ 互斥兜底：先 chatPanel.setOpen(true) 再 mobileNav.toggle() → chatPanel 关、
+        mobileNav 开；
+      ④ 不落盘：store 状态不写 localStorage（键集不变）。
+      预计 4 用例。
+7.3 不新增组件渲染测试：现有 14 个前端测试文件全为逻辑/静态单测，无 jsdom 组件渲染
+    先例；抽屉的交互正确性由「八、」真浏览器走查覆盖（B6），不为本轮破例引渲染测试栈。
+7.4 基准数字：前端 139 → 预计 150；全仓 351 → 预计 362。既有测试零改动预期
+    （routerGuard 的 12 页/6 导航断言不受影响——ROUTES/navRoutes 数据零改动，与上轮
+    F3 同口径）。
+7.5 分批测试命令（每条独立跑，勿合并防 60s 被杀）：
+      $NODE $WS/node_modules/vitest/vitest.mjs run packages
+      $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+      $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
 
 -------------------------------------------------
-八、总验收标准（F4 结束后一次性跑齐）
+八、自检闸门与窄屏走查方案
 -------------------------------------------------
-  1. 三批测试全绿（分三条跑）：
-     $NODE $WS/node_modules/vitest/vitest.mjs run packages
-     $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
-     $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
-     → 预计 ~334 例 / 0 skip（六、总表对账，数字以实跑为准）。
-  2. 三段 tsc --noEmit（engine / functions/api / apps/web）→ 全部 exit 0。
-  3. $PY scripts/validate_data.py → 6 项校验通过（本轮不碰数据，应零变化）。
-  4. vite build 通过（F4 命令）；后端 esbuild bundle 可选复核。
-  5. 真实走查留痕（执行报告）：四档宽度 × 两主题截图齐备（或显式标注未实测 + 静态
-     兜底证据）；面板展开正文可读、时间轴 running/ok 两态、reduced-motion 下无
-     打字机动画且全文完整。
-  6. git --no-pager diff API_CONTRACT.md（对基线）：仅 §9 v1.3 追加块 + §11 一行。
-  7. env 复核四条命令输出贴执行报告（RD7）；模型相关零新增前端入口（grep
-     apps/web/src 无 model 配置表单）。
-  8. 红线复核：serialization.ts / theme/bands.ts / engine / data / config / scripts
-     零改动；answer / solution_steps 不进任何新事件字段（trace 的 args/result 只装
-     D4a 列出的真实中间量，其中不含题库答案字段——apply_evidence.result 只有数值
-     与 event_id，solutionText 的完整解法只走既有 delta 文本通道）。
+8.1 每批改完必跑（全部命令原样可执行）：
+      # 类型检查三段（各自独立一条）
+      $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p packages/engine/tsconfig.json
+      $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
+      $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
+      # 测试三批
+      $NODE $WS/node_modules/vitest/vitest.mjs run packages
+      $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+      $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
+      # 前端构建
+      $NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts
+8.2 静态复核（B1 后每次必跑，期望全部无匹配行；正则带冒号后缀，只命中断点变体，
+     不误伤 min-w-[420px]）：
+      grep -rn -E "(min|max)-\[[0-9]+px\]:" apps/web/src ; echo "exit=$?"
+      grep -rn "z-\[" apps/web/src ; echo "exit=$?"
+      grep -rn "min-h-screen" apps/web/src/components/Layout.tsx ; echo "exit=$?"
+8.3 真浏览器走查（本机仅 Microsoft Edge；参考 tools/e2e-smoke.cjs 的 CDP 模式：
+    Edge 路径 /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge、
+    --headless=new --no-sandbox --hide-scrollbars、零依赖 CDP 类直接复用其写法）：
+   8.3.1 新增 tools/responsive-audit.cjs（B0 产出，不改 e2e-smoke.cjs）：
+      · 环境变量：ZHIWEI_AUDIT_BASE（默认 http://127.0.0.1:5173）、
+        ZHIWEI_AUDIT_OUT（默认 _pipeline/screenshots/mobile）、ZHIWEI_AUDIT_TAG、
+        ZHIWEI_AUDIT_WIDTHS（逗号分隔，必填——为绕 60s 限制按档分跑）；
+      · 流程：起 Edge CDP → 复用 e2e-smoke 的注册/登录 eval 拿 token → 逐宽度档
+        （Emulation.setDeviceMetricsOverride，deviceScaleFactor=1，mobile 视宽度而定）→
+        逐路由（12 页：/login /self-report /spaces /console /assessment /paper /chat
+        /attribution /graph /report /drive /me）→ 每页采集：
+        a) document.documentElement.scrollWidth vs clientWidth 溢出量；
+        b) 溢出元素清单（querySelectorAll('*') 中 getBoundingClientRect().right >
+           innerWidth+1 的前 10 个：tag+class 片段）；
+        c) 几何锚点 getBoundingClientRect：header、header nav、main、main 首个子卡片
+           （各页统一取 main 内第一个 border 卡片），另采 getComputedStyle 采样字号；
+        d) 截图 PNG。
+      · 输出：<OUT>/audit-<tag>-<width>.json + <tag>-<width>-<route>.png；
+      · 对比模式 --compare <tagA> <tagB>：逐页逐锚点 diff，≥768 档任一项 ≠0 即列出并
+        exit 1（这是验收项 1 的判据）。
+   8.3.2 走查执行序（服务先起，run_in_background 可存活）：
+      # 起服务（两条后台）
+      $WS/node_modules/.bin/esbuild functions/api/src/server.ts --bundle --platform=node --format=cjs --outfile=functions/api/dist/server.js
+      $NODE functions/api/dist/server.js            # 后台 :8787
+      $NODE $WS/node_modules/vite/bin/vite.js --config apps/web/vite.config.ts   # 后台 :5173
+      # 改造前基线（B0，四档分四条命令跑）
+      $NODE tools/responsive-audit.cjs --tag baseline --widths 1440
+      $NODE tools/responsive-audit.cjs --tag baseline --widths 1024
+      $NODE tools/responsive-audit.cjs --tag baseline --widths 768
+      $NODE tools/responsive-audit.cjs --tag baseline --widths 414,375
+      # 改造后复测（B6，同四条，tag=after）
+      $NODE tools/responsive-audit.cjs --tag after --widths 1440
+      $NODE tools/responsive-audit.cjs --tag after --widths 1024
+      $NODE tools/responsive-audit.cjs --tag after --widths 768
+      $NODE tools/responsive-audit.cjs --tag after --widths 414,375
+      # 桌面像素级零变化判据（≥768 三档逐页逐锚点 diff=0）
+      $NODE tools/responsive-audit.cjs --compare baseline after --widths 1440,1024,768
+      # （--compare 内部排除本就变化的白名单：无——本轮要求 ≥768 全量零 diff）
+   8.3.3 窄档人工复核点（375/414 截图逐页过一遍）：抽屉开/合/Esc/背景幕/焦点归还、
+      输入区换行、图谱横滚、报告表横滚、Toast/BackToTop 避让。
+8.4 走查超时预案：单档 12 页 ×（导航 0.7s + 采样）约 25–40s，贴近 60s 上限；若被杀，
+   把 --widths 拆成单值逐条跑（375 与 414 必须分开时用 ZHIWEI_AUDIT_WIDTHS=375）。
 
 -------------------------------------------------
-九、执行纪律
+九、批次切分（每批可独立提交、独立回滚；B0 必须最先——基线要先于任何改动采集）
 -------------------------------------------------
-  - 顺序 E1→E2→E3→E4→F1→F2→F3→F4 严格串行，每子步 commit 后再开下一步
-    （AGENT §7：中文信息 + 关键数字）；E1 是契约冻结点，F 批禁止先于 E1 开工（D8）。
-  - 不碰 D13 他人未提交变更；不修改 engine / data / config / scripts / 冻结文档
-    （API_CONTRACT 仅按三、3.5 追加）。
-  - 执行报告 _pipeline/02_EXEC_REPORT.md 按批记录：实际测试数、六、总表的实跑对账、
-    计划外裁决按 D 编号续写 D14+、走查截图或未实测声明。
-  - reviewer 重点核对：测试只改写不删除（六、逐条）、契约只增不删（R8 哨兵）、
-    tool 事件无编造步骤（chat 测试 (6) 锚点）、面板不挤压正文到不可读（走查）。
-  - 阻塞项：无（总控 RD1–RD7 已定方向；细节歧义已按 D1–D13 自行裁决留痕）。
+B0 走查工具与桌面基线（不改任何业务代码）
+    涉及：tools/responsive-audit.cjs（新增）；_pipeline/screenshots/mobile/（产物入库）
+    做什么：写工具 → 起服务 → 采 baseline 四档 JSON+截图 → commit
+    commit 草稿：「走查: 新增响应式走查工具 responsive-audit.cjs（Edge CDP，12 页 × 4 档
+      宽度采溢出量/溢出元素/几何锚点），并采集改前基线（1440/1024/768/414/375）」
+B1 断点与令牌单一来源
+    涉及：apps/web/tailwind.config.js、src/components/TopNav.tsx（:101/:163 两处替换）、
+    src/pages/ChatPage.tsx（:98 替换）、src/components/Toast.tsx（z 令牌化 + 安全区定位）、
+    src/components/ConfirmDialog.tsx（z 令牌化）、src/components/BackToTop.tsx（z 令牌化 +
+    安全区定位）、index.html（viewport-fit）、src/index.css（utilities + 全局行为）、
+    apps/web/tests/breakpoints.test.ts（新增）
+    commit 草稿：「移动端批1: 断点单一定义——tailwind 具名断点 nav:720px，替换 3 处任意值
+      断点；3 处裸 z 值令牌化(z-40→z-nav/z-50→z-overlay)；viewport-fit=cover + 7 个安全区
+      工具类 + overscroll/touch-action；新增 breakpoints.test.ts 静态闸门 7 用例」
+B2 汉堡抽屉
+    涉及：src/components/MobileNav.tsx（新增）、src/stores/mobileNav.ts（新增）、
+    src/components/TopNav.tsx（max-nav:hidden 收纳 + 汉堡键 + px）、src/components/Layout.tsx
+    （挂载 + 正文 aria-hidden）、apps/web/tests/mobileNav.test.ts（新增）
+    commit 草稿：「移动端批2: 顶栏汉堡抽屉——<720 顶栏只留「知微」+汉堡键，抽屉（z-overlay
+      全高右滑）承载 6 导航项+主题+空间切换；stores/mobileNav.ts 会话级开合、与对话面板互斥；
+      Esc/背景幕/焦点陷阱/焦点归还/aria-modal 齐备；≥720 顶栏渲染逐像素不变；新增 4 用例」
+B3 布局与断行破绽
+    涉及：src/components/Layout.tsx（min-h-dvh + px）、src/components/chat/ChatComposer.tsx、
+    src/components/chat/ChatMessageList.tsx、src/lib/richText.tsx、src/pages/DrivePage.tsx、
+    src/pages/PaperPage.tsx、src/pages/AttributionPage.tsx（break-all + flex-wrap）、
+    src/pages/SelfReportPage.tsx、src/pages/AssessmentPage.tsx、src/pages/SpacesPage.tsx、
+    src/components/PageSkeleton.tsx（prop 修正）
+    commit 草稿：「移动端批3: 布局破绽——外壳 min-h-dvh(与登录页统一)、窄档页边距 48→32px
+      (顶栏与正文同步保左基线)；输入区按钮 shrink-0+换行；9 处 flex 行补 flex-wrap；
+      7 处长串 ID/行内 code 补 break-all/words；PageSkeleton Bar prop 传反修正(渲染等价)」
+B4 图谱重绘与触控
+    涉及：src/pages/GraphPage.tsx（ResizeObserver + 关闭键 max-nav 触控目标）
+    commit 草稿：「移动端批4: 图谱容器 ResizeObserver(面板开合挤压时重绘，window.resize
+      保留)；详情卡关闭键 <720 触控目标 16→36px；720 最小宽+横滚保持(D7)」
+B5 触控目标与安全区应用
+    涉及：src/components/chat/ChatPanel.tsx（min-h-9 + pb-safe-3）、src/components/Toast.tsx
+    （min-h-9）、src/components/chat/ChatComposer.tsx（文件项 min-h-9）、
+    src/pages/AttributionPage.tsx（:340 min-h-9）
+    commit 草稿：「移动端批5: 触控目标补齐——ChatPanel 两键/Toast 知道了/文件项/反驳键
+      <720 一律 ≥36px(max-nav 作用域)；面板输入区 pb-safe-3 避让 home indicator」
+B6 改后复测、对比与收尾
+    涉及：_pipeline/screenshots/mobile/（after 产物）、LOOKATME.md、
+    _pipeline/02_EXEC_REPORT.md
+    做什么：跑 after 四档 + --compare 三档桌面档 → 全部 diff=0 才算过验收项 1；
+      375/414 溢出清单复核（图谱/报告两容器内允许、页面级必须 0）；更新文档实测数字
+    commit 草稿：「移动端批6: 走查收尾——改后 12 页 × 5 档复测；1440/1024/768 几何对比
+      全量 0px(桌面像素级零变化验收通过)；375/414 页面级溢出清零(图谱/报告容器内横滚除外)；
+      LOOKATME/执行报告按实测数字更新」
+批次依赖：B0 → B1 → B2 → B3 → B4/B5（可并行文件不重叠，但串行更稳）→ B6。
+每批完成即跑 8.1 三段 tsc + 前端 vitest 批（packages/后端批在 B1 与 B6 各全量跑一次即可，
+本轮不碰引擎与后端代码）。
+
+-------------------------------------------------
+十、风险与回滚
+-------------------------------------------------
+R1【高】TopNav 改动破坏桌面顶栏（B2 是最大单批）
+   回滚：B2 独立 commit，revert 即恢复；B0 基线在手，revert 后可立即 --compare 复核。
+   缓解：新增类全部为响应式（≥720 不生效）+ B6 几何对比逐锚点判 0。
+R2【高】「桌面像素零变化」被无意破坏（如漏加 max-nav 前缀、flex-wrap 意外在宽屏换行、
+   ml-3→gap-3 数值错）
+   回滚：定位到具体批次 revert；走查 JSON 会逐页列出 ≠0 的锚点与页面。
+   缓解：8.3 的 --compare 是硬闸门，任何一档 ≥768 diff≠0 即 B6 不许收尾。
+R3【中】max-nav/nav 类名拼写错误 → 样式静默失效（不报错、只是不生效）
+   缓解：B1 的 breakpoints.test.ts 断言 config 定义存在；走查 375 档人工复核抽屉形态。
+R4【中】抽屉与面板同时打开（互斥遗漏某条路径）
+   缓解：mobileNav.test.ts 互斥两用例 + 8.3.3 人工复核；<720 面板唯一入口是抽屉按钮（D4
+   已论证），路径封闭。
+R5【中】走查脚本单条命令超 60s 被杀
+   缓解：按宽度分档跑（8.3.2 每档一条）；再超时拆到单宽度单条（8.4）。
+R6【低】ResizeObserver 在极旧浏览器缺失 → 图表仍靠 window.resize 兜底（监听保留不删），
+   行为不劣于现状。
+R7【低】dvh 兼容：项目已有 LoginPage min-h-dvh 先例，目标浏览器现代内核；不支持的环境
+   丢失的只是外壳最小高（页面内容自然高度仍撑开），不产生布局破坏。
+R8【低】PageSkeleton 修正（D11）与 z 令牌化（D12）均为渲染等价改动，revert 无副作用。
+回滚总原则：每批独立 commit、互相不混提（AGENT §7）；任何一批出问题单批 revert，
+不影响其余批次；_pipeline/archive/ 与 _pipeline/screenshots/ 产物只增不删。
+
+-------------------------------------------------
+收尾数字
+-------------------------------------------------
+涉及文件总数：28
+  · 新增 5：MobileNav.tsx、stores/mobileNav.ts、breakpoints.test.ts、mobileNav.test.ts、
+    tools/responsive-audit.cjs
+  · 修改业务/样式 21：tailwind.config.js、index.html、index.css、TopNav、Layout、Toast、
+    ConfirmDialog、BackToTop、PageSkeleton、chat/ChatPanel、chat/ChatComposer、
+    chat/ChatMessageList、lib/richText、pages/ChatPage、GraphPage、DrivePage、PaperPage、
+    AttributionPage、SelfReportPage、AssessmentPage、SpacesPage（其中 AttributionPage、
+    ChatComposer、Toast 跨批各计一次）
+  · 文档 2：LOOKATME.md、_pipeline/02_EXEC_REPORT.md（收尾批）
+预计新增测试用例：11（breakpoints.test.ts 7 + mobileNav.test.ts 4）
+  → 前端 139 → 150，全仓 351 → 362
