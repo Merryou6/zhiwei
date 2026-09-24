@@ -25,6 +25,11 @@
  * v1.3（D1d）：「对话辅导」在 navRoutes().map 里**特判为 button**（aria-pressed + 开合右侧常驻
  * 面板），其余项仍是 NavLink。改的只是渲染层——ROUTES / navRoutes / guardPath 数据结构零改动，
  * 故 routerGuard.test.ts 的 12 页与 6 项导航断言不受影响。/chat 全屏形态仍在（面板头部「全屏打开」进入）。
+ *
+ * v1.3 补（清尾轮 L11，2026-09-24）：header 读 Layout 写下的让位自定义属性（./panelDock.ts），
+ * 面板展开（≥1280 让位态）时顶栏内容与正文列同步左移 —— 「内容列与顶栏共用同一条左基线」
+ * 这条设计不变量在两态下都成立（1440 实测开合两态差 0px）。padding 落在 header 上，
+ * 故整条顶栏的底色与下边框仍是整宽（面板从 y=56 起，不受影响）。
  */
 
 import { useEffect, useState } from 'react';
@@ -35,6 +40,7 @@ import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useSpaceStore } from '../stores/space';
+import { DOCK_OFFSET_STYLE } from './panelDock';
 import SpaceCreateForm from './SpaceCreateForm';
 import ThemeToggle from './ThemeToggle';
 import ZhiweiLogo from './ZhiweiLogo';
@@ -75,7 +81,10 @@ export default function TopNav() {
   const active = spaces.find((space) => space.space_id === activeSpaceId) ?? null;
 
   return (
-    <header className="sticky top-0 z-nav border-b border-line bg-surface">
+    <header
+      className="sticky top-0 z-nav border-b border-line bg-surface transition-[padding] duration-200 ease-out"
+      style={DOCK_OFFSET_STYLE}
+    >
       <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 py-3">
         {/* 品牌位：标识与「知微」二字同现，故标识按纯装饰隐藏（读屏只念一次「知微」） */}
         <Link

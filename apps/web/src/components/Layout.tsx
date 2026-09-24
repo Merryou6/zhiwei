@@ -22,12 +22,19 @@
  * padding 在 main 的盒内，1440 视口实测正文只剩 600px、且与面板之间空出 208px 死区；
  * 放在外层后 main 的 max-width 作用在「面板左边的可用宽度」上，实测 1440 下正文 976px、
  * 1280 下 832px，正文列始终紧贴面板左侧、无死区。
+ *
+ * ⚠ 让位量必须同时作用于**顶栏**（清尾轮 L11 修正，2026-09-24）：F3 只改了正文列，
+ * 面板一展开顶栏仍按整宽居中 ⇒ 1440 实测顶栏内容左缘 232px vs 正文列左缘 32px（错位 200px），
+ * 破坏了「内容列与顶栏共用同一条左基线」这条设计不变量。
+ * 现在让位量写成 CSS 自定义属性（单一来源，见 ./panelDock.ts），顶栏 nav 与正文列外层
+ * 读同一个变量 ⇒ 左基线恒等（实测开合两态差 0px），且不存在第二份 400px 常量。
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
 
 import { useChatPanelStore } from '../stores/chatPanel';
 import ChatPanel from './chat/ChatPanel';
+import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
 import ToastHost from './ToastHost';
 import TopNav from './TopNav';
 
@@ -111,14 +118,13 @@ export default function Layout({ children }: LayoutProps) {
   const docked = open && wideEnough;
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
+    // 让位量写一次（单一来源）：顶栏 nav 与正文列外层都读这个自定义属性（L11）。
+    <div className="min-h-screen bg-canvas text-ink" style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}>
       <TopNav />
       {/* 常驻态：给面板让位的 padding 在外层（见文件头 D24 说明），main 的 max-w-5xl
-          仍作用在「面板左边的可用宽度」上；覆盖态不加 padding，正文一律不动。 */}
-      <div
-        className="transition-[padding] duration-200 ease-out"
-        style={docked ? { paddingRight: PANEL_WIDTH_PX } : undefined}
-      >
+          仍作用在「面板左边的可用宽度」上；覆盖态该变量为 0，正文一律不动。
+          顶栏读同一个变量，故两者左基线始终一致（L11）。 */}
+      <div className="transition-[padding] duration-200 ease-out" style={DOCK_OFFSET_STYLE}>
         <main className="mx-auto w-full max-w-5xl px-6 py-8">{children}</main>
       </div>
       <ChatPanelDock docked={docked} />
