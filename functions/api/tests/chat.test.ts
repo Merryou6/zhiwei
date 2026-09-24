@@ -469,7 +469,9 @@ describe('chat · 过程链路 trace（契约 §9 v1.3）', () => {
     expect((applied.result as { event_id: string }).event_id).toBe(logs[0].triggered_by);
 
     // thought 是真实中间量拼成的确定性摘要（不是伪造的模型独白）
-    expect(thoughtTexts(events)).toContain('写入弱负证据：掌握度 0.5 → 0.45');
+    // 句末「。」为 v1.3 走查后补的断句：每个 thought 是一次独立增量，前端直接拼接，
+    // 不带句末标点会让相邻两步黏成一句（详见 services/chat.ts 的 thought 段注释）。
+    expect(thoughtTexts(events)).toContain('写入弱负证据：掌握度 0.5 → 0.45。');
   });
 
   it('第 3 轮退出通道：exit_channel.result 为真实上游 / 跳转 / 计数 / 上限', async () => {

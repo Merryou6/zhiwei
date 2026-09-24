@@ -330,6 +330,13 @@ async function applyExitChannel(
 }
 
 // ---------------------------------------------------------------- thought 摘要（确定性拼接）
+//
+// 为什么要带句末标点：每个 thought 是**一次独立增量**，前端按到达顺序直接拼接成一段
+// 「推理摘要」。若句尾不带标点，相邻两步会黏成一句（实测走查：
+// 「…采纳阈值 0.6，采纳为本轮知识点写入弱负证据：掌握度 0 → 0.01本轮有有效进展」），
+// 读者要自己去断句。故这里每条模板都写成**完整句子**并以「。」收尾。
+// 远程模式的 thought 是模型流式自述的原文增量（可能只是一句话的前半截），
+// 由模型自己负责断句，不在此加工。
 
 /** kp_match 后的摘要（契约 §9 3.4 模板一）。 */
 function matchThought(input: {
@@ -348,13 +355,13 @@ function matchThought(input: {
     : input.fallbackKpId
       ? `沿用上轮知识点（${input.fallbackKpId}）`
       : '本轮不产生证据，先追问澄清';
-  return `学生这句话匹配到知识点「${name}」（${id}），置信度 ${fmt(input.confidence)} ${relation} 采纳阈值 ${fmt(input.threshold)}，${action}`;
+  return `学生这句话匹配到知识点「${name}」（${id}），置信度 ${fmt(input.confidence)} ${relation} 采纳阈值 ${fmt(input.threshold)}，${action}。`;
 }
 
 /** 证据步骤后的摘要（契约 §9 3.4 模板二，含真实 before → after）。 */
 function evidenceThought(outcome: SilentEvidenceOutcome, kpName: string | null): string {
-  if (outcome.dedupHit) return `同小时已有证据，跳过写入（${kpName ?? '当前知识点'}）`;
-  return `写入弱负证据：掌握度 ${fmt(outcome.before ?? 0)} → ${fmt(outcome.after ?? 0)}`;
+  if (outcome.dedupHit) return `同小时已有证据，跳过写入（${kpName ?? '当前知识点'}）。`;
+  return `写入弱负证据：掌握度 ${fmt(outcome.before ?? 0)} → ${fmt(outcome.after ?? 0)}。`;
 }
 
 /** 状态机后的摘要（契约 §9 3.4 模板三，含真实 consecutive_false 与阈值）。 */
@@ -364,31 +371,31 @@ function stateMachineThought(input: {
   nextAction: ChatNextAction;
   exitThreshold: number;
 }): string {
-  if (input.progress) return '本轮有有效进展，连续无进展轮次清零（0 轮）';
+  if (input.progress) return '本轮有有效进展，连续无进展轮次清零（0 轮）。';
   const ladder =
     input.nextAction === 'exit_channel'
       ? `，达到 ${input.exitThreshold} 轮，进入退出通道`
       : input.nextAction === 'hint_down'
         ? '，降至提示阶梯第 2 档'
         : '';
-  return `本轮无有效进展，连续无进展 ${input.consecutiveFalse} 轮${ladder}`;
+  return `本轮无有效进展，连续无进展 ${input.consecutiveFalse} 轮${ladder}。`;
 }
 
 /** 退出通道后的摘要（契约 §9 3.4 模板四，含真实上游与上限）。 */
 function exitThought(outcome: ExitOutcome): string {
-  if (!outcome.upstream) return '回溯先修：上游没有低于阈值的知识点，本轮只提示不跳转';
+  if (!outcome.upstream) return '回溯先修：上游没有低于阈值的知识点，本轮只提示不跳转。';
   const name = outcome.upstream.name;
   return outcome.jumped
-    ? `回溯先修：最近低掌握上游为「${name}」，执行跳转`
-    : `回溯先修：最近低掌握上游为「${name}」，已达跳转上限 ${outcome.hopLimit}，只提示不跳转`;
+    ? `回溯先修：最近低掌握上游为「${name}」，执行跳转。`
+    : `回溯先修：最近低掌握上游为「${name}」，已达跳转上限 ${outcome.hopLimit}，只提示不跳转。`;
 }
 
 /** generate 阶段摘要（仅 hint_down / exit_channel 有附加段时产出；段数为真实值）。 */
 function generateThought(nextAction: ChatNextAction, segmentCount: number): string {
   if (nextAction === 'exit_channel') {
-    return `进入退出通道，本轮回复在引导语之后追加完整解法与退出话术（共 ${segmentCount} 段）`;
+    return `进入退出通道，本轮回复在引导语之后追加完整解法与退出话术（共 ${segmentCount} 段）。`;
   }
-  return `本轮无有效进展，回复在引导语之后追加方向提示（共 ${segmentCount} 段）`;
+  return `本轮无有效进展，回复在引导语之后追加方向提示（共 ${segmentCount} 段）。`;
 }
 
 // ---------------------------------------------------------------- 一轮对话
