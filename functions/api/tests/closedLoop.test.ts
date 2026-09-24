@@ -491,11 +491,11 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
     }
   });
 
-  it('E1 路由闭合：19 个接口全部挂载（契约 v1.1 逐项核对）', () => {
+  it('E1 路由闭合：20 个接口全部挂载（契约 v1.2：#1–#20 逐项核对）', () => {
     const routes = createRoutes().map((route) => `${route.method} ${route.pattern}`);
 
-    expect(routes).toHaveLength(19);
-    expect(new Set(routes).size).toBe(19);
+    expect(routes).toHaveLength(20);
+    expect(new Set(routes).size).toBe(20);
     expect(routes).toEqual([
       'POST /api/auth/register',
       'POST /api/auth/login',
@@ -516,6 +516,8 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
       'POST /api/plan/generate',
       'POST /api/agent/chat',
       'GET /api/report/summary',
+      // v1.2 新增（#20，只读）：路由表计数 19 → 20（更新而非删除，见执行报告 D11）
+      'GET /api/user/profile',
     ]);
   });
 });
