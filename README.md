@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="apps/web/public/favicon.svg" width="96" height="96" alt="知微 · ZhiWei" />
+
 # 知微 · ZhiWei
 
 **基于知识图谱归因的一对一 AI 学习伴侣**

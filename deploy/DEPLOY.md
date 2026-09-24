@@ -96,6 +96,67 @@ docker run --rm -v zhiwei_zhiwei-data:/data -v $(pwd):/backup alpine \
   tar xzf /backup/zhiwei-data-<日期>.tgz -C /data
 ```
 
+### ⚠ 更新版本的三个坑（2026-09-24 真机踩到，务必按序）
+
+**坑 1：`git fetch` ≠ `git pull`。** `fetch` 只更新远端引用，**不动工作区**。只 fetch 不 pull，
+随后 `docker compose up -d --build` 会正常跑完、日志一片绿，**但编译的是旧代码**——表现为「构建成功、
+版本没变」。判据看产物哈希：`dist/assets/index-*.css` 与线上正在服务的那个完全同名同大小 ⇒ 白构建。
+
+**坑 2：确认你在哪条分支。** 先 `git branch` 看当前分支；部署件在 `tempdeploy` 上，若停在 `main`
+就拉不到新代码。切换前先 `git status --short` 确认没有本地改动。
+
+**坑 3：老版 docker compose 没有 buildx。** 若报 `compose build requires buildx 0.17.0 or later`，
+用经典构建器即可（本项目镜像构建不依赖 BuildKit 特性）：
+
+```bash
+export DOCKER_BUILDKIT=0
+export COMPOSE_DOCKER_CLI_BUILD=0
+```
+
+**正确的一套（照抄）：**
+
+```bash
+cd <部署目录>
+git status --short                      # 坑 2：必须为空
+git branch                              # 坑 2：应为 tempdeploy
+git pull                                # 坑 1：这一步才真正更新工作区
+git log --oneline -1                    # 确认是预期的那次提交，不是再看一遍旧的
+docker image tag zhiwei:latest zhiwei:rollback
+docker compose up -d --build            # 报 buildx 错就加坑 3 的两个 export
+# 然后按**下一节**的「版本指纹」确认产物真的换了
+```
+
+### 更新前先给旧镜像打标签（便于回滚）
+
+`docker compose up -d --build` 会把 `zhiwei:latest` 指向新镜像，旧镜像随即变成悬空层。
+先留个标签，回滚就是三条命令：
+
+```bash
+docker image tag zhiwei:latest zhiwei:rollback          # 更新前执行
+
+# …若新版本有问题，回滚：
+docker compose down
+docker image tag zhiwei:rollback zhiwei:latest
+docker compose up -d                                    # 注意：不带 --build
+```
+
+### 怎么确认「更新真的生效了」
+
+前端是烤进镜像的静态产物，**光 `restart` 不会更新，必须 `--build`**。
+
+```bash
+# 1) 健康检查（旧版本同样返回 true，只能证明容器活着）
+curl -s http://127.0.0.1:8080/healthz
+
+# 2) 版本指纹：移动端适配轮给前端 CSS 新增了一条断点媒体查询，
+#    这个字符串在旧版产物里不可能出现（≥1 = 已更新；0 = 仍是旧版）
+CSS=$(curl -s http://127.0.0.1:8080/ | grep -oE 'assets/index-[A-Za-z0-9_-]+\.css' | head -1)
+curl -s "http://127.0.0.1:8080/$CSS" | grep -c 'not all and (min-width: 720px)'
+```
+
+最后用**手机**打开一次：顶栏应为「知微」+ 汉堡键（点开是右侧抽屉导航）；
+更新前在手机上顶栏会把 6 个导航项压成**竖排单字**，一眼可辨。
+
 ---
 
 ## 四、接入真实大模型（可选，DeepSeek 等 OpenAI 兼容接口）
