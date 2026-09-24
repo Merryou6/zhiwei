@@ -5,7 +5,7 @@
  *   - 未登录访问受保护页 → #/login
  *   - 已登录访问 #/login → #/spaces
  *   - 已登录无活跃空间 → #/spaces（/spaces 与 /self-report 豁免）
- *   - 路由表 11 页齐全、页面编号 1–11 无重复
+ *   - 路由表 12 页齐全、页面编号 1–12 无重复（v1.2 新增 /me「我的」）
  */
 
 import { describe, expect, it } from 'vitest';
@@ -24,12 +24,12 @@ import {
 
 const PROTECTED = ROUTES.filter((route) => route.requiresAuth).map((route) => route.path);
 
-describe('router · 路由表（PRD §5 十页）', () => {
-  it('11 页齐全、路径唯一、页面编号 1–11 各一次', () => {
-    expect(ROUTES).toHaveLength(11);
-    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(11);
+describe('router · 路由表（PRD §5 十页 + 控制台 + 我的）', () => {
+  it('12 页齐全、路径唯一、页面编号 1–12 各一次', () => {
+    expect(ROUTES).toHaveLength(12);
+    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(12);
     expect(ROUTES.map((route) => route.page).sort((a, b) => a - b)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
     ]);
     expect(ROUTES.every((route) => route.label.length > 0)).toBe(true);
   });
@@ -42,8 +42,10 @@ describe('router · 路由表（PRD §5 十页）', () => {
       '/graph',
       '/report',
       '/drive',
+      // v1.2：/me「我的」进主导航（末位）
+      '/me',
     ]);
-    expect(navRoutes()).toHaveLength(5);
+    expect(navRoutes()).toHaveLength(6);
   });
 
   it('routeOf 支持带 query 的路径；未知路径返回 null', () => {
@@ -74,7 +76,8 @@ describe('router · guardPath 守卫分支', () => {
       expect(guardPath(path, state)).toBeNull();
     }
     expect(guardPath(LOGIN_PATH, state)).toBe(SPACES_PATH);
-    expect(PROTECTED).toHaveLength(10);
+    // v1.2：受保护页由 10 增至 11（/me 一并受 requiresAuth 覆盖，自动纳入本断言）
+    expect(PROTECTED).toHaveLength(11);
   });
 
   it('未知路径：已登录去 #/spaces，未登录去 #/login（不白屏）', () => {
@@ -88,9 +91,11 @@ describe('router · guardPath 守卫分支', () => {
     expect(hashWithQuery('/assessment', { mode: undefined })).toBe('/assessment');
   });
 
-  it('localStorage 键名与 D2 约定一致（auth 与 space 落盘）', () => {
+  it('localStorage 键名与 D2 约定一致（auth / space / theme 落盘）', () => {
     expect(STORAGE_KEYS.token).toBe('zhiwei_token');
     expect(STORAGE_KEYS.userId).toBe('zhiwei_user_id');
     expect(STORAGE_KEYS.activeSpace).toBe('zhiwei_active_space');
+    // v1.2（D3）：主题键与 index.html 内联脚本读的键名必须一致
+    expect(STORAGE_KEYS.theme).toBe('zhiwei_theme');
   });
 });

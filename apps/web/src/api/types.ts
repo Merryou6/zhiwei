@@ -1,5 +1,5 @@
 /**
- * 19 接口 DTO 类型（逐字对照 API_CONTRACT.md v1.1 §1–§10）
+ * 20 接口 DTO 类型（逐字对照 API_CONTRACT.md v1.2 §1–§10 + #20）
  *
  * 纪律：字段名一律以契约为唯一依据（禁止改名/加兼容别名）；错误码只消费不发明（§0 九码冻结）。
  * 题对象两形态（serialization.ts 白名单）：{item_id, stem, options} 与 +difficulty（§8 item_sequence）。
@@ -357,4 +357,29 @@ export interface ReportSummaryData {
   mastery: MasteryRowData[];
   gaps: GapRowData[];
   accuracy: AccuracyRowData[];
+}
+
+// ---------------------------------------------------------------- §1 认证 · #20（v1.2 新增，只读）
+
+/** #20 的账号视图（服务端显式字面构造；password_hash 永不下发）。 */
+export interface ProfileUserView {
+  user_id: string;
+  identifier: string;
+  nickname: string | null;
+  created_at: string;
+}
+
+/** #20 的对话模型运行信息（只读展示：前端不提供自定义入口）。 */
+export interface ProfileModelView {
+  mode: 'local' | 'remote';
+  /** 仅 mode='remote' 时有值（ZHIWEI_LLM_MODEL），否则 null。 */
+  name: string | null;
+}
+
+/** #20 GET /api/user/profile 的 data。 */
+export interface ProfileData {
+  user: ProfileUserView;
+  /** 与 §2 list 完全同形（复用 SpaceView）。 */
+  spaces: SpaceView[];
+  model: ProfileModelView;
 }
