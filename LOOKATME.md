@@ -31,7 +31,7 @@
 赛前修整轮（2026-09-24，功能冻结日）已交付 4 项用户反馈中的 3 项：空间新建真学科选择器（共享 SpaceCreateForm +
 顶栏弹层）、深浅主题可切且首帧不闪、「我的」页 + 只读接口 #20、仓库卫生收紧（env 忽略与模板对齐）；
 **第 5 条（对话链路改造 + 右侧常驻面板）留轮 2，本轮零代码**。
-测试 **292 用例全绿**（25 文件）、tsc 三段 exit 0、数据闸门 6 项通过；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
+测试 **292 用例全绿**（26 文件）、tsc 三段 exit 0、数据闸门 6 项通过；剩余为排期上的材料阶段（Demo 视频 / PPT / 教师审阅）。
 
 ---
 
@@ -47,7 +47,7 @@
 
 **关键数字（均已实跑核对，2026-09-24 赛前修整轮后）**
 
-- 测试：**292 用例全绿**（25 个测试文件）——引擎 43 + 后端 143 + 前端 106；本机单条命令约 60 秒被杀，故按
+- 测试：**292 用例全绿**（26 个测试文件）——引擎 43 + 后端 143 + 前端 106；本机单条命令约 60 秒被杀，故按
   `run packages` / `run functions/api/tests` / `run apps/web/tests` 三条分批实跑汇总（见 `_pipeline/02_EXEC_REPORT.md` 分批明细）
 - 类型检查：三段 `tsc --noEmit`（engine / functions/api / apps/web）**全部 exit 0**
 - 数据闸门：`scripts/validate_data.py` 6 项阻断校验**全通过**（16 条非阻断提醒与上轮一致）
@@ -105,7 +105,7 @@ PY=/Users/Merryou/.workbuddy/binaries/python/envs/default/bin/python3
 
 cd /Users/Merryou/LearnBuddy/zhiwei
 
-# 1) 全量测试（25 文件 292 用例）
+# 1) 全量测试（26 文件 292 用例）
 #    ⚠ 本机单条命令约 60 秒被 SIGKILL，全量 run 很可能被杀；建议分批跑：
 $NODE $WS/node_modules/vitest/vitest.mjs run packages
 $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
