@@ -42,7 +42,7 @@ import type { ApiResponse } from '../errors';
 import { newId } from '../ids';
 import { createModels } from '../models';
 import { exitLimitText, exitText, hintText, solutionText } from '../models/localChat';
-import type { ChatNextAction } from '../models/types';
+import type { ChatNextAction, ChatTurnOutput } from '../models/types';
 import type { DialogMessage, DialogRecord } from '../db/types';
 import type { HandlerResult, RouteRequest, SseEvent } from '../router';
 import type { KnowledgeNode } from '../data/staticData';
@@ -419,16 +419,52 @@ export async function runChat(
   // ---- retrieve：调用模型 + kp 匹配
   emit.event(phaseEvent('retrieve'));
   const modelMode = process.env.ZHIWEI_MODEL_MODE === 'remote' ? 'remote' : 'local';
+  const isRemote = modelMode === 'remote';
+  const modelId = emit.toolId();
+  // 远程模式是唯一出现 status:'running' → 终态两段式的地方（真发起模型流）；
+  // 本地模式计算毫秒级完成，不演耗时，只发终态一次（D4c / 计划 E2）
+  if (isRemote) {
+    emit.event(toolEvent({ id: modelId, name: 'model_call', status: 'running', args: { mode: modelMode } }));
+  }
+
+  // 远程模型流的 thought / reply 增量即到即发：thought → thought 事件；
+  // reply → delta 事件（先于 meta 到达，真流式，契约 §9 v1.3 D12）。
+  let liveReply = '';
+  let liveReplySent = false;
   const modelStart = realNow();
-  const turn = await createModels().chatTurn({
-    message,
-    image_file_id: imageFileId,
-    nodes,
-    history: dialog.messages,
-  });
+  let turn: ChatTurnOutput;
+  try {
+    turn = await createModels().chatTurn({
+      message,
+      image_file_id: imageFileId,
+      nodes,
+      history: dialog.messages,
+      onIncrement: (chunk) => {
+        if (chunk.field === 'thought') {
+          emit.event(thoughtEvent(chunk.text));
+          return;
+        }
+        liveReply += chunk.text;
+        liveReplySent = true;
+        emit.event(deltaEvent(chunk.text));
+      },
+    });
+  } catch (error) {
+    // 半截即断（D3d）：已发出的增量保留在前端，这里只报工具终态为 error 后让异常冒泡
+    emit.event(
+      toolEvent({
+        id: modelId,
+        name: 'model_call',
+        status: 'error',
+        args: { mode: modelMode },
+        ms: msSince(modelStart),
+      }),
+    );
+    throw error;
+  }
   emit.event(
     toolEvent({
-      id: emit.toolId(),
+      id: modelId,
       name: 'model_call',
       status: 'ok',
       args: { mode: modelMode },
@@ -440,6 +476,12 @@ export async function runChat(
       ms: msSince(modelStart),
     }),
   );
+
+  // 远程模式下 thought 通道 = 模型流式自述增量原样转发（D3b/契约 3.4）：
+  // 本地那套「确定性推理摘要」不再混进同一通道（两种语义不混，真实中间量仍在 tool.args/result 里）
+  const emitThought = (text: string): void => {
+    if (!isRemote) emit.event(thoughtEvent(text));
+  };
 
   // kp 匹配：≥ CONF_ADOPT 且命中图谱才认；否则沿用上轮已匹配 kp（追问澄清，不产生证据）
   const matchStart = realNow();
@@ -468,17 +510,15 @@ export async function runChat(
       ms: msSince(matchStart),
     }),
   );
-  emit.event(
-    thoughtEvent(
-      matchThought({
-        kpId: turn.kp_match.kp_id,
-        kpName: matchedNode?.name ?? null,
-        confidence: turn.kp_match.confidence,
-        threshold: ctx.params.CONF_ADOPT,
-        adopted: matched !== null,
-        fallbackKpId: dialog.kp_id,
-      }),
-    ),
+  emitThought(
+    matchThought({
+      kpId: turn.kp_match.kp_id,
+      kpName: matchedNode?.name ?? null,
+      confidence: turn.kp_match.confidence,
+      threshold: ctx.params.CONF_ADOPT,
+      adopted: matched !== null,
+      fallbackKpId: dialog.kp_id,
+    }),
   );
 
   // ---- judge：弱负证据（去重 → 写入）→ 状态机 → 退出通道
@@ -512,7 +552,7 @@ export async function runChat(
         }),
       );
     }
-    emit.event(thoughtEvent(evidenceThought(outcome, matchedNode?.name ?? effectiveNode?.name ?? null)));
+    emitThought(evidenceThought(outcome, matchedNode?.name ?? effectiveNode?.name ?? null));
   }
 
   // ---- 状态机（ALGORITHM §5）
@@ -540,15 +580,13 @@ export async function runChat(
       ms: msSince(stateStart),
     }),
   );
-  emit.event(
-    thoughtEvent(
-      stateMachineThought({
-        progress: turn.progress,
-        consecutiveFalse,
-        nextAction,
-        exitThreshold: ctx.params.CONSEC_FALSE_EXIT,
-      }),
-    ),
+  emitThought(
+    stateMachineThought({
+      progress: turn.progress,
+      consecutiveFalse,
+      nextAction,
+      exitThreshold: ctx.params.CONSEC_FALSE_EXIT,
+    }),
   );
 
   let exitOutcome: ExitOutcome | null = null;
@@ -575,12 +613,14 @@ export async function runChat(
         ms: msSince(exitStart),
       }),
     );
-    emit.event(thoughtEvent(exitThought(exitOutcome)));
+    emitThought(exitThought(exitOutcome));
   }
 
   // ---- generate：delta 分段（拼接即 reply）
   emit.event(phaseEvent('generate'));
-  const segments: string[] = [turn.reply];
+  // 远程模式首段可能已随模型流逐段发出（liveReplySent）→ 用它作为首段原样文本，
+  // 保证「SSE 各 delta 拼接 === reply === 落库 agent.content」这一不变式恒成立。
+  const segments: string[] = [liveReplySent ? liveReply : turn.reply];
   if (nextAction === 'hint_down') {
     segments.push(`\n\n${hintText(effectiveNode)}`);
   } else if (nextAction === 'exit_channel' && exitOutcome) {
@@ -591,9 +631,13 @@ export async function runChat(
     );
   }
   if (segments.length > 1) {
-    emit.event(thoughtEvent(generateThought(nextAction, segments.length)));
+    emitThought(generateThought(nextAction, segments.length));
   }
-  for (const segment of segments) emit.event(deltaEvent(segment));
+  for (const [index, segment] of segments.entries()) {
+    // 首段已随模型流发出时不再重发（避免前端拼接出重复文本）
+    if (index === 0 && liveReplySent) continue;
+    emit.event(deltaEvent(segment));
+  }
   const reply = segments.join('');
 
   // ---- kp_match：存在低掌握上游且发生跳转时切到上游（四、4.3 / 计划 #18）

@@ -11,12 +11,12 @@
  * JSON 降级 trace 与 SSE 事件序列同形。
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { loadStaticData } from '../src/data/staticData';
 import { TOOL_LABEL } from '../src/services/chatTrace';
-import type { ChatToolName } from '../src/services/chatTrace';
-import type { ChatMeta, ChatTraceStep } from '../src/services/chat';
+import type { ChatToolName, ChatTraceStep } from '../src/services/chatTrace';
+import type { ChatMeta } from '../src/services/chat';
 import { createTestApp, uniqueIdentifier, REPO_ROOT } from './helpers';
 import type { TestApp, TestUser } from './helpers';
 
@@ -538,5 +538,93 @@ describe('chat · 过程链路 trace（契约 §9 v1.3）', () => {
     expect(trace[0]).toEqual({ type: 'phase', name: 'analyze', label: '分析' });
     // 拼接 reply 与 SSE 各 delta 段一致（delta 走独立通道，不在 trace 内）
     expect(res.data!.reply).toBe(deltaTexts(events).join(''));
+  });
+});
+
+describe('chat · 远程模式真流式（mock fetch，契约 §9 v1.3 / D3）', () => {
+  const ENV_KEYS = [
+    'ZHIWEI_MODEL_MODE',
+    'ZHIWEI_LLM_BASE_URL',
+    'ZHIWEI_LLM_API_KEY',
+    'ZHIWEI_LLM_MODEL',
+  ] as const;
+  const original = new Map(ENV_KEYS.map((key) => [key, process.env[key]]));
+
+  const encoder = new TextEncoder();
+
+  /** 把模型输出文本切成 delta.content 块后编码为 OpenAI 流式响应。 */
+  function streamText(text: string, size: number): Response {
+    const pieces: string[] = [];
+    for (let i = 0; i < text.length; i += size) pieces.push(text.slice(i, i + size));
+    const lines = pieces
+      .map((piece) => `data: ${JSON.stringify({ choices: [{ delta: { content: piece } }] })}\n\n`)
+      .join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(`${lines}data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    return new Response(stream, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+  }
+
+  afterEach(() => {
+    for (const key of ENV_KEYS) {
+      const value = original.get(key);
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+    vi.unstubAllGlobals();
+  });
+
+  it('model_call running→ok 两段式；thought/delta 增量按模型输出序到达；拼接即 reply', async () => {
+    process.env.ZHIWEI_MODEL_MODE = 'remote';
+    process.env.ZHIWEI_LLM_BASE_URL = 'https://api.example.com/v1';
+    process.env.ZHIWEI_LLM_API_KEY = 'sk-test';
+    process.env.ZHIWEI_LLM_MODEL = 'test-model';
+
+    const thought = '学生说不会顶点式，我先带他把一般式配成顶点式。';
+    const reply = '我们先把 x^2-4x 这半边配成完全平方，你来写第一步？';
+    const raw = JSON.stringify({
+      thought,
+      reply,
+      progress: true,
+      progress_reason: null,
+      kp_match: { kp_id: VERTEX_KP, confidence: 0.9 },
+      top_candidates: [],
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamText(raw, 6)));
+
+    const user = await bootstrap();
+    const events = await streamChat(user, { message: KP_MESSAGE });
+    const names = events.map((event) => event.event);
+
+    // 真实模型调用：running → ok 两段式（同 id，唯一出现 running 的地方）
+    const modelCalls = events
+      .filter((event) => event.event === 'tool')
+      .map((event) => event.data as { id: string; name: string; status: string; ms?: number; args?: unknown });
+    const callEvents = modelCalls.filter((tool) => tool.name === 'model_call');
+    expect(callEvents.map((tool) => tool.status)).toEqual(['running', 'ok']);
+    expect(callEvents[0].id).toBe(callEvents[1].id);
+    expect(callEvents[0].args).toEqual({ mode: 'remote' });
+
+    // thought 增量原样转发（模型自述，不采信其决策字段），拼接即模型 thought
+    expect(thoughtTexts(events).join('')).toBe(thought);
+    // reply 是真流式：delta 增量到达，拼接即 reply 全文
+    expect(deltaTexts(events).join('')).toBe(reply);
+    expect(deltaTexts(events).length).toBeGreaterThan(1);
+
+    // 首个 delta 出现在 model_call.running 之后（模型流里 reply 增量与 thought 可交错）
+    const runningIndex = events.findIndex(
+      (event) => event.event === 'tool' && (event.data as { name: string }).name === 'model_call',
+    );
+    expect(names.indexOf('delta')).toBeGreaterThan(runningIndex);
+    expect(names.slice(-2)).toEqual(['meta', 'done']);
+
+    // 落库与 SSE 拼接一致（不变式）
+    const meta = metaOf(events);
+    const dialog = await app.ctx.store.getDialog(meta.dialog_id);
+    expect(dialog?.messages[1].content).toBe(reply);
+    expect(meta.next_action).toBe('continue');
   });
 });

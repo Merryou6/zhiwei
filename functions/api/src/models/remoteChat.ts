@@ -8,16 +8,27 @@
  *   ZHIWEI_LLM_MODEL     模型名，例如 deepseek-chat（必填）
  *   ZHIWEI_LLM_TIMEOUT_MS 调用超时（可选，默认 45000）
  *
+ * 流式（契约 §9 v1.3，计划 D3）：
+ *   - 请求带 `stream: true`，**不带** response_format（多数服务商不允许与 stream 组合；
+ *     结构化输出改由「系统提示固定字段序 + 增量抽取 + 最终完整解析」三层保证）。
+ *   - 逐块读 response.body，parseOpenAiStreamLines 断行安全地取出 choices[0].delta.content，
+ *     createFieldStreamExtractor 从累积文本里增量抽取 thought / reply 字符串值并回调。
+ *   - 转义序列（\n \" \uXXXX）跨 chunk 未完整时暂存不回调（防错字）；字段值闭合即锁定。
+ *   - 模型不守字段序 / 不输出 JSON → 增量为空，最终 extractJsonObject 完整解析兜底（不判失败）。
+ *
  * 纪律（与 localChat 相同，契约 §9 / ALGORITHM §5）：
  *   - 适配器只产出**结构化字段**（reply/progress/progress_reason/kp_match/top_candidates），
  *     next_action 恒为 null，权威状态机在 services/chat.ts，不被模型自然语言覆盖。
  *   - kp_id 必须命中知识图谱 20 节点之一，未命中一律按无匹配处理（confidence < CONF_ADOPT，
  *     服务层会退回追问澄清）。
- *   - 任何失败（网络/超时/JSON 解析/字段非法）→ 回落 localChat.chatTurn，禁止白屏。
+ *   - 失败回落（D3d）：**任何 reply 增量发出之前**失败 → 干净回落 localChat.chatTurn（现状）；
+ *     已经发出 reply 增量之后失败（网络断 / 最终解析不出）→ 上抛 RemoteChatAborted，
+ *     **不回落**（否则用户会看到模板文拼在半截文本后面，两段不连贯）。
+ *   - thought 只在流里作为「写给学生看的推理自述」增量转发，服务层不采信其决策字段。
  */
 
 import { chatTurn as localChatTurn } from './localChat';
-import type { ChatTurnInput, ChatTurnOutput } from './types';
+import type { ChatStreamIncrement, ChatTurnInput, ChatTurnOutput } from './types';
 import type { KpMatch } from './types';
 import type { KnowledgeNode } from '../data/staticData';
 
@@ -28,6 +39,14 @@ interface RemoteChatConfig {
   apiKey: string;
   model: string;
   timeoutMs: number;
+}
+
+/** 已发出 reply 增量后失败：不回落本地（避免两段不连贯文本）。 */
+export class RemoteChatAborted extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RemoteChatAborted';
+  }
 }
 
 /** 读环境变量；任一必填项缺失返回 null（调用方回落本地适配器）。 */
@@ -59,9 +78,10 @@ function buildSystemPrompt(nodes: readonly KnowledgeNode[]): string {
     '你的语气像一个耐心的学长，绝不像评判者：学生薄弱时说「这一环还有点晃，我们再稳一下」，不说「你掌握很差」；学生答错时说「这个坑很常见，我们看看它是怎么来的」，不说「回答错误」。',
     '辅导纪律：引导学生自己往前走一步，一次只给一小步的方向性提示；学生没有明确要完整解法时，不要把整道题的完整解答直接抛出来。',
     '',
-    '你必须只输出一个 JSON 对象（不要 markdown 代码块、不要任何多余文字），字段如下：',
-    '{"reply": string, "progress": boolean, "progress_reason": string|null, "kp_match": {"kp_id": string, "confidence": number}, "top_candidates": [{"kp_id": string, "name": string, "confidence": number}]}',
+    '你必须只输出一个 JSON 对象（不要 markdown 代码块、不要任何多余文字），字段**按下面的顺序**给出：',
+    '{"thought": string, "reply": string, "progress": boolean, "progress_reason": string|null, "kp_match": {"kp_id": string, "confidence": number}, "top_candidates": [{"kp_id": string, "name": string, "confidence": number}]}',
     '字段规则：',
+    '- thought：**最先输出**。这是写给学生看的推理自述——此刻在想什么、为什么这么引导，1~2 句，口语化。（不是隐藏推理过程，就写你打算怎么带他走这一步。）',
     '- reply：你对学生说的话，1~3 句，口语化、有耐心，以引导学生迈出下一步结尾。',
     '- progress：学生这条消息里是否出现了有效的一步（写出了一步推导/计算、提出了具体的问题、复述了自己的想法）。',
     '  只有当学生明确表示不会/没思路/瞎猜、或消息里没有任何实质内容时才是 false；此时 progress_reason 填一句客观描述（如「学生仍未能给出有效一步」），否则为 null。',
@@ -178,14 +198,182 @@ function sanitizeKpFields(
   return { kpMatch, topCandidates };
 }
 
-interface OpenAiChatResponse {
-  choices?: { message?: { content?: string } }[];
+// ------------------------------------------------------------ 流式解析（纯函数，可单测）
+
+/**
+ * 解析 OpenAI 兼容流式响应的一批字节（按行）：
+ *   - 只认 `data:` 行；`data: [DONE]` → done = true；
+ *   - 每行取 `choices[0].delta.content`（非 JSON 行、心跳、`event:` 行一律忽略）；
+ *   - 末尾未闭合的行留在 rest，等下一个 chunk 拼上（跨 chunk 断行安全）。
+ */
+export function parseOpenAiStreamLines(buffer: string): {
+  contents: string[];
+  rest: string;
+  done: boolean;
+} {
+  const contents: string[] = [];
+  let done = false;
+  let rest = buffer;
+
+  for (;;) {
+    const newline = rest.indexOf('\n');
+    if (newline < 0) break;
+    const line = rest.slice(0, newline).replace(/\r$/, '');
+    rest = rest.slice(newline + 1);
+
+    const trimmed = line.trim();
+    if (!trimmed.startsWith('data:')) continue;
+    const payload = trimmed.slice('data:'.length).trim();
+    if (payload === '[DONE]') {
+      done = true;
+      break; // [DONE] 之后的行一律不再解析（结束语义）
+    }
+    try {
+      const parsed = JSON.parse(payload) as { choices?: { delta?: { content?: unknown } }[] };
+      const content = parsed.choices?.[0]?.delta?.content;
+      if (typeof content === 'string' && content.length > 0) contents.push(content);
+    } catch {
+      // 非 JSON 行（服务商心跳 / 注释）忽略，不影响已到达的增量
+    }
+  }
+
+  return { contents, rest, done };
 }
 
-async function callChatCompletions(
+/** 增量抽取回调的入参（与服务层 SSE 事件一一对应）。 */
+export type FieldStreamChunk = ChatStreamIncrement;
+
+export interface FieldStreamExtractor {
+  /** 追加一段模型输出文本（delta.content 拼接）。 */
+  push(chunk: string): void;
+  /** 完整累积文本（流结束后交给 extractJsonObject 完整解析）。 */
+  finish(): string;
+  /** 是否已发出过 reply 增量（半截失败判定用）。 */
+  replyStarted(): boolean;
+}
+
+const EXTRACT_FIELDS = ['thought', 'reply'] as const;
+type ExtractField = (typeof EXTRACT_FIELDS)[number];
+
+const SIMPLE_ESCAPES: Record<string, string> = {
+  '"': '"',
+  '\\': '\\',
+  '/': '/',
+  b: '\b',
+  f: '\f',
+  n: '\n',
+  r: '\r',
+  t: '\t',
+};
+
+/**
+ * 定位字段字符串值的起点（开引号之后的位置）。
+ * 只认「{ 或 , + 可选空白 + "field" + 可选空白 + : + 可选空白 + "」这种键位形态，
+ * 避免把字符串值里出现的同名字样当成键。还不够（缓冲末尾截断）→ -1，等下一个 chunk。
+ */
+function locateFieldValueStart(buffer: string, field: ExtractField): number {
+  const key = `"${field}"`;
+  let from = 0;
+  for (;;) {
+    const at = buffer.indexOf(key, from);
+    if (at < 0) return -1;
+
+    let back = at - 1;
+    while (back >= 0 && /\s/.test(buffer[back])) back -= 1;
+    const separator = back >= 0 ? buffer[back] : '';
+    if (separator === '{' || separator === ',') {
+      let i = at + key.length;
+      while (i < buffer.length && /\s/.test(buffer[i])) i += 1;
+      if (i >= buffer.length) return -1; // 键到了但值还没来，等下一个 chunk
+      if (buffer[i] === ':') {
+        i += 1;
+        while (i < buffer.length && /\s/.test(buffer[i])) i += 1;
+        if (i >= buffer.length) return -1;
+        if (buffer[i] === '"') return i + 1;
+      }
+    }
+    from = at + 1;
+  }
+}
+
+/**
+ * 解码 JSON 字符串字面量的前缀（到缓冲区末尾为止）：
+ *   - 未闭合 → 返回已解出的文本 + closed:false；
+ *   - 转义序列不完整（`\` 结尾、`\u4e` 这种）→ 停在该转义之前（**不发出半个转义**，防错字）；
+ *   - 遇到不认识的转义 → 停下（交给最终完整解析兜底）。
+ */
+function decodeStringPrefix(buffer: string, start: number): { text: string; closed: boolean } {
+  let out = '';
+  let i = start;
+  while (i < buffer.length) {
+    const ch = buffer[i];
+    if (ch === '"') return { text: out, closed: true };
+    if (ch !== '\\') {
+      out += ch;
+      i += 1;
+      continue;
+    }
+    if (i + 1 >= buffer.length) return { text: out, closed: false };
+    const esc = buffer[i + 1];
+    if (esc === 'u') {
+      const hex = buffer.slice(i + 2, i + 6);
+      if (hex.length < 4 || !/^[0-9a-fA-F]{4}$/.test(hex)) return { text: out, closed: false };
+      out += String.fromCharCode(parseInt(hex, 16));
+      i += 6;
+      continue;
+    }
+    const mapped = SIMPLE_ESCAPES[esc];
+    if (mapped === undefined) return { text: out, closed: false };
+    out += mapped;
+    i += 2;
+  }
+  return { text: out, closed: false };
+}
+
+/**
+ * 字段流增量抽取器（D3c）：扫描累积文本里 thought / reply 的字符串值，
+ * 每有**确定**的新增文本就回调 onIncrement；字段值闭合即锁定。
+ */
+export function createFieldStreamExtractor(
+  onIncrement?: (chunk: FieldStreamChunk) => void,
+): FieldStreamExtractor {
+  let buffer = '';
+  const emitted: Record<ExtractField, string> = { thought: '', reply: '' };
+  const locked: Record<ExtractField, boolean> = { thought: false, reply: false };
+
+  const scan = (): void => {
+    for (const field of EXTRACT_FIELDS) {
+      if (locked[field]) continue;
+      const start = locateFieldValueStart(buffer, field);
+      if (start < 0) continue;
+      const { text, closed } = decodeStringPrefix(buffer, start);
+      if (text.length > emitted[field].length) {
+        const increment = text.slice(emitted[field].length);
+        emitted[field] = text;
+        if (increment.length > 0) onIncrement?.({ field, text: increment });
+      }
+      if (closed) locked[field] = true;
+    }
+  };
+
+  return {
+    push(chunk: string) {
+      buffer += chunk;
+      scan();
+    },
+    finish: () => buffer,
+    replyStarted: () => emitted.reply.length > 0,
+  };
+}
+
+// ------------------------------------------------------------ 调用
+
+/** 流式调用 chat/completions：逐块读、增量抽取、返回完整输出文本。 */
+async function callChatCompletionsStream(
   config: RemoteChatConfig,
   systemPrompt: string,
   input: ChatTurnInput,
+  onIncrement?: (chunk: FieldStreamChunk) => void,
 ): Promise<string> {
   const messages: { role: string; content: string }[] = [{ role: 'system', content: systemPrompt }];
   for (const entry of input.history.slice(-16)) {
@@ -199,8 +387,10 @@ async function callChatCompletions(
   }
   messages.push({ role: 'user', content: input.message });
 
-  const doFetch = async (useJsonMode: boolean): Promise<Response> =>
-    fetch(`${config.baseUrl}/chat/completions`, {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), config.timeoutMs);
+  try {
+    const response = await fetch(`${config.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -210,47 +400,64 @@ async function callChatCompletions(
         model: config.model,
         messages,
         temperature: 0.6,
-        stream: false,
-        // JSON 模式：服务商保证输出合法 JSON（DeepSeek/GLM 等均支持）
-        ...(useJsonMode ? { response_format: { type: 'json_object' } } : {}),
+        // stream: true + 无 response_format（多数服务商不允许两者组合，D3a）
+        stream: true,
       }),
       signal: controller.signal,
     });
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.timeoutMs);
-  try {
-    let response = await doFetch(true);
-    if (response.status === 400) {
-      // 服务商不支持 response_format → 去掉该参数重试一次
-      response = await doFetch(false);
-    }
     if (!response.ok) {
       const body = await response.text().catch(() => '');
       throw new Error(`LLM 接口返回 ${response.status}：${body.slice(0, 200)}`);
     }
-    const data = (await response.json()) as OpenAiChatResponse;
-    const content = data.choices?.[0]?.message?.content;
-    if (typeof content !== 'string' || content.trim().length === 0) {
-      throw new Error('LLM 接口返回为空');
+    if (!response.body) throw new Error('LLM 接口未返回可读流');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    const extractor = createFieldStreamExtractor(onIncrement);
+    let rest = '';
+    let done = false;
+
+    while (!done) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      const parsed = parseOpenAiStreamLines(rest + decoder.decode(chunk.value, { stream: true }));
+      rest = parsed.rest;
+      done = parsed.done;
+      for (const content of parsed.contents) extractor.push(content);
     }
-    return content;
+    if (!done) {
+      // 收尾：最后一行可能没带换行
+      const tail = parseOpenAiStreamLines(`${rest}\n`);
+      for (const content of tail.contents) extractor.push(content);
+    }
+
+    return extractor.finish();
   } finally {
     clearTimeout(timer);
   }
 }
 
 /**
- * 远程对话一轮：调用 OpenAI 兼容接口并映射为 ChatTurnOutput。
- * 未配置或调用失败 → 回落 localChat（状态机/证据纪律零改动）。
+ * 远程对话一轮：流式调用 OpenAI 兼容接口并映射为 ChatTurnOutput。
+ * 未配置 → 回落 localChat；零增量失败 → 回落 localChat；已发 reply 增量后失败 → 抛 RemoteChatAborted。
  */
 export async function chatTurn(input: ChatTurnInput): Promise<ChatTurnOutput> {
   const config = readRemoteChatConfig();
   if (!config) return localChatTurn(input);
 
+  const forward = input.onIncrement;
+  let replyIncrementSent = false;
+  const onIncrement = forward
+    ? (chunk: FieldStreamChunk): void => {
+        if (chunk.field === 'reply') replyIncrementSent = true;
+        forward(chunk);
+      }
+    : undefined;
+
   try {
     const systemPrompt = buildSystemPrompt(input.nodes);
-    const raw = await callChatCompletions(config, systemPrompt, input);
+    const raw = await callChatCompletionsStream(config, systemPrompt, input, onIncrement);
     const parsed = extractJsonObject(raw);
     if (!parsed) {
       // 记录原始输出片段，便于排查格式漂移
@@ -283,6 +490,11 @@ export async function chatTurn(input: ChatTurnInput): Promise<ChatTurnOutput> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    if (replyIncrementSent) {
+      // 半截即断，不拼接（D3d）：已经流给学生看的文本不能被模板文接在后面
+      console.warn(`[zhiwei-remoteChat] 已发出 reply 增量后失败，不回落本地：${message}`);
+      throw new RemoteChatAborted(message);
+    }
     console.warn(`[zhiwei-remoteChat] 回落本地适配器：${message}`);
     return localChatTurn(input);
   }
