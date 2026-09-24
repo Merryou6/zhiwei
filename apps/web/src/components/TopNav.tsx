@@ -17,6 +17,10 @@
  *   · z-index 改走令牌（z-nav），不再散写 z-40。
  *   · 圆角统一到 rounded-control / rounded-surface 两档，不再混用 rounded-lg / rounded-xl。
  *   · 「管理空间 →」去掉箭头：给导航文字加箭头是模板套件里的固定装饰，不携带信息。
+ *
+ * 主题（D3，v1.2）：空间胶囊左侧加 ThemeToggle（顶栏与「我的」页共用 useThemeStore）；
+ * 下拉箭头原为硬编码 `text-[#93a0b4]`（浅色下对白底约 2.9:1，且违反「组件只写语义类名」），
+ * 改用令牌 `text-ink-soft`，两主题下对比度都由变量体系保证。
  */
 
 import { useEffect, useState } from 'react';
@@ -27,6 +31,7 @@ import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
 import SpaceCreateForm from './SpaceCreateForm';
+import ThemeToggle from './ThemeToggle';
 import ZhiweiLogo from './ZhiweiLogo';
 
 export default function TopNav() {
@@ -93,6 +98,9 @@ export default function TopNav() {
               ))}
             </ul>
 
+            {/* 主题切换（D3d）：空间胶囊左侧，与「我的」页共用 useThemeStore */}
+            <ThemeToggle />
+
             {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头 */}
             <div className="relative ml-auto flex flex-none items-center gap-2.5">
               <button
@@ -113,7 +121,7 @@ export default function TopNav() {
                   </svg>
                 </span>
                 <span className="max-[720px]:hidden">空间·{active ? active.name : '未选择'}</span>
-                <svg className="text-[#93a0b4]" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg className="text-ink-soft" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="m4 6.5 4 4 4-4" />
                 </svg>
               </button>

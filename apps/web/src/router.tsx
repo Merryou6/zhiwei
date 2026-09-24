@@ -16,11 +16,13 @@ export const SELF_REPORT_PATH = '/self-report';
 /** 控制台工作台首页（B 端教师 / 管理端入口，并入 apps/web 的真实控制台）。 */
 export const CONSOLE_PATH = '/console';
 
-/** localStorage 键（D2：仅 auth 与 space 落盘，手动读写、不用 persist 中间件）。 */
+/** localStorage 键（D2：仅 auth / space / theme 落盘，手动读写、不用 persist 中间件）。 */
 export const STORAGE_KEYS = {
   token: 'zhiwei_token',
   userId: 'zhiwei_user_id',
   activeSpace: 'zhiwei_active_space',
+  /** 主题偏好（D3）：'dark'（默认）| 'light'；index.html 内联脚本与本键同源。 */
+  theme: 'zhiwei_theme',
   /** 自报完成标记：zhiwei_sr_done_<space_id>（空间页主按钮文案切换）。 */
   selfReportDonePrefix: 'zhiwei_sr_done_',
   /** 试卷识别 id（刷新回显用，sessionStorage）。 */
