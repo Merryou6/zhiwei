@@ -98,7 +98,25 @@ docker run --rm -v zhiwei_zhiwei-data:/data -v $(pwd):/backup alpine \
 
 ---
 
-## 四、改端口 / 上 HTTPS（可选）
+## 四、接入真实大模型（可选，DeepSeek 等 OpenAI 兼容接口）
+
+默认 `ZHIWEI_MODEL_MODE=local` 用确定性规则适配器（零外部依赖，比赛演示稳）。想让诊断 / 对话 / 试卷识别走真实大模型：
+
+```bash
+# 编辑 deploy/zhiwei.env，追加四行：
+ZHIWEI_MODEL_MODE=remote
+ZHIWEI_LLM_BASE_URL=https://api.deepseek.com/v1   # 任意 OpenAI 兼容接口
+ZHIWEI_LLM_MODEL=deepseek-chat
+ZHIWEI_LLM_API_KEY=sk-xxxx                         # 你的 Key
+
+docker compose up -d   # 重启生效（env 变更不需要 --build）
+```
+
+注意：远程不可用（网络/超时/解析失败）时自动回落本地规则适配器，不影响闭环；SSE 流式经 serve.js 反代直通已实测。
+
+---
+
+## 五、改端口 / 上 HTTPS（可选）
 
 **换端口**（比如 80）：编辑 `deploy/zhiwei.env` 加 `ZHIWEI_HOST_PORT=80`，或直接改 `docker-compose.yml` 的 `ports` 为 `"80:8080"`，然后 `docker compose up -d`。
 
@@ -123,7 +141,7 @@ server {
 
 ---
 
-## 五、安全与已知限制（如实告知）
+## 六、安全与已知限制（如实告知）
 
 **安全清单**
 - [x] `ZHIWEI_SERVER_SECRET` 已改为 32 字节随机值（唯一必改项）
@@ -134,7 +152,7 @@ server {
 
 **已知限制（比赛范围内的有意取舍，不是 bug）**
 1. **单实例**：存储为 JSON 文件、无并发锁（PRD 明确不做）——不要横向扩多副本。
-2. **模型为本地规则适配器**：错误诊断 / 对话 / 试卷识别是确定性规则模拟，非真实大模型（接真模型只需实现 remote 适配器 + Key）。
+2. **默认本地规则适配器**：开箱即用时错误诊断 / 对话 / 试卷识别是确定性规则模拟；需要真实大模型可切换 remote 模式（见上文「接入真实大模型」）。
 3. **CloudBase 适配器是桩**：部署到腾讯云云函数需先实现九张表读写（代码注释已标接线点）。
 4. 演示数据可重置：`docker compose down` 后删除 volume 即回到全新状态（`docker volume rm zhiwei_zhiwei-data`）。
 

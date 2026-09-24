@@ -115,7 +115,8 @@ $NODE $WS/node_modules/vite/bin/vite.js --config apps/web/vite.config.ts
 
 - 形态：一个容器 = 静态前端 + `/api` 同源流式反代（`deploy/serve.js`，SSE 直通已实测），对外仅 8080 一个口
 - 数据：用户/作答记录在 volume `zhiwei-data`（`/app/data/local_db`），不进镜像；备份恢复命令见教程
-- 限制：单实例（JSON 存储无并发锁）；模型为本地规则适配器；CloudBase 适配器是桩
+- 模型：默认本地规则适配器（零外部依赖）；可选接 DeepSeek 等 OpenAI 兼容接口（`ZHIWEI_MODEL_MODE=remote`，教程第四节）
+- 限制：单实例（JSON 存储无并发锁）；CloudBase 适配器是桩
 
 ---
 

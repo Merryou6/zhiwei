@@ -17,6 +17,9 @@ _pipeline
 *.md
 LICENSE
 
+# B 端控制台原型存档（已并入 apps/web 成为真实 /console 入口，构建不需要它）
+zhiwei-console
+
 # 系统文件
 .DS_Store
 *.log
