@@ -26,7 +26,7 @@
 | 401 | 未认证 / token 无效 |
 | 403 | 越权（space_id 不属于当前用户） |
 | 404 | 资源不存在 |
-| 409 | 冲突（identifier 已注册 / 同学科空间已存在） |
+| 409 | 冲突（identifier 已注册 / 同名空间已存在） |
 | 500 | 内部错误 |
 | 502 | 模型上游失败（msg 需含用户可读降级话术） |
 | 504 | 模型超时 |
@@ -69,6 +69,17 @@ res:  data = { "space_id": "sp_xxx", "name": "初中数学" }
 说明: name 由服务端取知识库名，【不接受客户端传入】（防多空间同学科）
 错误:  409 同学科空间已存在，data = { "existing_space_id": "sp_001" }
       前端收到 409 后弹窗，默认按钮是"切换过去"而非"仍要新建"
+```
+
+**v1.2 变更（2026-09-24，见 §11；上行原文保留，本节为现行口径）**
+```
+req:  { "knowledge_source": "kb_math_cz", "name": "可选，1–30 字，缺省由服务端取知识库名" }
+      // 合法值：data/knowledge/index.json 的任一 stage.kb_id（kb_math_cz / kb_math_gz）
+说明: v1.2 起取消「每学科每用户限一个空间」，改为同一用户内空间名唯一；
+      name 由「不接受客户端传入」改为可选传入（旧行为见上行原文）；
+      显式传入时校验：非字符串 / trim 后为空 / trim 后超 30 字 → 400（空串不视为缺省）
+错误:  409 该用户已有同名空间，data = { "existing_space_id": "sp_001" }
+      前端收到 409 后弹窗，默认按钮仍是"切换过去"
 ```
 
 ### GET /api/space/{space_id}/drive  【P1】
@@ -281,3 +292,4 @@ res: data = {
 | --- | --- | --- | --- |
 | 2026-09-19 | 初版冻结（17 个接口 + 八张表字段） | 甲 | 乙 |
 | 2026-09-19 | **自审修订 v1.1**：① 新增 recognitions 表与 GET /api/evidence/paper/{id}（识别结果持久化）；② verify 改传 answer、服务端判卷；③ diagnose/submit 增 mode、correct 仅测量模式返回；④ next 移除冗余 pool 参数；⑤ 新增 GET /api/attribution/{id}；⑥ path/suspect/dedup 统一完整 kp id；⑦ dedup 幂等不算 409；⑧ classify 枚举来源澄清；⑨ token 无状态签名机制；⑩ item_sequence 返回完整题对象。共 19 个接口 + 九张表 | 甲 | 乙 |
+| 2026-09-24 | **v1.2**：① space/create 新增可选 `name`，空间唯一约束由「同学科」改为「同用户同名」（409 语义与 `existing_space_id` 保留，§0 错误码表 409 行同步改写——本版唯一一处原文字句修改）；② 新增 #20 GET /api/user/profile（只读，不下发 password_hash / ZHIWEI_LLM_API_KEY） | 项目方 | 总控 |
