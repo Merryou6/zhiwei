@@ -320,6 +320,11 @@ export interface ChatRequest {
 export interface ChatJsonData {
   reply: string;
   meta: ChatMeta;
+  /**
+   * v1.3：当轮过程链路（phase / tool / thought，顺序即执行顺序）。
+   * 旧服务端可能不带本字段 → 可选，前端按「无 trace」正常整段渲染。
+   */
+  trace?: ChatTraceStep[];
 }
 
 export interface SseDeltaData {
@@ -329,6 +334,54 @@ export interface SseDeltaData {
 export interface SseErrorMessageData {
   msg: string;
 }
+
+// ---------------------------------------------------------------- §9 过程事件（v1.3）
+
+/** 阶段名（契约 §9 v1.3：analyze → retrieve → judge → generate）。 */
+export type ChatPhaseName = 'analyze' | 'retrieve' | 'judge' | 'generate';
+
+/** 工具名闭集（7 项，与后端 chatTrace.TOOL_LABEL 的键集逐字一致）。 */
+export type ChatToolName =
+  | 'load_graph'
+  | 'model_call'
+  | 'kp_match'
+  | 'dedup_check'
+  | 'apply_evidence'
+  | 'state_machine'
+  | 'exit_channel';
+
+/** 工具步骤状态：running（仅远程真流场景）→ 终态 ok | error。 */
+export type ChatToolStatus = 'running' | 'ok' | 'error';
+
+/** tool 事件的 data（字段名与契约 §9 v1.3 逐字一致）。 */
+export interface ChatToolStep {
+  id: string;
+  name: ChatToolName;
+  label: string;
+  status: ChatToolStatus;
+  /** 服务端真实中间量（不含题库答案字段）。 */
+  args?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  /** 真实执行耗时（毫秒）。 */
+  ms?: number;
+}
+
+export type ChatSseToolData = ChatToolStep;
+
+export interface ChatSseThoughtData {
+  text: string;
+}
+
+export interface ChatSsePhaseData {
+  name: ChatPhaseName;
+  label: string;
+}
+
+/** JSON 降级 trace 的步骤（顺序即执行顺序，前端重放为对应回调）。 */
+export type ChatTraceStep =
+  | { type: 'phase'; name: ChatPhaseName; label: string }
+  | ({ type: 'tool' } & ChatToolStep)
+  | { type: 'thought'; text: string };
 
 // ---------------------------------------------------------------- §10 报告
 

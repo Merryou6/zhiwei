@@ -42,11 +42,11 @@ function brokenSseResponse(chunks: string[]): Response {
   return new Response(stream, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
 }
 
-function jsonChatResponse(reply: string, meta: ChatMeta): Response {
-  return new Response(JSON.stringify({ code: 0, msg: 'success', data: { reply, meta } }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+function jsonChatResponse(reply: string, meta: ChatMeta, trace?: unknown[]): Response {
+  return new Response(
+    JSON.stringify({ code: 0, msg: 'success', data: { reply, meta, ...(trace ? { trace } : {}) } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  );
 }
 
 function makeHandlers() {
@@ -55,6 +55,9 @@ function makeHandlers() {
   const metas: ChatMeta[] = [];
   const errors: string[] = [];
   const fallbacks: string[] = [];
+  const phases: { name: string; label: string }[] = [];
+  const thoughts: string[] = [];
+  const tools: { id: string; name: string; status: string }[] = [];
   const handlers: ChatStreamHandlers = {
     onDelta: (text) => {
       deltas.push(text);
@@ -73,8 +76,20 @@ function makeHandlers() {
       fallbacks.push(msg);
       events.push('fallback');
     },
+    onPhase: (phase) => {
+      phases.push(phase);
+      events.push('phase');
+    },
+    onThought: (text) => {
+      thoughts.push(text);
+      events.push('thought');
+    },
+    onTool: (tool) => {
+      tools.push(tool);
+      events.push('tool');
+    },
   };
-  return { handlers, events, deltas, metas, errors, fallbacks };
+  return { handlers, events, deltas, metas, errors, fallbacks, phases, thoughts, tools };
 }
 
 const META: ChatMeta = {
@@ -251,5 +266,139 @@ describe('sse · streamChat（正常流 + 降级链）', () => {
     });
     expect(unauthorized.errors[0]).toContain('登录状态已过期');
     expect(useAuthStore.getState().token).toBeNull();
+  });
+});
+
+describe('sse · v1.3 过程事件（phase / thought / tool）', () => {
+  const THOUGHT_LINE = 'event: thought\ndata: {"text":"置信度 0.85 ≥ 采纳阈值 0.6"}\n\n';
+  const TOOL_RUNNING = 'event: tool\ndata: {"id":"step_2","name":"model_call","label":"调用对话模型","status":"running","args":{"mode":"remote"}}\n\n';
+  const TOOL_OK =
+    'event: tool\ndata: {"id":"step_2","name":"model_call","label":"调用对话模型","status":"ok","args":{"mode":"remote"},"result":{"kp_id":"math.cz.quadratic.vertex_form","confidence":0.9,"progress":false},"ms":812.3}\n\n';
+
+  it('dispatchSseMessage 三新事件路由：字段与回调一一对应', () => {
+    const a = makeHandlers();
+    dispatchSseMessage({ event: 'phase', data: '{"name":"judge","label":"判定"}' }, a.handlers);
+    dispatchSseMessage({ event: 'thought', data: '{"text":"写入弱负证据：掌握度 0.5 → 0.45"}' }, a.handlers);
+    dispatchSseMessage({ event: 'tool', data: JSON.stringify({ id: 'step_1', name: 'load_graph', label: '加载知识图谱', status: 'ok', args: { kb: 'kb_math_cz', node_count: 24 }, ms: 0.12 }) }, a.handlers);
+
+    expect(a.phases).toEqual([{ name: 'judge', label: '判定' }]);
+    expect(a.thoughts).toEqual(['写入弱负证据：掌握度 0.5 → 0.45']);
+    expect(a.tools).toEqual([{ id: 'step_1', name: 'load_graph', label: '加载知识图谱', status: 'ok', args: { kb: 'kb_math_cz', node_count: 24 }, ms: 0.12 }]);
+    expect(a.events).toEqual(['phase', 'thought', 'tool']);
+    expect(a.deltas).toEqual([]);
+  });
+
+  it('tool 事件缺 id/name 或非 JSON → 忽略（不抛错、不污染回调）', () => {
+    const a = makeHandlers();
+    dispatchSseMessage({ event: 'tool', data: '{"name":"load_graph"}' }, a.handlers);
+    dispatchSseMessage({ event: 'tool', data: '不是 JSON' }, a.handlers);
+    dispatchSseMessage({ event: 'phase', data: '不是 JSON' }, a.handlers);
+    expect(a.tools).toEqual([]);
+    expect(a.phases).toEqual([]);
+    expect(a.events).toEqual([]);
+  });
+
+  it('thought 事件 data 非 JSON → 原文当思考文本容错', () => {
+    const a = makeHandlers();
+    dispatchSseMessage({ event: 'thought', data: '纯文本思考' }, a.handlers);
+    expect(a.thoughts).toEqual(['纯文本思考']);
+  });
+
+  it('streamChat 真流：过程事件与 delta 交错到达，顺序如实透传', async () => {
+    const fetchImpl = vi.fn(async () =>
+      sseResponse([
+        'event: phase\ndata: {"name":"analyze","label":"分析"}\n\n',
+        'event: tool\ndata: {"id":"step_1","name":"load_graph","label":"加载知识图谱","status":"ok","args":{"kb":"kb_math_cz","node_count":24},"ms":0.1}\n\n',
+        'event: phase\ndata: {"name":"retrieve","label":"检索"}\n\n',
+        THOUGHT_LINE,
+        'event: delta\ndata: {"text":"我们先把"}\n\n',
+        TOOL_RUNNING,
+        'event: delta\ndata: {"text":"定义过一遍。"}\n\n',
+        TOOL_OK,
+        `event: meta\ndata: ${JSON.stringify(META)}\n\n`,
+        'event: done\ndata: {}\n\n',
+      ]),
+    );
+
+    const captured = makeHandlers();
+    await streamChat({ space_id: 'sp_1', message: '顶点式我不会' }, captured.handlers, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(captured.events).toEqual([
+      'phase',
+      'tool',
+      'phase',
+      'thought',
+      'delta',
+      'tool',
+      'delta',
+      'tool',
+      'meta',
+      'done',
+    ]);
+    expect(captured.deltas.join('')).toBe('我们先把定义过一遍。');
+    expect(captured.phases.map((phase) => phase.name)).toEqual(['analyze', 'retrieve']);
+    // 同 id 两次下发（running → ok）如实到达，由消费侧（dialog store）按 id upsert
+    expect(captured.tools.map((tool) => tool.status)).toEqual(['ok', 'running', 'ok']);
+    expect(captured.tools[1].id).toBe(captured.tools[2].id);
+  });
+
+  it('JSON 降级携 trace → 按 trace 顺序重放过程事件，再整段给出 reply', async () => {
+    const trace = [
+      { type: 'phase', name: 'analyze', label: '分析' },
+      { type: 'tool', id: 'step_1', name: 'load_graph', label: '加载知识图谱', status: 'ok', args: { kb: 'kb_math_cz', node_count: 24 }, ms: 0.1 },
+      { type: 'thought', text: '学生这句话匹配到知识点「二次函数的顶点式」' },
+      { type: 'phase', name: 'generate', label: '生成' },
+    ];
+    const fetchImpl = vi.fn(async () => jsonChatResponse('整段回复', META, trace));
+
+    const captured = makeHandlers();
+    await streamChat({ space_id: 'sp_1', message: 'hi' }, captured.handlers, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(captured.events).toEqual(['fallback', 'phase', 'tool', 'thought', 'phase', 'delta', 'meta', 'done']);
+    expect(captured.deltas).toEqual(['整段回复']);
+    expect(captured.phases.map((phase) => phase.name)).toEqual(['analyze', 'generate']);
+    expect(captured.thoughts).toEqual(['学生这句话匹配到知识点「二次函数的顶点式」']);
+    expect(captured.tools).toHaveLength(1);
+    expect(captured.tools[0].name).toBe('load_graph');
+  });
+
+  it('旧服务端（无 trace）JSON 降级 → 行为与 v1.2 一致（只 delta/meta/done）', async () => {
+    const fetchImpl = vi.fn(async () => jsonChatResponse('旧格式回复', META));
+
+    const captured = makeHandlers();
+    await streamChat({ space_id: 'sp_1', message: 'hi' }, captured.handlers, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(captured.events).toEqual(['fallback', 'delta', 'meta', 'done']);
+    expect(captured.deltas).toEqual(['旧格式回复']);
+    expect(captured.phases).toEqual([]);
+    expect(captured.thoughts).toEqual([]);
+    expect(captured.tools).toEqual([]);
+  });
+
+  it('未知事件（未来新增）仍被忽略，不影响 delta 拼接', async () => {
+    const fetchImpl = vi.fn(async () =>
+      sseResponse([
+        'event: metrics\ndata: {"tokens":12}\n\n',
+        'event: delta\ndata: {"text":"甲"}\n\n',
+        'event: heartbeat\ndata: {}\n\n',
+        'event: delta\ndata: {"text":"乙"}\n\n',
+        `event: meta\ndata: ${JSON.stringify(META)}\n\n`,
+        'event: done\ndata: {}\n\n',
+      ]),
+    );
+
+    const captured = makeHandlers();
+    await streamChat({ space_id: 'sp_1', message: 'hi' }, captured.handlers, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(captured.events).toEqual(['delta', 'delta', 'meta', 'done']);
+    expect(captured.deltas.join('')).toBe('甲乙');
   });
 });
