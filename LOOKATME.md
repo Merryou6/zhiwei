@@ -154,9 +154,13 @@
   ② 焦点陷阱仍对隐藏子树 `preventDefault()`、`focus()` 落到 `display:none` 元素上无效 → **Tab 键全站失效**。
   修法：`MobileNav` 用 `matchMedia` 订阅 `NAV_COLLAPSE_MIN_WIDTH_PX`（=720，与 tailwind `screens.nav` 同值）
   越界即 `setOpen(false)`；`breakpoints.test.ts` 新增断言 ⑧ 锁死「JS 常量与 CSS 断点同值 + 常量为真接线」。
-  前端 151→152 用例全绿、`tsc` web exit 0。**残留**：真浏览器横屏探针未跑通（首版探针脚本自身有 bug——
-  同文档 hash 导航不触发重载，故仍停在登录页取不到汉堡键；重跑时被沙箱安全删除闸门拦截并遭拒），
-  **建议下一轮走查补一条「打开抽屉 → Emulation 拉宽到 812 → 断言抽屉卸载且正文无 aria-hidden」的探针**。
+  前端 151→152 用例全绿、`tsc` web exit 0。**已补实测**：新增 `tools/probe-nav-rotate.cjs`
+  （Edge headless CDP 零依赖；375×812 开抽屉 → 拉宽到 812×375 → 断言抽屉卸载且正文无残留 `aria-hidden`），
+  修复版 **PASS**、临时回退到修复前 **FAIL**（负例有牙）；顺手把 `tools/e2e-smoke.cjs` 未提交的
+  Edge 路径 + `--no-sandbox` 一并入库（`cadbf39`）。
+- **对外文档收口**：`README.md` 吸收原 `知微-项目介绍.md` 的独有内容（五步闭环 ASCII 图），原件全文
+  归档入 `_pipeline/archive/知微-项目介绍_已并入README_20260924.md`，根目录那份改为指向 README 的索引页
+  （避免同一件事两处口径；原稿的 269 用例 / 19 接口 / 11 页面 / MIT 均与实物不符，已在 README 订正）。
 
 ---
 
