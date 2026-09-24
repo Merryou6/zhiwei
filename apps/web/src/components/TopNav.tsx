@@ -36,6 +36,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { listSpaces } from '../api/endpoints';
+import { MOBILE_NAV_DRAWER_ID, MOBILE_NAV_TOGGLE_ID } from '../lib/ids';
 import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
@@ -239,13 +240,14 @@ export default function TopNav() {
 
             {/* 汉堡键（B2/D5）：<720 顶栏唯一的导航入口。nav:hidden ⇒ ≥720 不渲染，
                 桌面布局与像素零变化；<720 时胶囊容器为 display:none，故这里自带 ml-auto。
-                aria-controls 指向 MobileNav 的抽屉 id（同一份 DOM，跨组件靠 id 关联）。 */}
+                id / aria-controls 走 lib/ids.ts 的共享常量（清尾轮 T2）：跨组件靠 id 关联，
+                字面量硬编码在两处会静默失效（改一处忘另一处不报错、不挂测试）。 */}
             <button
-              id="mobile-nav-toggle"
+              id={MOBILE_NAV_TOGGLE_ID}
               type="button"
               onClick={toggleNav}
               aria-expanded={navOpen}
-              aria-controls="mobile-nav-drawer"
+              aria-controls={MOBILE_NAV_DRAWER_ID}
               aria-label={navOpen ? '关闭导航菜单' : '打开导航菜单'}
               className="nav:hidden ml-auto grid h-9 w-9 flex-none place-items-center rounded-control border border-line text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
             >

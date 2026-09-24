@@ -158,20 +158,22 @@ body {
    Tailwind 没有内置 safe-area 工具类，且组件里禁止写内联 style 或 env() 任意值
    （否则「避让刘海」这件事会散进十几个 JSX）。统一在这里定义一次，组件只用类名。
 
+   本层**只定义实际在用的 5 个类**（清尾轮 T1）：原先还定义了 .pt-safe 与 .pb-safe，
+   但全站零使用点——Tailwind 按内容扫描产出，未使用的类本就不进构建产物，
+   留着只会误导后来人以为「顶部/底部安全区各有一个通用类」。两个死类已删除，
+   语义由下面两个更具体的类覆盖：
+     · 顶部安全区 → .top-safe-16（Toast 定位：top = env(safe-area-inset-top) + 4rem）
+     · 底部安全区 → .pb-safe-3（MobileNav 抽屉滚动区 / ChatPanel 面板输入区：
+                     padding-bottom = env(safe-area-inset-bottom) + 0.75rem）
+   若将来确有「只要 env()、不叠加基础间距」的需求，再按需补类并同步
+   tests/breakpoints.test.ts ⑥ —— 该断言要求 index.css 里的每个安全区类都有真实使用点。
+
    基础值与被替换的 Tailwind 类**同值**：6 = 1.5rem、4 = 1rem、16 = 4rem、3 = 0.75rem。
    桌面非刘海设备 env(safe-area-inset-*) 恒为 0 → calc() 结果与原值逐位相同，
    故这是一次像素零变化的替换。
 
    注：本层内容按 Tailwind 的内容扫描结果按需产出——未被使用的类不会进产物。 */
 @layer utilities {
-  /* 避让刘海（顶部） */
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-  /* 避让 home indicator（底部） */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
   /* 固定定位元素贴右下角：在原有 1.5rem 间距上再叠加安全区 */
   .bottom-safe-6 {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
@@ -179,14 +181,14 @@ body {
   .right-safe-6 {
     right: calc(env(safe-area-inset-right, 0px) + 1.5rem);
   }
-  /* 固定定位元素贴右上角：顶栏 56px 之上再加 4rem（原 top-16） */
+  /* 固定定位元素贴右上角：顶栏 56px 之上再加 4rem（原 top-16）。顶部安全区由它覆盖。 */
   .top-safe-16 {
     top: calc(env(safe-area-inset-top, 0px) + 4rem);
   }
   .right-safe-4 {
     right: calc(env(safe-area-inset-right, 0px) + 1rem);
   }
-  /* 容器内边距：底部避让 + 原 0.75rem（原 pb-3） */
+  /* 容器内边距：底部避让 + 原 0.75rem（原 pb-3）。底部安全区由它覆盖。 */
   .pb-safe-3 {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
   }

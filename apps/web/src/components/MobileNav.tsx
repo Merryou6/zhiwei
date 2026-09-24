@@ -12,9 +12,12 @@
  *
  * 【无障碍（D17）】不用 inert（React 18 对布尔 inert 支持不完整），改用三条独立闭合的路径：
  *   1) 背景幕是**全屏 button**，指针路径被拦截；
- *   2) 打开时焦点移入抽屉，关闭时归还汉堡键（#mobile-nav-toggle）；Tab / Shift+Tab 在抽屉内首尾循环；
+ *   2) 打开时焦点移入抽屉，关闭时归还顶栏汉堡键（id 取自 lib/ids.ts 的共享常量）；Tab / Shift+Tab 在抽屉内首尾循环；
  *   3) role=dialog + aria-modal 声明读屏语义，并由 Layout 给正文外层加 aria-hidden。
  * 另有 Esc 关闭，与 ChatPanel（chat/ChatPanel.tsx）同款实现。
+ *
+ * 【跨组件的 id（清尾轮 T2）】抽屉 id、汉堡键 id 与 TopNav 的 aria-controls 共用
+ * lib/ids.ts 的常量——之前三处各自硬编码字面量，改一处忘另一处会静默失效。
  *
  * 【开合联动】抽屉内每个导航项 onClick 先 setOpen(false)（点完自动收起）；
  * 另订阅 location.pathname 变化即收起，兜底浏览器后退与键盘导航。
@@ -26,6 +29,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 
+import { MOBILE_NAV_DRAWER_ID, MOBILE_NAV_TOGGLE_ID } from '../lib/ids';
 import { SPACES_PATH, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
@@ -116,7 +120,7 @@ export default function MobileNav() {
     }
     if (!wasOpen.current) return;
     wasOpen.current = false;
-    const toggle = document.getElementById('mobile-nav-toggle');
+    const toggle = document.getElementById(MOBILE_NAV_TOGGLE_ID);
     toggle?.focus();
   }, [open]);
 
@@ -140,7 +144,7 @@ export default function MobileNav() {
       />
 
       <aside
-        id="mobile-nav-drawer"
+        id={MOBILE_NAV_DRAWER_ID}
         ref={asideRef}
         role="dialog"
         aria-modal="true"

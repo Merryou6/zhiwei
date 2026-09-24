@@ -11,7 +11,9 @@
  *   ③ 裸 z-index 清零 —— src/** 不得出现 z-[
  *   ④ 裸 hex 清零     —— src/** 的 className 字面量属性不得出现 #rrggbb
  *   ⑤ viewport-fit    —— index.html 的 viewport 必须含 viewport-fit=cover
- *   ⑥ 全局 CSS        —— index.css 必须含 overscroll-behavior / touch-action / .pb-safe
+ *   ⑥ 全局 CSS        —— index.css 必须含 overscroll-behavior / touch-action，且其中的安全区
+ *                        工具类每个都有真实使用点（清尾轮 T1：.pt-safe/.pb-safe 两个零使用点的
+ *                        死类已删，断言随之改锁实际在用的类）
  *   ⑦ 外壳高度单位    —— Layout.tsx 用 min-h-dvh，且不再有 min-h-screen
  *
  * ⚠ 「合法保留」白名单（以下**不在**断言范围，别把它们当成破绽删掉）：
@@ -67,7 +69,11 @@ describe('断点单一定义（tailwind.config.js 的 screens.nav）', () => {
   it("tailwind.config.js 的 screens 只定义 nav: '720px'，且 src/** 两侧变体都真的用上了（防拼写错误静默失效）", () => {
     const config = readFileSync(resolve(WEB, 'tailwind.config.js'), 'utf8');
 
-    const screens = /screens:\s*\{([\s\S]*?)\}/.exec(config);
+    // 只匹配**平铺**写法：screens 的值直接是字符串，body 里不该出现 `}`。
+    // 旧写法 /screens:\s*\{([\s\S]*?)\}/ 是非贪婪的，会把将来嵌套对象写法
+    // （如 nav: { min: '720px' }）截断在第一个 `}` 之前，keys 提取失真。
+    // ⚠ 若将来 config 真的改成嵌套写法，本断言必须同步改写（此处不支持嵌套解析）。
+    const screens = /screens:\s*\{([^}]*)\}/.exec(config);
     expect(screens, 'tailwind.config.js 里找不到 screens 定义').not.toBeNull();
 
     const body = screens![1];
@@ -106,22 +112,22 @@ describe('安全区与全局行为（D14 / R9 / R10）', () => {
     expect(meta![0]).toContain('initial-scale=1.0');
   });
 
-  it('index.css 含 overscroll-behavior / touch-action（限 coarse 指针）/ .pb-safe 定义', () => {
+  it('index.css 含 overscroll-behavior / touch-action（限 coarse 指针）；安全区工具类只锁实际在用的类', () => {
     const css = readFileSync(resolve(SRC, 'index.css'), 'utf8');
     expect(css).toContain('overscroll-behavior-y: none');
     expect(css).toContain('@media (pointer: coarse)');
     expect(css).toContain('touch-action: manipulation');
-    // 安全区工具类是单一来源：7 个类都要在 index.css 里定义
-    for (const cls of [
-      '.pt-safe',
-      '.pb-safe',
-      '.bottom-safe-6',
-      '.right-safe-6',
-      '.top-safe-16',
-      '.right-safe-4',
-      '.pb-safe-3',
-    ]) {
-      expect(css, `index.css 缺少 ${cls} 定义`).toContain(`${cls} {`);
+
+    // 安全区工具类是单一来源。清尾轮 T1 的教训：**断言的类必须是真实存在的使用点**
+    // （Tailwind 按内容扫描产出，无使用点的定义不进构建产物），否则这条断言等于在给
+    // 死代码背书——原先这里锁的 .pt-safe / .pb-safe 全站零使用点，已于清尾轮删除。
+    // 故下面每个类都双查：index.css 有定义 + src/** 至少一个使用点。
+    for (const cls of ['top-safe-16', 'right-safe-4', 'bottom-safe-6', 'right-safe-6', 'pb-safe-3']) {
+      expect(css, `index.css 缺少 .${cls} 定义`).toContain(`.${cls} {`);
+      expect(
+        hits(new RegExp(`\\b${cls}\\b`)),
+        `.${cls} 在 src/** 里没有任何使用点（死代码，不该留在 index.css）`,
+      ).not.toEqual([]);
     }
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('env(safe-area-inset-top, 0px)');
