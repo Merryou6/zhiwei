@@ -9,19 +9,30 @@
  * 对比度（F4 走查实测，D26）：组件内小字（步骤名 10px / 键值行 10–11px）**不用**
  * `text-ink-soft/70` 这类半透明降级 —— 浅色主题下实测 2.97:1 / 3.61:1，不达 WCAG AA（4.5:1）；
  * 改为纯 `text-ink-soft` 后浅色 5.4:1、深色 8.9:1。降级靠字号与字重表达，不靠透明度。
+ *
+ * 数值显示（清尾轮 L4，2026-09-24）：args/result/ms 里的数字统一走 lib/format.metric
+ * （最多 3 位小数 + 去尾随 0），浮点噪声不再直出；**只改显示，真实值一个字不动**。
  */
 
 import type { ChatSsePhaseData, ChatPhaseName, ChatToolStep, ChatToolStatus } from '../../api/types';
+import { metric } from '../../lib/format';
 
 const PHASE_ORDER: ChatPhaseName[] = ['analyze', 'retrieve', 'judge', 'generate'];
 
 /** 值过长截断（面板窄，长 JSON 会把卡片撑爆）。 */
 const MAX_VALUE_LENGTH = 42;
 
+/**
+ * 值 → 单行文本。数字走 lib/format.metric（最多 3 位小数、去尾随 0）：
+ * 真实中间量里有 IEEE754 噪声（实测 apply_evidence.result.after = 0.009000000000000001，
+ * 而同轮推理摘要写「0.01」），直接 String() 会让同一份数据在一屏里长出两个样子。
+ * ⚠ 只格式化**显示**：step.args / step.result / step.ms 的真实值一个字不改（契约 §9 的语义）。
+ */
 function formatValue(value: unknown): string {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'string') return value.length > MAX_VALUE_LENGTH ? `${value.slice(0, MAX_VALUE_LENGTH)}…` : value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'number') return metric(value);
+  if (typeof value === 'boolean') return String(value);
   const json = JSON.stringify(value);
   if (json === undefined) return '—';
   return json.length > MAX_VALUE_LENGTH ? `${json.slice(0, MAX_VALUE_LENGTH)}…` : json;
@@ -119,7 +130,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
                       第 {index + 1} 步 · {step.label}
                     </p>
                     <span className="shrink-0 font-mono text-[10px] text-ink-soft">
-                      {typeof step.ms === 'number' ? `${step.ms}ms` : '—'}
+                      {typeof step.ms === 'number' ? `${metric(step.ms)}ms` : '—'}
                     </span>
                   </div>
                   <p className="font-mono text-[10px] text-ink-soft">{step.name}</p>

@@ -18,6 +18,27 @@ export function deltaPercent(value: number | null | undefined, digits = 0): stri
 }
 
 /**
+ * 数值 → 展示文本：最多 digits（默认 3）位小数，尾随 0 去掉（0.009 / 0.5 / 0.45 / 1）。
+ *
+ * 为什么需要：链路面板里的中间量是**真实计算出来的** IEEE754 双精度值，直接 String() 会带浮点噪声
+ * —— 实测 apply_evidence.result.after = 0.009000000000000001，而同轮推理摘要写的是「0.01」，
+ * 同一份数据在一屏里长出两个样子。
+ * ⚠ 只用于**显示**：契约 §9 的 tool.result / tool.ms 字段语义是真实值，
+ *   数据本身一个字都不许改（本函数是纯函数，不回写任何 store / 事件）。
+ * 非有限值（NaN / ±Infinity）→ '—'（与 percent 等函数的降级口径一致）。
+ */
+export function metric(value: number, digits = 3): string {
+  if (!Number.isFinite(value)) return '—';
+  const fixed = value.toFixed(digits);
+  if (!fixed.includes('.')) return fixed;
+  const trimmed = fixed.replace(/0+$/, '').replace(/\.$/, '');
+  // 极小非零值（|v| < 0.5×10^-digits）四舍五入会变成 '0' —— 那是显示失真（数值并非 0），
+  // 退回 3 位有效数字的科学计数，宁可难看也不写错。
+  if (value !== 0 && Number(trimmed) === 0) return String(Number(value.toPrecision(3)));
+  return trimmed;
+}
+
+/**
  * 知识点短名：优先取全名；超过 limit 时截断加省略号（图谱节点标签、窄栏表格用）。
  * 未知 id 回退为 id 本身（禁止白屏）。
  */

@@ -72,7 +72,8 @@ export default function ChatPage() {
           >
             收进侧栏
           </button>
-          <span className="text-[11px] text-ink-soft/80">
+          {/* 清尾轮 L2：原 `text-ink-soft/80` 浅色实测 3.45:1（半透明降级），不达 AA → 纯 text-ink-soft 5.41:1 */}
+          <span className="text-[11px] text-ink-soft">
             收进侧栏后，任何页面都能接着聊（现在：{panelOpen ? '侧栏已展开' : '侧栏未展开'}）
           </span>
         </div>

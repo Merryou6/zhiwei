@@ -7,8 +7,12 @@
  *   - 标题文案随模式区分（D4b）：本地模式「推理摘要」/ 远程模式「思考过程」
  *     （数据源 = #20 的 model.mode，由调用方传入；不额外开判断入口）。
  *
- * 对比度（F4 走查实测，D26）：小字标签不用半透明降级（`text-ink-soft/80` 浅色下 3.61:1
- * 不达 AA），统一走纯 `text-ink-soft`；详见 ToolTimeline 文件头的实测数字。
+ * 对比度（F4 走查实测 + 清尾轮 L2 修正）：小字标签不用半透明降级（`text-ink-soft/80` 浅色下 3.61:1
+ * 不达 AA），统一走纯 `text-ink-soft`；「进行中」原为 `text-accent`，浅色 accent = #4E8FB0 落在
+ * bg-surface (#FFFFFF) 上只有 **3.57:1**（清尾轮实测量：rgb(78,143,176) on rgb(255,255,255)），
+ * 亦不达 AA，改 `text-ink-soft`（浅色 5.51:1）。状态色由左侧那个会呼吸的圆点承载
+ * （bg-accent，非文本装饰，浅色 3.57:1 ≥ 非文本 3:1 要求），文字只负责可读。
+ * 详见 ToolTimeline 文件头的实测数字。
  */
 
 import { useState } from 'react';
@@ -51,7 +55,8 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
         <span className="flex items-center gap-2">
           <span className="text-[13px] font-medium text-ink">思考与工具链</span>
           {streaming ? (
-            <span className="flex items-center gap-1 text-[11px] text-accent">
+            // 文本色走 text-ink-soft（浅色 5.51:1）；accent 只留在呼吸圆点上（非文本装饰）
+            <span className="flex items-center gap-1 text-[11px] text-ink-soft">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
               进行中
             </span>
