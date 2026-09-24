@@ -96,6 +96,37 @@ docker run --rm -v zhiwei_zhiwei-data:/data -v $(pwd):/backup alpine \
   tar xzf /backup/zhiwei-data-<日期>.tgz -C /data
 ```
 
+### 更新前先给旧镜像打标签（便于回滚）
+
+`docker compose up -d --build` 会把 `zhiwei:latest` 指向新镜像，旧镜像随即变成悬空层。
+先留个标签，回滚就是三条命令：
+
+```bash
+docker image tag zhiwei:latest zhiwei:rollback          # 更新前执行
+
+# …若新版本有问题，回滚：
+docker compose down
+docker image tag zhiwei:rollback zhiwei:latest
+docker compose up -d                                    # 注意：不带 --build
+```
+
+### 怎么确认「更新真的生效了」
+
+前端是烤进镜像的静态产物，**光 `restart` 不会更新，必须 `--build`**。
+
+```bash
+# 1) 健康检查（旧版本同样返回 true，只能证明容器活着）
+curl -s http://127.0.0.1:8080/healthz
+
+# 2) 版本指纹：移动端适配轮给前端 CSS 新增了一条断点媒体查询，
+#    这个字符串在旧版产物里不可能出现（≥1 = 已更新；0 = 仍是旧版）
+CSS=$(curl -s http://127.0.0.1:8080/ | grep -oE 'assets/index-[A-Za-z0-9_-]+\.css' | head -1)
+curl -s "http://127.0.0.1:8080/$CSS" | grep -c 'not all and (min-width: 720px)'
+```
+
+最后用**手机**打开一次：顶栏应为「知微」+ 汉堡键（点开是右侧抽屉导航）；
+更新前在手机上顶栏会把 6 个导航项压成**竖排单字**，一眼可辨。
+
 ---
 
 ## 四、接入真实大模型（可选，DeepSeek 等 OpenAI 兼容接口）
