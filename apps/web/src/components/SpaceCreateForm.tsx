@@ -12,6 +12,14 @@
  *      服务端 409 仅作并发兜底，收到后弹既有 ConfirmDialog「切换过去」（契约 §2 明文默认按钮）；
  *   3) 调用顺序固定：**先 setActive(新空间) 再 setSpaces(新列表)**——stores/space.ts 的 setSpaces
  *      会保留当前 activeSpaceId、否则回落到默认空间；顺序反了新建的空间会被回落逻辑顶掉。
+ *
+ * 长度（H1）：输入框 maxLength 与提交前预检共用 lib/stages 的 SPACE_NAME_MAX（= 后端上限 30），
+ * suggestSpaceName() 的返回值恒 ≤ 该上限 ⇒ 用户怎么输入（含「30 字原名已被占用」）都不会因长度被 400。
+ *
+ * 本地预检的前提（L4）：taken 取自 store.spaces，依赖其新鲜度。列表为空（刚登录 / 尚未拉取）时
+ * 这里会**先补拉一次 listSpaces** 再预检；但列表「非空而已过期」（多端并发新建）仍可能落到服务端
+ * 409 → ConfirmDialog「切换过去」。单实例 JSON 存储、无并发锁是本项目已知限制（LOOKATME），
+ * 该降级路径有明确反馈、非静默，与计划 R4 的「409 仅作并发兜底」一致，故接受。
  */
 
 import { useState } from 'react';
@@ -19,7 +27,7 @@ import { useState } from 'react';
 import { ApiError } from '../api/client';
 import { createSpace, listSpaces } from '../api/endpoints';
 import type { SpaceCreateConflictData, SpaceCreateData } from '../api/types';
-import { suggestSpaceName, STAGES } from '../lib/stages';
+import { SPACE_NAME_MAX, suggestSpaceName, STAGES } from '../lib/stages';
 import { UI_TEXT } from '../lib/phrases';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
@@ -54,7 +62,20 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
     try {
       const stage = STAGES.find((item) => item.id === stageId) ?? STAGES[0];
       const base = nameInput.trim() || stage.label;
-      const name = suggestSpaceName(base, spaces.map((space) => space.name));
+
+      // L4：列表为空（刚登录 / 尚未拉取）时先补拉一次，避免 taken=[] 把「重名自动后缀」
+      // 降级成「409 → 切换过去」。只用于本次预检，不写 store（不干扰 activeSpace）。
+      let taken = spaces.map((space) => space.name);
+      if (taken.length === 0) {
+        try {
+          taken = (await listSpaces()).spaces.map((space) => space.name);
+        } catch {
+          /* 拉取失败 → 退回本地列表（可能 409，由下方 ConfirmDialog 兜底），不阻断提交 */
+        }
+      }
+
+      // suggestSpaceName 保证返回值长度 ≤ SPACE_NAME_MAX（= 服务端上限），故不会因长度被 400
+      const name = suggestSpaceName(base, taken);
 
       const created = await createSpace({ knowledge_source: stage.id, name });
 
@@ -126,7 +147,7 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
             type="text"
             value={nameInput}
             onChange={(event) => setNameInput(event.target.value)}
-            maxLength={40}
+            maxLength={SPACE_NAME_MAX}
             placeholder="不填就用学科名"
             className={inputClass}
           />
@@ -144,7 +165,7 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
         </button>
 
         <p className={`mt-2 text-[13px] leading-relaxed text-ink-soft ${compact ? '' : 'max-w-prose'}`}>
-          同一个学科可以建多个空间，名字不重复就行。
+          同一个学科可以建多个空间，名字不重复就行（最多 {SPACE_NAME_MAX} 字）。
         </p>
       </form>
 
