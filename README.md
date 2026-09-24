@@ -8,7 +8,7 @@
 
 ![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v1.0%20%E5%8A%9F%E8%83%BD%E5%86%BB%E7%BB%93-brightgreen)
 ![stack](https://img.shields.io/badge/stack-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite%20%C2%B7%20Node.js-2F9C7C)
-![tests](https://img.shields.io/badge/tests-32%20%E6%96%87%E4%BB%B6%20%C2%B7%20363%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
+![tests](https://img.shields.io/badge/tests-32%20%E6%96%87%E4%BB%B6%20%C2%B7%20364%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
 ![license](https://img.shields.io/badge/license-GPL--3.0-lightgrey)
 
@@ -26,7 +26,7 @@
 
 The product is a five-step closed loop: **collect evidence → diagnose mastery → locate root cause → prescribe intervention → verify with unseen items**. Mastery is modeled with **Bayesian Knowledge Tracing**; root causes are located by backtracking the prerequisite chain of a hand-curated knowledge graph; the tutor chat follows a Socratic policy (one small hint at a time, never dumping the answer). The loop is closed by **ΔAccuracy** — a post-intervention retest drawn from a disjoint item pool, so the effect is measured, not asserted.
 
-Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **32 test files / 363 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer).
+Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **32 test files / 364 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer).
 
 ---
 
@@ -256,7 +256,7 @@ docker compose up -d --build
 
 | 维度 | 现状 |
 | --- | --- |
-| 测试 | **32 个测试文件 · 363 个用例全部通过**（引擎 43 + 后端 169 + 前端 151） |
+| 测试 | **32 个测试文件 · 364 个用例全部通过**（引擎 43 + 后端 169 + 前端 152） |
 | 类型 | TypeScript 严格模式，三段工程各自 `tsc --noEmit` 全绿 |
 | 数据闸门 | 静态校验 + 题库复算全部通过 |
 | 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕** |
