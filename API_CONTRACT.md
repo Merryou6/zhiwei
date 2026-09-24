@@ -26,7 +26,7 @@
 | 401 | 未认证 / token 无效 |
 | 403 | 越权（space_id 不属于当前用户） |
 | 404 | 资源不存在 |
-| 409 | 冲突（identifier 已注册 / 同学科空间已存在） |
+| 409 | 冲突（identifier 已注册 / 同名空间已存在） |
 | 500 | 内部错误 |
 | 502 | 模型上游失败（msg 需含用户可读降级话术） |
 | 504 | 模型超时 |
@@ -53,6 +53,21 @@ res:  data = { "user_id": "u_1024", "token": "..." }
 > 明确不做：验证码、密码找回、刷新 token、登出接口（前端删 localStorage 即可）。
 > Token 机制：**无状态签名** `token = HMAC(user_id, SERVER_SECRET)`，不落库；SERVER_SECRET 放云函数环境变量。校验 = 解出 user_id + 验签。
 
+### GET /api/user/profile  【#20 · v1.2 新增，只读】
+```
+res:  data = { "user":  { "user_id": "u_1024", "identifier": "手机号或邮箱",
+                          "nickname": "可选，未设置为 null", "created_at": "2026-09-24T20:10:00Z" },
+               "spaces": [ { "space_id", "name", "subject", "knowledge_source": [],
+                             "is_default", "created_at" } ],
+               "model": { "mode": "local", "name": "模型名（仅 mode=remote 有值，否则 null）" } }
+```
+说明: 只读（无写路径）；`user` 为服务端显式构造的字段视图，`password_hash` 绝不下发；
+      `spaces` 序列化与本契约 §2 的 list 完全一致（前端一套类型两处复用）；
+      `model.mode` 取环境变量 ZHIWEI_MODEL_MODE（`=== "remote"` 才是 `"remote"`，否则 `"local"` 默认），
+      `model.name` 仅 remote 时取 ZHIWEI_LLM_MODEL（可为 null）；**ZHIWEI_LLM_API_KEY 绝不下发**。
+认证: 需 `Authorization: Bearer <token>`（401 同 §0）。
+越权: 无 space_id 入参，越权面在设计上不存在。
+
 ---
 
 ## 2. 学习空间
@@ -69,6 +84,17 @@ res:  data = { "space_id": "sp_xxx", "name": "初中数学" }
 说明: name 由服务端取知识库名，【不接受客户端传入】（防多空间同学科）
 错误:  409 同学科空间已存在，data = { "existing_space_id": "sp_001" }
       前端收到 409 后弹窗，默认按钮是"切换过去"而非"仍要新建"
+```
+
+**v1.2 变更（2026-09-24，见 §11；上行原文保留，本节为现行口径）**
+```
+req:  { "knowledge_source": "kb_math_cz", "name": "可选，1–30 字，缺省由服务端取知识库名" }
+      // 合法值：data/knowledge/index.json 的任一 stage.kb_id（kb_math_cz / kb_math_gz）
+说明: v1.2 起取消「每学科每用户限一个空间」，改为同一用户内空间名唯一；
+      name 由「不接受客户端传入」改为可选传入（旧行为见上行原文）；
+      显式传入时校验：非字符串 / trim 后为空 / trim 后超 30 字 → 400（空串不视为缺省）
+错误:  409 该用户已有同名空间，data = { "existing_space_id": "sp_001" }
+      前端收到 409 后弹窗，默认按钮仍是"切换过去"
 ```
 
 ### GET /api/space/{space_id}/drive  【P1】
@@ -259,6 +285,56 @@ Content-Type: text/event-stream，事件序列：
       连续 3 轮 progress=false → 服务端将 next_action 置为 exit_channel（状态机见 ALGORITHM §5）
 ```
 
+**v1.3 变更（2026-09-24，见 §11；上行原文保留，本节为现行口径）**
+
+新增三类**过程事件**（delta / meta / done / error 四类字段与语义一字不变，旧客户端忽略未知事件即向前兼容）：
+
+| event | data 字段 | 说明 |
+| --- | --- | --- |
+| phase | `{ "name": "analyze"\|"retrieve"\|"judge"\|"generate", "label": "分析"\|"检索"\|"判定"\|"生成" }` | 阶段标记，同一次请求内可重复出现（judge 之后可回 generate） |
+| thought | `{ "text": "增量文本" }` | 拼接即本轮完整思考（语义见下「thought 文案边界」） |
+| tool | `{ "id": "step_1", "name": "<ToolName，见下表>", "label": "中文可读名", "status": "running"\|"ok"\|"error", "args"?: object, "result"?: object, "ms"?: number }` | 同 id 至多两次下发（running → 终态），前端按 id upsert；`ms` 为**真实执行耗时** |
+
+**ToolName 闭集（7 项）与真实动作对照**（`args` / `result` 均为服务端真实中间量；未发生的步骤零事件）：
+
+| name | label | 真实动作（代码落点） | args / result |
+| --- | --- | --- | --- |
+| load_graph | 加载知识图谱 | `nodesForKb(space.knowledge_source[0])` | args `{ kb, node_count }`（无 result） |
+| model_call | 调用对话模型 | `createModels().chatTurn(...)` | args `{ mode: "local"\|"remote" }`；result `{ kp_id, confidence, progress }` |
+| kp_match | 知识点匹配与采纳 | `CONF_ADOPT` 判定 + 图谱命中校验 | args `{ message_excerpt（≤20 字）}`；result `{ kp_id, confidence, threshold, adopted, fallback_kp_id? }` |
+| dedup_check | 弱负证据去重检查（仅采纳时） | `buildDedupKey` + `findEventsByDedupKey` | args `{ kp_id }`；result `{ hit }` |
+| apply_evidence | 写入证据与掌握度（仅 dedup 未命中时） | 证据三表写入 | args `{ kp_id }`；result `{ before, after, event_id }` |
+| state_machine | 状态机判定 | `consecutive_false` / `next_action` | args `{ progress }`；result `{ consecutive_false, next_action, exit_threshold }` |
+| exit_channel | 退出通道·上游回溯（仅触发时） | `searchUpstream` + `MAX_EXIT_HOPS` | args `{ current_kp_id }`；result `{ upstream_kp_id?, upstream_name?, jumped, exit_count, hop_limit }` |
+
+phase 与动作的对应：analyze(load_graph) → retrieve(model_call, kp_match；远程模式另有 thought / delta 增量)
+→ judge(dedup_check, apply_evidence, state_machine, exit_channel) → generate(附加段 delta)。
+
+顺序约定：本地模式 phase / thought / tool 全部先于首个 delta；远程模式 thought 与 delta 可在 retrieve 阶段
+按模型实际输出序交错到达（不承诺严格「先全部 thought 后全部 delta」）；meta → done 恒为末两个事件。
+
+**JSON 降级（`Accept: application/json` 或 `X-Response-Format: json`）**
+
+`data = { "reply": string, "meta": {…原样…}, "trace": TraceStep[] }`，`trace` 顺序即执行顺序，前端重放为对应回调：
+
+```
+{ "type": "phase",   "name", "label" }
+{ "type": "tool",    "id", "name", "label", "status"（恒为终态 ok|error）, "args"?, "result"?, "ms"? }
+{ "type": "thought", "text" }
+```
+
+云函数入口（无法长连接）收集到的缓冲结果与上形完全一致；旧前端只读 reply / meta，多余键自然忽略。
+
+**thought 文案边界（两类模式显式区分，不藏差异）**
+
+- 本地模式：**确定性推理摘要** —— 模板句 + 真实中间量拼成（例：`写入弱负证据：掌握度 0.5 → 0.45`），
+  不是伪装成大模型独白的话术；前端思考区标题显示「推理摘要」。
+- 远程模式：模型流式输出的 `thought` 字段增量**原样转发**（模型的自述，非隐藏 CoT）；前端标题显示「思考过程」。
+- 节奏诚实声明：本地计算在毫秒级完成，服务端**不人为 delay、不伪造 ms**（`tool.ms` 为真实耗时）；
+  「流式感」由前端打字机动画呈现，服务端只保证顺序真实、内容真实。
+
+兼容性一行：delta / meta / done / error 的字段与相对顺序（delta… → meta → done，error 仅异常时）一字未改。
+
 ---
 
 ## 10. 学习报告
@@ -281,3 +357,5 @@ res: data = {
 | --- | --- | --- | --- |
 | 2026-09-19 | 初版冻结（17 个接口 + 八张表字段） | 甲 | 乙 |
 | 2026-09-19 | **自审修订 v1.1**：① 新增 recognitions 表与 GET /api/evidence/paper/{id}（识别结果持久化）；② verify 改传 answer、服务端判卷；③ diagnose/submit 增 mode、correct 仅测量模式返回；④ next 移除冗余 pool 参数；⑤ 新增 GET /api/attribution/{id}；⑥ path/suspect/dedup 统一完整 kp id；⑦ dedup 幂等不算 409；⑧ classify 枚举来源澄清；⑨ token 无状态签名机制；⑩ item_sequence 返回完整题对象。共 19 个接口 + 九张表 | 甲 | 乙 |
+| 2026-09-24 | **v1.2**：① space/create 新增可选 `name`，空间唯一约束由「同学科」改为「同用户同名」（409 语义与 `existing_space_id` 保留，§0 错误码表 409 行同步改写——本版唯一一处原文字句修改）；② 新增 #20 GET /api/user/profile（只读，不下发 password_hash / ZHIWEI_LLM_API_KEY） | 项目方 | 总控 |
+| 2026-09-24 | **v1.3**：① #18 /api/agent/chat 新增 SSE 过程事件 phase / thought / tool（工具名闭集 7 项，tool.args / tool.result 为服务端真实中间量）与 JSON 降级 `trace` 字段（delta / meta / done / error 语义不变，向后兼容）；② 远程模型适配器改 `stream:true` 增量抽取（结构化字段序 thought → reply → …，失败回落纪律不变） | 项目方 | 总控 |

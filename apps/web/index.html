@@ -1,8 +1,8 @@
 <!doctype html>
-<!-- dusk 常驻：全站深色主题的唯一开关（见 src/index.css 的 html.dusk 段）。
-     写在 HTML 上而不是由 JS 挂载，是为了让浏览器解析第一帧就是深色——
-     若等 React 挂载后再加，会先闪一下浅色底。 -->
-<html lang="zh-CN" class="dusk">
+<!-- 主题（v1.2，D3）：默认深色，可切浅色 —— 由 head 区的内联同步脚本按 localStorage 裁决，
+     不再在 HTML 上硬编码 dusk（见 src/index.css 的 html.dusk 段、src/stores/theme.ts）。
+     脚本必须在 body 渲染前跑完，首帧才不会闪；异常兜底一律深色，与默认一致。 -->
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,8 +13,8 @@
       name="description"
       content="知微：先弄清你卡在哪个知识点，再陪你把它补上的初中数学学习伴侣。自适应测评 + 知识图谱归因 + 学长式对话辅导。"
     />
-    <!-- 浏览器 UI 主题色（移动端状态栏/地址栏）。深色主题下取页面底色 dusk-base，
-         取浅色会在深色页顶部留一条亮带。 -->
+    <!-- 浏览器 UI 主题色（移动端状态栏/地址栏）。初始值 = 默认深色主题的页面底色 dusk-base；
+         浅色主题下由下面的内联脚本改写为 #F5F8F9，运行期切换由 theme store 同步改写。 -->
     <meta name="theme-color" content="#070C14" />
 
     <!-- 站点图标：SVG 为主，另给 apple-touch-icon 便于「添加到主屏」 -->
@@ -37,9 +37,31 @@
     <meta name="twitter:description" content="先弄清你卡在哪个知识点，再陪你把它补上。" />
     <meta name="twitter:image" content="./og-cover.png" />
 
-    <!-- 首屏底色与深色主题的 canvas 变量一致，避免 JS 加载前的白闪 -->
+    <!-- 首帧主题裁决（D3b）：同步内联脚本，读 localStorage 的 zhiwei_theme 决定是否挂 dusk。
+         位置：theme-color meta 之后（要能改写它）、样式块之前（先于样式执行，首帧不闪）。
+         注意：注释里不要写尖括号标签名 —— Vite 会按 head 标签注入 @vite/client，
+         一旦注释里出现会误命中（实测把注入的脚本塞进注释内，HMR 直接失效）。
+         键名与 src/router.ts 的 STORAGE_KEYS.theme 一致；读不到 / 抛异常 → 深色（默认观感）。 -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('zhiwei_theme');
+          var d = t !== 'light';
+          if (d) document.documentElement.classList.add('dusk');
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', d ? '#070C14' : '#F5F8F9');
+        } catch (e) {
+          document.documentElement.classList.add('dusk');
+        }
+      })();
+    </script>
+
+    <!-- 首屏底色：跟随主题双分支，避免 JS 加载前的白闪（浅色基线 #F5F8F9 / 深色 #070C14） -->
     <style>
       html {
+        background-color: #f5f8f9;
+      }
+      html.dusk {
         background-color: #070c14;
       }
     </style>

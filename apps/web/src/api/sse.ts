@@ -7,15 +7,26 @@
  *
  * 降级链（契约 §9「禁止白屏」）：
  *   ① Content-Type 非 text/event-stream（服务端按 Accept 降级，或代理改写）
- *      → 直接按 {reply, meta} 整段渲染 + onFallback 提示；
+ *      → 直接按 {reply, meta, trace} 整段渲染 + onFallback 提示；
  *   ② 流读取中途异常 → 用 Accept: application/json **重发一次**原请求 → 同上；
  *   ③ 重发也失败 → onError（页面出错误气泡，不白屏）。
+ *
+ * v1.3（过程事件）：SSE 新增 phase / thought / tool 三类事件，经可选的
+ * onPhase / onThought / onTool 回调转发；JSON 降级携 trace 时按序重放同一组回调
+ * （视觉不塌）。delta / meta / done / error 的语义与顺序一字未改，未知事件仍被忽略。
  */
 
 import { UI_TEXT } from '../lib/phrases';
 import { useAuthStore } from '../stores/auth';
 import { ApiError, ERROR_CODE, handleUnauthorized, readEnvelope } from './client';
-import type { ApiEnvelope, ChatJsonData, ChatMeta, ChatRequest } from './types';
+import type {
+  ApiEnvelope,
+  ChatJsonData,
+  ChatMeta,
+  ChatRequest,
+  ChatSsePhaseData,
+  ChatSseToolData,
+} from './types';
 
 export interface SseMessage {
   /** 事件名（缺省为 'message'，契约 §9 只发 delta / meta / done / error）。 */
@@ -94,6 +105,12 @@ export interface ChatStreamHandlers {
   onError: (msg: string) => void;
   /** 走了 JSON 降级路径（页面 toast UI_TEXT.sseFallback）。 */
   onFallback?: (msg: string) => void;
+  /** v1.3 阶段标记（可选：不传即忽略，旧调用方向前兼容）。 */
+  onPhase?: (phase: ChatSsePhaseData) => void;
+  /** v1.3 思考增量（本地=确定性推理摘要增量；远程=模型自述增量）。 */
+  onThought?: (text: string) => void;
+  /** v1.3 工具步骤（同 id 至多两次下发：running → 终态；由调用方按 id upsert）。 */
+  onTool?: (tool: ChatSseToolData) => void;
 }
 
 export interface StreamChatDeps {
@@ -127,6 +144,36 @@ export function dispatchSseMessage(message: SseMessage, handlers: ChatStreamHand
           ? (payload as { msg: string }).msg
           : '对话服务暂时不可用，稍后再试一次';
       handlers.onError(msg);
+      return;
+    }
+    // ---- v1.3 过程事件（未传回调即忽略；旧调用方向前兼容）
+    case 'phase': {
+      if (
+        typeof payload === 'object' &&
+        payload !== null &&
+        typeof (payload as { name?: unknown }).name === 'string'
+      ) {
+        handlers.onPhase?.(payload as ChatSsePhaseData);
+      }
+      return;
+    }
+    case 'thought': {
+      const text =
+        typeof payload === 'object' && payload !== null && typeof (payload as { text?: unknown }).text === 'string'
+          ? (payload as { text: string }).text
+          : message.data; // 非 JSON data 容错：原样当思考文本
+      handlers.onThought?.(text);
+      return;
+    }
+    case 'tool': {
+      if (
+        typeof payload === 'object' &&
+        payload !== null &&
+        typeof (payload as { id?: unknown }).id === 'string' &&
+        typeof (payload as { name?: unknown }).name === 'string'
+      ) {
+        handlers.onTool?.(payload as ChatSseToolData);
+      }
       return;
     }
     default:
@@ -163,6 +210,15 @@ async function renderJson(response: Response, handlers: ChatStreamHandlers, toas
 
   const data = envelope.data as ChatJsonData;
   if (toast) handlers.onFallback?.(UI_TEXT.sseFallback);
+  // v1.3：降级响应同携 trace（顺序即执行顺序）→ 先按序重放过程事件，再整段给出 reply，
+  // 视觉与真实流式一致（不塌）；旧服务端无 trace 时按原行为直接整段渲染。
+  if (Array.isArray(data.trace)) {
+    for (const step of data.trace) {
+      if (step.type === 'phase') handlers.onPhase?.({ name: step.name, label: step.label });
+      else if (step.type === 'thought') handlers.onThought?.(step.text);
+      else if (step.type === 'tool') handlers.onTool?.(step);
+    }
+  }
   if (typeof data.reply === 'string') handlers.onDelta(data.reply);
   if (data.meta) handlers.onMeta(data.meta);
   handlers.onDone();

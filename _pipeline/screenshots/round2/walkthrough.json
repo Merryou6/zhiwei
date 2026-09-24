@@ -1,0 +1,582 @@
+{
+  "chrome": "Chrome/145.0.7632.6",
+  "traceReady": true,
+  "thoughtCharsFull": 130,
+  "midStreamRevealedChars": 42,
+  "midStreamState": {
+    "traceSection": true,
+    "expanded": "true",
+    "traceText": "思考与工具链 6 步 推理摘要 学生这句话匹配到知识点「配方法解一元二次方程」（math.cz.quadratic. 阶段 4/4 · 生成",
+    "composerDisabled": false
+  },
+  "reducedMotion": {
+    "reduce": {
+      "matched": true,
+      "revealedCharsAt250ms": 135,
+      "finalChars": 135
+    },
+    "no-preference": {
+      "matched": false,
+      "revealedCharsAt250ms": 20,
+      "finalChars": 135
+    }
+  },
+  "geometry": {
+    "dark_1440": {
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 8,
+        "right": 1032,
+        "width": 1024
+      },
+      "outerPaddingRight": "400px",
+      "panelRect": {
+        "left": 1040,
+        "right": 1440,
+        "width": 400
+      },
+      "contentWidth": 976,
+      "contentRightEdge": 1008,
+      "backdrop": false,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "dark_1024": {
+      "viewport": {
+        "w": 1024,
+        "h": 900
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 0,
+        "right": 1024,
+        "width": 1024
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 624,
+        "right": 1024,
+        "width": 400
+      },
+      "contentWidth": 976,
+      "contentRightEdge": 1000,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "dark_720": {
+      "viewport": {
+        "w": 720,
+        "h": 900
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 0,
+        "right": 720,
+        "width": 720
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 320,
+        "right": 720,
+        "width": 400
+      },
+      "contentWidth": 672,
+      "contentRightEdge": 696,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "dark_375": {
+      "viewport": {
+        "w": 375,
+        "h": 812
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 0,
+        "right": 375,
+        "width": 375
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 30,
+        "right": 375,
+        "width": 345
+      },
+      "contentWidth": 327,
+      "contentRightEdge": 351,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 800,
+        "panelBottom": 812,
+        "innerHeight": 812,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "light_1440": {
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "theme": "light",
+      "mainRect": {
+        "left": 8,
+        "right": 1032,
+        "width": 1024
+      },
+      "outerPaddingRight": "400px",
+      "panelRect": {
+        "left": 1040,
+        "right": 1440,
+        "width": 400
+      },
+      "contentWidth": 976,
+      "contentRightEdge": 1008,
+      "backdrop": false,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "light_1024": {
+      "viewport": {
+        "w": 1024,
+        "h": 900
+      },
+      "theme": "light",
+      "mainRect": {
+        "left": 0,
+        "right": 1024,
+        "width": 1024
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 624,
+        "right": 1024,
+        "width": 400
+      },
+      "contentWidth": 976,
+      "contentRightEdge": 1000,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "light_720": {
+      "viewport": {
+        "w": 720,
+        "h": 900
+      },
+      "theme": "light",
+      "mainRect": {
+        "left": 0,
+        "right": 720,
+        "width": 720
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 320,
+        "right": 720,
+        "width": 400
+      },
+      "contentWidth": 672,
+      "contentRightEdge": 696,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 888,
+        "panelBottom": 900,
+        "innerHeight": 900,
+        "overflowPx": -12,
+        "visible": true
+      }
+    },
+    "light_375": {
+      "viewport": {
+        "w": 375,
+        "h": 812
+      },
+      "theme": "light",
+      "mainRect": {
+        "left": 0,
+        "right": 375,
+        "width": 375
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": {
+        "left": 30,
+        "right": 375,
+        "width": 345
+      },
+      "contentWidth": 327,
+      "contentRightEdge": 351,
+      "backdrop": true,
+      "panelOpen": true,
+      "composer": {
+        "textareaBottom": 800,
+        "panelBottom": 812,
+        "innerHeight": 812,
+        "overflowPx": -12,
+        "visible": true
+      }
+    }
+  },
+  "contrast": {
+    "dark": {
+      "panelTitle": {
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "text": "rgb(232, 238, 244)",
+        "bg": "rgb(17, 26, 38)",
+        "ratio": 14.98,
+        "sample": "对话辅导"
+      },
+      "modelNote": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(111, 179, 212)",
+        "bg": "rgb(15, 31, 42)",
+        "ratio": 7.26,
+        "sample": "本地规则"
+      },
+      "thoughtText": {
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "text": "rgb(232, 238, 244)",
+        "bg": "rgb(17, 26, 38)",
+        "ratio": 14.98,
+        "sample": "学生这句话匹配到知识点「配方法解一元二次方程」（math.cz.quadrati"
+      },
+      "thoughtLabel": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(163, 177, 192)",
+        "bg": "rgb(17, 26, 38)",
+        "ratio": 8.01,
+        "sample": "推理摘要"
+      },
+      "stepLabel": {
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "text": "rgb(232, 238, 244)",
+        "bg": "rgb(12, 19, 29)",
+        "ratio": 15.95,
+        "sample": "第 1 步 · 加载知识图谱"
+      },
+      "stepName": {
+        "fontSize": "10px",
+        "fontWeight": "400",
+        "text": "rgb(163, 177, 192)",
+        "bg": "rgb(17, 26, 38)",
+        "ratio": 8.01,
+        "sample": "第 6 步"
+      },
+      "stepValue": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(232, 238, 244)",
+        "bg": "rgb(12, 19, 29)",
+        "ratio": 15.95,
+        "sample": "kb_math_cz"
+      },
+      "pageTitle": {
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "text": "rgb(232, 238, 244)",
+        "bg": "rgb(7, 12, 20)",
+        "ratio": 16.76,
+        "sample": "控制台"
+      },
+      "bodyText": {
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "text": "rgb(163, 177, 192)",
+        "bg": "rgb(7, 12, 20)",
+        "ratio": 8.96,
+        "sample": "知微学习伴侣 · 当前空间：初中数学"
+      }
+    },
+    "light": {
+      "panelTitle": {
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "text": "rgb(34, 48, 58)",
+        "bg": "rgb(255, 255, 255)",
+        "ratio": 13.53,
+        "sample": "对话辅导"
+      },
+      "modelNote": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(78, 143, 176)",
+        "bg": "rgb(234, 242, 246)",
+        "ratio": 3.15,
+        "sample": "本地规则"
+      },
+      "thoughtText": {
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "text": "rgb(34, 48, 58)",
+        "bg": "rgb(255, 255, 255)",
+        "ratio": 13.53,
+        "sample": "学生这句话匹配到知识点「配方法解一元二次方程」（math.cz.quadrati"
+      },
+      "thoughtLabel": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(91, 107, 118)",
+        "bg": "rgb(255, 255, 255)",
+        "ratio": 5.51,
+        "sample": "推理摘要"
+      },
+      "stepLabel": {
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "text": "rgb(34, 48, 58)",
+        "bg": "rgb(250, 252, 252)",
+        "ratio": 13.14,
+        "sample": "第 1 步 · 加载知识图谱"
+      },
+      "stepName": {
+        "fontSize": "10px",
+        "fontWeight": "400",
+        "text": "rgb(91, 107, 118)",
+        "bg": "rgb(255, 255, 255)",
+        "ratio": 5.51,
+        "sample": "第 6 步"
+      },
+      "stepValue": {
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "text": "rgb(34, 48, 58)",
+        "bg": "rgb(250, 252, 252)",
+        "ratio": 13.14,
+        "sample": "kb_math_cz"
+      },
+      "pageTitle": {
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "text": "rgb(34, 48, 58)",
+        "bg": "rgb(245, 248, 249)",
+        "ratio": 12.68,
+        "sample": "控制台"
+      },
+      "bodyText": {
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "text": "rgb(91, 107, 118)",
+        "bg": "rgb(245, 248, 249)",
+        "ratio": 5.17,
+        "sample": "知微学习伴侣 · 当前空间：初中数学"
+      }
+    }
+  },
+  "shots": [
+    {
+      "file": "panel_typewriter_mid_1440_dark.png",
+      "kb": 387
+    },
+    {
+      "file": "panel_console_1440_dark.png",
+      "kb": 413
+    },
+    {
+      "file": "panel_console_1024_dark.png",
+      "kb": 341
+    },
+    {
+      "file": "panel_console_720_dark.png",
+      "kb": 304
+    },
+    {
+      "file": "panel_console_375_dark.png",
+      "kb": 178
+    },
+    {
+      "file": "panel_console_1440_light.png",
+      "kb": 398
+    },
+    {
+      "file": "panel_console_1024_light.png",
+      "kb": 331
+    },
+    {
+      "file": "panel_console_720_light.png",
+      "kb": 295
+    },
+    {
+      "file": "panel_console_375_light.png",
+      "kb": 171
+    }
+  ],
+  "chatShots": [
+    {
+      "file": "chat_full_1440_dark.png",
+      "kb": 334
+    },
+    {
+      "file": "chat_full_720_dark.png",
+      "kb": 303
+    },
+    {
+      "file": "chat_full_375_dark.png",
+      "kb": 173
+    }
+  ],
+  "chatGeometry": {
+    "375": {
+      "viewport": {
+        "w": 375,
+        "h": 812
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 0,
+        "right": 375,
+        "width": 375
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": null,
+      "contentWidth": 327,
+      "contentRightEdge": 351,
+      "backdrop": false,
+      "panelOpen": false
+    },
+    "720": {
+      "viewport": {
+        "w": 720,
+        "h": 900
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 0,
+        "right": 720,
+        "width": 720
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": null,
+      "contentWidth": 672,
+      "contentRightEdge": 696,
+      "backdrop": false,
+      "panelOpen": false
+    },
+    "1440": {
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "theme": "dark",
+      "mainRect": {
+        "left": 208,
+        "right": 1232,
+        "width": 1024
+      },
+      "outerPaddingRight": "0px",
+      "panelRect": null,
+      "contentWidth": 976,
+      "contentRightEdge": 1208,
+      "backdrop": false,
+      "panelOpen": false
+    }
+  },
+  "riskShots": [
+    {
+      "file": "panel_graph_1440_light.png",
+      "kb": 289,
+      "geometry": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "theme": "light",
+        "mainRect": {
+          "left": 8,
+          "right": 1032,
+          "width": 1024
+        },
+        "outerPaddingRight": "400px",
+        "panelRect": {
+          "left": 1040,
+          "right": 1440,
+          "width": 400
+        },
+        "contentWidth": 976,
+        "contentRightEdge": 1008,
+        "backdrop": false,
+        "panelOpen": true
+      },
+      "panelProbe": {
+        "path": "#/graph",
+        "vw": 1440,
+        "panel": true,
+        "ariaPressed": "true"
+      }
+    },
+    {
+      "file": "panel_report_1440_light.png",
+      "kb": 386,
+      "geometry": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "theme": "light",
+        "mainRect": {
+          "left": 8,
+          "right": 1032,
+          "width": 1024
+        },
+        "outerPaddingRight": "400px",
+        "panelRect": {
+          "left": 1040,
+          "right": 1440,
+          "width": 400
+        },
+        "contentWidth": 976,
+        "contentRightEdge": 1008,
+        "backdrop": false,
+        "panelOpen": true
+      },
+      "panelProbe": {
+        "path": "#/report",
+        "vw": 1440,
+        "panel": true,
+        "ariaPressed": "true"
+      }
+    }
+  ]
+}

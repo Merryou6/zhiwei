@@ -1,7 +1,7 @@
 /**
- * 19 接口的类型化函数（逐条对照 API_CONTRACT.md §1–§10 的 method + path）。
+ * 20 接口的类型化函数（逐条对照 API_CONTRACT.md §1–§10 的 method + path + #20）。
  *
- * #1–#17、#19 走统一 client（request）；#18 agent/chat 是 SSE，见 api/sse.ts。
+ * #1–#17、#19、#20 走统一 client（request）；#18 agent/chat 是 SSE，见 api/sse.ts。
  * 本文件只做「路径 / 方法 / DTO」映射，不含任何业务判断（页面与 store 负责编排）。
  */
 
@@ -30,6 +30,7 @@ import type {
   PaperUploadRequest,
   PlanData,
   PlanGenerateRequest,
+  ProfileData,
   RegisterRequest,
   ReportSummaryData,
   SelfReportData,
@@ -49,6 +50,11 @@ export function register(body: RegisterRequest): Promise<AuthData> {
 /** #2 POST /api/auth/login */
 export function login(body: LoginRequest): Promise<AuthData> {
   return request<AuthData>('/api/auth/login', { method: 'POST', body, auth: false });
+}
+
+/** #20 GET /api/user/profile（v1.2 新增，只读：「我的」页的账号 / 空间 / 模型信息）。 */
+export function getUserProfile(): Promise<ProfileData> {
+  return request<ProfileData>('/api/user/profile');
 }
 
 // ---------------------------------------------------------------- §2 空间

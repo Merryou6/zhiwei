@@ -54,6 +54,16 @@ export interface RecognizeItemOutput {
 /** 契约 §9 的 next_action 枚举（权威值由服务层状态机计算，见 四、4.3）。 */
 export type ChatNextAction = 'continue' | 'hint_down' | 'give_solution' | 'exit_channel';
 
+/**
+ * 对话模型流式增量（v1.3，契约 §9）：远程适配器把模型流里 thought / reply 字段的
+ * 字符串值逐段解码后回调；字段值闭合即锁定，转义跨 chunk 未完整时暂存不发（防错字）。
+ * 本地适配器不产出增量（无真实流），字段可选、被忽略。
+ */
+export interface ChatStreamIncrement {
+  field: 'thought' | 'reply';
+  text: string;
+}
+
 export interface ChatTurnInput {
   message: string;
   image_file_id: string | null;
@@ -61,6 +71,11 @@ export interface ChatTurnInput {
   nodes: KnowledgeNode[];
   /** 对话历史（dialogs.messages，适配器只读结构化字段） */
   history: DialogMessage[];
+  /**
+   * 流式增量回调（可选，v1.3）：远程适配器在模型流到达时即回调，
+   * 服务层转成 SSE 的 thought / delta 事件（真流式）；本地适配器不使用。
+   */
+  onIncrement?: (chunk: ChatStreamIncrement) => void;
 }
 
 export interface KpMatch {

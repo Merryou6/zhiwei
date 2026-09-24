@@ -28,12 +28,18 @@ import { classifyError } from './services/classify';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
 import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { generate as generatePlan } from './services/plan';
+import { profile as userProfile } from './services/profile';
 import { summary as reportSummary } from './services/report';
 import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
 
 export interface SseEvent {
-  event: 'delta' | 'meta' | 'done' | 'error';
+  /**
+   * 事件名：delta / meta / done / error 为 v1.1 四类（语义未变）；
+   * phase / thought / tool 为 v1.3 新增的过程事件（契约 §9「v1.3 变更」块，
+   * 类型与标签表见 services/chatTrace.ts）。旧客户端对未知事件直接忽略。
+   */
+  event: 'delta' | 'meta' | 'done' | 'error' | 'phase' | 'thought' | 'tool';
   data: unknown;
 }
 
@@ -68,7 +74,7 @@ export interface DispatchInput {
   headers?: Headers;
 }
 
-/** 19 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
+/** 20 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
 export function createRoutes(): RouteDefinition[] {
   return [
     // 步骤 2：认证 + 空间（#1–#5）
@@ -103,6 +109,9 @@ export function createRoutes(): RouteDefinition[] {
 
     // 步骤 7：学习报告（#19）
     { method: 'GET', pattern: '/api/report/summary', handler: reportSummary },
+
+    // 步骤 8：用户资料（#20 · v1.2）—— 静态段，与既有路由无前缀冲突
+    { method: 'GET', pattern: '/api/user/profile', handler: userProfile },
   ];
 }
 

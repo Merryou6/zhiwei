@@ -1,8 +1,15 @@
 /**
  * 学习空间服务（契约 §2，接口 #3 list / #4 create / #5 drive）
  *
- * create 的 name 由服务端取知识库名，**不接受客户端传入**（契约 §2 防多空间同学科）；
- * 同学科空间已存在 → 409 且 data = { existing_space_id }（前端据此弹「切换过去」）。
+ * v1.2（2026-09-24，契约 §2 变更记录）：唯一约束由「每学科每用户一个空间」改为
+ * **同用户内空间名唯一**——学科可以多开（同一 kb 允许建多个空间，如「初中数学」+
+ * 「我的错题本」），仅同名才冲突。
+ *   · name 由「不接受客户端传入」改为**可选传入**：缺省仍由服务端取知识库名
+ *     （ctx.data.kbName，向后兼容 v1.1 行为）；显式传入时校验「字符串 / trim 后非空 /
+ *     trim 后 ≤30 字」，非法一律 400（不猜测、不补默认值，与「试卷 unclear 拒绝默认值」
+ *     同一纪律）。
+ *   · 同名空间已存在 → 409 且 data = { existing_space_id }（前端据此弹「切换过去」），
+ *     existing_space_id 字段语义与 v1.1 完全一致。
  */
 
 import { ctxNowIso, ok, requireSpaceOwnership } from '../context';
@@ -68,9 +75,13 @@ export async function list(req: RouteRequest, ctx: AppContext): Promise<ApiRespo
   return ok({ spaces: spaces.map(toSpaceView) });
 }
 
+/** 空间名上限（契约 §2 v1.2：1–30 字，trim 后计长）。 */
+export const MAX_SPACE_NAME_LENGTH = 30;
+
 /** POST /api/space/create
- *  合法 knowledge_source = index 里的全部 kb（kb_math_cz / kb_math_gz / …），
- *  每个学科每用户限建一个空间。 */
+ *  合法 knowledge_source = index 里的全部 kb（kb_math_cz / kb_math_gz / …）；
+ *  v1.2 起同一用户可建同学科多个空间，仅「空间名重复」为 409。
+ *  name 可选（1–30 字，trim 后计长），缺省取知识库名。 */
 export async function create(req: RouteRequest, ctx: AppContext): Promise<ApiResponse> {
   const user = await authedUser(req, ctx);
   const knowledgeSource = req.body.knowledge_source;
@@ -82,15 +93,37 @@ export async function create(req: RouteRequest, ctx: AppContext): Promise<ApiRes
     );
   }
 
-  const existing = await ctx.store.findSpaceByUserAndKnowledgeSource(user.user_id, knowledgeSource);
-  if (existing) {
-    throw httpError.conflict('同学科空间已存在', { existing_space_id: existing.space_id });
+  // name 校验（v1.2）：undefined / null = 缺省；其余一律按显式传入严格校验。
+  // 空串不视为缺省——宁拒收不猜测（契约 §5「unclear 拒绝默认值」同一纪律）。
+  const rawName = req.body.name;
+  let clientName: string | null = null;
+  if (rawName !== undefined && rawName !== null) {
+    if (typeof rawName !== 'string') {
+      throw httpError.badRequest('name 必须是字符串');
+    }
+    const trimmed = rawName.trim();
+    if (trimmed.length === 0) {
+      throw httpError.badRequest('name 不能为空白');
+    }
+    if (trimmed.length > MAX_SPACE_NAME_LENGTH) {
+      throw httpError.badRequest(`name 至多 ${MAX_SPACE_NAME_LENGTH} 字`);
+    }
+    clientName = trimmed;
+  }
+
+  const finalName = clientName ?? ctx.data.kbName(knowledgeSource) ?? '学习空间';
+
+  // 查重口径 = 「同用户同名」（v1.2）。用现有 listSpacesByUser 内存过滤，不新增 Store 方法。
+  const mine = await ctx.store.listSpacesByUser(user.user_id);
+  const dup = mine.find((space) => space.name === finalName);
+  if (dup) {
+    throw httpError.conflict('同名空间已存在', { existing_space_id: dup.space_id });
   }
 
   const space: SpaceRecord = {
     space_id: newId('sp_'),
     user_id: user.user_id,
-    name: ctx.data.kbName(knowledgeSource) ?? '学习空间',
+    name: finalName,
     subject: ctx.data.subjectOfKb(knowledgeSource) ?? '数学',
     knowledge_source: [knowledgeSource],
     is_default: false,
@@ -100,6 +133,11 @@ export async function create(req: RouteRequest, ctx: AppContext): Promise<ApiRes
 
   return ok({ space_id: space.space_id, name: space.name });
 }
+
+// 注（D7）：旧查重方法 store.findSpaceByUserAndKnowledgeSource 在 v1.2 后不再有调用方
+// （查重口径改为「同用户同名」，见上）。Store 接口 + jsonStore + cloudbaseStore 三处定义
+// 保留备查：删它要动三处、收益为零，且 dist 由构建再生，不做无谓跨层改动。
+
 
 /** GET /api/space/{space_id}/drive */
 export async function drive(req: RouteRequest, ctx: AppContext): Promise<ApiResponse> {

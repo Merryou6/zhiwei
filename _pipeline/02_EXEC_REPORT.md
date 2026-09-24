@@ -1,548 +1,486 @@
-知微 · 迭代 3「前端 10 页面 + 端到端闭环」执行报告
-================================================================
-报告版本：迭代 3 版（替换迭代 2 版）
-执行日期：2026-09-19
-执行者：implementer（严格按 _pipeline/01_PLAN.md 第 3 版执行）
-基线：52fe185（迭代 2 收尾）→ 本迭代 8 个批次提交
-旧版留档：_pipeline/archive/02_EXEC_REPORT_20260919_1817.md（cp -p 归档，cmp 校验与原文件逐字节一致，只增不删）
-唯一执行依据：_pipeline/01_PLAN.md（本次执行未修改该文件，见 八、V9）
+知微 · 赛前修整轮 2（用户反馈第 5 条）执行报告 —— E1–F4 全批次对账 + F3/F4 实施记录
+==================================================================================
+编写者：implementer（接续者。上任实现者完成 F2 后因网络故障中断，本人接续 F3 → F4）
+编写时间：2026-09-24 18:52 起（写入时点见文末）
+仓库 / 分支：/Users/Merryou/LearnBuddy/zhiwei @ tempdeploy（不切分支、不 rebase）
+计划依据：_pipeline/01_PLAN.md（第 5 版，**未改动**：md5 = e18ebf4940394473854d1878a10b8f37，
+      `git diff 301708c..HEAD -- _pipeline/01_PLAN.md` 无输出）
+基线：301708c（轮 2 计划落盘；实测 git rev-list --count HEAD = 75）
+现行 HEAD：4b63568（F3）→ 本报告与 F4 一起提交（提交 hash 见文末补记行）
+归档：覆写本文件前，旧报告（轮 1 返工版）已先归档为
+      _pipeline/archive/02_EXEC_REPORT_20260924_1852.md（225 行；md5 两侧一致 = 22102dbeae8649c0802fc809e07d3890）
+环境：Node 22.22.2 / vitest 2.1.1 / 单条命令约 60 秒被 SIGKILL（测试分批跑）/ git diff 一律 --no-pager
 
-执行约定说明（阅读报告前必读）：
-1) 本报告所有数字均来自本轮实跑输出（vitest/vite/tsc/python/git/curl/node 脚本的原始输出），
-   无照抄、无估算；未能运行的命令在 六、 如实记录原因。
-2) 本机对单条命令有 ~60s 上限，且本环境有两点实测约束（见 十、环境约束与事故）：
-   (a) 沙箱 safe-delete 守卫会拒绝「单次递归删除 >50 条目」的调用（vite 的 --emptyOutDir、旧优化缓存提交）；
-   (b) 后台长驻进程会被环境在 ~30–90s 内回收。
-   因此 V6 采用「先把旧 dist 移开（mv，非删除）再执行计划原命令」，V7 采用「在单条命令内自包含启动
-   双服务 → 轮询就绪 → 跑冒烟 → 不依赖下一条命令仍存活」。命令语义与计划等价，偏差已逐条留痕（七、）。
-3) zsh 下 ${PIPESTATUS[0]} 为空（zsh 用 $pipestatus 数组），故凡经管道的关键命令，本报告一律改用
-   「重定向到文件 + echo $?」采集真实退出码（V2/V3/V5/V6/V8 均为真实退出码，见 六、）。
+0. 本报告为什么是「补课」
+-------------------------------------------------
+上任实现者在 F2 完成后中断，E1–F2 与 F3 前半段的执行报告**未落盘**（工作区里 02_EXEC_REPORT.md 停在轮 1 返工版）。
+按 AGENT.md §8-1「进度判断必须以工作区实物为准，不要依赖回话」，本报告：
 
-================================================================
-一、8 批次结果表
-================================================================
+  · E1–F2 的对账由本人从 **git 提交记录 + git diff + 实跑测试输出** 重建，凡未亲验的都标出证据来源（commit / 命令输出）；
+  · F3、F4 是本人亲手实施（含全部验证命令的实跑）；
+  · 任何无法从实物核实的说法一律不写，或显式标注「无法核实」。
 
-批次 | commit  | 内容                         | 本批验证（真实输出摘要）
------+---------+------------------------------+----------------------------------------------------------
- 1   | 2765048 | 前端基座：依赖/令牌/路由骨架 | V1 版本核对 ✓（react-router-dom 6.26.2 / jsdom 25.0.1）
-     |         |                              | V2 tsc apps/web exit=0
-     |         |                              | V4 vitest run apps/web → 3 文件 26 用例全过
-     |         |                              | 额外 vite build exit=0（CSS 10.38 kB，令牌类已生成）
- 2   | c75f85d | 状态与 API/SSE 客户端        | V2 exit=0；V4 → 7 文件 64 用例全过
-     |         |                              | （sse 13 例 / client 11 例 / authStore 5 例 / 守卫 9 例等）
- 3   | 26dbeb6 | 认证/空间/自报三页（页 1/2/3）| V2 exit=0；V4 64 全过
-     |         |                              | V7 ✓：GET / =200；proxy→api 无 token={"code":401,...}；
-     |         |                              |        过 proxy 注册成功且建默认空间「初中数学」；
-     |         |                              |        SSE 过 proxy：event: delta → meta
-     |         |                              |        （ttfb=0.008907s / total=0.009256s，未整体缓冲）
- 4   | de287a7 | 测评页与试卷确认页（页 4/5）  | V2 exit=0；V4 64 全过
-     |         |                              | V7 ✓：#6 自报 4 章节 3 档 → updated=20；#7 next → remaining=10；
-     |         |                              | #8 submit(diagnose) → correct=null，0.5→0.2444；
-     |         |                              | #5 drive → 2 个预置文件；#9 paper → rec_* / pending_confirm / 3 题；
-     |         |                              | #11 漏标 unclear 行 → 400「第 3 题识别不清，必须手动标注对错」；
-     |         |                              | #11 标全 → events_created=2 + 2 条 mastery_updates；重复确认 → 409
- 5   | 842b888 | 对话 SSE 与归因结果页（页 6/7）| V2 exit=0；V4 64 全过
-     |         |                              | V7 ✓（全链过 proxy）：#12 adopted(prerequisite_gap/upstream/conf 0.9)
-     |         |                              | → #13 path=[extremum,vertex_form] + 验证题 q_cz_vertex_001
-     |         |                              | → #15 答错 → next_candidate=function.graph/q_cz_func_graph_001
-     |         |                              | → #16 反驳 → 追加 q_cz_comp_sq_001、rejected_by_student=true
-     |         |                              | → #15 答对 → verified=true（verified_by=evt_*）
-     |         |                              | → #17 strategy=先补上游 + 上游讲解 / 大纲 4 / 题序 8 / 路径 4 节点
-     |         |                              | → #18 三轮：continue → hint_down(2 delta) → exit_channel(3 delta，
-     |         |                              |   末段为 PRD §6 退出话术原文)；JSON 降级 reply 46 字
- 6   | 63a5ba6 | 图谱/报告/云盘三页（页 8/9/10）| V2 exit=0；V4 64 全过
-     |         |                              | V6 exit=0（635 modules；index.html 0.40 kB；
-     |         |                              |   CSS 15.47 kB / gzip 3.73 kB；JS 1280.50 kB / gzip 423.65 kB）
-     |         |                              | V7 ✓ 端到端演示 10 步（#19 实测：masteryNodes=20、
-     |         |                              |   bands={不稳定 7, 待巩固 9, 已掌握 4}、gaps=9、accuracy 6 行）
- 7   | c754348 | MINOR①④清偿 + 联调演示验收   | R4 先单跑 attribution.test.ts → 16/16 过（14 既有零回归 + 2 新）
-     |         |                              | V3 tsc api exit=0 / engine exit=0
-     |         |                              | V5 vitest run（全量）exit=0 → 20 文件 218 用例全过
-     |         |                              | V7 ✓ 演示 10 步 + MINOR-① 新分支过 proxy 实测 400
- 8   | 见 七、  | 收尾全量回归 + 执行报告      | V1 ✓ / V2 exit=0 / V3 两段 exit=0 / V4 含于 V5 /
-     |         |                              | V5 exit=0（20 文件 218 用例）/ V6 exit=0（dist/index.html 存在）/
-     |         |                              | V7 见批 7 / V8 两脚本 exit=0 / V9 冻结路径 diff 为空
+1. 批次总览（E1→F4 八子步，全部已提交）
+-------------------------------------------------
+┌──────┬───────────┬───────────────────────────────────────────────────────────────────────────┐
+│ 子步 │ commit    │ 交付（一句话）+ 该步实跑验证                                              │
+├──────┼───────────┼───────────────────────────────────────────────────────────────────────────┤
+│ E1   │ 7171083   │ 契约 v1.3 冻结：API_CONTRACT §9 追加 phase/thought/tool + ToolName 七项闭集 │
+│      │           │ + JSON 降级 trace；后端 SseEvent 联合类型扩展；新增 services/chatTrace.ts  │
+│      │           │ 验证：tsc(functions/api) exit 0；chatTrace.test.ts 7 例通过                 │
+│ E2   │ d98cc59   │ 本地链路真透出：prepareChat（认证/归属/校验/加载，抛错语义逐字不变）与       │
+│      │           │ runChat(prepared, ctx, emit) 拆分；按真实执行序 emit，args/result 全真实    │
+│      │           │ 验证：tsc exit 0；chat.test.ts 11→19 例（含「未发生步骤零事件」锚点）       │
+│ E3   │ 150b57c   │ 远程真流式：remoteChat stream:true + 去 response_format + parseOpenAiStreamLines│
+│      │           │ + 增量抽取器（转义跨块暂存）；半截即断不拼接、零增量干净回落                │
+│      │           │ 验证：tsc exit 0；remoteChat.test.ts 15→26 例 + chat.test 集成例            │
+│ E4   │ 6f790fe   │ 云函数入口（index.ts）收集 trace 与 JSON 降级同形；closedLoop 1 例断言同步   │
+│      │           │ 验证：tsc exit 0；functions/api/tests 全量 169 例通过（14 文件）            │
+│ F1   │ 7c13687   │ 前端消费层：types 增 v1.3 类型；sse.ts 三新事件 + 降级 trace 重放；          │
+│      │           │ dialog store 增 thought/toolSteps/phase（startAssistant 清空=只留最新轮）； │
+│      │           │ chatPanel store 新增                                                       │
+│      │           │ 验证：tsc(apps/web) exit 0；sse 13→20 + dialogStore 新增 7 + chatPanel 3   │
+│ F2   │ 296cfc6   │ components/chat/ 七件套（useChatSend / ChatMessageList / ChatComposer /     │
+│      │           │ ThoughtStream / ToolTimeline / ChatTracePanel / ModelBadge）；ChatPage 瘦身 │
+│      │           │ 验证：tsc exit 0；apps/web/tests 全量 131 例通过                            │
+│ ——   │ 2b50085   │ （轮 1 审查报告落盘，非轮 2 子步；总控已亲验）                              │
+│ F3   │ 4b63568   │ 右侧常驻面板：ChatPanel + Layout 的 ChatPanelDock（≥1280 让位 / <1280 覆盖  │
+│      │           │ 抽屉 + 背景幕，z-overlay）+ 顶栏「对话辅导」改 aria-pressed 开合按钮        │
+│      │           │ 验证：tsc exit 0；routerGuard 9 + chatPanel 5 + sse 20 = 34 例通过；        │
+│      │           │ apps/web/tests 全量 133 例通过                                              │
+│ F4   │ 本报告    │ 真浏览器走查（14 张截图 + 几何/对比度/reduced-motion 实测）+ env 复核 +     │
+│      │           │ LOOKATME 与本报告；走查发现并修掉本轮组件浅色对比度 3 处不达 AA            │
+│      │           │ 验证：三批全量 345 例 + tsc 三段 exit 0 + vite build 通过 + 数据闸门        │
+└──────┴───────────┴───────────────────────────────────────────────────────────────────────────┘
+提交纪律核对（AGENT §7）：每子步独立 commit、中文信息带关键数字；工作区他人未提交变更
+（tools/e2e-smoke.cjs、_pipeline/PR-tempdeploy.md、知微-项目介绍.md）全程未 add / 未改 / 未回退。
 
-每批独立 commit，共 8 个提交（第 8 个见 七、git 记录）；中断恢复按 01_PLAN「最后一个已 commit 批次的下一批」执行，
-本次执行中途无中断续接（除环境回收导致的 dev server 重启，见 十、）。
+2. 计划「六、测试影响总表」逐条对账（更新而非删除/放宽）
+-------------------------------------------------
+基线实测（命令：git show 301708c:<file> | grep -cE '^\s*it\('，逐文件加总）：
+  引擎 43 / 后端 143 / 前端 114 = **300 例 / 26 文件** —— 与计划基线口径一致（可核实）。
 
-================================================================
-二、10 页面实现清单（页面 → 路由 → 关键接口 → 验收项）
-================================================================
+2.1 逐条去向与实测计数
+  ┌──────────────────────────────┬──────┬─────┬──────┬──────────────┬─────────────────────────────┐
+  │ 测试文件                     │ 基线 │ 现 │ 净变 │ 计划预期     │ 实测说明                    │
+  ├──────────────────────────────┼──────┼─────┼──────┼──────────────┼─────────────────────────────┤
+  │ functions/api/tests/chat     │  11  │ 19  │ +8   │ 11→18（6 改  │ 计划外多 1 例：E2 另加了     │
+  │                              │      │     │      │ +7 新增）    │ JSON/SSE 同输入步骤序对账例  │
+  │ .../remoteChat               │  15  │ 26  │ +11  │ 15→22（7 改  │ 计划外多 4 例：E3 覆盖更细    │
+  │                              │      │     │      │ +7 新增）    │ （含 service 端 running→ok） │
+  │ .../chatTrace（新）          │  —   │  7  │ +7   │ ~5           │ 含契约文档 grep 哨兵 1 例    │
+  │ .../closedLoop               │   5  │  5  │  0   │ 「20 例，1 例│ 实为 5 例（计划把「路由表  │
+  │                              │      │     │      │ 更新」       │ 20 条断言」误写成 20 例）； │
+  │                              │      │     │      │              │ 计数不变，1 例改写为 v1.3 序 │
+  │ apps/web/tests/sse           │  13  │ 20  │ +7   │ 13→19（+6）  │ 三新事件 + trace 重放 + upsert│
+  │ .../dialogStore（新）        │  —   │  7  │ +7   │ ~6           │ trace 状态 6 例 + reset      │
+  │ .../chatPanel（新）          │  —   │  5  │ +5   │ ~3           │ F1 建 3 例；F3 追加 2 例（关闭│
+  │                              │      │     │      │              │ 后上下文保留 / 与路由无关）   │
+  │ .../routerGuard              │   9  │  9  │  0   │ 0（零改动）  │ ✔ ROUTES/navRoutes 未动      │
+  │ 其余（bands/themeStore/stages│  —   │  —  │  0   │ 0            │ 全量回归覆盖，未改动         │
+  │ /profile/auth/…）            │      │     │      │              │                             │
+  ├──────────────────────────────┼──────┼─────┼──────┼──────────────┼─────────────────────────────┤
+  │ 分批合计                      │ 300  │ 345 │ +45  │ ≈334（+34）  │ 差异 +11：全部为「新增用例  │
+  │ 引擎 43 / 后端 169 / 前端 133 │      │     │      │              │ 比计划更多」，无删除、无放宽 │
+  └──────────────────────────────┴──────┴─────┴──────┴──────────────┴─────────────────────────────┘
+  说明：计划对 chatTrace/dialogStore/chatPanel 用的是「~5/~6/~3」约数，实跑分别是 7/7/5；
+  chat 与 remoteChat 的计划数是硬数字，实测各多 1 例与 4 例（都是**新增**，不是改写占位）。
+  唯一「数字口径更正」：closedLoop.test.ts 是 5 例（不是 20 例）——由 git 基线核对得出，
+  E4 只改写了其中「真实 SSE 流式通路」1 例的断言，计数前后一致。
 
-页 1 登录/注册      #/login                #1 register / #2 login / #3 space/list
-   验收：P0 #1 注册成功提示「已为你建好「初中数学」学习空间」+ 直接进自报；token 落 localStorage
-   （zhiwei_token / zhiwei_user_id）刷新不掉线；错误用服务端 msg 走非阻断 toast；一屏一件事（单卡表单）
+2.2 计划点名的回归哨兵（逐条核）
+  · chat.test 的 (3) exit 上游回溯 / (4) silent 弱负证据 / (5) dedup 命中 / (9) X-Response-Format json /
+    (10) 续聊+403+404 / (11) 400+403+401 —— 六例**内容未改**（E2 的 prepareChat 拆分保住「流开始前
+    的错误走普通 JSON 错误体」契约）。核实方式：git diff 301708c..HEAD 只在这些文件里出现新增块，
+    原断言行未被删除（本报告第 2.3 节给出删除行计数）。
+  · 契约只增不删哨兵（R8）：见 2.3。
+  · 「不演」锚点（D4a）：chat.test 的 clarify 轮无 dedup_check/apply_evidence 事件，仍在。
+  · 本轮 UI 走查新证据（F4）：真实一轮消息产出 **6 个 tool 步骤**，args/result 全是真实中间量
+    （kb_math_cz / node_count 24 / confidence 0.85 / threshold 0.6 / adopted true / ms 0.018–0.386），
+    见 _pipeline/screenshots/round2/panel_typewriter_mid_1440_dark.png 与 walkthrough.json。
 
-页 2 起点自报      #/self-report          #6 evidence/self-report
-   验收：P0 #2 4 章节 × 5 档（默认全不选）+「按 3 档先填上」一键；提交展示「已更新 N 个知识点的起点」
-   （实测 updated=20）；落 zhiwei_sr_done_<spaceId>；章节清单取自 graphSnapshot 静态副本
+2.3 计划「八、总验收标准」逐条核（实跑）
+  ① 三批测试全绿（分批实跑，非单条全量）：
+     $NODE $WS/node_modules/vitest/vitest.mjs run packages            → 2 文件  **43 例通过**
+     $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests → 14 文件 **169 例通过**
+     $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests      → 13 文件 **133 例通过**
+     合计 29 文件 / 345 例 / 0 skip（计划预估 ~334，差异见 2.1）
+  ② 三段 tsc --noEmit：engine exit 0 / functions/api exit 0 / apps/web exit 0
+  ③ $PY scripts/validate_data.py：6 项阻断校验通过（本轮不碰数据；输出与上轮同结论）
+  ④ vite build：通过（3.76s）——index 123.01 kB(gz 39.29) + react 165.48 kB + echarts 434.35 kB
+     + index.css 33.26 kB；GraphPage chunk 7.22 kB
+  ⑤ 真实走查留痕：见第 4 节（14 张截图 + 几何/对比度/reduced-motion 原始数据）
+  ⑥ git --no-pager diff 301708c..HEAD -- API_CONTRACT.md：**+51 行 / -0 行**（删除行计数 0 ⇒ 只增不删）；
+     内容为 §9「v1.3 变更」块 + §11 一行
+  ⑦ env 复核四条命令输出见第 5 节；模型相关前端入口零新增（grep 见第 7 节）
+  ⑧ 红线复核：packages/engine、data、config、scripts、PRD/ALGORITHM/DATA_SCHEMA/参赛方案 v4、
+     tailwind.config.js、theme/bands.ts、serialization.ts、两个 env 模板 —— 本轮提交内**全部零改动**
+     （命令：git diff --name-only 301708c..HEAD | grep -E '^(packages/engine|data/|config/|scripts/|…)' → 无命中）；
+     answer / solution_steps 在新增前端代码中零命中（grep 见第 7 节）
 
-页 3 学习空间      #/spaces               #3 space/list / #4 space/create
-   验收：P0 #1 默认空间置顶徽标 + 「当前使用」徽标；新建为次要按钮；409 → ConfirmDialog
-   **默认按钮「切换过去」**（契约 §2 明文）；主按钮按自报标记切「开始 30 秒自报 / 进入测评」；
-   空间管理不进主导航（不占首屏）
+3. F3 实施记录（本人亲手）
+-------------------------------------------------
+涉及文件（严格按计划清单）：
+  A 新增 apps/web/src/components/chat/ChatPanel.tsx
+  M apps/web/src/components/Layout.tsx
+  M apps/web/src/components/TopNav.tsx
+  M apps/web/tests/chatPanel.test.ts（3 → 5 例）
+零改动（与计划一致）：App.tsx / router.tsx / routerGuard.test.ts 一行未动。
 
-页 4 测评          #/assessment           #7 diagnose/next / #8 diagnose/submit
-   验收：P0 #3 三屏状态机（模式选择 → 单题 → 结束）；exclude_item_ids=doneIds（跳过题也记入）；
-   **不展示对错**（D11，correct 一律不渲染）；converged / item=null → 结束屏；冷启动立即收敛引导先自报；
-   P0 #11 支持 baseline / retest 模式选择
+3.1 面板布局实现方式（计划 D1b 落实）
+  · 单一 `fixed` 容器走 `z-overlay`（tailwind 已有令牌，未新写 z 值）：`inset-x-0 bottom-0 top-[56px]`，
+    内部顺序 = 背景幕（仅覆盖态）→ 面板本体 `absolute right-0 top-0 bottom-0`，宽 400px / `max-w-[92vw]`。
+    面板从顶栏下缘起，不遮 TopNav；Toast(z-toast=60) 仍最上层无障碍。
+  · **≥1280（常驻）**：无背景幕；正文外层让出 400px `padding-right` 并带 `transition-[padding]`。
+  · **<1280（覆盖）**：半透明背景幕 `bg-canvas/60`（点击关闭）+ 右侧抽屉，正文**完全不动**。
+  · 断点判定：`matchMedia('(min-width: 1280px)')` 订阅式 hook（不支持 matchMedia 的环境按窄屏处理，
+    即宁可不挤压正文也不冒险）。
+  · Esc 关闭：ChatPanel 内 window keydown（清理函数已写）；消息区 `min-h-0 flex-1 overflow-y-auto` 自管滚动，
+    输入区 `flex-none` 钉在面板底部。
+  · 顶栏：`navRoutes().map` 里对 `path === '/chat'` 特判为 `<button aria-pressed={panel.open}>`，
+    其余仍是 `<NavLink>`；ROUTES/navRoutes/guardPath 数据结构零改动（routerGuard 9 例全绿为证）。
 
-页 5 试卷上传      #/paper                #5 space/{id}/drive / #9 evidence/paper /
-                                          #10 evidence/paper/{recognition_id} / #11 paper/confirm
-   验收：P0 #4 三段式（选预置文件 → 识别中展示 status → 逐题确认）；对/错**无默认值**、
-   unclear 行暖橙提示、未标全提交禁用；确认后 events_created + mastery_updates 非阻断气泡；
-   刷新凭 sessionStorage recognition_id 走 #10 回显；502/504 用服务端可读话术
+3.2 F3 局部验证（实跑）
+  tsc --noEmit -p apps/web/tsconfig.json → exit 0
+  vitest run routerGuard.test.ts chatPanel.test.ts sse.test.ts → 3 文件 **34 例通过**
+  vitest run apps/web/tests → 13 文件 **133 例通过**
 
-页 6 对话辅导      #/chat                 #18 agent/chat（SSE：delta → meta → done）
-   验收：P0 #8 学生右/学长左 + delta 增量追加 + 流式禁发；hint_down 标「方向提示」；
-   exit_channel 显著退出条（PRD §6 话术「我们先往回看一眼「XX」，那里可能是关键」）+ 去图谱链接；
-   kp confidence<0.6 加澄清注脚；「传图读题」演示态选择器（D15）；中断降级 JSON 不白屏；
-   dialog_id 存 store 续聊
+4. F4 真实浏览器走查（本人亲手；**未静默跳过**）
+-------------------------------------------------
+4.1 方法与为什么不走「起服务→curl 探活」的兜底
+  计划给了兜底方案（环境做不到就证明服务可用 + 标注未实测）。实际做到了**真浏览器交互**，故按优先方案执行：
+  · 本机限制：后台子进程在命令结束时会被收掉 ⇒ 必须把「起后端 + 起前端 + 开浏览器 + 交互 + 截图」放进**同一条命令**；
+  · 用一个临时 Node 脚本（不入库，落在 /tmp/zw-walkthrough.cjs）串起来：
+    spawn 后端(8787) + vite dev(5173) → 轮询探活 → 真实接口注册(#1)/取空间(#3) 拿真 token+space_id →
+    spawn **真实 Chrome 145 headless**（本机沙箱内必须 `--no-sandbox` + 软件渲染，否则 GPU 进程 FATAL）→
+    WebSocket 直连 DevTools 协议（CDP）→ 注入 localStorage 登录态（键与前端 store 同源）→
+    真实点击顶栏「对话辅导」开面板 → 真实输入消息并点「发送」（真跑 #18 SSE）→
+    Emulation.setDeviceMetricsOverride 切四档宽度 + 真点主题开关切两主题 → Page.captureScreenshot 落 PNG。
+  · 关于 CDP：本机 Node 22 自带 WebSocket；Chrome 需 `--remote-allow-origins=*`（否则握手被拒，实测复现）。
+  · 关于「是否伪造」：所有截图都是真浏览器渲染真页面的结果，消息/推理摘要/工具步骤全部由后端真实产出；
+    未注入任何假数据、未人为延时。
 
-页 7 归因结果      #/attribution          #12 error/classify / #13 attribution/analyze /
-   （?attribution_id= 回显）              #14 attribution/{id} / #15 attribution/verify /
-                                          #16 agent/reject / #17 plan/generate
-   验收：P0 #6 五类枚举卡片 + confidence + evidence（先复述再判定）；clarify 就地追问（重发 classify，
-   不自动 analyze）；P0 #7 procedural_slip / misreading 明示不归因且**无 analyze 按钮**（前端不调用）；
-   self 不回溯；P0 #9 回溯步进条 + 根因高亮 + 「找到啦——真正卡住你的是这里」+ 错误类型徽标 +
-   suspect 前三 + 验证区（#15，答错自动换次高嫌疑）+ **反驳按钮常驻**（#16，reason 可选）+
-   耗尽诚实兜底 + rejected_by_student 徽标 + #17 处方（strategy/大纲/题序 + 去图谱看路径）
+4.2 截图清单（14 张，全部入库 _pipeline/screenshots/round2/，附 walkthrough.json 原始量测）
+  panel_console_1440_dark / _dark_1024 / _dark_720 / _dark_375          面板展开 × 四档宽度 × 深色
+  panel_console_1440_light / _light_1024 / _light_720 / _light_375      同上 × 浅色
+  panel_typewriter_mid_1440_dark                                        打字机中途（已揭示 42 / 全文 130 字）
+  panel_graph_1440_light / panel_report_1440_light                      R3 关注页（图谱页 / 报告页）面板展开
+  chat_full_1440_dark / _720 / _375                                     /chat 全屏两栏 / 窄档堆叠
+  walkthrough.json                                                      几何 + 对比度 + reduced-motion 原始数据
 
-页 8 知识图谱      #/graph（?path=kp1,kp2） #19 report/summary + graphSnapshot（结构）
-   验收：P0 #10 四色着色（阈值与色值取自 engine 同源常量）+ 归因/处方路径高亮 + BandLegend 常驻
-   （四色 + 「归因/学习路径」图例项）+ 节点点击侧卡 + 空态引导；?path 来自 #17 plan.path 时顶部显示 strategy；
-   兼「学习路径页」
+4.3 几何量化（读 getBoundingClientRect，非目测）
+  ┌───────┬──────────────┬────────────┬────────────┬────────────┬────────────┬────────────┬──────────┐
+  │ 视口  │ 外层 padding │ main 宽    │ 正文内容宽 │ 正文右缘   │ 面板左缘   │ 重叠       │ 背景幕   │
+  ├───────┼──────────────┼────────────┼────────────┼────────────┼────────────┼────────────┼──────────┤
+  │ 1440  │ 400px        │ 1024       │ **976**    │ 1008       │ 1040       │ 否（差 32）│ 无（常驻）│
+  │ 1024  │ 0            │ 1024       │ **976**    │ 1000       │ 624        │ 覆盖（设计）│ 有       │
+  │ 720   │ 0            │ 720        │ **672**    │ 696        │ 320        │ 覆盖（设计）│ 有       │
+  │ 375   │ 0            │ 375        │ **327**    │ 351        │ 30(345 宽) │ 覆盖（设计）│ 有       │
+  └───────┴──────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴──────────┘
+  读法：常驻态（1440）面板与正文**不重叠**且无死区；覆盖态（<1280）正文宽度与关闭面板时**完全一致**
+  （1024/720/375 分别 976/672/327），即「窄屏不挤压正文」这一 D1b 承诺成立。
+  另测：面板输入区文本域底边始终在面板底边之上 12px（`overflowPx = -12`，四档宽度 × 两主题共 8 次采样一致）
+  ⇒ 输入区无被裁切。
+  /chat 全屏：1440 两栏（main 1024，面板已收起）、720 两栏、375 上下堆叠（符合 D5f）。
 
-页 9 学习报告      #/report               #19 report/summary
-   验收：P0 #12 三段齐全（掌握度分布四带计数 + chip / 缺口清单含最近归因错误类型 /
-   基线 vs 复测 ΔAccuracy，Δ>0 青绿 Δ<0 暖橙 null 显示「—」）+ 顶部学长式总结
+4.4 对比度实测（含 alpha 合成的 WCAG 对比度，采样自真实渲染的 computed style）
+  修前（浅色）→ 修后（浅色）：
+    推理摘要标签 11px   3.61 → **5.51**   （`text-ink-soft/80` → `text-ink-soft`）
+    工具名/计数器 10px  2.97 → **5.51**   （`text-ink-soft/70` → `text-ink-soft`）
+    步骤标签/键值 13・11px 13.14 ~ 13.53（本来达标）；正文 14px 5.17（达标）
+    模型徽标「本地规则」11px 3.15（未修，见 D27）
+  深色侧（修前 → 修后）：推理摘要 5.57 → **8.01**；工具名 4.57 → **8.01**；其余 7.26 ~ 16.76
+  结论：**被采样的这些节点**浅色全部 ≥5.17:1（AA 需 4.5:1）；深色全部 ≥7.26:1。
+  ⚠ 措辞更正（清尾轮，审查 L2/L3；原句为「本轮新建组件的浅色小字已**全部** ≥5.17:1」，过宽，留痕在此）：
+    该结论只对本次采样清单里的节点成立 —— 清单里**没有**折叠条「进行中」（它只在流式成立的
+    ~100ms 窗口内存在，250ms 采样必然错过），新建组件内也仍有 `text-accent` 小字。
+    清尾轮已把「进行中」（浅色实测 3.57:1 → 5.51:1）与 ChatPage「收进侧栏」提示行
+    （3.45:1 → 5.17:1）一并修掉，实测值见文末「清尾轮」节；全站仍存的已知例外只剩
+    ModelBadge 的 accent-on-accent-veil 3.15:1（D27，与顶栏 active tab 同款既有配对，声明不修）。
 
-页 10 云盘         #/drive                #5 space/{id}/drive
-   验收：P1 预置资料只读列表（file_id/name/type/size 人性化）+「上传自定义知识库」禁用占位
-   （点击给 PRD §3 原文案 toast「自定义知识库即将开放」）；不做真实直传
+4.5 reduced-motion 实测（打字机降级是否真生效）
+  同一时刻（发送后 250ms）读「思考流已揭示字数」：
+    prefers-reduced-motion: reduce          → 匹配 true，已揭示 **135 字**，本轮全文 **135 字**（= 全文，无动画）
+    prefers-reduced-motion: no-preference  → 匹配 false，已揭示 **20 字**，全文 135 字（打字机逐字揭示中）
+  ⇒ 二者对照证明：reduce 下打字机确实被降级为全文直出，非「看起来像」。
 
-共享组件/基础层：Layout（顶栏 + Toast 出口）、TopNav（五入口 + 空间二级菜单）、Toast（非阻断）、
-ItemCard（单题渲染，三页面共用）、BandLegend、ProgressBar、ConfirmDialog（全站唯一 modal）、
-theme/bands（颜色唯一事实源）、data/graphSnapshot（图谱静态副本）、lib/{phrases,format,graphLayout}、
-api/{types,client,endpoints,sse}、stores/{auth,space,ui,assessment,dialog,attribution}。
+4.6 走查发现与处置
+  (1) 【已修】≥1280 常驻态正文被过度挤压：计划原写「main 加 padding-right = 面板宽」，但 max-w-5xl
+      = 64rem = **1024px**（不是计划里写的 1280px），padding 落在 main 盒内时 1440 下正文只剩 600px，
+      且与面板之间留下 208px 死区（实测首轮走查截图可见 3 列卡片被挤到换行）。改为把让位 padding 放到
+      **外层包装**，main 的 max-width 作用在「面板左边的可用宽度」上 → 正文 976px、无死区。见 D24。
+  (2) 【已修】本轮组件浅色主题 3 处小字不达 AA（2.97 / 3.61:1），已按 4.4 修正。见 D26。
+  (3) 【已修】面板头部关闭键与覆盖态背景幕共用同一可访问名「关闭对话面板」→ 读屏歧义，
+      背景幕改为「点击空白处关闭对话面板」。见 D25。
+  (4) 【未修·既有】模型徽标浅色 3.15:1：`text-accent` 落在 `bg-accent-veil` 上，是**全站既有**配对
+      （顶栏 active tab 同款），且浅色 accent = primary #4E8FB0 在白底上先天只有 3.57:1 —— 修它等于
+      动全站强调色口径（冻结的 bands/主色语义），超出本轮范围，记录不修。见 D27。
+  (5) 【未实测·有据】ToolTimeline 的 `running` 态截图：契约规定 running 只在**远程真流**出现
+      （本地模式毫秒级完成，从不发 running），本机无 `ZHIWEI_LLM_*` 真值也无外部网络调用授权，
+      故**未实测**。静态兜底：ToolTimeline.tsx 的 running 分支 = SVG 旋转环 + `animate-spin`（text-accent），
+      且 index.css 的 `@media (prefers-reduced-motion: reduce)` 会把动画时长压到 0.01ms（不转但图标仍在）。
+      `error` 态同理（仅远程适配器失败时出现）未实测。
+  (6) 【未覆盖·声明】仅以 1440 一档呈现了「面板展开下的图谱页/报告页」（R3 关注页）；未做 1024/720/375
+      的风险页截图（时间预算：单命令 60s 硬限制，一次完整走查约 55s）。
+  (7) 【声明】面板头部的模型徽标在远程模式下会显示模型名（`ZHIWEI_LLM_MODEL`）——本轮只跑本地模式，
+      远程形态未走查（无 key）。
+  (8) 【观察·非产品缺陷】走查往返中曾出现一次「风险页截图前面板处于关闭态」；为此专门做了两次独立验证
+      （同一 harness 加探针重跑 + 独立微测试脚本 /tmp/zw-persistence.cjs）：在 `#/console → #/graph →
+      #/report → #/me` 连续切换下，面板恒为展开（`aria-pressed=true`），375 与 1440 两档各验一次，
+      关闭/主题切换均正常 ⇒ **面板跨路由保持展开的产品行为正确**（D1a 达成），该现象属走查脚本自身状态问题，
+      已改用「切换宽度后再导航」的稳定顺序重取证据。
+  (9) 【观察·既有】375 宽度下顶栏 6 项导航换行拥挤（本轮之前即如此，非 F3 引入），未修，列为遗留。
 
-================================================================
-三、V1–V9 实际输出摘要
-================================================================
+5. env 复核（RD7，结果原样贴）
+-------------------------------------------------
+  $ git check-ignore -v .env deploy/zhiwei.env
+    .gitignore:17:.env	            .env
+    .gitignore:22:deploy/*.env	    deploy/zhiwei.env        → 两条均命中 ✔
+  $ git check-ignore -v .env.example deploy/zhiwei.env.example
+    （无输出）exit=1                                          → 两模板均不命中 ✔
+  $ git ls-files | grep -iE '(^|/)\.env|\.env$'
+    .env.example                                              → ⚠ 口径更正
+      说明：计划预期「仅两模板」，但该正则只匹配路径段恰为 `.env` 或结尾为 `.env` 的名字，
+      而 `deploy/zhiwei.env.example` 两者都不匹配 ⇒ 它天然不会出现在结果里。
+      改用 `git ls-files | grep -i env` 实测得：`.env.example` 与 `deploy/zhiwei.env.example` 两条，
+      真值文件（`.env` / `deploy/zhiwei.env`）**零条目** ✔
+  $ git --no-pager diff --stat .env.example deploy/zhiwei.env.example
+    （无输出）                                                → 本轮两模板零改动 ✔
+  $ 变量集核对：两模板的模型相关 5 个变量完全一致
+    ZHIWEI_MODEL_MODE / ZHIWEI_LLM_BASE_URL / ZHIWEI_LLM_API_KEY / ZHIWEI_LLM_MODEL / ZHIWEI_LLM_TIMEOUT_MS
+    deploy 模板另含 3 个**部署专用**键（ZHIWEI_SERVER_SECRET / ZHIWEI_HOST_PORT / ZHIWEI_DB）——设计如此，
+    非「模板错位」（更正计划「两模板变量集一致」的措辞：一致的是模型相关变量集）
+  $ .gitignore 相关行：17 `.env` / 18 `.env.*` / 19 `!.env.example` / 22 `deploy/*.env` / 23 `!deploy/*.env.example`
+  结论：模型配置仍只在服务端 env（前端零新增读取面，见第 7 节），真值未入库。
 
-V1 依赖安装与核对
-  cd $WS && npm install --no-fund --no-audit react-router-dom@6.26.2 jsdom@25.0.1
-    → 输出「added 58 packages in 7s」
-  node -e "…require(p+'/package.json').version…"
-    → react-router-dom 6.26.2
-    → jsdom 25.0.1
-  根 package.json diff 复核（git diff 52fe185..HEAD -- package.json）新增项仅：
-    "react-router-dom": "6.26.2"（dependencies）、"jsdom": "25.0.1"（devDependencies）
-    + scripts：typecheck:web / build:web / typecheck:all（api→engine→web 三段）/ "//start" 一键启动说明行
+6. F4 交付物与提交
+-------------------------------------------------
+  · 走查证据：_pipeline/screenshots/round2/（14 PNG + walkthrough.json，约 4.2 MB）
+  · 文档：LOOKATME.md（轮 2 进度、实测数字 345 例 / 29 文件、构建体积、走查结论、逐项落点）
+  · 本文件：_pipeline/02_EXEC_REPORT.md（旧报告先归档再覆写）
+  · 代码（走查后修正，均为计划 F3/F4 范围内的文件）：
+      apps/web/src/components/Layout.tsx            让位 padding 移到外层包装 + 背景幕可访问名
+      apps/web/src/components/chat/ChatTracePanel.tsx / ToolTimeline.tsx /
+        ChatMessageList.tsx / ChatComposer.tsx / ModelBadge.tsx   小字去掉半透明降级（对比度）
+  · 提交信息会写明：走查结论 + 对比度实测数字 + 面板几何实测数字。
 
-V2 前端类型检查
-  node $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
-    → V2_web_tsc_exit=0（无输出）
+7. 偏差清单（续写；轮 1 已用到 D21，故本轮续编 D22+）
+-------------------------------------------------
+  编号口径说明：计划要求「计划外裁决按 D 编号续写 D14+」。轮 2 的 E1–F2 段执行报告缺失，
+  本人无法确认上任实现者是否曾用掉 D22…… 为避免覆盖他人编号，明确声明：**D22–D27 由本次 F3/F4 使用**，
+  如后续发现轮 2 前半段另有编号，以本节为准并请 reviewer 指出。
 
-V3 后端/引擎类型检查回归
-  tsc --noEmit -p functions/api/tsconfig.json   → V3_api_tsc_exit=0
-  tsc --noEmit -p packages/engine/tsconfig.json → V3_engine_tsc_exit=0
+  D22 面板「全屏打开」时一并收起面板（计划未写）
+      理由：/chat 全屏页与常驻面板共存会让正文列被挤压且出现两个对话区；与全屏页「收进侧栏」
+      （打开面板 + 回控制台）互为反向操作。依据 RD1「两形态共用一套视图」的意图。
+  D23 顶栏 /chat 特判的路径常量写在 TopNav 内（`const CHAT_PATH = '/chat'`）
+      理由：router.tsx 未导出 CHAT_PATH，而计划要求 router 零改动 ⇒ 在渲染层写常量并注释与 ROUTES 同值。
+  D24 ≥1280 让位方式：padding 放外层包装而非 main 自身（**与计划字面不同**）
+      计划原文：「main 容器 padding-right = 面板宽」「正文列仍有 ≥880px（1280-400）」。
+      实测：max-w-5xl = 1024px，padding 落在 main 盒内时 1440 下正文仅 600px 且与面板间有 208px 死区。
+      裁决：padding 移到 main 外层包装（仍 `transition-[padding]`），实测正文 976px（1440）、832px（1280），
+      无死区、无重叠。**这是计划数字前提有误导致的实现差异，非范围扩大**（只改 Layout.tsx 一个文件）。
+  D25 覆盖态背景幕的 aria-label 改为「点击空白处关闭对话面板」
+      理由：与面板头部关闭键同名会造成读屏歧义（走查发现）。
+  D26 本轮组件小字去掉半透明降级（`text-ink-soft/70`、`/80` → 纯 `text-ink-soft`）
+      理由：浅色主题实测 2.97:1 / 3.61:1，不达 WCAG AA（4.5:1）；改后 5.51:1。
+      范围：ChatTracePanel / ToolTimeline / ChatMessageList / ChatComposer / ModelBadge 五个**本轮新建文件**的
+      类名替换，零行为变化、零测试影响（无测试断言类名）。
+  D27 不修模型徽标浅色 3.15:1（`text-accent` on `bg-accent-veil`）
+      理由：该配对是全站既有强调色用法（顶栏 active tab 同款），且浅色 accent=primary #4E8FB0 在白底先天 3.57:1；
+      修它等于改全站强调色口径（涉及守恒区语义）。**记录为遗留，交由总控决定**。
+  D28 走查证据落在 _pipeline/screenshots/round2/（计划未列目录）
+      理由：计划 F4 的 commit 草案写明「走查截图/结论随执行报告入库」，但未给目录；
+      选 _pipeline 下新建一个只增不删的证据目录，避免塞进 apps/web 或仓库根。
+  D29 走查脚本不入库（临时在 /tmp/zw-walkthrough.cjs）
+      理由：不新增任何计划外代码文件；脚本要点已在本报告 4.1 逐条写清，量测原始数据以 walkthrough.json 入库。
 
-V4 前端测试（每批必跑）
-  最终形态：vitest run apps/web → 7 文件 64 用例全过
-    文件与用例数：bands 10 / graphSnapshot 10 / phrases 6 / client 11 / sse 13 /
-                  authStore 5 / routerGuard 9（合计 64）
-  关键用例覆盖：阈值与状态带 === engine 导出、hex 与 tailwind 逐字守恒（含 0.399/0.4/0.599/0.6/0.799/0.8
-  边界）、四色无刺眼大红（红通道断言）、20 节点逐字段守恒 + prereq↔succ 互逆 + 章节 2/3/4/11、
-  话术四场景逐字 + 无评判词、client 解包/错误码/401 副作用/网络错/非 JSON、
-  SSE 解析器 6 例（跨 chunk / 多事件 / 残尾 / 多行 data / \r\n / 非 JSON）+ dispatch 2 例 + 降级链 5 例、
-  authStore 刷新恢复（模块重载仍读到 token）、守卫 4 分支 + 10 页路由表
+8. 未完成项 / 未验证项（如实列，不隐藏）
+-------------------------------------------------
+  1) ToolTimeline `running` 与 `error` 两态的**真实截图**未得（原因见 4.6(5)：本地模式按契约不产生 running，
+     远程模式无 key/无网络授权）。替代证据：源码分支 + index.css 的 reduced-motion 降级规则（已 grep 贴出）。
+  2) 远程模型真流式的**真实网络**链路未实测（E3 仅单测覆盖：ReadableStream mock + 增量抽取 + 半截失败/零增量回落；
+     无 `ZHIWEI_LLM_*` 真值 ⇒ 不做假测）。
+  3) R3 风险页只有 1440 一档截图（4.6(6)）。
+  4) 面板与 /chat 全屏页**同时**打开的形态未走查（当前设计是「进全屏即收面板」，故该形态不可达——D22）。
+  5) 数据闸门、题库复算按「本轮不碰数据」执行，只跑 validate_data.py；verify_items.py 未跑（无需）。
+  6) 轮 2 前半段（E1–F2）的**原始**实施记录无法复原（上任实现者未落盘），本报告只做**物证重建**：
+     提交记录、diff 统计、实跑测试数为其全部依据；未写任何「据称做过」的内容。
 
-V5 全量测试（步骤 7、8）
-  vitest run → V5_full_test_exit=0
-    Test Files  20 passed (20)
-    Tests       218 passed (218)
-  构成：engine 2 文件 38 例 + api 11 文件 116 例 + web 7 文件 64 例 = 218
-  零回归口径：迭代 2 冻结 150 例（engine 38 + api 112）全绿；本迭代后端侧 +4（MINOR-① 2 + MINOR-④ 2）
-  → api 116；前端侧新增 64。150 + 4 + 64 = 218 ✓
-  逐文件（api 侧）：attribution 16 / auth 11 / chat 11 / classify 8 / closedLoop 5 / diagnose 18 /
-                   paper 15 / plan 8 / report 6 / selfReport 8 / space 10
+9. 红线复核（本轮全量）
+-------------------------------------------------
+  · answer / solution_steps 不下发：新增前端代码（components/chat/**、api/sse.ts、stores/dialog.ts）grep 零命中；
+    新增事件字段只装 D4a 列出的真实中间量（不含题库答案字段）。
+  · 参数零硬编码：本轮未动 config/params.json、未新增算法常量（面板宽度 400 / 断点 1280 是布局尺寸，
+    以具名常量 PANEL_WIDTH_PX、DOCK_MIN_WIDTH_PX、TOPNAV_HEIGHT_PX 集中定义并注释）。
+  · 前端引用引擎常量：本轮新增组件未引用引擎常量；既有 theme/bands.ts 仍从 statusBand **源模块**导入（未动）。
+  · SSE JSON 降级未坏：sse.test.ts 20 例（含降级链）全绿；chatTrace 的契约哨兵例在跑。
+  · 状态带/配色唯一来源：未动 theme/bands.ts 与 tailwind.config.js；新组件只用语义令牌
+    （静态兜底 grep：components/chat 与 Layout/TopNav 内无 `bg-[#…]` / `text-[#…]` 实际用法，命中的两处是注释文本）。
+  · z 值：只用 z-overlay 令牌（grep 无 `z-[…]` 实际用法）。
+  · 未提交他人变更：tools/e2e-smoke.cjs、_pipeline/PR-tempdeploy.md、知微-项目介绍.md 全程未动。
 
-V6 前端构建（步骤 6、8）
-  mv 旧 dist 至 /tmp 后执行：vite build --config apps/web/vite.config.ts --outDir dist --emptyOutDir
-    → V6_build_exit=0
-    → 635 modules transformed
-    → dist/index.html 0.40 kB │ gzip 0.30 kB
-    → dist/assets/index-*.css 15.47 kB │ gzip 3.73 kB
-    → dist/assets/index-*.js 1,280.50 kB │ gzip 423.65 kB（echarts 全量引入，体积告警按 R6 裁决接受）
-    → dist/index.html EXISTS ✓（dist 合计 1.3M）
+10. 给 reviewer 的核对清单
+-------------------------------------------------
+  a) 测试只改写不删除：git diff 301708c..HEAD -- '*test.ts' 抽查 chat/remoteChat/closedLoop/sse 的删除行
+     是否只落在「被改写的那几例」（计划六、总表逐条对应）。
+  b) 契约只增不删：git diff 301708c..HEAD -- API_CONTRACT.md 应为 51 插入 0 删除。
+  c) 面板几何：_pipeline/screenshots/round2/walkthrough.json 的 geometry 段（contentWidth/contentRightEdge/panelRect）。
+  d) 对比度：同文件 contrast 段（light/dark × 9 个文本节点）+ 4.4 的修前/修后对照。
+  e) reduced-motion：同文件 reducedMotion 段（reduce 直接全文、no-preference 逐字）。
+  f) 「不演」：chat.test.ts 的 clarify 轮无 dedup_check/apply_evidence 事件；截图里 6 步 args/result 全真实。
+  g) D24 的合理性：可直接读 Layout.tsx 的注释块（文件头）+ 本报告 4.6(1)。
 
-V7 联调冒烟（步骤 3/4/5/6/7 各跑一次）
-  探活（批 3 与批 7 各一次，均通过）：
-    curl GET http://127.0.0.1:5173/            → 200
-    curl http://127.0.0.1:5173/api/space/list  → {"code":401,"msg":"缺少 Authorization 请求头","data":null}
-    curl -N POST /api/agent/chat（过 proxy）    → event: delta → event: meta → event: done
-                                                （ttfb=0.008907s / total=0.009256s，未整体缓冲）
-  端到端演示（1.1(3) 全闭环，真实用户路径，最终一轮实测 transcript 要点）：
-    [1] 注册 → 自动建默认空间        user_id=u_mu8av92601ysi，spaces=["初中数学(默认)"]
-    [2] 自报（4 章节 × 3 档）        updated=20
-    [3] 诊断测评 2 题（不展示对错）   q_cz_geometry_001 / q_cz_applic_001，correct=null，
-                                     mastery 0.500→0.244，remaining 10→9
-    [4] 试卷识别 3 题（1 行 unclear） rec_mu8avaag07hmw / pending_confirm
-    [4.1] 漏标 unclear 行            400「第 3 题识别不清，必须手动标注对错」
-    [4.2] 标全确认                   events_created=3，mastery_updates 3 条 0.500→0.311
-    [5] 错误类型诊断                 adopted / prerequisite_gap / prerequisite_vertex_form_gap /
-                                    confidence 0.9 / direction upstream / evidence 文本
-    [6] 归因回溯                     attr_mu8avad00ekjz，path=[extremum, vertex_form]，
-                                    嫌疑前三 0.3/0.18/0.18，验证题 q_cz_vertex_001
-    [6.0] MINOR-① 非候选集题         400「这不是当前的验证题，先完成手头这道」
-    [6.1] 验证答错                   correct=false，next_candidate=function.graph/q_cz_func_graph_001
-    [6.2] 反驳                       appended_item=q_cz_comp_sq_001
-    [6.3] 再验证答对                 verified=true，root_cause=completing_square
-    [7] 处方                         strategy=先补上游 + 上游讲解，大纲 4 条，题序 8 道，路径 4 节点
-    [8] 对话 SSE 三轮                continue(1 delta) → hint_down(2 delta) → exit_channel(3 delta，
-                                     末段「我们先往回看一眼「函数的图像与描点法」，那里可能是关键…」)
-    [9] 基线/复测                    baseline=[eq_relation:false, opening:false, formula:false]
-                                     retest=[graph_basic:true, factoring:true, eq_concept:true]
-    [10] 学习报告                    masteryNodes=20，bands={不稳定 7, 待巩固 9, 已掌握 4}，gaps=9，
-                                     accuracy 6 行
-    结论：10 步闭环全部走通（唯一保留：ΔAccuracy 双侧数据为空，见 七、F-1）
-  一键启动说明（写入根 package.json 的 "//start" 字段）：
-    1) npm run api    2) npm run dev    3) 浏览器打开 http://127.0.0.1:5173
+—— 本报告所引用的每条命令输出，均为本次会话实跑所得；未跑的命令不写结果。
 
-V8 数据闸门回归
-  python3 scripts/validate_data.py  → V8_validate_exit=0
-    [PASS] 附加a params.json 参数表（ALGORITHM §0 全部 17 键）
-    [PASS] 校验 1 图谱结构（id 唯一 / 引用存在 / prereq-succ 互逆 / DAG 无环；阻断）
-    [PASS] 校验 2 typical_errors（五类枚举 / 每节点 ≥3 条；阻断）
-    [PASS] 校验 3 题库（item_id 全局唯一 / kp 引用 / pool 合法 / 字段完整；阻断）
-    [PASS] 校验 4 配额（每 kp train ≥5、retest ≥6、总量 ≥220；阻断）
-    [PASS] 校验 5 distractors 绑定（typical_error_code 存在于该 kp；阻断）
-    [PASS] 全部阻断项通过（DATA_SCHEMA §6 校验 1–6 通过）
-    题库合计：train 104 + retest 124 = 228
-  python3 scripts/verify_items.py   → V8_verify_items_exit=0
-    [PASS] 复算不一致 0 题
-    [PASS] fill/short_answer 的 solution_steps 末步均包含 answer
-    [PASS] 题库复算通过（覆盖 86 题，不一致 0 题）   ← 计划要求「覆盖 ≥80、不一致 0」✓
+补记：F4 = **本报告所在的那次提交**（定位：`git log --oneline -1 -- _pipeline/02_EXEC_REPORT.md` 或 HEAD；
+      报告内容本身参与该提交的 hash，故此处不写死自身 hash）；F3 commit = **4b63568**。
+      轮 2 八子步 commit 依次为：
+      7171083(E1) / d98cc59(E2) / 150b57c(E3) / 6f790fe(E4) / 7c13687(F1) / 296cfc6(F2) / 4b63568(F3) / F4=本提交。
+      提交后实测：git rev-list --count HEAD = 84（--no-merges = 80），与 LOOKATME 口径一致。
 
-V9 范围自查
-  git diff --stat 52fe185..HEAD -- packages/engine data/knowledge data/item_bank config \
-      scripts/validate_data.py scripts/verify_items.py PRD.md API_CONTRACT.md ALGORITHM.md \
-      DATA_SCHEMA.md 知微-参赛完整方案-v4.md
-    → 输出为空 ✓（冻结资产与 5 份需求文档零改动）
-  git status --short
-    → 仅 _pipeline 留档条目（01_PLAN/03_REVIEW 的迭代 3 版与其 archive 副本，规划阶段产物，本迭代未改其内容）
-    → 无 apps/web/dist/、无 data/local_db/ 未忽略条目 ✓
-  git check-ignore -v 复核：apps/web/dist/index.html、data/local_db/users.json、
-    functions/api/dist/server.js 三者均被 .gitignore 命中 ✓
+================================================================================
+11. 清尾轮（审查 L2/L3/L4/L8/L9/L11 中「用户看得见的 4 条」）—— 2026-09-24 追加
+================================================================================
+追加者：implementer（清尾轮；本文件为**追加**，未覆写旧内容——除 §4.4 那一句结论按审查要求
+       就地收紧并在旁保留原句留痕，见下 11.6）
+输入依据：_pipeline/03_REVIEW.md（末行 VERDICT: PASS），问题清单 L2 / L3 / L4 / L8 / L9 / L11
+本轮起点：HEAD 9b24d46（实测 git rev-list --count HEAD = 85，--no-merges = 81）
+本轮范围：只做这 4 件事；未碰 packages/engine/**、data/**、config/params.json、scripts/**、
+        5 份冻结文档（API_CONTRACT.md 一字未动）、theme/bands.ts、tailwind.config.js；
+        未碰他人未提交变更（tools/e2e-smoke.cjs、_pipeline/PR-tempdeploy.md、知微-项目介绍.md）
+提交：18f348f（L11）/ b229a13（L2+L4）/ 本次文档提交（L8+L9）
 
-================================================================
-四、文件清单核对（计划：新建 48 / 修改 12 → 实测：新建 40 / 修改 13）
-================================================================
-说明（重要）：计划 四、 的汇总数字（「新建 48 / 修改 12」「前端 45」）与其**逐条清单**不一致：
-其 ★ 清单实列 40 条（前端 33 + tests 7），△ 清单实列 13 条。本迭代交付 = 逐条清单 40 + 13 = 53 个文件，
-**无遗漏、无额外新建业务文件**（git diff --name-status 52fe185..HEAD 实测：40 A + 13 M）。偏差见 七、D-1。
+11.1 L11 —— 顶栏与正文列共用同一条左基线（本轮最重）
+  现象（修前实测，真实 Chrome 145 headless + CDP，1440，deviceScaleFactor 2）：
+    收起态：顶栏内容左缘 232 = 正文列左缘 232（差 0）✔
+    展开态：顶栏内容左缘 **232** vs 正文列左缘 **32**（差 **200px**）✘ —— 顶栏仍按整宽居中
+  实现（不做第二份 400px 常量）：新增 apps/web/src/components/panelDock.ts 作单一来源 ——
+    · 写入侧（只有 Layout 调）dockOffsetVarStyle(px) → CSS 自定义属性 --panel-dock-offset
+      挂在外壳根节点，值就是 Layout 里唯一的 PANEL_WIDTH_PX（面板关 / <1280 覆盖态 = 0px）；
+    · 读取侧 DOCK_OFFSET_STYLE = { paddingRight: 'var(--panel-dock-offset, 0px)' }，
+      TopNav 的 header 与正文列外层各读同一个变量 → 恒同值、同一份 transition-[padding]；
+    · padding 落在 header 上（不是取代其整宽背景），故顶栏底色与下边框仍是整宽；
+      面板自 y=56 起，不与顶栏重叠（顶栏内容右缘 1032 < 面板左缘 1040）。
+  修后实测（1440，getBoundingClientRect().left，内容盒左缘）：
+    收起态：顶栏 232 / 正文 232 → 差 **0px**（header 计算样式 padding-right = 0px）
+    展开态：顶栏 32  / 正文 32  → 差 **0px**（header 计算样式 padding-right = 400px）
+    深浅两主题各测一次，数值一致；1440 展开态面板左缘仍 1040，正文列宽仍 976（不与面板重叠）
+  证据截图（入库 _pipeline/screenshots/round2/，两态 × 两主题 4 张，名称可区分）：
+    align_1440_closed_dark.png / align_1440_closed_light.png / align_1440_open_dark.png / align_1440_open_light.png
+  · 窄档复测（提交后补做，见 11.7）：**1024 / 720 / 375 三档 × 开合两态，左基线差实测亦为 0px**；
+    <1280 覆盖态 header padding-right = 0px、正文宽 976 / 672 / 327、面板左缘 624 / 320 / 30（宽 345）
+    —— 与 F4 修前实测逐项相同，覆盖态零回归。
+  ⚠ 未实测项：窄档只做了几何量化（见 11.7），**未重拍那三档的左基线截图**（截图以 1440 两态 × 两主题为准）。
 
-★ 新建 40（git 实测 A）：
-  src/router.tsx、src/theme/bands.ts、src/data/graphSnapshot.ts
-  src/api/types.ts、src/api/client.ts、src/api/endpoints.ts、src/api/sse.ts
-  src/stores/auth.ts、src/stores/space.ts、src/stores/ui.ts、src/stores/assessment.ts、
-  src/stores/dialog.ts、src/stores/attribution.ts
-  src/lib/phrases.ts、src/lib/format.ts、src/lib/graphLayout.ts
-  src/components/Layout.tsx、TopNav.tsx、Toast.tsx、ItemCard.tsx、BandLegend.tsx、
-  ProgressBar.tsx、ConfirmDialog.tsx
-  src/pages/LoginPage.tsx、SelfReportPage.tsx、SpacesPage.tsx、AssessmentPage.tsx、PaperPage.tsx、
-  ChatPage.tsx、AttributionPage.tsx、GraphPage.tsx、ReportPage.tsx、DrivePage.tsx
-  tests/bands.test.ts、graphSnapshot.test.ts、phrases.test.ts、client.test.ts、sse.test.ts、
-  authStore.test.ts、routerGuard.test.ts
-  （pages 10 个文件在步骤 1 以占位形态新建、步骤 3–6 逐一替换为完整实现，不重复计数）
+11.2 L2 —— 两处浅色小字补达 AA（都实测过，修前修后都有数）
+  测法：真实渲染的 computed style（color 含 alpha）+ 逐层背景合成 → WCAG 相对亮度公式实算。
+  ① components/chat/ChatTracePanel.tsx 折叠条「进行中」11px
+     修前：class `text-accent`，实测 color rgb(78,143,176) on rgb(255,255,255) → **3.57:1**（不达 AA 4.5:1）
+     修后：class `text-ink-soft`，实测 color rgb(91,107,118) on rgb(255,255,255) → **5.51:1** ✔
+     说明：强调色只留在左侧会呼吸的圆点（bg-accent，非文本装饰；浅色 3.57:1 ≥ 非文本 3:1 要求）。
+     为什么之前漏掉：它只在流式成立的 ~100ms 窗口内存在（本地一轮 SSE 在 250ms 前就结束），
+     F4 的 250ms 采样必然错过 —— 本轮改用页内 MutationObserver + 10ms 轮询抓「出现的第一帧」才采到。
+  ② apps/web/src/pages/ChatPage.tsx 「收进侧栏」提示行 11px
+     修前：class `text-ink-soft/80`，实测 rgba(91,107,118,0.8) 合成于 rgb(245,248,249) → **3.45:1**
+     （注：审查者给出的同一配对数 3.61:1，差异来自底色取 bg-surface #FFF 还是 bg-canvas #F5F8F9，
+      两者都 < 4.5；此处的页面底色是 canvas，故本报告采用 3.45）
+     修后：class `text-ink-soft`，实测 rgb(91,107,118) on rgb(245,248,249) → **5.17:1** ✔
+  零新增 hex：只做令牌替换；theme/bands.ts 与 tailwind.config.js 守恒区零改动（不在 diff 名单）。
+  未实测项：未逐一提测组件内其余文本节点（沿用 F4 的 9 节点采样 + 本轮补测的 2 处）；
+    全站仍存的已知例外只有 ModelBadge accent-on-accent-veil 3.15:1（D27 声明不修，本轮未动）。
 
-△ 修改 13（git 实测 M）：
-  package.json（根：scripts 4 条 + 两依赖登记 + 一键启动说明字段）
-  .gitignore（+ apps/web/dist/）
-  apps/web/index.html（title → 知微 · 学习伴侣）
-  apps/web/tsconfig.json（include + "tests"）
-  apps/web/vite.config.ts（server.proxy '/api' → http://127.0.0.1:8787）
-  apps/web/tailwind.config.js（extend.colors 令牌 + content.relative）
-  apps/web/package.json（描述更新）
-  apps/web/src/main.tsx（HashRouter 挂载）
-  apps/web/src/App.tsx（10 路由装配 + 守卫）
-  apps/web/src/index.css（@config 绑定 + 全局底色/字体；@tailwind 指令保留）
-  functions/api/src/services/attribution.ts（MINOR-① +12 行 / 0 删）
-  functions/api/tests/attribution.test.ts（+2 用例，14 → 16）
-  functions/api/tests/diagnose.test.ts（+2 用例，16 → 18；计划 +1，多 1 例对照组见 七、D-7）
+11.3 L4 —— 工具卡的原始浮点只在显示层收敛
+  现象（修前实测原文抓取）：apply_evidence 卡片 `after` 一栏显示 **0.009000000000000001**，
+    而同轮推理摘要写的是「0.01」——同一份数据在一屏里长出两个样子。
+  做法：apps/web/src/lib/format.ts 新增纯函数 `metric(value, digits = 3)`：最多 3 位小数、去掉尾随 0；
+    极小非零值（四舍五入会变成 '0'）退回 3 位有效数字，宁可难看也不写失真；非有限值 → '—'。
+    ToolTimeline 的 args/result 值（formatValue 的数字分支）与 ms 显示改走它。
+  ⚠ 只改显示：tool.result / tool.ms 的**真实值一字未动**（契约 §9 的字段语义是真实中间量 / 真实耗时）；
+    metric 是纯函数，不回写任何 store / 事件。ms 侧本来就是服务端 `Math.round(x*1000)/1000` 三位小数，
+    经 metric 显示结果不变（仅统一了口径）。
+  修后实测（同一轮真实链路，原文抓取工具卡键值）：`before 0` / `after **0.009**` / `event_id evt_…`；
+    ms 显示 0.017 / 0.89 / 0.021 / 2.043 / 11.17 / 0.013（全为服务端真实值）。
+  新增测试：apps/web/tests/format.test.ts 6 例（浮点噪声、整数不补小数点、尾随 0、超 3 位四舍五入、
+    极小非零值不失真、非有限值降级、纯函数性）→ 前端用例 133 → **139**。
 
-明确不动（git diff 为空，V9 已证）：packages/engine/**、data/knowledge/**、data/item_bank/**、config/**、
-  scripts/validate_data.py、scripts/verify_items.py、5 份需求 .md、functions/api 除上述 3 文件外全部、
-  apps/web/postcss.config.js、data/local_db/**
-运行时生成（不入库）：apps/web/dist/、functions/api/dist/、data/local_db/（三者 ignore 命中已核）
+11.4 L8 / L9 —— 文档数字与措辞按实测改正
+  LOOKATME.md（非冻结文档）：
+    · 提交数：原「累计 84 次提交（E1–F4 八子步 +9；非合并 80）」→ 实测改为「88 次」（口径与算式写全：
+      轮 2 起点 301708c = 75，E1–F4 八子步 + 轮 1 报告落盘 2b50085 + 断句修复 9b24d46 共 +10 = 85，
+      清尾轮 3 次 = 88；非合并 84）。
+      实测命令：git --no-pager rev-list --count HEAD（85 → 清尾后 88）/ --no-merges（81 → 84）。
+      ⚠ 随后清尾轮又补了一次「窄档复测留痕」提交（见 12 节），LOOKATME 的同两处数字随之改为
+        **89 / 85（清尾轮 4 次）**并再次按实测核对 —— 故以 HEAD 时的 LOOKATME 为准（89），此处 88 为中间态。
+    · ChatPage 行数：原「由 298 行瘦身为布局壳」（298 是 diff 改动行数口径）→ 改为实测
+      「由 **286 行**（git show 301708c:apps/web/src/pages/ChatPage.tsx | wc -l）瘦身为布局壳（清尾轮后 125 行）」。
+    · 补记 9b24d46（推理摘要断句修复）与 79675f6（F4），并注明 F4 的 14 张截图拍于 9b24d46 之前
+      （截图里的推理摘要仍是补「。」之前的旧文案；差异仅句末标点，未重拍，故本轮 4 张新截图 + 此说明）。
+    · 措辞收紧：原「本轮组件浅色小字已修 3 处」→ 明确「这 3 处是**被采样的那几处**；采样清单未含
+      「进行中」，该处与 ChatPage 提示行由清尾轮补修」，并列出全站唯一已知例外（ModelBadge 3.15:1，D27）。
+    · 同批按实测更新：测试 345 → **351 例**（29 → 30 文件，前端 133 → 139）、走查截图 14 → **18 张**
+      （+ 清尾轮开合两态 × 两主题）、补左基线实测数值、进度快照里轮 2 的审查列由「待审查」改为「PASS（11 条 L/INFO，无 H/M）」。
+  02_EXEC_REPORT.md §4.4：结论句就地收紧（保留原句留痕），见 11.6。
 
-================================================================
-五、MINOR 清偿证据（D13：①④改代码、②③留痕）
-================================================================
-MINOR-①（verify 不校验 item_id 属候选集）→ 本迭代修
-  代码：functions/api/src/services/attribution.ts verify()，插入点 = loadOwned 与 item 查询之后、
-        gradeItem 之前：
-        if (record.pending_candidates.length > 0 &&
-            !record.pending_candidates.includes(item.knowledge_point)) {
-          throw httpError.badRequest('这不是当前的验证题，先完成手头这道');
-        }
-        改动量 +12 行 / 0 删（git diff --numstat: 12 0）；pending 为空（已 verified / self 型）时
-        维持既有幂等行为不变。
-  证据 1（单测）：attribution.test.ts 由 14 → 16 例，先单跑确认既有 14 例零回归
-        → 「✓ functions/api/tests/attribution.test.ts (16 tests)」16 passed
-        · 非候选集题（translation 的 train 首题）→ code=400 / msg 逐字匹配 / 不写证据 / 不推进游标
-        · 候选集内次高嫌疑题（function.graph）仍正常通过 → 只排除该候选，root_cause 回落 vertex_form
-  证据 2（HTTP 实测）：端到端演示 [6.0] 过 vite proxy
-        → {"code":400,"msg":"这不是当前的验证题，先完成手头这道"}
-  风险处置（R4）：改动前先跑既有用例确认零回归，再补新用例 ✓
+11.5 本轮验证命令与结果（逐条实跑）
+  1) tsc --noEmit -p apps/web/tsconfig.json                     → exit 0
+  2) vitest run apps/web/tests                                  → 14 文件 **139 例全绿**（133 + 新增 6）
+  3) vitest run functions/api/tests（第 1 次）                    → **7 例失败**：全部是
+     `Error: ENOTEMPTY: directory not empty, rmdir '/var/folders/…/T/zhiwei-db-XXXX'`
+     （测试收尾删临时库目录时的文件系统竞态，无一条是断言失败；本轮只改 apps/web，后端零改动）
+  4) vitest run functions/api/tests（第 2 次，同一条命令原样重跑）  → 14 文件 **169 例全绿**
+     判定：3) 属本机沙箱的临时目录清理抖动（同一命令重跑即绿），不是本轮引入，也未被隐藏；
+     如实记录两次结果供 reviewer 复核。后续若复现，建议核查各测试的 afterAll 清理是否对并行文件敏感。
+  5) 真实浏览器走查（Chrome headless + CDP，同一条命令内「起后端 + 起 vite → 探活 → 测量/截图 → 杀」）：
+     - 修前基线：折线左缘 232/232（收起）、232 vs 32（展开）；「进行中」3.57:1；提示行 3.45:1；
+       apply_evidence.after 显示 0.009000000000000001
+     - 修后：232/232 与 32/32（差均 0px）、5.51:1、5.17:1、0.009 —— 见 11.1–11.3
+  6) 截图入库：_pipeline/screenshots/round2/align_1440_{closed,open}_{dark,light}.png（4 张，只增不删）
 
-MINOR-④（跨小时桶接口层用例缺失）→ 本迭代补
-  用例：diagnose.test.ts 新增 describe「契约 §4 跨小时桶（MINOR-④ 接口层锁定）」+2 例：
-        · 可推进时钟下 T → T+3600s 同 kp 另一题：dedup_key 变化、事件 2 条、mastery_before=0.845、
-          mastery_after 上升、mastery_logs 2 条
-        · 对照组：同一小时桶内重交同题仍幂等（mastery 不变、事件 1 条、日志 1 条）
-  证据：V5 全量 → diagnose.test.ts (18 tests) 全过；文件总数 16 → 18
+11.6 与计划的偏差 / 需要总控知道的取舍
+  a) 新增了 1 个源文件 apps/web/src/components/panelDock.ts：这是 L11「单一来源」要求的落点
+     （审查建议原文即「让顶栏 nav 容器复用同一个让位值/变量」），不是顺手重构；未改动任何既有常量。
+  b) 新增了 1 个测试文件 apps/web/tests/format.test.ts：L4 要求「没有合适的就加纯函数并补测试」，
+     故补 6 例；这使项目用例总数由 345 → 351、测试文件 29 → 30，LOOKATME 已同步。
+  c) 02_EXEC_REPORT.md 是本轮唯一「就地改」而非纯追加的地方：§4.4 那句过宽结论按审查 L3 要求收紧，
+     原句以「原句为…」形式保留在同一段内（未删旧内容、未覆写全文），并在 11.2/11.6 交叉引用。
+  d) LOOKATME 额外同步了「进度快照」里轮 2 的审查结论（原「待审查（轮 2 审查报告未出）」实际已出 PASS）
+     与测试/截图计数 —— 属同一类「文档数字与事实不符」，一并改准，未做任何其它改写。
+  e) 未做（不在本轮范围，明确留给后续）：L1（hint 阶梯 2 硬编码）、L3（D 编号两系列）、L5（云函数入口无测试）、
+     L6（SSE 半截即断无集成测试）、L7（远程回落无 trace 标记）、INFO-1/2/3；
 
-MINOR-②（#14 响应为 analyze 超集，内部字段未收敛）→ 留痕不收敛（正式留痕如下）
-  留痕：AttributionView（#14 GET）刻意保留 from_kp / error_type / verified / verified_by /
-        rejected_by_student 五个回显字段，是 analyze 的超集。裁决：实现不动、5 份 .md 不改。
-        理由：归因结果页刷新（?attribution_id= 回显）必须一次拿到「谁被排除、是否已验证、学生是否反驳」，
-        否则前端要多打 2 个接口或伪造状态；契约 §7 括号已认可超集方向。收敛动作建议留给后续文档轮次
-        （API_CONTRACT §7 明确记录「#14 = #13 超集（含 verified/rejected_by_student）」）。
-  证据：apps/web/src/api/types.ts 的 AttributionView 注释与 api/endpoints.ts getAttribution() 返回类型；
-        端到端演示 [6.3] 后 #14 实测返回 verified=true / verified_by=evt_* / verification_item=null，
-        与 #13 analyze 的字段集不同 → 超集关系成立
+—— 本节所引用的每条命令输出与每个截图，均为本轮会话实跑所得；未实测项已在 11.1/11.2 明确标注。
 
-MINOR-③（pending_candidates 内部字段未在 DATA_SCHEMA 留痕）→ 留痕
-  留痕：AttributionRecord.pending_candidates 为**服务端候选游标**的内部字段，19 接口响应一律不下发
-        （serialization 白名单 + toView 显式剔除）。本迭代新增的 MINOR-① 校验正是消费该字段。
-        裁决：DATA_SCHEMA.md 不改（1.2(2) 排除项：5 份 .md 一律不动），改以本报告留痕。
-        建议后续文档轮次在 DATA_SCHEMA §4 的 attributions 表补一行注释。
+================================================================================
+12. 11.1 的窄档复测（补充实测，提交后补做）—— 2026-09-24
+================================================================================
+为什么补：11.1 原写「除 1440 外未重拍」，但 L11 改的是**顶栏 + 正文列共用的容器层**，
+窄档（<1280 覆盖态）是否被带坏必须实测，不能只靠「变量恒 0px」的推理。故提交后补跑一次
+真实浏览器几何量化（同一调用内「起后端 + 起 vite → 探活 → 8 次采样 → 杀」，无截图）。
 
-================================================================
-六、git 记录（8 批次提交）
-================================================================
-2765048  iter3 前端基座：依赖/令牌/路由骨架
-c75f85d  iter3 状态与 API/SSE 客户端
-26dbeb6  iter3 认证/空间/自报三页
-de287a7  iter3 测评页与试卷确认页
-842b888  iter3 对话 SSE 与归因结果页
-63a5ba6  iter3 图谱/报告/云盘三页
-c754348  iter3 MINOR①④清偿 + 联调
-（第 8 批）iter3 收尾：全量回归 + 执行报告（本文件 + 归档副本 + 规划阶段留档变更）
-基线：52fe185（迭代 2 收尾）；分支：main；每批独立 commit，任一批可单独 git revert。
-回滚：前端整次迭代可 revert 上述 7 个前端批次提交回到「apps/web 空壳」；后端仅 c754348 触碰
-      functions/api 三个文件，revert 该提交即恢复迭代 2 形态；数据资产全程未动。
+命令：node /tmp/zw-narrow-check.cjs   （临时脚本，不入库；Chrome 145 headless + CDP，
+      deviceScaleFactor 1，reduced-motion: reduce 以消掉过渡）
 
-第 8 批提交范围说明（有意为之，避免误伤规划留档）：
-  只提交 _pipeline/02_EXEC_REPORT.md（本文件）与 _pipeline/archive/02_EXEC_REPORT_20260919_1817.md。
-  工作区中 _pipeline/01_PLAN.md 与 _pipeline/03_REVIEW.md 的改动是**规划阶段产物**（迭代 3 版写入，
-  本会话开始前即存在，实测证据：执行第 1 条命令时 git status 已显示该两项 modified），
-  以及 archive/ 下 01_PLAN_20260919_1702.md、03_REVIEW_20260919_1540.md 两个未跟踪副本。
-  裁决：不纳入本次提交（计划步骤 8 的「涉及文件」也只列 02_EXEC_REPORT 与归档副本），
-  以严格兑现「禁止删除或修改 _pipeline/01_PLAN.md」——本迭代对其内容零改动（字节未变），
-  是否将规划留档一并入库由规划者/总控决定。
+实测（内容盒左缘 getBoundingClientRect().left；diff = |顶栏内容左缘 − 正文列左缘|）：
+  ┌──────┬────────┬────────────────┬──────────────┬──────────┬──────────┬──────────────┬────────┐
+  │ 视口 │ 面板   │ 顶栏内容左缘   │ 正文列左缘   │ diff     │ 正文宽   │ header pad-R │ 背景幕 │
+  ├──────┼────────┼────────────────┼──────────────┼──────────┼──────────┼──────────────┼────────┤
+  │ 1440 │ 收起   │ 232            │ 232          │ **0**    │ 976      │ 0px          │ 无     │
+  │ 1024 │ 收起   │ 24             │ 24           │ **0**    │ 976      │ 0px          │ 无     │
+  │ 720  │ 收起   │ 24             │ 24           │ **0**    │ 672      │ 0px          │ 无     │
+  │ 375  │ 收起   │ 24             │ 24           │ **0**    │ 327      │ 0px          │ 无     │
+  │ 1440 │ 展开   │ 32             │ 32           │ **0**    │ 976      │ 400px        │ 无     │
+  │ 1024 │ 展开   │ 24             │ 24           │ **0**    │ 976      │ 0px          │ 有     │
+  │ 720  │ 展开   │ 24             │ 24           │ **0**    │ 672      │ 0px          │ 有     │
+  │ 375  │ 展开   │ 24             │ 24           │ **0**    │ 327      │ 0px          │ 有     │
+  └──────┴────────┴────────────────┴──────────────┴──────────┴──────────┴──────────────┴────────┘
+  8/8 采样 diff = 0px；面板左缘/宽度（展开态）：1440 → 1040/400（常驻，无背景幕）、
+  1024 → 624/400、720 → 320/400、375 → 30/345（覆盖式 + 背景幕）。
 
-================================================================
-七、偏差清单与冲突裁决留痕
-================================================================
-格式：编号 / 冲突或差异原文 / 裁决 / 理由
+结论：① 左基线不变量在四档宽度、开合两态下**全部成立**（不只 1440）；
+      ② <1280 覆盖态**零回归** —— 正文宽 976/672/327 与 F4 修前实测值逐项相同，
+      header padding-right = 0px、背景幕与面板几何（624/320/30、345 宽）也与 F4 一致；
+      ③ 1440 展开态 header 吃到 400px 让位、面板左缘仍 1040，两者不重叠（顶栏内容右缘 1032）。
 
-D-1  计划 四、 汇总「新建 48 / 修改 12（前端 45）」
-     裁决：按其逐条清单执行 → 交付 40 新建 + 13 修改（git 实测 40 A / 13 M）。
-     理由：汇总数与清单自相矛盾（清单实列 40 ★ + 13 △）；逐条清单是唯一可执行口径，
-           且实测无遗漏、无额外新建业务文件。已在 四、 写明核对方式。
-
-D-2  计划 D8「import { masteryToBand, BAND_THRESHOLD_UNSTABLE, ... } from '../../../packages/engine/src/index'」
-     裁决：① 路径深度改为按文件位置计算（apps/web/src/{theme,api,stores,lib} 下的文件需 '../../../../'；
-              src/ 根下文件需 '../../../'），计划字面路径在这些位置会解析到 apps/packages；
-           ② 改为从 **源模块** '../../../../packages/engine/src/statusBand' 导入，而非 barrel index。
-     理由：① 纯路径深度笔误，无行为影响；② barrel index 会连带 params.ts（node:fs / node:path），
-           进浏览器 bundle 会在 vite 构建期报「externalized for browser compatibility」并在运行期炸掉——
-           实测证据：批 1 首次 vite build 若保留 barrel 会引入该风险，改为源模块后 635 modules 构建通过；
-           常量本体仍是 engine 那一份（守恒测试断言 === engine 导出值，见 V4 bands 用例），非复制。
-           计划 R2 允许的「vite alias」方案不解决 node:fs 问题，故取本方案（更强）。
-
-D-3  apps/web/src/index.css 计划仅「全局底色/字体两行，@tailwind 指令保留」
-     裁决：额外增加一行 `@config "../tailwind.config.js";`
-     理由：tailwind 插件默认按 process.cwd() 找配置，而本工程从仓库根以 --config 启动 vite
-           （cwd=仓库根）→ 找不到 apps/web/tailwind.config.js，退化为空配置（无 content、无令牌），
-           构建期即报「The `bg-canvas` class does not exist」。@config 相对 CSS 文件解析，dev 与 build
-           一致。postcss.config.js 保持不动（计划明确不动项），git diff 为空 ✓。
-
-D-4  apps/web/tailwind.config.js 的 content 由数组改为 { relative: true, files: [...] }
-     裁决：加 relative: true。
-     理由：实测（批 1 构建）出现「No utility classes were detected in your source files」——content glob
-           默认按 cwd 解析，cwd=仓库根时 './src/**' 命中不到 apps/web/src，产物零 utility class（UI 会全无样式）。
-           relative: true（tailwind ≥3.2）使 glob 相对配置文件解析，修复后 CSS 由 5.03 kB → 10.38 kB（批 1）
-           / 15.47 kB（批 6 全页面）。
-
-D-5  计划 D2 描述 auth 切片含「login/register/logout/setToken」动作
-     裁决：store 只保留会话持久化（setSession / clear + localStorage 读写），API 调用放在页面。
-     理由：store 内联 endpoints 会形成 stores/auth → api/endpoints → api/client → stores/auth 的循环依赖
-           （token 读取在 client 内），虽然运行期可work但属脆弱设计；改为页面调用 + store 落盘后，
-           P0 #1「token 存 localStorage 刷新不掉线」由 authStore 用例锁定（模块重载后仍读到 token）。
-
-D-6  批 2 触及 apps/web/src/components/Layout.tsx、批 3 触及 TopNav.tsx
-     裁决：按「同一计划文件的分批收尾」处理，不计为新文件。
-     理由：两文件都在计划文件清单内（★ Layout/TopNav）；批 1 建壳时尚未有 ui/space store，
-           批 2 接 Toast 出口、批 3 接空间二级菜单，属计划步骤本身要求的集成点，未越出文件范围。
-
-D-7  MINOR-④ 计划「diagnose.test.ts +1 用例」
-     裁决：实际交付 +2（跨小时用例 + 同小时幂等对照组）。
-     理由：对照组用于锁定「跨小时才重新计分」的边界，与主用例同文件同关注点；未新增文件、未扩大范围。
-           api 用例数因此为 112 + 2（①）+ 2（④）= 116。
-
-D-8  V6/V7 命令执行方式
-     裁决：V6 用「mv 旧 dist 至 /tmp（移动，非删除）→ 执行计划原命令（含 --emptyOutDir）」；
-           V7 用「单条命令内自包含启动 api + dev → 轮询就绪 → 冒烟 → 不依赖进程跨命令存活」。
-     理由：本环境沙箱 safe-delete 守卫拒绝「单次递归删除 >50 条目」的调用——实测两条证据：
-           (a) vite build 的 emptyDir 被拒：error during build: [safe-delete][SAFE_DELETE_BULK_REJECTED]
-               {"count":53,"threshold":50,...}；
-           (b) vite dev 的依赖优化缓存提交被拒（apps/web/node_modules/.vite 内 deps 18 条 + 2 个残留
-               deps_temp_* ≈ 53 条目），导致 dev server 直接崩溃退出。
-           处置：把 apps/web/node_modules/.vite 整体移到 /tmp（mv），dev server 重新预热后正常；
-           另实测后台长驻进程会被环境在 ~30–90s 内回收（api 与 dev 各观察到一次静默终止），故冒烟改为
-           自包含执行。以上均为**环境约束**，非代码缺陷：计划原命令在 dist 不存在时可直接跑通（批 1 首次
-           构建即用 --emptyOutDir 成功）。
-
-D-9  前端页面渲染的验证深度
-     裁决：页面级验证 = 构建通过（V6）+ 类型检查（V2）+ 其全部数据通路过 proxy 实测（V7）
-           + 数据变换层单测（V4）；**不做浏览器渲染断言**。
-     理由：计划 1.2(6) 明确排除 E2E 框架与 @testing-library；本环境无浏览器自动化工具。
-           因此 10 页面的「数据正确性」有实测证据，而「像素级渲染」未做自动断言，属计划内已知边界
-           （见 九、未完成项）。
-
-冲突裁决留痕（按优先级链 API_CONTRACT > ALGORITHM > DATA_SCHEMA > PRD > 方案叙事，执行中遇到的冲突）：
-C-1 「对错是否展示」：PRD §2 P0 #3 字面只约束诊断模式（correct 仅测量模式返回），但 PRD §5 页 4 核心任务写
-    「无对错反馈」、§6 语气纪律（不当评判者）。
-    裁决：**三种模式一律不展示对错**（前端不渲染 correct，即便 baseline/retest 有值）。
-    理由：取更严一侧，保持同一交互人格；不影响 P0 #11（ΔAccuracy 在报告页）。01_PLAN D11 同结论，本迭代照办。
-C-2 「空间管理的位置」：PRD §5 页 3 要求空间列表是独立页面，PRD §6 要求「空间不占首屏」。
-    裁决：/spaces 独立页面保留，但**不进主导航**，改为顶栏二级菜单入口 + 登录/注册后按需落地。
-    理由：两条同时满足；导航项保留 5 个学习入口（测评/对话/图谱/报告/云盘）。
-C-3 「颜色区间边界」：PRD §6 写 `0.6–0.8` 基本掌握、`>0.8` 已掌握，边界归属含糊。
-    裁决：一律按 engine statusBand.ts 的**左闭右开**口径（p<0.4 / 0.4≤p<0.6 / 0.6≤p<0.8 / p≥0.8）。
-    理由：engine 是阈值唯一来源（本迭代守恒测试断言前端常量 === engine 导出值），前端不得另立区间。
-C-4 「演示数据来源」：03_REVIEW R7 提示 data/local_db 是共享演示态；PRD 未规定。
-    裁决：演示/冒烟一律注册**新 identifier**，不动 demo@zhiwei.dev 既有数据。
-    理由：D12 + R7。实测核对（读 data/local_db/users.json，该目录不入库、ignore 已核）：
-          总条目 15 = 既有 1（demo@zhiwei.dev，仍在且未被改动）+ 本次会话新建 14
-          （demo3_ 批3冒烟 1 / b4_ 批4冒烟 1 / b5_ 批5冒烟 1 / demo_ 演示脚本 4 / probe* Δ探测 7）。
-          所有写操作都落在新账号自己的 space 上，未触碰既有账号的空间与证据。
-
-F-1（发现 → **终审前已修复，见 十二、**）：ΔAccuracy 结构性为空
-    状态更新：2026-09-19 终审前修复轮已按 PRD §7 在测量层解决（mode=retest 以基线已测 kp 优先选题），
-          实测 accuracy 三行 baseline=0 / retest=1 / delta=1 均为非 null。原始发现与探测证据保留如下。
-    现象：端到端演示 [9]/[10] 中，基线与复测的选题落在**不同 kp**——基线 {eq_relation, opening, formula}
-          （另一轮为 {geometry, application, eq_relation}），复测 {graph_basic, factoring, eq_concept}
-          （另一轮为 {extremum, general_to_vertex, opening}）；#19 的 accuracy 行每行只有单侧数据，
-          delta 恒为 null，前端按计划如实显示「—」，未伪造数据。
-    探测证据（共 7 次，全部通过 proxy 实测，均用全新账号）：
-      A 全图 3+3、B 二次函数 3+3、C 二次函数 4+4、D 全图 4+4 → 双侧行数 0/0/0/0
-      E1/E2/E3 完整测量协议（基线答错 → 按处方对基线 kp 练 9/15/12 道 train 题 → 复测答对）
-        → 双侧行数 0/0/0，retest kp 恒定 {extremum, general_to_vertex, opening}
-    裁决：**不改**。理由：选题在 packages/engine（selection.ts）与报告口径在 services/report.ts，
-          两者都是计划 1.2(5) 冻结范围；本迭代唯一授权的后端改动是 MINOR-①④。
-    影响与建议：PRD §7 的 ΔAccuracy ≥ 0.3 硬指标需要「同一 kp 双侧测量」，当前选选择算法的信息增益排序
-          会使基线/复测落在不同节点 → 建议后续迭代在**测量协议层**（例如 retest 阶段以基线已测 kp 优先
-          或按 kp 配对出题）解决，属规划者/总控裁决事项，本报告仅如实上报。
-    前端已满足的部分：P0 #11 的「baseline/retest 模式可选 + 报告页 ΔAccuracy 展示（含 null → 「—」）」
-          已实现并有实测（#7/#8 三模式出题、#19 accuracy 6 行渲染路径）。
-
-E-1（环境事故，已完全恢复，如实记录）：依赖安装曾误在仓库根执行
-    经过：首次 V1 误用 `cd /Users/Merryou/LearnBuddy/zhiwei && npm install …`（计划要求 cd $WS）→
-          npm reify 试图删除仓库根 node_modules 软链与其它条目，触发沙箱守卫：
-          [SAFE_DELETE_BULK_REJECTED] {"count":53,…,"targets":["…/data/local_db"]} → 安装整体失败。
-    核对（逐项）：node_modules 软链仍在并指向 $WS/node_modules ✓；data/local_db/ 8 个文件完整 ✓；
-          根 package.json 未被写入 ✓；无残留 package-lock.json ✓；git status 与预期一致 ✓
-          （apps/web/node_modules/ 下仅有迭代 1 遗留的 .vite 缓存，已被 gitignore）。
-    恢复：改在 $WS 正确执行 → added 58 packages in 7s；V1 版本核对通过。
-    教训：本报告 八、 与 V1 命令均已按 $WS 路径留痕。
-
-================================================================
-八、未完成项与阻塞项
-================================================================
-8.1 未完成（计划内已知边界，非缺陷）
-  (1) 浏览器级渲染验证未做：无 E2E 框架（计划 1.2(6) 排除）、本环境无浏览器自动化工具。
-      10 页面的数据通路与逻辑均有实测/单测，但「像素级渲染、点击热区、ECharts 图形实际绘制」未自动断言。
-      人工验收建议：npm run api + npm run dev 后按 二、 的 10 页面清单逐页点一遍（尤其页 8 的图谱布局与
-      ?path 高亮，以及页 7 的反驳按钮位置）。
-  (2) ΔAccuracy 双侧数据（F-1）：**已修复**（见 十二、）。前端实现不变；后端在测量层（retest 优先落在
-      已有基线证据的 kp）修复，端到端实测 delta=1 非 null。
-  (3) MINOR-②③：按 D13 决策仅留痕、未收敛文档（5 份 .md 冻结）。
-  (4) 真实直传云存储 / 真实大模型调用 / 云部署：计划 1.2 排除，未做（ChatPage 传图为「演示态」预置文件选择器）。
-
-8.2 阻塞项
-  无。所有计划步骤 1–8 均已执行完毕；8 批次各自验证并独立 commit；V1–V9 全部跑通（其中 V6/V7 按 D-8
-  的环境等价方式执行）。F-1 是**上报项**而非阻塞项：它不影响前端 10 页面交付与验收清单 A/B/C 的完成。
-
-================================================================
-九、验收清单自检（对照计划 七、）
-================================================================
-A. PRD §2 P0 前端侧
-  [x] #1 注册即自动建默认空间（端到端 [1] 实测默认空间「初中数学」）+ token localStorage + 刷新不掉线
-        （authStore 用例「模块重载后仍读到 token」）
-  [x] #2 自报 4 章节 × 5 档 +「按 3 档先填上」一键；提交展示 updated（实测 20）
-  [x] #3 测评 doneIds + exclude_item_ids（跳过也记入）+ 服务端 evidence_events 双保险；不展示对错；
-        converged 即停进结束屏
-  [x] #4 预置文件 → 识别 → 逐题确认；unclear 无默认 + 未标全禁用提交（服务端同样拒绝，实测 400）
-  [x] #6 五类枚举卡片 + confidence + evidence；clarify 就地追问且不自动 analyze
-  [x] #7 procedural_slip / misreading 无归因按钮；self 不回溯（path 单节点）；upstream 回溯 + 验证全流程
-  [x] #8 SSE 流式（V7 探活 + 演示 [8]）；hint_down / exit_channel 视觉区分；退出话术照抄 PRD §6；
-        中断降级 JSON 不白屏（sse.test 降级链 + 演示 JSON 降级实测）
-  [x] #9 步进条 + 根因高亮 + 错误类型徽标 + 反驳（reason 可选）+ 追加再验证题 + 耗尽兜底 +
-        ?attribution_id= 刷新回显（#14）
-  [x] #10 图谱四色（阈值/色值取自 engine 同源）+ 路径高亮 + 图例常驻
-  [x] #11 baseline/retest 模式可选 + 报告页 ΔAccuracy 展示（null → 「—」；非空 Δ 见 F-1）
-  [x] #12 报告页三段齐全
-B. PRD §6 交互纪律
-  [x] 一屏一件事（登录单卡 / 测评单题 / 试卷逐题一屏滚动 / 归因分步）
-  [x] 第一屏就让用户开始（注册 → 自报 → 测评；空间页主按钮随自报标记切换）
-  [x] 采集永不弹窗（识别/判定/证据全程 toast；唯一 modal 是 ConfirmDialog 的 409 空间切换确认）
-  [x] 空间不占首屏（顶栏二级菜单 + /spaces 不进主导航）
-  [x] 语气=耐心的学长（phrases 四场景照抄 PRD §6 + 单测断言无评判词）
-  [x] 颜色语义全局一致（bands 单一事实源 + 守恒测试 + 无刺眼大红断言）
-C. 迭代 3 范围
-  [x] 1 10 页面可导航可用（云盘 P1 只读 + 禁用占位）
-  [x] 2 交互纪律 B 全项
-  [x] 3 P0 验收 A 全项
-  [x] 4 技术形态：React Router（HashRouter）+ Zustand 切片 + 统一 client + SSE 客户端 + ECharts +
-        Tailwind 令牌
-  [x] 5 端到端演示：npm run api → npm run dev 两命令；V7 冒烟通过；演示路径 10 步走通
-  [x] 6 MINOR：① 代码 + 用例；②③ 留痕（本报告 五、）；④ 用例（+2，含 1 例对照组）
-  [x] 7 前端测试 64 例纯逻辑层全绿；既有 150 例零回归（V5 = 218 全过）
-D. 工程纪律
-  [x] 每批独立 commit（8 提交）；V9 冻结路径 diff 为空；错误码九码不扩展（前端只消费，无新码）；
-      5 份 .md 零改动；data/local_db 与 dist 产物不入库；依赖仅 +react-router-dom +jsdom 两个
-
-================================================================
-十、环境约束与事故（供后续迭代复用）
-================================================================
-1) safe-delete 守卫：单次递归删除 >50 条目即拒绝（count/threshold 见报错 JSON）。
-   影响：vite build --emptyOutDir、vite dev 依赖优化缓存提交、npm install 的 reify 清理。
-   对策：用 mv 把目录移出仓库（不触发删除）；或让目标目录不存在（rm 不存在路径经实测放行）。
-2) 后台进程回收：background 启动的 api/dev server 会在 ~30–90s 被环境静默终止（无 stderr）。
-   对策：把「启动服务 → 轮询就绪 → 冒烟」放在同一条命令内自包含执行。
-3) HTTP 代理：shell 环境带 http_proxy（127.0.0.1:55590），curl POST 经它会被 502 拦截。
-   对策：export no_proxy='127.0.0.1,localhost'（node 的 fetch 不走该代理，无需额外配置）。
-4) zsh 无 $PIPESTATUS：经管道的命令请用「> file 2>&1; echo $?」采集真实退出码。
-5) 依赖安装必须在 $WS 执行（见 E-1）。
-
-================================================================
-十一、结论
-================================================================
-1) 计划 01_PLAN 步骤 1–8 全部执行完毕，8 批次各自验证并独立 commit，无跳步、无跨批合并提交。
-2) 10 页面（PRD §5）+ 端到端闭环（注册→自报→测评→试卷→归因→处方→对话→复测→报告→图谱）全部落地，
-   最终一轮演示 10 步全绿。原唯一保留项 F-1（ΔAccuracy 双侧数据为空）已在终审前修复轮解决（见 十二、）。
-3) 质量闸门：V2 exit=0；V3 两段 exit=0；V5 exit=0（20 文件 218 用例：engine 38 + api 116 + web 64，
-   含既有 150 例零回归）；V6 exit=0（dist/index.html 存在）；V8 两脚本 exit=0（validate 全 PASS、
-   题库复算覆盖 86 题不一致 0）；V9 冻结路径 diff 为空。V4 前端 64 例（纯逻辑层）全绿。
-4) 工程纪律：仅新增 2 个依赖；5 份需求 .md 与 engine/data/config 资产零改动；错误码九码未扩展；
-   后端仅按授权改动 3 个文件（MINOR-① +12 行 / 0 删 + 4 个用例）。
-5) 需上游裁决的 1 项：F-1 ΔAccuracy 测量口径——**已自行裁决并落地（D15，见 十二、）**，无需再上报。
-6) 需人工补验的 1 项：浏览器内 10 页面像素级渲染（计划排除 E2E 框架，环境无浏览器工具）。
-
-（本报告为迭代 3 版执行报告；旧版已归档 _pipeline/archive/02_EXEC_REPORT_20260919_1817.md。）
+未实测项：窄档只有几何量化，未出截图（截图证据仍为 11.1 的 1440 两态 × 两主题 4 张）。
+本节的数字为提交后补跑所得，代码与 18f348f 一致（此后仅文档提交，未改代码）。

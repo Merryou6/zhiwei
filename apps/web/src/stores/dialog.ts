@@ -6,11 +6,15 @@
  *   - agent：学长回复（左侧；流式期间 pending=true，delta 逐段追加）
  *   - notice：系统级非阻断提示（退出提示条 / 降级提示），样式独立
  * meta 只存服务端下发的最新值（页面据此显示徽标与注脚，不自行判断语义）。
+ *
+ * 过程链路（v1.3，D10）：thought / toolSteps / phase 只保留**最新一轮**——startAssistant
+ * 时清空（新一轮开始时上一轮的链路就该退场），finishAssistant / failAssistant 都不清
+ * （过程跑完后仍要在面板里看得见）。链路不落库、不进 messages，历史轮次不复放。
  */
 
 import { create } from 'zustand';
 
-import type { ChatMeta } from '../api/types';
+import type { ChatMeta, ChatSsePhaseData, ChatToolStep } from '../api/types';
 
 export type ChatRole = 'student' | 'agent' | 'notice';
 
@@ -32,6 +36,12 @@ export interface DialogState {
   messages: ChatMessage[];
   meta: ChatMeta | null;
   streaming: boolean;
+  /** 当轮思考文本（增量拼接；本地=推理摘要，远程=模型自述）。 */
+  thought: string;
+  /** 当轮工具步骤（同 id 覆盖：running → 终态）。 */
+  toolSteps: ChatToolStep[];
+  /** 当轮阶段（最后一次 phase 事件）。 */
+  phase: ChatSsePhaseData | null;
   appendStudent: (text: string, imageFileId?: string | null) => string;
   startAssistant: () => string;
   appendDelta: (id: string, text: string) => void;
@@ -39,6 +49,13 @@ export interface DialogState {
   finishAssistant: (id: string, badge?: 'hint' | 'exit' | null, note?: string | null) => void;
   failAssistant: (id: string, msg: string) => void;
   pushNotice: (text: string) => string;
+  /** 思考增量（拼接）。 */
+  appendThought: (text: string) => void;
+  /** 工具步骤：同 id 覆盖（running → ok/error 不重复插卡，缺省字段沿用上一条）。 */
+  upsertTool: (step: ChatToolStep) => void;
+  setPhase: (phase: ChatSsePhaseData) => void;
+  /** 清空当轮链路（startAssistant 自动调用；一般不单独调）。 */
+  resetTrace: () => void;
   reset: () => void;
 }
 
@@ -53,6 +70,9 @@ export const useDialogStore = create<DialogState>((set, get) => ({
   messages: [],
   meta: null,
   streaming: false,
+  thought: '',
+  toolSteps: [],
+  phase: null,
 
   appendStudent: (text: string, imageFileId: string | null = null) => {
     const id = nextId('msg');
@@ -65,6 +85,10 @@ export const useDialogStore = create<DialogState>((set, get) => ({
     set({
       messages: [...get().messages, { id, role: 'agent', text: '', pending: true }],
       streaming: true,
+      // 新一轮开始 → 上一轮链路退场（D10：只保留最新一轮）
+      thought: '',
+      toolSteps: [],
+      phase: null,
     });
     return id;
   },
@@ -105,5 +129,23 @@ export const useDialogStore = create<DialogState>((set, get) => ({
     return id;
   },
 
-  reset: () => set({ dialogId: null, messages: [], meta: null, streaming: false }),
+  appendThought: (text: string) => set({ thought: get().thought + text }),
+
+  upsertTool: (step: ChatToolStep) => {
+    const steps = get().toolSteps;
+    const index = steps.findIndex((entry) => entry.id === step.id);
+    if (index < 0) {
+      set({ toolSteps: [...steps, step] });
+      return;
+    }
+    const merged: ChatToolStep = { ...steps[index], ...step };
+    set({ toolSteps: steps.map((entry, i) => (i === index ? merged : entry)) });
+  },
+
+  setPhase: (phase: ChatSsePhaseData) => set({ phase }),
+
+  resetTrace: () => set({ thought: '', toolSteps: [], phase: null }),
+
+  reset: () =>
+    set({ dialogId: null, messages: [], meta: null, streaming: false, thought: '', toolSteps: [], phase: null }),
 }));

@@ -2,138 +2,81 @@
  * 页 6 · 对话辅导（SSE 流式；P0 #8）
  *
  * 契约：#18 POST /api/agent/chat（Content-Type: text/event-stream）
- *       事件序列：delta（≥1 段）→ meta（五字段）→ done；Accept 为 json 时返回 {reply, meta}
+ *       事件序列（v1.3）：phase/thought/tool 过程事件 → delta（≥1 段）→ meta → done；
+ *       Accept 为 json 时返回 { reply, meta, trace }。
  * 交互：学长左 / 学生右；delta 增量追加渲染；流式期间禁发；meta 只读不自行判断——
  *   - kp_match.confidence < 0.6 → 学长气泡下加浅色注脚「我不太确定说的是哪个知识点…」（对应服务端 clarify 行为）
  *   - next_action=hint_down → 气泡标「方向提示」徽标
  *   - next_action=exit_channel → 显著退出提示条（PRD §6 话术「我们先往回看一眼「XX」」）+ 去图谱链接
  * 「传图读题」为演示态（D15）：本地无云存储直传接口，弹预置文件选择器，选中后以 image_file_id 随消息发送，
  * 按钮旁标注「演示态」，不伪造上传假象。
- * 降级（D5）：流中断 → sse.ts 自动 JSON 重发一次 → 仍失败出错误气泡，页面永不白屏。
+ * 降级（D5）：流中断 → sse.ts 自动 JSON 重发一次（携 trace 时按序重放过程事件）→ 仍失败出错误气泡，页面永不白屏。
+ *
+ * v1.3 本页瘦身为**布局壳**（D11）：消息流 / 输入区 / 思考流 / 工具时间轴 / 模型徽标
+ * 全部来自 components/chat 的共享组件，与右侧常驻面板（ChatPanel）是同一套实现；
+ * 本页只负责宽度、两栏/堆叠与「收进侧栏」入口。文案与交互语义与 v1.2 一致。
  */
 
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { ApiError } from '../api/client';
-import EmptyState from '../components/EmptyState';
-import { InlineSkeletonRows } from '../components/PageSkeleton';
-import { drive } from '../api/endpoints';
-import { streamChat } from '../api/sse';
-import type { ChatMeta, DriveFileView } from '../api/types';
+import ChatComposer from '../components/chat/ChatComposer';
+import ChatMessageList from '../components/chat/ChatMessageList';
+import ChatTracePanel from '../components/chat/ChatTracePanel';
+import ModelBadge, { useModelInfo } from '../components/chat/ModelBadge';
 import { kpName } from '../data/graphSnapshot';
-import { scrollBehavior } from '../lib/motion';
-import { UI_TEXT, exitChannelText } from '../lib/phrases';
-import RichText from '../lib/richText';
-import { SPACES_PATH } from '../router';
+import { exitChannelText } from '../lib/phrases';
+import { CONSOLE_PATH, SPACES_PATH } from '../router';
+import { useChatPanelStore } from '../stores/chatPanel';
 import { useDialogStore } from '../stores/dialog';
 import { useSpaceStore } from '../stores/space';
-import { useUiStore } from '../stores/ui';
-
-/** kp 匹配低置信阈值（契约 §9：< 0.6 服务端先追问、不产生证据）。 */
-const LOW_CONFIDENCE = 0.6;
-
-function badgeOf(meta: ChatMeta | null): 'hint' | 'exit' | null {
-  if (!meta) return null;
-  if (meta.next_action === 'exit_channel') return 'exit';
-  if (meta.next_action === 'hint_down') return 'hint';
-  return null;
-}
 
 export default function ChatPage() {
-  const [input, setInput] = useState('');
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [files, setFiles] = useState<DriveFileView[]>([]);
-  const [imageFileId, setImageFileId] = useState<string | null>(null);
-
   const store = useDialogStore();
+  const model = useModelInfo();
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
-  const toast = useUiStore((state) => state.toast);
-
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    // 流式追加时贴底；系统开启「减弱动态效果」时改为瞬时滚动（批三）
-    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
-  }, [store.messages.length, store.streaming]);
-
-  async function openPicker(): Promise<void> {
-    setPickerOpen((value) => !value);
-    if (files.length > 0 || !activeSpaceId) return;
-    try {
-      const data = await drive(activeSpaceId);
-      setFiles(data.files);
-      setImageFileId((current) => current ?? data.files[0]?.file_id ?? null);
-    } catch (error) {
-      toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
-    }
-  }
-
-  async function send(): Promise<void> {
-    if (!activeSpaceId) {
-      toast('先选一个学习空间', 'warn');
-      return;
-    }
-    const text = input.trim();
-    if (text.length === 0 || store.streaming) return;
-
-    store.appendStudent(text, imageFileId);
-    setInput('');
-
-    const assistantId = store.startAssistant();
-    const sentImage = imageFileId;
-    setImageFileId(null);
-    setPickerOpen(false);
-
-    await streamChat(
-      {
-        space_id: activeSpaceId,
-        dialog_id: store.dialogId ?? undefined,
-        message: text,
-        image_file_id: sentImage ?? undefined,
-      },
-      {
-        onDelta: (delta) => store.appendDelta(assistantId, delta),
-        onMeta: (meta) => store.setMeta(meta),
-        onDone: () => {
-          const meta = useDialogStore.getState().meta;
-          const lowConfidence =
-            meta !== null && (meta.kp_match.confidence ?? 0) < LOW_CONFIDENCE && meta.kp_match.kp_id.length > 0;
-          store.finishAssistant(
-            assistantId,
-            badgeOf(meta),
-            lowConfidence ? '我不太确定说的是哪个知识点，可以再描述一下吗' : null,
-          );
-        },
-        onError: (msg) => {
-          store.failAssistant(assistantId, msg);
-          toast(msg, 'warn');
-        },
-        onFallback: (msg) => toast(msg),
-      },
-    );
-  }
+  const panelOpen = useChatPanelStore((state) => state.open);
+  const setPanelOpen = useChatPanelStore((state) => state.setOpen);
+  const navigate = useNavigate();
 
   const meta = store.meta;
   const exitNotice =
-    meta?.next_action === 'exit_channel'
-      ? exitChannelText(kpName(meta.kp_match.kp_id))
-      : null;
+    meta?.next_action === 'exit_channel' ? exitChannelText(kpName(meta.kp_match.kp_id)) : null;
 
   return (
-    <section className="max-w-2xl">
-      <header className="flex items-end justify-between gap-4">
+    <section>
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-medium text-ink">跟学长聊两句</h1>
           <p className="mt-2 text-sm text-ink-soft">
             卡在哪一步就说哪一步，写半句也行。我不会直接给你答案，会先陪你把思路接上。
           </p>
+          <div className="mt-2">
+            <ModelBadge mode={model?.mode ?? 'local'} name={model?.name ?? null} />
+          </div>
         </div>
-        {meta ? (
-          <span className="shrink-0 text-[13px] text-ink-soft">
-            这轮在聊：{kpName(meta.kp_match.kp_id)}（{Math.round(meta.kp_match.confidence * 100)}%）
+
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {meta ? (
+            <span className="text-[13px] text-ink-soft">
+              这轮在聊：{kpName(meta.kp_match.kp_id)}（{Math.round(meta.kp_match.confidence * 100)}%）
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => {
+              // 「收进侧栏」：打开右侧面板并回到工作台，对话上下文随全局 store 一起带走
+              setPanelOpen(true);
+              navigate(CONSOLE_PATH);
+            }}
+            className="rounded-control border border-line px-3 py-1.5 text-[13px] text-ink-soft hover:bg-surface"
+          >
+            收进侧栏
+          </button>
+          {/* 清尾轮 L2：原 `text-ink-soft/80` 浅色实测 3.45:1（半透明降级），不达 AA → 纯 text-ink-soft 5.41:1 */}
+          <span className="text-[11px] text-ink-soft">
+            收进侧栏后，任何页面都能接着聊（现在：{panelOpen ? '侧栏已展开' : '侧栏未展开'}）
           </span>
-        ) : null}
+        </div>
       </header>
 
       {exitNotice ? (
@@ -151,136 +94,32 @@ export default function ChatPage() {
         </div>
       ) : null}
 
-      <div className="mt-5 space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
-        {store.messages.length === 0 ? (
-          <EmptyState
-            compact
-            title="还没有聊天记录"
-            hint="可以从一句「我卡在这里」开始，也可以传张题图让我先读题。"
-          />
-        ) : null}
+      {/* 宽屏两栏（左消息流 / 右链路）；<720 上下堆叠，链路折叠为手风琴（D5f） */}
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 min-[720px]:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
+        <div className="min-w-0 max-w-2xl">
+          <ChatMessageList messages={store.messages} streaming={store.streaming} />
+          <ChatComposer disabled={store.streaming} />
 
-        {store.messages.map((message) => {
-          if (message.role === 'notice') {
-            return (
-              <p key={message.id} className="text-center text-[13px] text-ink-soft">
-                {message.text}
-              </p>
-            );
-          }
-
-          const isStudent = message.role === 'student';
-          return (
-            <div key={message.id} className={isStudent ? 'flex justify-end' : 'flex justify-start'}>
-              <div className={isStudent ? 'max-w-[80%] text-right' : 'max-w-[85%]'}>
-                <div
-                  className={[
-                    'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed',
-                    isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
-                  ].join(' ')}
-                >
-                  {message.text.length > 0 ? (
-                    // 学长回复走轻量 Markdown 子集（加粗/列表/换行）；学生输入是纯文本，保持原样
-                    isStudent ? (
-                      message.text
-                    ) : (
-                      <RichText text={message.text} className="space-y-1.5" />
-                    )
-                  ) : message.pending ? (
-                    '正在想…'
-                  ) : (
-                    ''
-                  )}
-                </div>
-
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
-                  {isStudent && message.imageFileId ? (
-                    <span className="rounded-md bg-canvas px-2 py-0.5">已带题图（演示态 · {message.imageFileId}）</span>
-                  ) : null}
-                  {message.badge === 'hint' ? (
-                    <span className="rounded-md bg-band-unstable/15 px-2 py-0.5 text-band-unstable">方向提示</span>
-                  ) : null}
-                  {message.badge === 'exit' ? (
-                    <span className="rounded-md bg-band-weak/15 px-2 py-0.5 text-band-weak">换条路走走</span>
-                  ) : null}
-                  {!isStudent && message.note ? (
-                    <span className="text-ink-soft/80">注：{message.note}</span>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
-
-      {pickerOpen ? (
-        <div className="mt-3 rounded-xl border border-line bg-surface p-3">
-          <p className="text-[13px] text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
-          <ul className="mt-2 space-y-1">
-            {files.map((file) => (
-              <li key={file.file_id}>
-                <button
-                  type="button"
-                  onClick={() => setImageFileId(file.file_id)}
-                  className={[
-                    'w-full rounded-lg px-3 py-1.5 text-left text-xs',
-                    imageFileId === file.file_id ? 'bg-accent-veil text-accent' : 'text-ink hover:bg-raised',
-                  ].join(' ')}
-                >
-                  {file.name}
-                </button>
-              </li>
-            ))}
-            {files.length === 0 ? (
-              <li className="px-3">
-                {/* 预置文件列表加载中：行内骨架（批三），原状态文字保留给屏幕阅读器 */}
-                <span className="sr-only">正在取文件…</span>
-                <InlineSkeletonRows rows={2} />
-              </li>
-            ) : null}
-          </ul>
+          <p className="mt-3 text-[13px] text-ink-soft">
+            {activeSpaceId ? '' : `还没有空间，`}
+            <Link to={SPACES_PATH} className="underline">
+              {activeSpaceId ? '空间与进度' : '先去建一个空间'}
+            </Link>
+            {' · '}
+            <Link to="/graph" className="underline">
+              看看我的地图
+            </Link>
+          </p>
         </div>
-      ) : null}
 
-      <div className="mt-4 flex items-end gap-2">
-        <textarea
-          className="min-h-[44px] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
-          rows={2}
-          placeholder="写一句你的思路，或者直接说卡在哪"
-          value={input}
-          disabled={store.streaming}
-          onChange={(event) => setInput(event.target.value)}
+        <ChatTracePanel
+          thought={store.thought}
+          toolSteps={store.toolSteps}
+          phase={store.phase}
+          streaming={store.streaming}
+          mode={model?.mode ?? 'local'}
         />
-        <button
-          type="button"
-          onClick={() => void openPicker()}
-          className="rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-surface"
-          title="本地演示态：选预置文件代替真实直传"
-        >
-          传图读题
-          <span className="ml-1 text-[10px] text-ink-soft/70">演示态</span>
-        </button>
-        <button
-          type="button"
-          disabled={store.streaming}
-          onClick={() => void send()}
-          className="rounded-xl bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
-        >
-          {store.streaming ? '正在回…' : '发送'}
-        </button>
       </div>
-
-      <p className="mt-3 text-[13px] text-ink-soft">
-        {activeSpaceId ? '' : `还没有空间，`}
-        <Link to={SPACES_PATH} className="underline">
-          {activeSpaceId ? '空间与进度' : '先去建一个空间'}
-        </Link>
-        {' · '}
-        <Link to="/graph" className="underline">
-          看看我的地图
-        </Link>
-      </p>
     </section>
   );
 }

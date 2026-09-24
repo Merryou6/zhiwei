@@ -1,5 +1,5 @@
 /**
- * 路由装配（D1）：10 页路由表（router.tsx）+ 守卫 + 页面外壳。
+ * 路由装配（D1）：12 页路由表（router.tsx）+ 守卫 + 页面外壳。
  *
  * 守卫状态直接读 localStorage（与 stores/auth 的落盘键同源，见 router.tsx STORAGE_KEYS）：
  * 登录/登出/401 清理都会先同步写盘再导航，故守卫是「持久化会话」的纯函数，无额外订阅。
@@ -22,6 +22,7 @@ import ChatPage from './pages/ChatPage';
 import ConsoleHomePage from './pages/ConsoleHomePage';
 import DrivePage from './pages/DrivePage';
 import LoginPage from './pages/LoginPage';
+import MePage from './pages/MePage';
 import PaperPage from './pages/PaperPage';
 import ReportPage from './pages/ReportPage';
 import SelfReportPage from './pages/SelfReportPage';
@@ -33,7 +34,7 @@ import SpacesPage from './pages/SpacesPage';
  */
 const GraphPage = lazy(() => import('./pages/GraphPage'));
 
-/** 路由 → 页面组件（10 页一一对应，键与 router.ROUTES 的 path 完全一致）。 */
+/** 路由 → 页面组件（12 页一一对应，键与 router.ROUTES 的 path 完全一致）。 */
 const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/login': LoginPage,
   '/self-report': SelfReportPage,
@@ -46,6 +47,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/graph': GraphPage,
   '/report': ReportPage,
   '/drive': DrivePage,
+  '/me': MePage,
 };
 
 /** 懒加载页面的占位（骨架屏，批三）：与页面内加载态同语气，避免白屏闪烁。 */

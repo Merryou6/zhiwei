@@ -4,9 +4,10 @@
  * 本文件是**纯逻辑**：不含 JSX、不 import 任何页面组件（routerGuard.test.ts 直接 import 本文件断言，
  * 不拉起 echarts / react-dom）。页面装配在 App.tsx。
  *
- * 路由表 = 11 页（PRD §5 + 控制台工作台）：登录/注册、自报、空间列表、控制台、测评、试卷上传、
- * 对话辅导、归因结果、知识图谱（兼学习路径）、学习报告、云盘（P1）。
+ * 路由表 = 12 页（PRD §5 + 控制台工作台 + 「我的」）：登录/注册、自报、空间列表、控制台、测评、
+ * 试卷上传、对话辅导、归因结果、知识图谱（兼学习路径）、学习报告、云盘（P1）、我的（v1.2）。
  * /console 为 B 端「教师 / 管理端」工作台首页（并入 apps/web 的真实控制台入口）。
+ * /me 为账号辅助页（账号信息 / 当前空间 / 主题 / 模型只读），不进 PRD §5 学习主链路口径（D9）。
  * 查询参数约定：?mode=（测评）、?attribution_id=（归因回显）、?path=（图谱高亮）。
  */
 
@@ -15,12 +16,16 @@ export const SPACES_PATH = '/spaces';
 export const SELF_REPORT_PATH = '/self-report';
 /** 控制台工作台首页（B 端教师 / 管理端入口，并入 apps/web 的真实控制台）。 */
 export const CONSOLE_PATH = '/console';
+/** 「我的」：账号信息 / 当前空间 / 主题 / 模型只读（v1.2 D4a，进顶栏主导航）。 */
+export const ME_PATH = '/me';
 
-/** localStorage 键（D2：仅 auth 与 space 落盘，手动读写、不用 persist 中间件）。 */
+/** localStorage 键（D2：仅 auth / space / theme 落盘，手动读写、不用 persist 中间件）。 */
 export const STORAGE_KEYS = {
   token: 'zhiwei_token',
   userId: 'zhiwei_user_id',
   activeSpace: 'zhiwei_active_space',
+  /** 主题偏好（D3）：'dark'（默认）| 'light'；index.html 内联脚本与本键同源。 */
+  theme: 'zhiwei_theme',
   /** 自报完成标记：zhiwei_sr_done_<space_id>（空间页主按钮文案切换）。 */
   selfReportDonePrefix: 'zhiwei_sr_done_',
   /** 试卷识别 id（刷新回显用，sessionStorage）。 */
@@ -41,7 +46,7 @@ export interface RouteSpec {
   nav: boolean;
 }
 
-/** 10 页路由表（顺序即顶栏顺序）。 */
+/** 12 页路由表（顺序即顶栏顺序）。 */
 export const ROUTES: readonly RouteSpec[] = [
   { path: LOGIN_PATH, label: '登录 / 注册', page: 1, requiresAuth: false, nav: false },
   { path: SELF_REPORT_PATH, label: '起点自报', page: 2, requiresAuth: true, nav: false },
@@ -54,6 +59,8 @@ export const ROUTES: readonly RouteSpec[] = [
   { path: '/graph', label: '知识图谱', page: 8, requiresAuth: true, nav: true },
   { path: '/report', label: '学习报告', page: 9, requiresAuth: true, nav: true },
   { path: '/drive', label: '云盘', page: 10, requiresAuth: true, nav: true },
+  // v1.2（D4a）：「我的」= 账号辅助页，进顶栏主导航（末位）
+  { path: ME_PATH, label: '我的', page: 12, requiresAuth: true, nav: true },
 ];
 
 /** 顶栏主导航项（空间不占首屏：/spaces 与 /self-report 不进主导航）。 */

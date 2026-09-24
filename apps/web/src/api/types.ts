@@ -1,5 +1,5 @@
 /**
- * 19 接口 DTO 类型（逐字对照 API_CONTRACT.md v1.1 §1–§10）
+ * 20 接口 DTO 类型（逐字对照 API_CONTRACT.md v1.2 §1–§10 + #20）
  *
  * 纪律：字段名一律以契约为唯一依据（禁止改名/加兼容别名）；错误码只消费不发明（§0 九码冻结）。
  * 题对象两形态（serialization.ts 白名单）：{item_id, stem, options} 与 +difficulty（§8 item_sequence）。
@@ -60,6 +60,12 @@ export interface SpaceListData {
 export interface SpaceCreateRequest {
   /** 学科知识库 id（取 data/knowledge/index.json 的任一 stage.kb_id，如 kb_math_cz / kb_math_gz）。 */
   knowledge_source: string;
+  /**
+   * 空间名（契约 §2 v1.2 新增，可选）：1–30 字（trim 后计长），缺省由服务端取知识库名。
+   * 传空串/全空白/超 30 字/非字符串 → 400（服务端不猜测、不补默认值）。
+   * 仅当与本人已有空间同名时才 409（data.existing_space_id 语义不变）。
+   */
+  name?: string;
 }
 
 export interface SpaceCreateData {
@@ -314,6 +320,11 @@ export interface ChatRequest {
 export interface ChatJsonData {
   reply: string;
   meta: ChatMeta;
+  /**
+   * v1.3：当轮过程链路（phase / tool / thought，顺序即执行顺序）。
+   * 旧服务端可能不带本字段 → 可选，前端按「无 trace」正常整段渲染。
+   */
+  trace?: ChatTraceStep[];
 }
 
 export interface SseDeltaData {
@@ -323,6 +334,54 @@ export interface SseDeltaData {
 export interface SseErrorMessageData {
   msg: string;
 }
+
+// ---------------------------------------------------------------- §9 过程事件（v1.3）
+
+/** 阶段名（契约 §9 v1.3：analyze → retrieve → judge → generate）。 */
+export type ChatPhaseName = 'analyze' | 'retrieve' | 'judge' | 'generate';
+
+/** 工具名闭集（7 项，与后端 chatTrace.TOOL_LABEL 的键集逐字一致）。 */
+export type ChatToolName =
+  | 'load_graph'
+  | 'model_call'
+  | 'kp_match'
+  | 'dedup_check'
+  | 'apply_evidence'
+  | 'state_machine'
+  | 'exit_channel';
+
+/** 工具步骤状态：running（仅远程真流场景）→ 终态 ok | error。 */
+export type ChatToolStatus = 'running' | 'ok' | 'error';
+
+/** tool 事件的 data（字段名与契约 §9 v1.3 逐字一致）。 */
+export interface ChatToolStep {
+  id: string;
+  name: ChatToolName;
+  label: string;
+  status: ChatToolStatus;
+  /** 服务端真实中间量（不含题库答案字段）。 */
+  args?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  /** 真实执行耗时（毫秒）。 */
+  ms?: number;
+}
+
+export type ChatSseToolData = ChatToolStep;
+
+export interface ChatSseThoughtData {
+  text: string;
+}
+
+export interface ChatSsePhaseData {
+  name: ChatPhaseName;
+  label: string;
+}
+
+/** JSON 降级 trace 的步骤（顺序即执行顺序，前端重放为对应回调）。 */
+export type ChatTraceStep =
+  | { type: 'phase'; name: ChatPhaseName; label: string }
+  | ({ type: 'tool' } & ChatToolStep)
+  | { type: 'thought'; text: string };
 
 // ---------------------------------------------------------------- §10 报告
 
@@ -351,4 +410,29 @@ export interface ReportSummaryData {
   mastery: MasteryRowData[];
   gaps: GapRowData[];
   accuracy: AccuracyRowData[];
+}
+
+// ---------------------------------------------------------------- §1 认证 · #20（v1.2 新增，只读）
+
+/** #20 的账号视图（服务端显式字面构造；password_hash 永不下发）。 */
+export interface ProfileUserView {
+  user_id: string;
+  identifier: string;
+  nickname: string | null;
+  created_at: string;
+}
+
+/** #20 的对话模型运行信息（只读展示：前端不提供自定义入口）。 */
+export interface ProfileModelView {
+  mode: 'local' | 'remote';
+  /** 仅 mode='remote' 时有值（ZHIWEI_LLM_MODEL），否则 null。 */
+  name: string | null;
+}
+
+/** #20 GET /api/user/profile 的 data。 */
+export interface ProfileData {
+  user: ProfileUserView;
+  /** 与 §2 list 完全同形（复用 SpaceView）。 */
+  spaces: SpaceView[];
+  model: ProfileModelView;
 }

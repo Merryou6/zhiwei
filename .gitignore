@@ -17,5 +17,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
-# 部署件（deploy/ 目录）里的真值 env，模板仍可入库
-deploy/zhiwei.env
+# 部署件（deploy/ 目录）里的真值 env 一律不入库（通配挡住将来新增的 deploy/prod.env 等）；
+# 模板仍可入库（*.env.example 例外）
+deploy/*.env
+!deploy/*.env.example

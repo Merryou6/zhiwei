@@ -171,7 +171,7 @@ function wrongOf(itemId: string): string {
   return SD.itemById.get(itemId)?.distractors[0]?.answer ?? '';
 }
 
-describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
+describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
   it('register→自报→测评→试卷→诊断→归因→处方→复测→报告 全链路可跑通', async () => {
     const { token, spaceId } = await newLearner();
 
@@ -463,14 +463,30 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
 
     // 逐块写出（chunked）而非一次性返回
     expect(chunks).toBeGreaterThanOrEqual(1);
+    // v1.3：过程事件（phase/thought/tool）先于 delta；过滤后 delta → meta → done 相对序不变
     const events = [...text.matchAll(/^event: (\w+)/gm)].map((match) => match[1]);
-    expect(events).toEqual(['delta', 'meta', 'done']);
+    expect(events[0]).toBe('phase');
+    expect(events.slice(-2)).toEqual(['meta', 'done']);
+    expect(events.filter((name) => ['delta', 'meta', 'done'].includes(name))).toEqual([
+      'delta',
+      'meta',
+      'done',
+    ]);
+    expect(events).toContain('thought');
+    expect(events).toContain('tool');
     expect(text).toContain('"kp_match"');
     expect(text).toContain('math.cz.quadratic.vertex_form');
     expect(text).toContain('"next_action"');
+    // tool 事件字段名（契约 §9 v1.3）与真实中间量落点
+    expect(text).toContain('"node_count"');
+    expect(text).toContain('"adopted"');
 
     // 降级路径：Accept: application/json
-    const downgraded = await api<{ reply: string; meta: { dialog_id: string } }>(
+    const downgraded = await api<{
+      reply: string;
+      meta: { dialog_id: string };
+      trace: { type: string; name?: string }[];
+    }>(
       'POST',
       '/api/agent/chat',
       { space_id: spaceId, message: '二次函数的顶点式我不会' },
@@ -481,6 +497,12 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
     expect(downgraded.body.data!.reply).toEqual(expect.any(String));
     expect(downgraded.body.data!.reply).not.toContain('event:');
     expect(downgraded.body.data!.meta.dialog_id).toMatch(/^dlg_/);
+    // v1.3：JSON 降级同携 trace（顺序即执行顺序，首步为 analyze 阶段）
+    captured.push({ path: 'POST /api/agent/chat (json)', body: JSON.stringify(downgraded.body) });
+    expect(Array.isArray(downgraded.body.data!.trace)).toBe(true);
+    expect(downgraded.body.data!.trace.length).toBeGreaterThan(0);
+    expect(downgraded.body.data!.trace[0]).toEqual({ type: 'phase', name: 'analyze', label: '分析' });
+    expect(downgraded.body.data!.trace.filter((step) => step.type === 'tool').length).toBeGreaterThan(0);
   });
 
   it('E5 全局断言：全程捕获的响应 JSON 不含 "answer" / "solution_steps"', () => {
@@ -491,11 +513,11 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
     }
   });
 
-  it('E1 路由闭合：19 个接口全部挂载（契约 v1.1 逐项核对）', () => {
+  it('E1 路由闭合：20 个接口全部挂载（契约 v1.2：#1–#20 逐项核对）', () => {
     const routes = createRoutes().map((route) => `${route.method} ${route.pattern}`);
 
-    expect(routes).toHaveLength(19);
-    expect(new Set(routes).size).toBe(19);
+    expect(routes).toHaveLength(20);
+    expect(new Set(routes).size).toBe(20);
     expect(routes).toEqual([
       'POST /api/auth/register',
       'POST /api/auth/login',
@@ -516,6 +538,8 @@ describe('closedLoop · 19 接口全链路（真实 HTTP）', () => {
       'POST /api/plan/generate',
       'POST /api/agent/chat',
       'GET /api/report/summary',
+      // v1.2 新增（#20，只读）：路由表计数 19 → 20（更新而非删除，见执行报告 D11）
+      'GET /api/user/profile',
     ]);
   });
 });
