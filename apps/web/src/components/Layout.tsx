@@ -103,14 +103,21 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-overlay" style={{ top: TOPNAV_HEIGHT_PX }}>
+    // ⚠ 这一层 fixed inset-x-0 铺满整宽：它只是面板与幕布的定位上下文，
+    // **不是可交互表面**。必须 pointer-events-none，否则常驻态（≥1280 无幕布）下
+    // 这一整层会替面板挡住全页的点击——面板旁边的正文看起来没被遮，实际一次都点不到
+    // （2026-09-25 用户实测 bug）。幕布与面板本体各自恢复 pointer-events-auto。
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-overlay"
+      style={{ top: TOPNAV_HEIGHT_PX }}
+    >
       {docked ? null : (
         <button
           type="button"
           // 与面板头部的关闭键区分开（同一可访问名会读屏歧义；F4 走查发现，D25）
           aria-label="点击空白处关闭对话面板"
           onClick={() => setOpen(false)}
-          className="scrim absolute inset-0 animate-fade"
+          className="scrim pointer-events-auto absolute inset-0 animate-fade"
         />
       )}
       <aside
@@ -118,7 +125,7 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
         data-print="hide"
         aria-label="对话辅导面板"
         // animate-slide-in-panel：与移动端抽屉同一条入场曲线（面板在 <1280 就是右侧抽屉）。
-        className="absolute bottom-0 right-0 top-0 max-w-[92vw] animate-slide-in-panel border-l border-line bg-surface shadow-card"
+        className="pointer-events-auto absolute bottom-0 right-0 top-0 max-w-[92vw] animate-slide-in-panel border-l border-line bg-surface shadow-card"
         style={{ width: PANEL_WIDTH_PX }}
       >
         <ChatPanel />
