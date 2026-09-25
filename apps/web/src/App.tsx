@@ -20,6 +20,7 @@ import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
 import ChatPage from './pages/ChatPage';
 import DrivePage from './pages/DrivePage';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import MePage from './pages/MePage';
 import PaperPage from './pages/PaperPage';
@@ -101,6 +102,10 @@ export default function App() {
     // 顶层边界：Layout / 守卫自身异常也不白屏（此时无导航，兜底卡片自带出口）
     <ErrorBoundary key={`root:${location.pathname}`}>
       <Routes>
+        {/* 公开入口门户（2026-09-25 收尾轮）：站外访客的第一脚，无守卫、无顶栏外壳，
+            不进 router.ROUTES 的 11 页口径。「立即体验」→ /login，未登录进登录页、
+            已登录被守卫直接送进 #/spaces，一条路径自动分状态。 */}
+        <Route path="/" element={<LandingPage />} />
         {ROUTES.map((route) => {
           const Page = PAGE_COMPONENTS[route.path];
           return (
