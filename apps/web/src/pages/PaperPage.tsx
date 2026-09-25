@@ -26,6 +26,8 @@ import type {
   RecognitionItemView,
 } from '../api/types';
 import PageSkeleton from '../components/PageSkeleton';
+import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
+import { cn } from '../lib/cn';
 import { GRAPH_NODES } from '../data/graphSnapshot';
 import { fileSize } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
@@ -191,49 +193,51 @@ export default function PaperPage() {
   // ------------------------------------------------------------ 确认完成
   if (confirmed) {
     return (
-      <section className="max-w-2xl">
-        <h1 className="text-xl font-medium text-ink">这份卷子记下了</h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          新增了 {confirmed.events_created} 条证据，更新了 {confirmed.mastery_updates.length} 个知识点。
+      <PageContainer width="prose">
+        <PageHeader title="这份卷子记下了" />
+        <p className="mt-3 text-reading leading-relaxed text-ink-soft">
+          新增了 <span className="font-mono tabular-nums text-ink">{confirmed.events_created}</span> 条证据，
+          更新了 <span className="font-mono tabular-nums text-ink">{confirmed.mastery_updates.length}</span> 个知识点。
           要不要挑一道错题，我们一起看看它是怎么错的？
         </p>
 
         <ul className="mt-4 space-y-2">
           {confirmed.mastery_updates.map((update) => (
-            <li key={update.knowledge_point} className="rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink-soft">
-              {update.knowledge_point}：{Math.round(update.before * 100)}% → {Math.round(update.after * 100)}%
+            <li
+              key={update.knowledge_point}
+              className="rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink-soft"
+            >
+              {/* 前后掌握度是本页最重要的读数：等宽数字让「87% → 92%」这类对齐可读 */}
+              <span className="font-mono tabular-nums text-ink">{update.knowledge_point}</span>：
+              <span className="font-mono tabular-nums">{Math.round(update.before * 100)}%</span> →{' '}
+              <span className="font-mono tabular-nums text-ink">{Math.round(update.after * 100)}%</span>
             </li>
           ))}
         </ul>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/attribution')}
-            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
-          >
+          <Button variant="primary" onClick={() => navigate('/attribution')}>
             挑错题看看根源
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => {
               setConfirmed(null);
               setRows([]);
               setStage('pick');
               setStatus('');
             }}
-            className="rounded-control border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
           >
             再传一份
-          </button>
+          </Button>
         </div>
 
         {wrongCount > 0 ? (
           <p className="mt-4 text-ui-sm text-ink-soft">
-            已把你标为错的 {wrongCount} 道题存到本地，归因时可一键带出。
+            已把你标为错的 <span className="font-mono tabular-nums text-ink">{wrongCount}</span> 道题存到本地，归因时可一键带出。
           </p>
         ) : null}
-      </section>
+      </PageContainer>
     );
   }
 
@@ -241,34 +245,32 @@ export default function PaperPage() {
   if (stage === 'confirm') {
     const allMarked = rows.every((row) => row.result !== null);
     return (
-      <section className="max-w-3xl">
-        <header className="flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-medium text-ink">对一下每题的对错</h1>
-            <p className="mt-2 text-sm text-ink-soft">
-              识别状态：{status}。看漏的题我不猜——你标了我才记账。
-            </p>
-          </div>
-          <span className="shrink-0 text-ui-sm text-ink-soft">
-            已标 {rows.filter((row) => row.result !== null).length}/{rows.length}
-          </span>
-        </header>
+      <PageContainer width="standard">
+        <PageHeader
+          title="对一下每题的对错"
+          description={`识别状态：${status}。看漏的题我不猜——你标了我才记账。`}
+          actions={
+            <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
+              已标 {rows.filter((row) => row.result !== null).length}/{rows.length}
+            </span>
+          }
+        />
 
         <ul className="mt-6 space-y-3">
           {rows.map((row) => (
             <li key={row.seq} className="rounded-surface border border-line bg-surface p-4 shadow-card">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <span className="text-ui-sm text-ink-soft">第 {row.seq} 题</span>
+                  <span className="font-mono text-ui-sm tabular-nums text-ink-soft">第 {row.seq} 题</span>
                   <p className="mt-1 text-sm leading-relaxed text-ink">{row.stem_excerpt}</p>
                   <p className="mt-1 text-ui-sm text-ink-soft">
                     你的作答：{row.student_answer.length > 0 ? row.student_answer : '（识别为空）'}
                   </p>
                 </div>
                 {row.suggested_result === 'unclear' ? (
-                  <span className="shrink-0 rounded-md bg-band-weak/10 px-2 py-0.5 text-xs text-band-weak">
+                  <Badge tone="negative" size="md" className="shrink-0">
                     {UI_TEXT.paperUnclearRow}
-                  </span>
+                  </Badge>
                 ) : (
                   <span className="shrink-0 text-ui-sm text-ink-soft">
                     参考：{row.suggested_result === 'wrong' ? '疑似错' : '疑似对'}
@@ -279,8 +281,9 @@ export default function PaperPage() {
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <label className="text-ui-sm text-ink-soft">
                   知识点
-                  <select
-                    className="ml-2 rounded-control border border-line px-2 min-h-9 py-2 text-ui-sm text-ink outline-none focus:border-accent"
+                  <Select
+                    fieldSize="sm"
+                    className="ml-2 w-auto min-h-9"
                     value={row.kpId}
                     onChange={(event) =>
                       setRows(rows.map((item) => (item.seq === row.seq ? { ...item, kpId: event.target.value } : item)))
@@ -291,7 +294,7 @@ export default function PaperPage() {
                         {option.label}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </label>
 
                 <div className="flex items-center gap-2">
@@ -301,13 +304,16 @@ export default function PaperPage() {
                       <button
                         key={value}
                         type="button"
+                        aria-pressed={active}
                         onClick={() =>
                           setRows(rows.map((item) => (item.seq === row.seq ? { ...item, result: value } : item)))
                         }
-                        className={[
-                          'rounded-control border px-3 min-h-9 py-2 text-ui-sm transition-colors',
-                          active ? 'border-accent bg-accent-veil text-ink' : 'border-line text-ink-soft hover:bg-raised',
-                        ].join(' ')}
+                        className={cn(
+                          'min-h-9 rounded-control border px-3 py-2 text-ui-sm transition-colors',
+                          active
+                            ? 'border-accent bg-accent-veil text-ink'
+                            : 'border-line text-ink-soft hover:bg-raised',
+                        )}
                       >
                         {value === 'correct' ? '这题对了' : '这题错了'}
                       </button>
@@ -320,28 +326,30 @@ export default function PaperPage() {
         </ul>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
+          <Button
+            variant="primary"
             disabled={!allMarked || busy}
             onClick={() => void submitConfirm()}
-            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? '正在记账…' : '确认，更新掌握度'}
-          </button>
-          {!allMarked ? <span className="text-ui-sm text-ink-soft">还有 {rows.filter((r) => r.result === null).length} 题没标</span> : null}
+          </Button>
+          {!allMarked ? (
+            <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
+              还有 {rows.filter((r) => r.result === null).length} 题没标
+            </span>
+          ) : null}
         </div>
-      </section>
+      </PageContainer>
     );
   }
 
   // ------------------------------------------------------------ 选文件
   return (
-    <section className="max-w-2xl">
-      <h1 className="text-xl font-medium text-ink">传一份卷子</h1>
-      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-        演示态：从预置文件里挑一份（真实的相册上传在云端开放）。识别结果只是草稿，
-        对错由你最后确认，看清楚才记账。
-      </p>
+    <PageContainer width="prose">
+      <PageHeader
+        title="传一份卷子"
+        description="演示态：从预置文件里挑一份（真实的相册上传在云端开放）。识别结果只是草稿，对错由你最后确认，看清楚才记账。"
+      />
 
       {files.length === 0 ? (
         <PageSkeleton label="正在取文件列表…" rows={2} className="mt-6" />
@@ -353,15 +361,16 @@ export default function PaperPage() {
               <li key={file.file_id}>
                 <button
                   type="button"
+                  aria-pressed={active}
                   onClick={() => setSelected(file.file_id)}
-                  className={[
-                    'w-full rounded-surface border bg-surface p-4 text-left',
+                  className={cn(
+                    'w-full rounded-surface border bg-surface p-4 text-left transition-colors',
                     active ? 'border-accent' : 'border-line hover:border-accent/60',
-                  ].join(' ')}
+                  )}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm text-ink">{file.name}</span>
-                    <span className="shrink-0 text-ui-sm text-ink-soft">
+                    <span className="shrink-0 font-mono text-ui-sm tabular-nums text-ink-soft">
                       {file.type.toUpperCase()} · {fileSize(file.size)}
                     </span>
                   </div>
@@ -374,16 +383,17 @@ export default function PaperPage() {
         </ul>
       )}
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        full
+        className="mt-6"
         disabled={busy || !selected}
         onClick={() => void startRecognize()}
-        className="mt-6 w-full rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
       >
         {busy ? '正在识别…' : '开始识别'}
-      </button>
+      </Button>
 
       {status ? <p className="mt-3 text-ui-sm text-ink-soft">{status}</p> : null}
-    </section>
+    </PageContainer>
   );
 }

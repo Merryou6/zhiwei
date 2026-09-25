@@ -24,6 +24,8 @@ import type { ProfileData } from '../api/types';
 import ConfirmDialog from '../components/ConfirmDialog';
 import PageSkeleton from '../components/PageSkeleton';
 import ThemeToggle from '../components/ThemeToggle';
+import { Badge, Button, Card, CardTitle, PageContainer, PageHeader, buttonVariants } from '../components/ui';
+import { cn } from '../lib/cn';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { stageLabel } from '../lib/stages';
@@ -88,98 +90,86 @@ export default function MePage() {
     navigate(LOGIN_PATH, { replace: true });
   }
 
-  const card = 'rounded-surface border border-line bg-surface p-5 shadow-card';
-
   return (
-    <section className="max-w-3xl">
-      <header>
-        <h1 className="text-xl font-medium text-ink">我的</h1>
-        <p className="mt-2 text-sm text-ink-soft">账号、当前空间、主题和对话模型，都在这儿。</p>
-      </header>
+    <PageContainer width="standard">
+      <PageHeader
+        title="我的"
+        description="账号、当前空间、主题和对话模型，都在这儿。"
+      />
 
       {loading ? (
         <PageSkeleton label="正在取你的账号信息…" rows={2} className="mt-6" />
       ) : (
         <div className="mt-6 space-y-4">
           {/* 1) 账号 */}
-          <div className={card}>
-            <h2 className="text-base font-medium text-ink">账号</h2>
+          <Card>
+            <CardTitle>账号</CardTitle>
             {profile ? (
-              <div className="mt-2 divide-y divide-line">
+              <div className="divide-y divide-line">
                 <InfoRow label="账号" value={profile.user.identifier} />
                 <InfoRow label="昵称" value={profile.user.nickname ?? '未设置'} />
                 <InfoRow label="用户 ID" value={profile.user.user_id} />
                 <InfoRow label="注册时间" value={formatTime(profile.user.created_at)} />
               </div>
             ) : (
-              <p className="mt-2 text-sm text-ink-soft">账号信息暂时取不到，稍后刷新再看一眼。</p>
+              <p className="text-sm text-ink-soft">账号信息暂时取不到，稍后刷新再看一眼。</p>
             )}
-          </div>
+          </Card>
 
           {/* 2) 当前学习空间 */}
-          <div className={card}>
-            <h2 className="text-base font-medium text-ink">当前学习空间</h2>
+          <Card>
+            <CardTitle>当前学习空间</CardTitle>
             {activeSpace ? (
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm text-ink">{activeSpace.name}</p>
                   <p className="mt-1 text-ui-sm text-ink-soft">{stageLabel(activeSpace.knowledge_source[0])}</p>
                 </div>
-                <Link
-                  to={SPACES_PATH}
-                  className="min-h-9 rounded-control border border-line px-3 py-2 text-sm text-ink hover:bg-raised"
-                >
+                <Link to={SPACES_PATH} className={cn(buttonVariants({ variant: 'secondary' }))}>
                   去管理
                 </Link>
               </div>
             ) : (
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-ink-soft">还没选中的学习空间。</p>
-                <Link
-                  to={SPACES_PATH}
-                  className="min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
-                >
+                <Link to={SPACES_PATH} className={cn(buttonVariants({ variant: 'primary' }))}>
                   去选空间
                 </Link>
               </div>
             )}
-          </div>
+          </Card>
 
           {/* 3) 主题 */}
-          <div className={card}>
-            <h2 className="text-base font-medium text-ink">主题</h2>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <Card>
+            <CardTitle>主题</CardTitle>
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-ink-soft">白天用浅色，晚上用深色，随你。</p>
               <ThemeToggle />
             </div>
-          </div>
+          </Card>
 
           {/* 4) 对话模型（只读） */}
-          <div className={card}>
-            <h2 className="text-base font-medium text-ink">对话模型</h2>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent-ink">
+          <Card>
+            <CardTitle>对话模型</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="accent">
                 {profile ? MODEL_MODE_LABEL[profile.model.mode] : '—'}
-              </span>
+              </Badge>
               {profile?.model.name ? (
                 <span className="text-sm text-ink">{profile.model.name}</span>
               ) : null}
             </div>
-            <p className="mt-2 text-ui-sm leading-relaxed text-ink-soft">{MODEL_NOTE}</p>
-          </div>
+            <p className="text-ui-sm leading-relaxed text-ink-soft">{MODEL_NOTE}</p>
+          </Card>
 
           {/* 5) 退出登录 */}
-          <div className={card}>
-            <h2 className="text-base font-medium text-ink">退出登录</h2>
-            <p className="mt-2 text-ui-sm text-ink-soft">退出后要重新登录才能接着学，学习记录不会丢。</p>
-            <button
-              type="button"
-              onClick={() => setConfirmLogout(true)}
-              className="mt-3 min-h-9 rounded-control border border-line px-4 py-2 text-sm text-ink hover:bg-raised"
-            >
+          <Card>
+            <CardTitle>退出登录</CardTitle>
+            <p className="text-ui-sm text-ink-soft">退出后要重新登录才能接着学，学习记录不会丢。</p>
+            <Button variant="secondary" onClick={() => setConfirmLogout(true)}>
               退出登录
-            </button>
-          </div>
+            </Button>
+          </Card>
         </div>
       )}
 
@@ -191,6 +181,6 @@ export default function MePage() {
         onCancel={() => setConfirmLogout(false)}
         onConfirm={handleLogout}
       />
-    </section>
+    </PageContainer>
   );
 }
