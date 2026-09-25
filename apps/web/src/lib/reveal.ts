@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import { prefersReducedMotion } from './motion';
 
@@ -30,6 +30,14 @@ export const REVEAL_ITEM_ATTR = 'data-reveal-item';
 
 /** 完成标记：进入过视口后由观察器打上，打上即不再隐藏。 */
 export const REVEAL_DONE_ATTR = 'data-revealed';
+
+/**
+ * 给待揭示区块展开的 props：`<div className="…" {...revealItem}>`。
+ * 用展开而不是在 JSX 里写死 `data-reveal-item=""`，是为了让属性名只有一个来源 ——
+ * CSS 侧的选择器与这里的常量必须逐字一致，两处各写一遍就会静默失效
+ * （属性名写错时浏览器不报错，只是永不揭示）。
+ */
+export const revealItem = { [REVEAL_ITEM_ATTR]: '' } as const;
 
 /**
  * 当前环境是否允许启用揭示。
@@ -77,24 +85,66 @@ export function observeReveal(scope: Element): () => void {
 }
 
 /**
- * React 侧入口：把 ref 挂到要作为揭示作用域的容器上。
+ * 先给「已经在视口里」的项打完成标记。
+ *
+ * ⚠ 这一步**必须在挂启用开关之前**做。原因是时序：观察器的回调是异步的
+ * （observe 之后浏览器在下一帧才派发初始状态），而挂上开关的那一刻 CSS 规则就生效了。
+ * 若不先标记，首屏内的区块会经历「可见 → 被隐藏 → 被观察器揭示」这一帧的闪烁 ——
+ * 内容没有丢，但加载瞬间会明显地抖一下，比不做动画更糟。
+ *
+ * 判据用 rect.top < 视口高：不要求完整进入视口，只要顶部已经进入可视区就算
+ * 「用户已经看得见它」。元素在视口上方（滚过去了）同样视为已见。
+ */
+export function markInViewDone(scope: Element): void {
+  const viewportHeight =
+    (typeof window !== 'undefined' && window.innerHeight) ||
+    document.documentElement.clientHeight ||
+    0;
+
+  scope.querySelectorAll(`[${REVEAL_ITEM_ATTR}]:not([${REVEAL_DONE_ATTR}])`).forEach((el) => {
+    if (el.getBoundingClientRect().top < viewportHeight) {
+      el.setAttribute(REVEAL_DONE_ATTR, '');
+    }
+  });
+}
+
+/**
+ * 当前已装配的揭示消费者数量。
+ *
+ * 作用域落在 `<html>` 上时，多个消费者会共用同一个开关属性 —— 若不做计数，
+ * 先卸载的那个会把开关摘掉，后卸载的那个就再也不会揭示（属性没了，
+ * 预置态规则失效，**此时反而是「全都可见」**，所以症状不是内容消失而是动效静默消失，
+ * 更难查）。计数保证只有最后一个消费者真正摘开关。
+ */
+let armedConsumers = 0;
+
+/**
+ * React 侧入口：装配当前页面的滚动揭示。**无需容器 ref** —— 作用域直接落在
+ * `<html>` 上。
+ *
+ * 为什么不设计成「传一个容器 ref」：那要求调用方在页面上再包一层 div，
+ * 而这一层会改变 tools/responsive-audit.cjs 取锚点的方式（mainChild 是 main 的第一个
+ * 子元素），锚点几何是取证基线的一部分。揭示是纯表现层的事，不该换来 DOM 结构变化。
+ *
  * 环境不允许时**什么都不做**（属性不挂，区块按 CSS 默认保持可见）。
  */
-export function useRevealScope<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null);
-
+export function useReveal(): void {
   useEffect(() => {
-    const scope = ref.current;
-    if (!scope) return;
     if (!revealAvailable()) return;
 
-    const disarm = armReveal(scope);
-    const stop = observeReveal(scope);
+    const root = document.documentElement;
+    if (armedConsumers === 0) {
+      // 顺序不能换：先标记首屏内的项，再挂开关（见 markInViewDone 的说明）。
+      markInViewDone(root);
+      root.setAttribute(REVEAL_SCOPE_ATTR, 'on');
+    }
+    armedConsumers += 1;
+
+    const stop = observeReveal(root);
     return () => {
       stop();
-      disarm();
+      armedConsumers -= 1;
+      if (armedConsumers === 0) root.removeAttribute(REVEAL_SCOPE_ATTR);
     };
   }, []);
-
-  return ref;
 }

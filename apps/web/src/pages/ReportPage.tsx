@@ -32,6 +32,7 @@ import { kpName } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
 import { deltaPercent, percent } from '../lib/format';
 import { ERROR_TYPE_LABEL, UI_TEXT } from '../lib/phrases';
+import { revealItem, useReveal } from '../lib/reveal';
 import { SPACES_PATH } from '../router';
 import { BAND_CLASS, BAND_HEX, BAND_ORDER, bandVeilHex, masteryBandOf } from '../theme/bands';
 import type { MasteryBand } from '../theme/bands';
@@ -55,6 +56,10 @@ export default function ReportPage() {
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
+  /** 滚动揭示（Motion-Driven 的 reveal 词汇）见 lib/reveal.ts 的三段式：
+      环境不允许时钩子什么都不做，区块按 CSS 默认保持可见。
+      文档级作用域、不需要容器 ref —— 少包一层 div 就不会改动取证锚点的取法。 */
+  useReveal();
 
   useEffect(() => {
     if (!activeSpaceId) {
@@ -160,7 +165,7 @@ export default function ReportPage() {
       </p>
 
       {/* ① 掌握度分布 */}
-      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
         <h2 className="text-base font-medium text-ink">
           掌握度分布（<span className="font-mono tabular-nums">{mastery.length}</span> 个知识点）
         </h2>
@@ -208,7 +213,7 @@ export default function ReportPage() {
       </div>
 
       {/* ② 缺口清单 */}
-      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
         <h2 className="text-base font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
         {gaps.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
@@ -241,7 +246,7 @@ export default function ReportPage() {
       </div>
 
       {/* ③ 基线 vs 复测 */}
-      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
         <h2 className="text-base font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
         {accuracy.length === 0 ? (
           <EmptyState

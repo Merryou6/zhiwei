@@ -64,7 +64,13 @@ export default {
       //   fade             —— 浮层与背景幕
       //   slide-in-panel   —— 移动端导航抽屉入场
       //   route-in         —— 路由切换时主容器的入场（**只做透明度，不做位移**）
-      //   reveal           —— 长页面区块进入视口时的揭示
+      //
+      // ⚠ 滚动揭示（reveal）**不在**本表内，它的 keyframes 就地定义在 index.css。
+      //   理由：揭示的触发条件是「data-revealed 属性被加上」，不是「类名被挂上」，
+      //   而 animate-* 工具类只表达后者。上一版把 reveal 放在这里，结果源码里永远
+      //   不会出现 animate-reveal 这个类 → @keyframes reveal 不进产物 → 元素照样显示，
+      //   只是**没有动画**。那是一次彻底的静默失效，且 tokens.test.ts ⑤ 防不到它
+      //   （⑤ 校验的是「animation 引用的 keyframe 存在」，管不了「类名从未被使用」）。
       //
       // ⚠ route-in 刻意不做位移：路由切换发生在每一次导航，而 tools/responsive-audit.cjs
       //   正是「刚加载完就去量锚点几何」——带位移的入场会让 main / mainChild 的 y 在
@@ -100,17 +106,12 @@ export default {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        reveal: {
-          '0%': { opacity: '0', transform: 'translateY(12px)' },
-          '100%': { opacity: '1', transform: 'none' },
-        },
       },
       animation: {
         rise: 'rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both',
         fade: 'fade 160ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'slide-in-panel': 'slide-in-panel 240ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'route-in': 'route-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both',
-        reveal: 'reveal 420ms cubic-bezier(0.16, 1, 0.3, 1) both',
       },
 
       // ───────────────────────────────────────────────────────────────

@@ -393,9 +393,9 @@ textarea::placeholder {
   }
 }
 
-/* ── 滚动揭示的预置态（2026-09-25 重构 P0）────────────────────────────
+/* ── 滚动揭示（2026-09-25 重构 P0 建立，P3 接线时补齐入场动画）────────
    带 [data-reveal='on'] 前缀是刻意的：该属性由 lib/reveal.ts 在
-   「IntersectionObserver 可用且用户未要求减弱动效」时挂到作用域元素上。
+   「IntersectionObserver 可用且用户未要求减弱动效」时挂到根元素上。
    属性存在才隐藏，不存在则整条规则不生效、元素一律可见 ——
    隐藏是被授予的权限，不是默认状态。
 
@@ -404,6 +404,29 @@ textarea::placeholder {
 [data-reveal='on'] [data-reveal-item]:not([data-revealed]) {
   opacity: 0;
   transform: translateY(12px);
+}
+
+/* 揭示的入场。
+   ⚠ keyframes **就地定义**，不走 tailwind.config.js 的动画令牌（P3 接线时改的）：
+   揭示的触发条件是「属性被加上」，不是「类名被挂上」，而 tailwind 的 animate-*
+   工具类只表达后者。上一版把 reveal 放在 tailwind 的 keyframes 里，结果因为源码中
+   永远不会出现 animate-reveal 这个类，@keyframes reveal **根本不进产物** ——
+   元素照样显示，只是「没有动画」，也就是一次彻底的静默失效
+   （这正是 tokens.test.ts ⑤ 那条「animation 引用的 keyframe 必须存在」想防的东西，
+   只是它防不到「类名从未被使用」这种情况）。就地定义后无此问题。 */
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-reveal='on'] [data-reveal-item][data-revealed] {
+  animation: reveal-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ── 打印（2026-09-25 视觉重构 P1a）────────────────────────────────

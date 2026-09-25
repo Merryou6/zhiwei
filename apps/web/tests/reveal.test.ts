@@ -30,6 +30,7 @@ import {
   REVEAL_ITEM_ATTR,
   REVEAL_SCOPE_ATTR,
   armReveal,
+  markInViewDone,
   observeReveal,
   revealAvailable,
 } from '../src/lib/reveal';
@@ -161,7 +162,45 @@ describe('③ 观察器：只盯未完成项，进入视口即标记并停止观
   });
 });
 
-describe('④ CSS 侧：隐藏必须被授予，且两处必须有兜底', () => {
+describe('④ 首屏内的项先标记（避免加载瞬间闪一下）', () => {
+  it('已在视口内的项被标记；视口下方的项保持待揭示', () => {
+    // 为什么要先标记再挂开关：观察器回调是异步的（下一帧才派发初始状态），
+    // 而挂上开关的那一刻 CSS 就生效了。不先标记的话，首屏内的区块会经历
+    // 「可见 → 被隐藏 → 被揭示」一帧闪烁 —— 内容没丢，但加载瞬间会明显抖一下。
+    const scope = document.createElement('div');
+    const above = document.createElement('section');
+    const below = document.createElement('section');
+    for (const el of [above, below]) {
+      el.setAttribute(REVEAL_ITEM_ATTR, '');
+      scope.append(el);
+    }
+
+    // jsdom 不做布局，getBoundingClientRect 恒为 0 —— 逐元素打桩来区分两种位置
+    vi.spyOn(above, 'getBoundingClientRect').mockReturnValue({ top: 120 } as DOMRect);
+    vi.spyOn(below, 'getBoundingClientRect').mockReturnValue({ top: 4000 } as DOMRect);
+    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+
+    markInViewDone(scope);
+
+    expect(above.getAttribute(REVEAL_DONE_ATTR)).toBe('');
+    expect(below.hasAttribute(REVEAL_DONE_ATTR)).toBe(false);
+  });
+
+  it('已带完成标记的项不被重复处理（不产生重复标记）', () => {
+    const scope = document.createElement('div');
+    const done = document.createElement('section');
+    done.setAttribute(REVEAL_ITEM_ATTR, '');
+    done.setAttribute(REVEAL_DONE_ATTR, '');
+    scope.append(done);
+
+    const spy = vi.spyOn(done, 'getBoundingClientRect');
+    markInViewDone(scope);
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe('⑤ CSS 侧：隐藏必须被授予，且两处必须有兜底', () => {
   it('预置态规则带 [data-reveal=on] 作用域前缀（JS 常量与 CSS 字面量一致）', () => {
     const scoped = new RegExp(
       `\\[${REVEAL_SCOPE_ATTR}=['"]on['"]\\]\\s+\\[${REVEAL_ITEM_ATTR}\\]:not\\(\\[${REVEAL_DONE_ATTR}\\]\\)`,
@@ -185,5 +224,18 @@ describe('④ CSS 侧：隐藏必须被授予，且两处必须有兜底', () =>
     // 兜底必须落在真正的降级块里，而不是散落在别处
     expect(CSS).toContain('@media (prefers-reduced-motion: reduce)');
     expect(CSS).toContain('@media print');
+  });
+
+  it('被标记完成时真的有入场动画（keyframes 必须就地定义，不能依赖 tailwind 产出）', () => {
+    // 这条锁的是一类特别的静默失效：动画「配置齐全但从不播放」。
+    // 上一版把 reveal 的 keyframes 放在 tailwind.config.js 的动画令牌里，
+    // 而源码中永远不会出现 animate-reveal 这个类（揭示的触发条件是 data-revealed
+    // **属性被加上**，不是类名被挂上）—— 于是 @keyframes reveal 根本不进产物，
+    // 元素照样显示、只是没有动画，tsc 与所有测试都不报。
+    // tokens.test.ts ⑤ 也防不到：它校验的是「animation 引用的 keyframe 存在」，
+    // 管不了「这个类名从未被使用」。所以必须在这里就地断言。
+    expect(CSS).toContain('@keyframes reveal-in');
+    expect(CSS).toContain("[data-reveal='on'] [data-reveal-item][data-revealed]");
+    expect(CSS).toContain('animation: reveal-in');
   });
 });
