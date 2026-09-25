@@ -175,6 +175,12 @@ export function FormField({
     id: controlId,
     'aria-describedby': describedBy,
     'aria-invalid': error ? true : undefined,
+    // ⚠ 必须**同时**注入 invalid 变体，不能只注 aria-invalid（2026-09-25 重构 P3 补）。
+    // 收敛前这里只注 aria-invalid：读屏能听到「无效」，但边框颜色仍是普通态 ——
+    // 也就是「同一件事有两半，只有一半接上了」。调用方还得自己再传一遍 invalid，
+    // 漏传就得到一个「有红字错误提示 + 正常边框」的自相矛盾输入框。
+    // 现在 error 一个入参同时决定：边框色、aria-invalid、以及错误文案的着色。
+    invalid: error ? true : false,
   });
 
   return (

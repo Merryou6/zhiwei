@@ -19,13 +19,16 @@
  *                        总控直接模式补丁，改后审查）必须与 tailwind 的 screens.nav 同值且真接线
  *
  * ⚠ 「合法保留」白名单（以下**不在**断言范围，别把它们当成破绽删掉）：
- *   · LoginPage.tsx 的 ERROR_TEXT 常量 text-[#FFB088]（深底既有色，实测 11.0:1）
- *     —— 它是 JS 常量、不是 className 字面量属性，故 ④ 天然扫不到；
  *   · src/theme/bands.ts、src/stores/theme.ts、tailwind.config.js 的 colors：
  *     令牌源本身，按定义就是字面 hex；
  *   · GraphPage 的 ECharts 画布回退色：canvas 绘制参数，不是 CSS 类名；
  *   · ReportPage 的 min-w-[420px]：**宽度工具类**（任意值后面没有冒号），
  *     是 ② 的合法保留项——正则带冒号后缀正是为了不误伤它。
+ *
+ * 【2026-09-25 重构 P3 移出白名单一项】LoginPage.tsx 的 ERROR_TEXT='text-[#FFB088]'
+ * 曾是白名单成员（JS 常量而非 className 字面量，④ 天然扫不到）。该页归队后改用
+ * text-danger 令牌（深色下同为 #FFB088），常量已删除，白名单相应收窄 ——
+ * 白名单是一条**债务登记**，还清了就要划掉；留着会让后来人以为还存在这处豁免。
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
