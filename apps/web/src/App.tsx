@@ -1,5 +1,5 @@
 /**
- * 路由装配（D1）：12 页路由表（router.tsx）+ 守卫 + 页面外壳。
+ * 路由装配（D1）：11 页路由表（router.tsx）+ 守卫 + 页面外壳。
  *
  * 守卫状态直接读 localStorage（与 stores/auth 的落盘键同源，见 router.tsx STORAGE_KEYS）：
  * 登录/登出/401 清理都会先同步写盘再导航，故守卫是「持久化会话」的纯函数，无额外订阅。
@@ -19,7 +19,6 @@ import { LOGIN_PATH, ROUTES, STORAGE_KEYS, guardPath } from './router';
 import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
 import ChatPage from './pages/ChatPage';
-import ConsoleHomePage from './pages/ConsoleHomePage';
 import DrivePage from './pages/DrivePage';
 import LoginPage from './pages/LoginPage';
 import MePage from './pages/MePage';
@@ -34,12 +33,12 @@ import SpacesPage from './pages/SpacesPage';
  */
 const GraphPage = lazy(() => import('./pages/GraphPage'));
 
-/** 路由 → 页面组件（12 页一一对应，键与 router.ROUTES 的 path 完全一致）。 */
+/** 路由 → 页面组件（11 页一一对应，键与 router.ROUTES 的 path 完全一致；
+ *  页 11 控制台已于 v1.4 砍除，编号不复用）。 */
 const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/login': LoginPage,
   '/self-report': SelfReportPage,
   '/spaces': SpacesPage,
-  '/console': ConsoleHomePage,
   '/assessment': AssessmentPage,
   '/paper': PaperPage,
   '/chat': ChatPage,

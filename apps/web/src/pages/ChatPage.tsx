@@ -27,7 +27,7 @@ import { cn } from '../lib/cn';
 import ModelBadge, { useModelInfo } from '../components/chat/ModelBadge';
 import { kpName } from '../data/graphSnapshot';
 import { exitChannelText } from '../lib/phrases';
-import { CONSOLE_PATH, SPACES_PATH } from '../router';
+import { ME_PATH, SPACES_PATH } from '../router';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useDialogStore } from '../stores/dialog';
 import { useSpaceStore } from '../stores/space';
@@ -65,9 +65,10 @@ export default function ChatPage() {
               variant="secondary"
               size="sm"
               onClick={() => {
-                // 「收进侧栏」：打开右侧面板并回到工作台，对话上下文随全局 store 一起带走
+                // 「收进侧栏」：打开右侧面板并回到「我的」（学习概览所在页，v1.4 起
+                // 旧控制台的概览并入那里），对话上下文随全局 store 一起带走
                 setPanelOpen(true);
-                navigate(CONSOLE_PATH);
+                navigate(ME_PATH);
               }}
             >
               收进侧栏

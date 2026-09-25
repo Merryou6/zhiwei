@@ -31,7 +31,7 @@
  *
  * 【怎么用】
  *   先起服务（后端 :8787 + vite :5173），再按宽度分档跑（本机单条命令约 60s 被 SIGKILL，
- *   12 页 × 1 档 ≈ 20–30s，故一档一条命令，勿合并）：
+ *   11 页 × 1 档 ≈ 20–30s，故一档一条命令，勿合并）：
  *     node tools/responsive-audit.cjs --tag baseline --widths 1440
  *     node tools/responsive-audit.cjs --tag baseline --widths 1024
  *     node tools/responsive-audit.cjs --tag baseline --widths 768
@@ -57,7 +57,7 @@
  *   SKIP_RESPONSIVE_AUDIT  置 1 时短路 --compare（见文件头停用说明）。不影响采样与探针。
  *
  * 【输出】
- *   <OUT>/audit-<tag>-<width>.json         采样结果（12 页，含 theme 字段）
+ *   <OUT>/audit-<tag>-<width>.json         采样结果（11 页，含 theme 字段）
  *   <OUT>/<tag>-<width>-<theme>-<route>.png 逐页截图（P2 起文件名带主题，便于两套并列比对）
  *   <OUT>/compare-<A>-<B>-<widths>.json    --compare 的机器可读结果
  *
@@ -89,12 +89,13 @@ const SKIP_COMPARE = process.env.SKIP_RESPONSIVE_AUDIT === '1';
 /** 写入 localStorage 的主题值：未指定时显式写 dark，让「这次是哪套皮肤」变成事实而非默认值推断。 */
 const THEME_KEY_VALUE = THEME ?? 'dark';
 
-/** 12 页路由表（与 apps/web/src/router.tsx 的 ROUTES 同序；本脚本不 import 业务代码）。 */
+/** 11 页路由表（与 apps/web/src/router.tsx 的 ROUTES 同序；本脚本不 import 业务代码）。
+ *  v1.4（2026-09-25）：/console（旧页 11）砍除 → 12 → 11；既有 v2-baseline 是 12 页采样，
+ *  本页数变更后须重采基线（新 tag），再走 --compare。 */
 const ROUTES = [
   { path: '/login', name: 'login', auth: false },
   { path: '/self-report', name: 'self-report', auth: true },
   { path: '/spaces', name: 'spaces', auth: true },
-  { path: '/console', name: 'console', auth: true },
   { path: '/assessment', name: 'assessment', auth: true },
   { path: '/paper', name: 'paper', auth: true },
   { path: '/chat', name: 'chat', auth: true },

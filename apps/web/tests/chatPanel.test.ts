@@ -58,13 +58,13 @@ describe('chatPanel store', () => {
     useDialogStore.getState().reset();
   });
 
-  it('与路由无关：开合不写 URL / 存储，路由表仍是 12 页 6 项导航（/chat 保留在全屏路由里）', () => {
+  it('与路由无关：开合不写 URL / 存储，路由表仍是 11 页 6 项导航（/chat 保留在全屏路由里；v1.4 控制台砍除）', () => {
     useChatPanelStore.getState().toggle();
 
     expect(useChatPanelStore.getState().open).toBe(true);
     expect(window.location.hash).toBe('');
     expect(window.localStorage.getItem('zhiwei_chat_panel')).toBeNull();
-    expect(ROUTES).toHaveLength(12);
+    expect(ROUTES).toHaveLength(11);
     expect(navRoutes().map((route) => route.path)).toEqual([
       '/assessment',
       '/chat',
