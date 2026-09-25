@@ -3,7 +3,7 @@
  *
  * 覆盖：章节 → 全部 kp 落 p_l0/mastery（PRIOR_MAP 经引擎 priorFor）；
  * evidence_count>0 的知识点不被覆盖（真实证据优先）；不产生 evidence_events；
- * 参数校验（≤6 项 / level 1–5 / 章节存在）与 401/403。
+ * 参数校验（≤8 项（v1.4）/ level 1–5 / 章节存在）与 401/403。
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -148,14 +148,14 @@ describe('selfReport · 契约 §3 参数校验与鉴权', () => {
     expect((await selfReport(user, [{ chapter: SECONDARY_CHAPTER, level: '3' }])).code).toBe(400);
   });
 
-  it('reports 超过 6 项 → 400；非数组 → 400', async () => {
+  it('reports 超过 8 项 → 400；恰 8 项 → 0；非数组 → 400（契约 v1.4：上限 6→8）', async () => {
     const user = await app.register(uniqueIdentifier());
-    const seven = Array.from({ length: 7 }, () => ({ chapter: SECONDARY_CHAPTER, level: 3 }));
-    expect((await selfReport(user, seven)).code).toBe(400);
+    const nine = Array.from({ length: 9 }, () => ({ chapter: SECONDARY_CHAPTER, level: 3 }));
+    expect((await selfReport(user, nine)).code).toBe(400);
     expect((await selfReport(user, { chapter: SECONDARY_CHAPTER, level: 3 })).code).toBe(400);
 
-    const six = Array.from({ length: 6 }, () => ({ chapter: SECONDARY_CHAPTER, level: 3 }));
-    expect((await selfReport(user, six)).code).toBe(0);
+    const eight = Array.from({ length: 8 }, () => ({ chapter: SECONDARY_CHAPTER, level: 3 }));
+    expect((await selfReport(user, eight)).code).toBe(0);
   });
 
   it('跨用户 space_id → 403；未认证 → 401；缺 space_id → 400', async () => {
