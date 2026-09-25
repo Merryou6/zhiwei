@@ -306,3 +306,27 @@ describe('⑩ 任意值圆角不回流（圆角刻度只有三档）', () => {
     expect(found, '任意值圆角应改为 rounded-md(6) / rounded-control(10) / rounded-surface(16)').toEqual([]);
   });
 });
+
+describe('⑪ band 令牌必须带前缀（裸令牌名不是类）', () => {
+  it('src/** 不出现裸 band-* 类名（应为 text-band-* / bg-band-* / border-band-*）', () => {
+    // 这条与第 ⑦ 条「死类回归」不同：⑦ 抓的是拼错的类名，这里抓的是**拼写正确但缺前缀**
+    // 的令牌名。真实案例（2026-09-25 重构 P3 修掉）：ConsoleHomePage 的 Stat 组件用
+    // `tone?: string` 接收 "band-mastered" 再拼进 className，得到裸类 band-mastered。
+    // Tailwind 的颜色工具类必须带前缀，浏览器对未知类静默忽略 —— 于是那两个 KPI 的
+    // 颜色编码**从未渲染过**：不报错、不挂测试、看起来还像是「设计成这样」。
+    // 这类写法最容易被复制，所以静态拦。
+    // 注释行不算（Badge.tsx 的文件头在列举令牌名，那是合法陈述，不是类名）。
+    const found: string[] = [];
+    for (const file of FILES) {
+      file.text.split('\n').forEach((line, index) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
+        // 前置必须是行首/空白/引号：bg-band-mastered 里 band 前面是连字符，不会误伤。
+        if (/(^|[\s"'])band-(weak|unstable|basic|mastered)([\s"']|$)/.test(line)) {
+          found.push(`${file.rel}:${index + 1}: ${trimmed.slice(0, 110)}`);
+        }
+      });
+    }
+    expect(found, '裸 band 令牌名不是 Tailwind 类，会被静默忽略').toEqual([]);
+  });
+});
