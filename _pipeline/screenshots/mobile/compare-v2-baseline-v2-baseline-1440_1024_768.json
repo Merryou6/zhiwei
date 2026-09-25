@@ -1,0 +1,31 @@
+{
+ "tagA": "v2-baseline",
+ "tagB": "v2-baseline",
+ "widths": [
+  1440,
+  1024,
+  768
+ ],
+ "desktopMin": 768,
+ "perWidth": [
+  {
+   "width": 1440,
+   "pages": 12,
+   "geometryDiffs": 0,
+   "rows": []
+  },
+  {
+   "width": 1024,
+   "pages": 12,
+   "geometryDiffs": 0,
+   "rows": []
+  },
+  {
+   "width": 768,
+   "pages": 12,
+   "geometryDiffs": 0,
+   "rows": []
+  }
+ ],
+ "hardFail": []
+}

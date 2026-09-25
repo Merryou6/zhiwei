@@ -6,22 +6,19 @@
  * 「零变化」这种强断言 —— 需要可复算的数字：同一批路由、同一批几何锚点，改造前后逐项 diff。
  * 本脚本就是那台量尺：跑两遍（tag=baseline / tag=after），第三遍 --compare 出 diff 表。
  *
- * 【⚠ 2026-09-25 起 --compare 闸门临时停用（UI 视觉重构轮）】
- * 那一轮的任务是「比赛级 UI 视觉重构」，**有意改变桌面视觉**（信息架构、字号刻度、
- * 卡片层级、导航形态）。这与本脚本 --compare 的判据在**定义上互斥**：判据要求
- * ≥768 三档逐锚点 diff 全 0，而重构正是要去动这些锚点。跑它必然 exit 1 ——
- * 一个「必然红灯」的闸门会让真红灯失去意义。
+ * 【--compare 闸门：UI 视觉重构后已恢复（2026-09-25 v2-baseline 重采完成）】
+ * UI 视觉重构轮**有意改变了桌面视觉**（信息架构、字号刻度、卡片层级、导航形态），
+ * 与旧的 baseline 在定义上互斥，故那几轮用 SKIP_RESPONSIVE_AUDIT=1 临时短路 --compare
+ * （采样与 --probe-nav 不受影响——它们是取证工具，不是闸门）。
  *
- * 处理方式（不删脚本、不删基线）：
- *   · 加 SKIP_RESPONSIVE_AUDIT=1 开关，**只短路 --compare**（采样与 --probe-nav 不受影响
- *     —— 它们是取证工具，不是闸门）。这样在 CI 里跳过闸门，同时仍能截图留证。
- *   · 既有基线（_pipeline/screenshots/mobile/*）原样保留，未删除、未覆盖。
- *   · TODO(UI 稳定后恢复)：去掉 CI 侧的 SKIP_RESPONSIVE_AUDIT=1，重采一份新基线
- *     `--tag v2-baseline`，之后按 `--compare v2-baseline <new>` 继续。
- *     跟踪项：项目 issue「恢复 responsive-audit 桌面零变化闸门（UI 稳定后）」。
+ * 现重构收敛，已重采一份对齐当前视觉的新基线，闸门恢复生效：
+ *   · 新基线：--tag v2-baseline（深色）+ v2-baseline-light（浅色），四档 1440/1024/768/414·375
+ *   · 旧 baseline 目录仍在（_pipeline/screenshots/mobile/*），未删；勿再拿它 --compare v2-*
+ *   · 今后桌面回归判据：node tools/responsive-audit.cjs --compare v2-baseline <new> --widths 1440,1024,768
+ *   · 不要再设 SKIP_RESPONSIVE_AUDIT=1（除非又开启一轮「有意改桌面视觉」的重构）
  *
- * 恢复前的替代判据（本轮实际使用）：4 档宽度（1440/1024/768/375）× 深/浅两套主题的
- * 截图 + 每页 overflowPx 与溢出元素清单 + --probe-nav 行为探针。
+ * SKIP_RESPONSIVE_AUDIT 开关保留在代码里：它只短路 --compare，供「有意改桌面视觉」的
+ * 重构轮临时使用；正常运行环境不设即为闸门生效。
  *
  * 【它采集什么】（每个宽度档 × 12 条路由各一份）
  *   a) 页面级横向溢出：documentElement.scrollWidth - clientWidth（px）
