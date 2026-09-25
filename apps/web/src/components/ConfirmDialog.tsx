@@ -6,6 +6,8 @@
  * 而不是「仍要新建」。
  */
 
+import { Button } from './ui';
+
 export interface ConfirmDialogProps {
   open: boolean;
   title: string;
@@ -31,31 +33,26 @@ export default function ConfirmDialog({
   return (
     // z-index 走令牌（D12：原为裸 z-50，数值相同 → 像素零变化）
     <div className="fixed inset-0 z-overlay flex items-center justify-center bg-ink/30 px-4">
+      {/* shadow-overlay：对话框是浮起层，与静态卡的 shadow-card 分档（P3 走查补齐，
+          此前误用裸 shadow-lg，绕过了阴影档位体系） */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-sm rounded-surface border border-line bg-surface p-5 shadow-lg"
+        className="w-full max-w-sm rounded-surface border border-line bg-surface p-5 shadow-overlay"
       >
         <h2 className="text-base font-medium text-ink">{title}</h2>
         {description ? <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p> : null}
 
         <div className="mt-5 flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-control px-3 py-2 text-sm text-ink-soft hover:bg-raised"
-          >
+          {/* 按钮收编原语（P3 走查）：原来两串手写 class 与 Button 是同视觉第二套真相；
+              autoFocus 透传保留——焦点默认落在契约要求的「切换过去」上 */}
+          <Button variant="ghost" onClick={onCancel}>
             {cancelLabel}
-          </button>
-          <button
-            type="button"
-            autoFocus
-            onClick={onConfirm}
-            className="rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
-          >
+          </Button>
+          <Button autoFocus onClick={onConfirm}>
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -13,6 +13,8 @@ import { drive } from '../../api/endpoints';
 import type { DriveFileView } from '../../api/types';
 import { UI_TEXT } from '../../lib/phrases';
 import { InlineSkeletonRows } from '../PageSkeleton';
+import { Button, Textarea } from '../ui';
+import { cn } from '../../lib/cn';
 import { useSpaceStore } from '../../stores/space';
 import { useUiStore } from '../../stores/ui';
 import { useChatSend } from './useChatSend';
@@ -64,11 +66,14 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
               <li key={file.file_id}>
                 <button
                   type="button"
+                  aria-pressed={imageFileId === file.file_id}
                   onClick={() => setImageFileId(file.file_id)}
-                  className={[
+                  className={cn(
                     'w-full rounded-control px-3 py-1.5 text-left text-xs max-nav:min-h-9',
-                    imageFileId === file.file_id ? 'bg-accent-veil text-accent-ink' : 'text-ink hover:bg-raised',
-                  ].join(' ')}
+                    imageFileId === file.file_id
+                      ? 'bg-accent-veil text-accent-ink'
+                      : 'text-ink hover:bg-raised',
+                  )}
                 >
                   {file.name}
                 </button>
@@ -89,31 +94,36 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
           空间充裕时（≥720）不触发换行。两个按钮 shrink-0 保住自身最小尺寸（不参与压缩），
           textarea 给一个 12rem 的可用下限，避免被挤到不可读。 */}
       <div className="mt-4 flex flex-wrap items-end gap-2">
-        <textarea
-          className="min-h-[44px] min-w-[min(100%,12rem)] flex-1 resize-y rounded-surface border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
+        {/* min-h-11 = 44px，与原手写的 min-h-[44px] 同值（触控下限），但走标准刻度
+            而不是任意值；圆角由原语定成 rounded-control（原为 rounded-surface，
+            P2 已把全站控件统一收成 control 一档，此处是当时漏网的最后一处） */}
+        <Textarea
+          fieldSize="md"
+          className="min-h-11 min-w-[min(100%,12rem)] flex-1 py-2.5"
           rows={2}
           placeholder="写一句你的思路，或者直接说卡在哪"
           value={input}
           disabled={disabled}
           onChange={(event) => setInput(event.target.value)}
         />
-        <button
-          type="button"
-          onClick={() => void openPicker()}
-          className="shrink-0 rounded-surface border border-line px-3 py-2.5 text-ui-sm text-ink-soft hover:bg-surface"
+        <Button
+          variant="secondary"
+          size="md"
+          className="shrink-0"
           title="本地演示态：选预置文件代替真实直传"
+          onClick={() => void openPicker()}
         >
           传图读题
-          <span className="ml-1 text-caption text-ink-soft">演示态</span>
-        </button>
-        <button
-          type="button"
+          {/* 演示态角标：ghost 式弱化注记，用 caption 档而非另起一套字号 */}
+          <span className="text-caption text-ink-soft">演示态</span>
+        </Button>
+        <Button
+          className="shrink-0"
           disabled={disabled}
           onClick={() => void submit()}
-          className="shrink-0 rounded-surface bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {disabled ? '正在回…' : '发送'}
-        </button>
+        </Button>
       </div>
     </div>
   );

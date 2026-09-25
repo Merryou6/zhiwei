@@ -9,6 +9,7 @@
 import { useEffect, useRef } from 'react';
 
 import EmptyState from '../EmptyState';
+import { cn } from '../../lib/cn';
 import { scrollBehavior } from '../../lib/motion';
 import RichText from '../../lib/richText';
 import type { ChatMessage } from '../../stores/dialog';
@@ -53,10 +54,10 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
                 overflow-wrap 只在「确实放不下」时生效 → 桌面正常文本零变化。 */}
             <div className={isStudent ? 'max-w-[80%] break-words text-right' : 'max-w-[85%] break-words'}>
               <div
-                className={[
+                className={cn(
                   'inline-block rounded-surface px-4 py-2.5 text-left text-sm leading-relaxed break-words',
                   isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
-                ].join(' ')}
+                )}
               >
                 {message.text.length > 0 ? (
                   // 学长回复走轻量 Markdown 子集（加粗/列表/换行）；学生输入是纯文本，保持原样
