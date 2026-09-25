@@ -453,4 +453,15 @@ textarea::placeholder {
     opacity: 1 !important;
     transform: none !important;
   }
+
+  /* 打印不留任何「进行中」的动效（2026-09-25 重构 P3 补，随打印按钮一起接线）。
+     具体场景：路由入场（route-in，280ms）尚未结束时用户点了「打印 / 存为 PDF」，
+     会印出半透明的正文；揭示机制与将来新增的任何动效同理。
+     纸面不存在「正在入场」这件事 —— 打印只有终态这一帧。 */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

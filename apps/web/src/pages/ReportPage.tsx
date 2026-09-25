@@ -5,6 +5,18 @@
  * 三段布局：① 掌握度分布（四状态带计数 + 每带节点 chip）② 缺口清单（<0.4，含最近错误类型）
  *          ③ 基线 vs 复测（accuracy：baseline / retest / delta；Δ>0 青绿、Δ<0 暖橙、null 显示「—」）
  * 空态：未自报未测评（全部 0 且无 accuracy）→ 引导先自报/先测评，不伪造数据（D12）。
+ *
+ * ── 重构 P3-4（2026-09-25）───────────────────────────────────────
+ * ① **补上打印 / 存为 PDF 按钮**。在此之前这是本项目最典型的一处「装了却没接线」：
+ *    index.css 的 @media print 早就准备好了（强制浅色、[data-print='hide'] 隐藏外壳、
+ *    去阴影、覆盖 13 个角色变量，还有 tokens.test.ts ⑨ 两条断言锁着），
+ *    但业务代码里**没有任何 window.print() 调用** —— 整套机制从来没被触发过。
+ * ② 打印块补 `animation / transition: none`：打印只有终态这一帧，
+ *    若在路由入场（280ms）未完成时点打印，会印出半透明正文。
+ * ③ 版式接入 PageContainer（standard；空态与无空间态用 prose）+ PageHeader。
+ * ④ 三处按钮 Link 复用 buttonVariants，不再抄第二套按钮 class。
+ * ⑤ 所有数值（计数、掌握度、基线 / 复测、ΔAccuracy）改等宽 + 表格数字：
+ *    这张表的核心就是「同一列上下对齐着比」，比例字体下每次改数都会错位。
  */
 
 import { useEffect, useState } from 'react';
@@ -13,9 +25,11 @@ import { Link } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
+import { Button, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { reportSummary } from '../api/endpoints';
 import type { ReportSummaryData } from '../api/types';
 import { kpName } from '../data/graphSnapshot';
+import { cn } from '../lib/cn';
 import { deltaPercent, percent } from '../lib/format';
 import { ERROR_TYPE_LABEL, UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
@@ -66,28 +80,28 @@ export default function ReportPage() {
 
   if (!activeSpaceId) {
     return (
-      <section className="max-w-2xl">
-        <h1 className="text-xl font-medium text-ink">学习报告</h1>
+      <PageContainer width="prose">
+        <PageHeader title="学习报告" />
         <div className="mt-5 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有选中的学习空间"
             hint={UI_TEXT.needSelfReport}
             action={
-              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
+              <Link to={SPACES_PATH} className={cn(buttonVariants({ variant: 'primary' }))}>
                 去选空间
               </Link>
             }
           />
         </div>
-      </section>
+      </PageContainer>
     );
   }
 
   if (loading) {
     return (
-      <section className="max-w-3xl">
+      <PageContainer width="standard">
         <PageSkeleton label="正在整理你的报告…" rows={3} />
-      </section>
+      </PageContainer>
     );
   }
 
@@ -98,25 +112,25 @@ export default function ReportPage() {
 
   if (!hasData) {
     return (
-      <section className="max-w-2xl">
-        <h1 className="text-xl font-medium text-ink">学习报告</h1>
+      <PageContainer width="prose">
+        <PageHeader title="学习报告" />
         <div className="mt-5 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有你的学习数据"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，这里就会长出掌握度分布和缺口清单。`}
             action={
               <div className="flex flex-wrap items-center gap-3">
-                <Link to="/self-report" className="min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
+                <Link to="/self-report" className={cn(buttonVariants({ variant: 'primary' }))}>
                   花 30 秒自报
                 </Link>
-                <Link to="/assessment" className="min-h-9 rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised">
+                <Link to="/assessment" className={cn(buttonVariants({ variant: 'secondary' }))}>
                   直接做几道题
                 </Link>
               </div>
             }
           />
         </div>
-      </section>
+      </PageContainer>
     );
   }
 
@@ -127,15 +141,29 @@ export default function ReportPage() {
   const maxBandCount = Math.max(1, ...byBand.map((entry) => entry.rows.length));
 
   return (
-    <section className="max-w-3xl">
-      <h1 className="text-xl font-medium text-ink">学习报告</h1>
-      <p className="mt-3 rounded-surface bg-surface px-4 py-3 text-sm leading-relaxed text-ink">
+    <PageContainer width="standard">
+      <PageHeader
+        title="学习报告"
+        actions={
+          // 打印 / 存为 PDF（2026-09-25 重构 P3 补上）。
+          // 这是**纯客户端** window.print()，服务端没有导出端点 —— index.css 的 @media print
+          // 早就为它准备好了（强制浅色、[data-print='hide'] 隐藏外壳、去阴影），
+          // 但按钮一直没接，等于整套机制装好了却没接线。
+          // data-print="hide"：按钮自己不该被印到纸上。
+          <Button variant="secondary" size="sm" data-print="hide" onClick={() => window.print()}>
+            打印 / 存为 PDF
+          </Button>
+        }
+      />
+      <p className="mt-4 rounded-surface bg-surface px-4 py-3 text-reading leading-relaxed text-ink">
         {summaryLine(gaps.length)}
       </p>
 
       {/* ① 掌握度分布 */}
       <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
-        <h2 className="text-base font-medium text-ink">掌握度分布（{mastery.length} 个知识点）</h2>
+        <h2 className="text-base font-medium text-ink">
+          掌握度分布（<span className="font-mono tabular-nums">{mastery.length}</span> 个知识点）
+        </h2>
 
         <ul className="mt-3 space-y-2">
           {byBand.map(({ band, rows }) => (
@@ -147,7 +175,9 @@ export default function ReportPage() {
                   style={{ width: `${(rows.length / maxBandCount) * 100}%`, backgroundColor: BAND_HEX[band] }}
                 />
               </span>
-              <span className="w-10 shrink-0 text-right text-ui-sm text-ink-soft">{rows.length}</span>
+              <span className="w-10 shrink-0 text-right font-mono text-ui-sm tabular-nums text-ink-soft">
+                {rows.length}
+              </span>
             </li>
           ))}
         </ul>
@@ -156,7 +186,7 @@ export default function ReportPage() {
           {byBand.map(({ band, rows }) => (
             <div key={band}>
               <p className="text-ui-sm text-ink-soft">
-                {band}（{rows.length}）
+                {band}（<span className="font-mono tabular-nums">{rows.length}</span>）
               </p>
               <div className="mt-1 flex flex-wrap gap-1.5">
                 {rows.map((row) => (
@@ -166,7 +196,8 @@ export default function ReportPage() {
                     style={{ backgroundColor: bandVeilHex(band as MasteryBand) }}
                     title={`${row.name} · ${percent(row.mastery)}`}
                   >
-                    {row.name} {percent(row.mastery)}
+                    {row.name}{' '}
+                    <span className="font-mono tabular-nums text-ink-soft">{percent(row.mastery)}</span>
                   </span>
                 ))}
                 {rows.length === 0 ? <span className="text-ui-sm text-ink-soft/60">—</span> : null}
@@ -195,7 +226,9 @@ export default function ReportPage() {
               {gaps.map((row) => (
                 <tr key={row.kp_id} className="border-t border-line">
                   <td className="py-2 text-ink">{row.name}</td>
-                  <td className={`py-2 ${BAND_CLASS['待巩固'].text}`}>{percent(row.mastery)}</td>
+                  <td className={cn('py-2 font-mono tabular-nums', BAND_CLASS['待巩固'].text)}>
+                    {percent(row.mastery)}
+                  </td>
                   <td className="py-2 text-ink-soft">
                     {row.error_type_last ? ERROR_TYPE_LABEL[row.error_type_last] : '—'}
                   </td>
@@ -236,18 +269,18 @@ export default function ReportPage() {
               {accuracy.map((row) => (
                 <tr key={row.kp_id} className="border-t border-line">
                   <td className="py-2 text-ink">{kpName(row.kp_id)}</td>
-                  <td className="py-2 text-ink-soft">{percent(row.baseline)}</td>
-                  <td className="py-2 text-ink-soft">{percent(row.retest)}</td>
+                  <td className="py-2 font-mono tabular-nums text-ink-soft">{percent(row.baseline)}</td>
+                  <td className="py-2 font-mono tabular-nums text-ink-soft">{percent(row.retest)}</td>
                   <td className="py-2">
                     <span
-                      className={[
-                        'rounded-md px-2 py-0.5 text-xs',
+                      className={cn(
+                        'rounded-md px-2 py-0.5 font-mono text-xs tabular-nums',
                         row.delta === null
                           ? 'bg-canvas text-ink-soft'
                           : row.delta > 0
                             ? 'bg-band-mastered/10 text-band-mastered'
                             : 'bg-band-weak/10 text-band-weak',
-                      ].join(' ')}
+                      )}
                     >
                       {deltaPercent(row.delta)}
                     </span>
@@ -259,6 +292,6 @@ export default function ReportPage() {
           </div>
         )}
       </div>
-    </section>
+    </PageContainer>
   );
 }
