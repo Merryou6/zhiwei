@@ -197,12 +197,15 @@ export default function MobileNav() {
       className="fixed inset-0 z-overlay nav:hidden"
     >
       {/* 背景幕：全屏 button，指针路径由此闭合（与 ChatPanelDock 同款写法）。
-          aria-label 与抽屉头部关闭键不同名，避免读屏出现两个同名可访问名。 */}
+          aria-label 与抽屉头部关闭键不同名，避免读屏出现两个同名可访问名。
+          用 .scrim 而不是内联「底色 + 透明度」：半透明幕布是唯一「隔着它还要读前景」
+          的位置，抽成类之后系统「减少透明度」偏好才有落点（见 index.css 的
+          prefers-reduced-transparency 块）。正常条件下取值与原来逐位相同。 */}
       <button
         type="button"
         aria-label="点击空白处关闭导航菜单"
         onClick={() => setOpen(false)}
-        className="absolute inset-0 animate-fade bg-canvas/60"
+        className="scrim absolute inset-0 animate-fade"
       />
 
       <aside

@@ -36,6 +36,7 @@
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
@@ -109,7 +110,7 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
           // 与面板头部的关闭键区分开（同一可访问名会读屏歧义；F4 走查发现，D25）
           aria-label="点击空白处关闭对话面板"
           onClick={() => setOpen(false)}
-          className="absolute inset-0 animate-fade bg-canvas/60"
+          className="scrim absolute inset-0 animate-fade"
         />
       )}
       <aside
@@ -131,6 +132,7 @@ export interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { pathname } = useLocation();
   const open = useChatPanelStore((state) => state.open);
   const wideEnough = useViewportAtLeast(DOCK_MIN_WIDTH_PX);
   /** 常驻态才挤压正文列；覆盖态（窄屏）正文一律不动（D1b）。 */
@@ -156,7 +158,16 @@ export default function Layout({ children }: LayoutProps) {
         style={DOCK_OFFSET_STYLE}
         aria-hidden={navOpen || undefined}
       >
-        <main className="mx-auto w-full max-w-6xl px-4 py-8 nav:px-6">{children}</main>
+        {/* 路由入场（P1）：key 换成 pathname，每次换页重新挂载 main，动画才会重播。
+            换页本来就会换掉页面组件（12 条路由与 12 个页面文件 1:1 对应），所以这个 key
+            不引入额外的状态丢失；同一路径只变 query 的导航 key 不变，页面状态保留。
+            动画刻意挂在 main 自身而不是再包一层 div —— 多一层包装会改变取证脚本
+            mainChild 锚点的取法（它是 main 的第一个子元素），而锚点几何是基线的一部分。
+            动画本身只做透明度（见 tailwind.config.js 的 route-in）：带位移的入场会让
+            锚点 y 在动画期间取到中间值。 */}
+        <main key={pathname} className="mx-auto w-full max-w-6xl animate-route-in px-4 py-8 nav:px-6">
+          {children}
+        </main>
       </div>
       {/* 汉堡抽屉：挂在 TopNav 之后、面板之前（同 z-overlay，但二者互斥不同屏，D4）。
           自身在 ≥720 不渲染（nav:hidden）+ 未登录不渲染（D15）。 */}
