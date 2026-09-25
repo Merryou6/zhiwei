@@ -8,6 +8,74 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── primitive 层（原始色阶，2026-09-25 重构 P0：双轨令牌）────────────
+   这一层是**与主题无关的原始值**，只回答「这是哪一档颜色」，不回答「它用在哪」。
+   命名按色相分族、按明度分档（数字越大越深，与 Tailwind 惯例一致）。
+
+   为什么要分两层：
+   收敛前 `--c-*` 角色值直接写「R G B」三元组，于是「#4E8FB0 这个色」在浅色块、
+   深色块、打印块里各出现一次 —— 同一个色三个真相。改一次色要同步三处，漏一处就
+   是「某个主题下颜色没跟着变」。现在角色层只写 `var(--p-…)`，色值只有一处。
+
+   ⚠ 本层**不在任何测试闸门的覆盖范围内**：tokens.test.ts ③ 只提取 tailwind 配置里
+   `rgb(var(--c-…))` 引用的 `c-` 前缀变量，`p-` 前缀不在其列。也就是说
+   「角色令牌引用了一个不存在的 primitive」这种错**不会被任何断言拦住**，只会静默
+   解析成无效值（该颜色消失）。因此新增/改名 primitive 后必须人工核对：
+   每个 `var(--p-…)` 都能在本块找到同名定义。
+
+   ⚠ 本层刻意**不放进 tailwind.config.js 的 colors**：一旦成为 tailwind 颜色令牌，
+   就会与角色层并存出两套可写类名（bg-slate-50 vs bg-canvas），语义层会被绕过。
+   primitive 只做角色层的取值来源，不作为可写工具类。
+
+   ⚠ 守恒区不接入本层：`primary` / `primary-soft` / `band-*` 六个字面 hex 由
+   bands.test.ts 逐键断言，必须保持字面不变，因此它们不参与双轨。
+
+   ⚠ 为什么挂在 `html` 而不是 `:root`：tokens.test.ts ③ 用
+   `/:root\s*\{([^}]*)\}/` 取**第一个** `:root` 块来断言「tailwind 引用的每个
+   --c-* 在浅色块与深色块里都有定义」。若本层也用 `:root` 且排在角色层之前，
+   那条断言会取到本块、在里面找不到任何 `--c-*` 而整体失败。
+   换选择器比改闸门更该做：闸门在那里是**对的**（它要的就是角色层），
+   而本层与角色层是不同职责的两层，用不同选择器表达反而更清楚。
+   特异性上 `html`(0,0,1) 低于 `:root`(0,1,0)，但两层声明的是不同属性名
+   （`--p-*` 与 `--c-*`），不存在互相覆盖。 */
+html {
+  /* ── 中性冷灰族（浅色主题的表面与墨色）──────────────────────────── */
+  --p-white: 255 255 255; /* #FFFFFF */
+  --p-slate-50: 245 248 249; /* #F5F8F9 */
+  --p-slate-200: 220 228 233; /* #DCE4E9 */
+  --p-slate-300: 195 208 216; /* #C3D0D8 */
+  --p-slate-400: 169 186 197; /* #A9BAC5 */
+  --p-slate-500: 91 107 118; /* #5B6B76 */
+  --p-slate-900: 34 48 58; /* #22303A */
+
+  /* ── 蓝调深色族（深色主题的表面层次）──────────────────────────────
+     深色界面的层次必须靠**表面明度**建立，不能靠半透明玻璃叠加 ——
+     玻璃会让正文对比度随背景浮动。所以这一族是按明度严格排开的实体色。 */
+  --p-navy-950: 7 12 20; /* #070C14 */
+  --p-navy-900: 17 26 38; /* #111A26 */
+  --p-navy-800: 32 45 61; /* #202D3D */
+  --p-navy-700: 38 49 63; /* #26313F */
+  --p-navy-600: 38 55 74; /* #26374A */
+  --p-navy-500: 51 65 84; /* #334154 */
+
+  /* ── 霜白族（深色主题上的前景色）──────────────────────────────────
+     与中性冷灰族分开命名，因为它们的使用场景相反（一个落在浅底上、
+     一个落在深底上），混在一支刻度里会让「这一档到底给谁用」失去判据。 */
+  --p-frost-100: 232 238 244; /* #E8EEF4 */
+  --p-frost-300: 163 177 192; /* #A3B1C0 */
+
+  /* ── 青蓝族（品牌色相，全站唯一强调色）──────────────────────────── */
+  --p-cyan-50: 234 242 246; /* #EAF2F6 = primary-soft */
+  --p-cyan-400: 111 179 212; /* #6FB3D4 深底上的主色 */
+  --p-cyan-600: 78 143 176; /* #4E8FB0 = primary */
+  --p-cyan-700: 46 107 135; /* #2E6B87 强调色作为文字 */
+  --p-cyan-950: 15 31 42; /* #0F1F2A 品牌色极暗面纱 */
+
+  /* ── 琥珀族（语义：危险 / 错误，低饱和非刺眼大红）───────────────── */
+  --p-amber-300: 255 176 136; /* #FFB088 */
+  --p-amber-700: 201 106 58; /* #C96A3A */
+}
+
 /* ── 主题变量（2026-09-22 视觉批四：全站深色化）──────────────────────
    tailwind 的中性色令牌指向这些变量（见 tailwind.config.js 的「主题变量区」），
    组件只写语义类名（bg-surface / text-ink / border-line），不关心当下是哪个主题。
@@ -24,29 +92,30 @@
    变量值是「R G B」三元组（不带 rgb() 外壳），这样 tailwind 的
    <alpha-value> 机制仍可用，bg-surface/80 这类透明度修饰不会被破坏。 */
 :root {
-  /* 浅色基线 —— 与原令牌字面 hex 逐字相同，未挂 dusk 时外观零变化 */
-  --c-canvas: 245 248 249; /* #F5F8F9 */
-  --c-surface: 255 255 255; /* #FFFFFF */
-  --c-raised: 245 248 249; /* #F5F8F9 交互抬升态（与 canvas 同值：白卡上 hover 加深） */
-  --c-ink: 34 48 58; /* #22303A */
-  --c-ink-soft: 91 107 118; /* #5B6B76 */
-  --c-line: 220 228 233; /* #DCE4E9 */
-  --c-accent: 78 143 176; /* #4E8FB0 = primary */
-  --c-accent-veil: 234 242 246; /* #EAF2F6 = primary-soft */
+  /* 浅色基线 —— 取值全部来自上面 primitive 层，解析结果与原字面三元组逐字相同，
+     未挂 dusk 时外观零变化。角色层不再写裸色值，只回答「用在哪」。 */
+  --c-canvas: var(--p-slate-50);
+  --c-surface: var(--p-white);
+  --c-raised: var(--p-slate-50); /* 交互抬升态（与 canvas 同值：白卡上 hover 加深） */
+  --c-ink: var(--p-slate-900);
+  --c-ink-soft: var(--p-slate-500);
+  --c-line: var(--p-slate-200);
+  --c-accent: var(--p-cyan-600);
+  --c-accent-veil: var(--p-cyan-50);
   /* 强调色作为**文字**的取值（P2）：#4E8FB0 当文字只有 3.57:1（白底）/ 3.15:1（veil 上），
      不达 AA。同色相压深到 #2E6B87：白底 5.95:1、veil 上 5.26:1、canvas 上 5.58:1。
      详见 tailwind.config.js 的 accent-ink 注释。 */
-  --c-accent-ink: 46 107 135; /* #2E6B87 */
-  --c-on-accent: 255 255 255;
+  --c-accent-ink: var(--p-cyan-700);
+  --c-on-accent: var(--p-white);
   --shadow-card: 0 1px 2px rgba(34, 48, 58, 0.04), 0 2px 6px rgba(34, 48, 58, 0.05);
 
   /* ── 2026-09-25 视觉重构 P1a：把「浏览器部件」也纳入令牌 ──────────
      收敛前这些位置是**硬编码 hex**（焦点环 #4e8fb0、插入符 #4e8fb0、
      滚动条 #c3d0d8 / #a9bac5），于是只能靠 html.dusk 再写一遍覆盖 —— 同一件事
      两份真相，且焦点环不随主题变量走。改为变量后，深色那份覆盖可以整段删除。 */
-  --c-scroll-thumb: 195 208 216; /* #C3D0D8 滚动条滑块 */
-  --c-scroll-thumb-hover: 169 186 197; /* #A9BAC5 */
-  --c-danger: 201 106 58; /* #C96A3A = tone-error */
+  --c-scroll-thumb: var(--p-slate-300);
+  --c-scroll-thumb-hover: var(--p-slate-400);
+  --c-danger: var(--p-amber-700);
   /* 浮起层的阴影（对话框 / 下拉 / 图谱节点明细卡）。
      浅色下比 card 更深更远，与「贴在页面平面上的静态卡」拉开层级差别。 */
   --shadow-overlay: 0 2px 4px rgba(34, 48, 58, 0.06), 0 12px 28px -8px rgba(34, 48, 58, 0.18);
@@ -55,23 +124,23 @@
 /* 深色主题 —— 值取自 tailwind 的 dusk-* 令牌，与登录页同一套表面层次。
    每项右侧标注其在 dusk-base (#070C14, 相对亮度 0.0035) 上的实测对比度。 */
 html.dusk {
-  --c-canvas: 7 12 20; /* #070C14 页面底 */
-  --c-surface: 17 26 38; /* #111A26 卡片、面板 */
+  --c-canvas: var(--p-navy-950); /* 页面底 */
+  --c-surface: var(--p-navy-900); /* 卡片、面板 */
   /* 交互抬升态。深色主题里 hover 必须**变亮**：浅色下「白卡 hover 转浅灰」是加深，
      同一套 class 搬到深色里就成了变暗，读起来像凹下去。
-     取比 surface 亮一档的 #202D3D，与 surface 的明度差 1.27:1。 */
-  --c-raised: 32 45 61; /* #202D3D */
-  --c-ink: 232 238 244; /* #E8EEF4 标题/正文    16.8:1 */
-  --c-ink-soft: 163 177 192; /* #A3B1C0 说明文字      8.9:1 */
-  --c-line: 38 55 74; /* #26374A 边框与分隔线 */
-  /* 强调色：浅色下的 #4E8FB0 承载白字只有 3.57:1，深底上必须提亮到同色相的
-     #6FB3D4，它承载近黑字有 8.5:1。两个值色相一致，全站仍只有一个强调色。 */
-  --c-accent: 111 179 212; /* #6FB3D4 */
-  --c-accent-veil: 15 31 42; /* #0F1F2A 品牌色极暗面纱，替代浅色下的 primary-soft */
-  /* 深色下 accent 本身就是 #6FB3D4，当文字用已达标（veil 上 7.20:1、surface 上 6.5:1），
+     取比 surface 亮一档的 navy-800，与 surface 的明度差 1.27:1。 */
+  --c-raised: var(--p-navy-800);
+  --c-ink: var(--p-frost-100); /* 标题/正文    16.8:1 */
+  --c-ink-soft: var(--p-frost-300); /* 说明文字      8.9:1 */
+  --c-line: var(--p-navy-600); /* 边框与分隔线 */
+  /* 强调色：浅色下的 cyan-600 承载白字只有 3.57:1，深底上必须提亮到同色相的
+     cyan-400，它承载近黑字有 8.5:1。两个值色相一致，全站仍只有一个强调色。 */
+  --c-accent: var(--p-cyan-400);
+  --c-accent-veil: var(--p-cyan-950); /* 品牌色极暗面纱，替代浅色下的 primary-soft */
+  /* 深色下 accent 本身就是 cyan-400，当文字用已达标（veil 上 7.20:1、surface 上 6.5:1），
      所以 accent-ink 与 accent 同值 —— 但仍必须成对定义，否则切到深色时该变量会缺失。 */
-  --c-accent-ink: 111 179 212; /* #6FB3D4 */
-  --c-on-accent: 7 12 20; /* 落在 accent 底上的文字：深色主题下用近黑 */
+  --c-accent-ink: var(--p-cyan-400);
+  --c-on-accent: var(--p-navy-950); /* 落在 accent 底上的文字：深色主题下用近黑 */
   /* 深色下的「抬起」不能靠深色阴影——深底上的黑影看不见。
      改用上缘 1px 内高光定义边界，外羽化压得更深更近，才有浮起来的读感。 */
   --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.055) inset,
@@ -79,9 +148,9 @@ html.dusk {
 
   /* 浏览器部件的深色取值（P1a）。滚动条走蓝调深灰而非浅色那支冷灰，
      否则深色页面上挂一条浅灰滑块会显得很脏。 */
-  --c-scroll-thumb: 38 49 63; /* #26313F */
-  --c-scroll-thumb-hover: 51 65 84; /* #334154 */
-  --c-danger: 255 176 136; /* #FFB088 原登录页错误色，深底 11:1 */
+  --c-scroll-thumb: var(--p-navy-700);
+  --c-scroll-thumb-hover: var(--p-navy-500);
+  --c-danger: var(--p-amber-300); /* 原登录页错误色，深底 11:1 */
   /* 深色下的浮起：靠上缘内高光定义边界（深底上黑影看不见），外羽化更深更近。 */
   --shadow-overlay: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 20px 48px -18px rgba(2, 6, 14, 0.92);
 }
@@ -225,6 +294,24 @@ body {
   .pb-safe-3 {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
   }
+
+  /* ── 背景幕（2026-09-25 重构 P0）──────────────────────────────────
+     抽屉与右侧面板背后的压暗层。抽成一个类而不是各处手写「底色 + 60% 透明度」，
+     是为了让「减少透明度」这个系统偏好有落点：幕布是唯一「隔着半透明层还要
+     读前景」的位置，而 alpha 一旦写在 class 里就没法按偏好整体切换。
+     正常条件下的取值与原来逐位相同，故这是零视觉变化的替换。 */
+  .scrim {
+    background-color: rgb(var(--c-canvas) / 0.6);
+  }
+
+  /* 系统「减少透明度」开启时，幕布改为不透明等价物。
+     只降级幕布这一类：卡片、徽标那类低透明度填充在降级后仍有足够对比度，
+     换成不透明反而会打乱层次。 */
+  @media (prefers-reduced-transparency: reduce) {
+    .scrim {
+      background-color: rgb(var(--c-canvas));
+    }
+  }
 }
 
 /* ── 深色场景作用域 ────────────────────────────────────────────────
@@ -276,16 +363,47 @@ textarea::placeholder {
 }
 
 /* 减弱动态效果（前端优化批三 · 2026-09-22）：系统开启后，全站 hover/过渡与
-   平滑滚动降级为瞬时，避免前庭不适；不影响布局与状态变化本身。 */
+   平滑滚动降级为瞬时，避免前庭不适；不影响布局与状态变化本身。
+
+   2026-09-25 重构 P0 补上 animation-delay 重置 —— 这是本轮查出的一处潜伏缺口。
+   收敛前这里只压了 duration / iteration / scroll-behavior，**没有碰 delay**。
+   当时全站 animation-delay 使用数为 0，所以没被踩到；但一旦有元素靠 delay 做
+   错峰入场（stagger）或延迟揭示，降级后它仍会在 from 态停留完整的 delay 再瞬间到位
+   —— 读起来是「先隐形、再突然出现」，正是降级块本来要消灭的那种观感。
+   所以延迟必须一起归零：动画在降级下应当是「立刻到达终态」，而不是「准时到达」。 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    animation-delay: 0s !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* 揭示机制的安全网（P0）。正常路径下 useRevealScope 在减弱动效时**根本不会**
+     挂 [data-reveal='on']，所以这条理论上命中不到。留着是为覆盖一种时序：
+     页面加载完成之后用户才在系统设置里开启「减弱动态效果」——那一刻属性已经挂上了，
+     只靠 JS 不会自动撤销，而「隐藏了却不揭示」正是揭示机制最危险的失败形态。 */
+  [data-reveal-item] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── 滚动揭示的预置态（2026-09-25 重构 P0）────────────────────────────
+   带 [data-reveal='on'] 前缀是刻意的：该属性由 lib/reveal.ts 在
+   「IntersectionObserver 可用且用户未要求减弱动效」时挂到作用域元素上。
+   属性存在才隐藏，不存在则整条规则不生效、元素一律可见 ——
+   隐藏是被授予的权限，不是默认状态。
+
+   刻意不放进 @layer：① 未分层优先级最高；② 纯属性选择器没有类名，
+   放进 @layer utilities 会被当作未使用的工具类裁掉（内容扫描按类名匹配）。 */
+[data-reveal='on'] [data-reveal-item]:not([data-revealed]) {
+  opacity: 0;
+  transform: translateY(12px);
 }
 
 /* ── 打印（2026-09-25 视觉重构 P1a）────────────────────────────────
@@ -326,5 +444,13 @@ textarea::placeholder {
      纸面没有滚动条。允许容器溢出由分页承担。 */
   .overflow-x-auto {
     overflow-x: visible;
+  }
+
+  /* 揭示机制的安全网：纸面上不存在「进入视口」这件事，因此尚未被标记完成的
+     区块会停在预置态（opacity: 0）—— 打印出来就是一片空白。
+     打印永远按「终态」呈现，与动画是否播放过无关。 */
+  [data-reveal-item] {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

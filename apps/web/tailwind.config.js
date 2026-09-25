@@ -57,22 +57,27 @@ export default {
       },
 
       // ───────────────────────────────────────────────────────────────
-      // 动效（2026-09-25 视觉重构 P1a）
+      // 动效令牌（2026-09-25 视觉重构 P1a 建立，P0 扩充）
       //
-      // 本轮只要 3 个 keyframe，全部在这里定义，组件不写内联动画：
-      //   ① rise             —— Hero / 区块的一次性入场
-      //   ② fade             —— 浮层与背景幕
-      //   ③ slide-in-panel   —— 移动端导航抽屉入场
+      // 全部 keyframe 在这里定义，组件只写类名、不写内联动画与内联 keyframes：
+      //   rise             —— Hero / 区块的一次性入场（一次性，不随滚动）
+      //   fade             —— 浮层与背景幕
+      //   slide-in-panel   —— 移动端导航抽屉入场
+      //   route-in         —— 路由切换时主容器的入场
+      //   reveal           —— 长页面区块进入视口时的揭示
       //
-      // ⚠ 两条硬纪律（无障碍红线，不是风格偏好）：
+      // ⚠ 三条硬纪律（无障碍红线，不是风格偏好）：
       //   1. from 隐藏 → to 可见，且**元素基态必须是可见/终态**。
-      //      index.css 末尾的 `@media (prefers-reduced-motion: reduce)` 把
-      //      animation-duration 压到 0.01ms —— 动画会瞬间收敛到终态。若把基态
-      //      写成 opacity-0，降级后元素**永久隐形**，这是真实缺陷而不是小瑕疵。
-      //   2. **禁止 animation-delay / stagger**。全局降级块没有重置 delay，
-      //      带延迟的元素会先隐形再出现，看起来像卡顿。
+      //      index.css 的 `@media (prefers-reduced-motion: reduce)` 把
+      //      animation-duration 压到 0.01ms，动画会瞬间收敛到终态。若把基态
+      //      写成 opacity-0，降级后元素**永久隐形** —— 这是真实缺陷而不是小瑕疵。
+      //   2. reveal 走**渐进增强**：CSS 默认可见，只有 JS 确认 IntersectionObserver
+      //      可用、且用户未要求减弱动效时，才给根元素加 data-reveal="on" 启用
+      //      「先隐藏、再揭示」。否则打印与 JS 未执行时，首屏之外的区块永久不可见。
+      //   3. 时长一律 ≤ 420ms 且不带 delay。降级块已把 delay 归零（P0 补齐），
+      //      但带 delay 的动画在正常模式下会先静止再突然出现，观感是卡顿。
       //
-      // 不做：页面级路由转场、列表 stagger、滚动视差、数字滚动。
+      // 数据面（图谱节点与关系、KPI 数值、Δ 值、百分比、报告正文）不用动画驱动终态。
       // ───────────────────────────────────────────────────────────────
       keyframes: {
         rise: {
@@ -87,11 +92,21 @@ export default {
           '0%': { opacity: '0', transform: 'translateX(100%)' },
           '100%': { opacity: '1', transform: 'none' },
         },
+        'route-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'none' },
+        },
+        reveal: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'none' },
+        },
       },
       animation: {
         rise: 'rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both',
         fade: 'fade 160ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'slide-in-panel': 'slide-in-panel 240ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'route-in': 'route-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        reveal: 'reveal 420ms cubic-bezier(0.16, 1, 0.3, 1) both',
       },
 
       // ───────────────────────────────────────────────────────────────
