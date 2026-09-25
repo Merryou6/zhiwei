@@ -1,0 +1,22 @@
+browser = Edg/153.0.4234.48
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/mobile
+tag     = now
+theme   = dark（默认；用 ZHIWEI_AUDIT_THEME=light 采浅色）
+widths  = 1440
+
+=== 宽度档 1440 × 900（mobile=false）===
+  /login        溢出=   0px  溢出元素= 0
+  鉴权 via=login space=sp_muf82zhx02br0
+  /self-report  溢出=   0px  溢出元素= 0
+  /spaces       溢出=   0px  溢出元素= 0
+  /console      溢出=   0px  溢出元素= 0
+  /assessment   溢出=   0px  溢出元素= 0
+  /paper        溢出=   0px  溢出元素= 0
+  /chat         溢出=   0px  溢出元素= 0
+  /attribution  溢出=   0px  溢出元素= 0
+  /graph        溢出=   0px  溢出元素= 3
+  /report       溢出=   0px  溢出元素= 0
+  /drive        溢出=   0px  溢出元素= 0
+  /me           溢出=   0px  溢出元素= 0
+  → _pipeline/screenshots/mobile/audit-now-1440.json   页面级溢出合计 0px

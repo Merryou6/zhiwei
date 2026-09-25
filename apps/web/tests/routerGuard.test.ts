@@ -5,7 +5,7 @@
  *   - 未登录访问受保护页 → #/login
  *   - 已登录访问 #/login → #/spaces
  *   - 已登录无活跃空间 → #/spaces（/spaces 与 /self-report 豁免）
- *   - 路由表 12 页齐全、页面编号 1–12 无重复（v1.2 新增 /me「我的」）
+ *   - 路由表 11 页齐全、页面编号无重复（v1.2 新增 /me；v1.4 砍除 /console，编号 11 不复用）
  */
 
 import { describe, expect, it } from 'vitest';
@@ -24,14 +24,16 @@ import {
 
 const PROTECTED = ROUTES.filter((route) => route.requiresAuth).map((route) => route.path);
 
-describe('router · 路由表（PRD §5 十页 + 控制台 + 我的）', () => {
-  it('12 页齐全、路径唯一、页面编号 1–12 各一次', () => {
-    expect(ROUTES).toHaveLength(12);
-    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(12);
+describe('router · 路由表（PRD §5 十页 + 我的；v1.4 砍除控制台页 11）', () => {
+  it('11 页齐全、路径唯一、页面编号不重复且 11 号位空出（编号不复用）', () => {
+    expect(ROUTES).toHaveLength(11);
+    expect(new Set(ROUTES.map((route) => route.path)).size).toBe(11);
     expect(ROUTES.map((route) => route.page).sort((a, b) => a - b)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12,
     ]);
     expect(ROUTES.every((route) => route.label.length > 0)).toBe(true);
+    // v1.4 回归锁：控制台不得复活
+    expect(ROUTES.find((route) => route.path === '/console')).toBeUndefined();
   });
 
   it('仅登录页不需要鉴权；空间管理不进主导航（不占首屏）', () => {
@@ -76,8 +78,8 @@ describe('router · guardPath 守卫分支', () => {
       expect(guardPath(path, state)).toBeNull();
     }
     expect(guardPath(LOGIN_PATH, state)).toBe(SPACES_PATH);
-    // v1.2：受保护页由 10 增至 11（/me 一并受 requiresAuth 覆盖，自动纳入本断言）
-    expect(PROTECTED).toHaveLength(11);
+    // v1.4：受保护页由 11 减至 10（/console 砍除）
+    expect(PROTECTED).toHaveLength(10);
   });
 
   it('未知路径：已登录去 #/spaces，未登录去 #/login（不白屏）', () => {

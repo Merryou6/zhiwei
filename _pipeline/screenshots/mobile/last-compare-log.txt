@@ -1,7 +1,7 @@
-对比 baseline → after   档位 767,720
+对比 v2-baseline → v2-baseline   档位 1440,1024,768
 判据：≥768 档逐页逐锚点 diff 必须全 0（0px 才算过）
 
-=== 767px ===
+=== 1440px ===
   /login        锚点diff= 0  溢出 0px → 0px
   /self-report  锚点diff= 0  溢出 0px → 0px
   /spaces       锚点diff= 0  溢出 0px → 0px
@@ -16,90 +16,36 @@
   /me           锚点diff= 0  溢出 0px → 0px
   几何 diff：0 项（12 页 × 6 锚点 × 4 维 + 4 字号采样 全等）
 
-=== 720px ===
+=== 1024px ===
   /login        锚点diff= 0  溢出 0px → 0px
-  /self-report  锚点diff= 6  溢出 0px → 0px
-  /spaces       锚点diff= 6  溢出 0px → 0px
-  /console      锚点diff= 6  溢出 0px → 0px
-  /assessment   锚点diff= 6  溢出 0px → 0px
-  /paper        锚点diff= 6  溢出 0px → 0px
-  /chat         锚点diff= 8  溢出 0px → 0px
-  /attribution  锚点diff= 6  溢出 0px → 0px
-  /graph        锚点diff= 6  溢出 0px → 0px
-  /report       锚点diff= 6  溢出 0px → 0px
-  /drive        锚点diff= 6  溢出 0px → 0px
-  /me           锚点diff= 6  溢出 0px → 0px
-  几何 diff：68 项 ≠0 ↓
-    /self-report   header.h   68 → 88  Δ=20
-    /self-report   headerNav.h   67 → 87  Δ=20
-    /self-report   main.y   68 → 88  Δ=20
-    /self-report   mainChild.y   100 → 120  Δ=20
-    /self-report   firstCard.y   228.25 → 248.25  Δ=20
-    /self-report   heading.y   100 → 120  Δ=20
-    /spaces        header.h   68 → 88  Δ=20
-    /spaces        headerNav.h   67 → 87  Δ=20
-    /spaces        main.y   68 → 88  Δ=20
-    /spaces        mainChild.y   100 → 120  Δ=20
-    /spaces        firstCard.y   180 → 200  Δ=20
-    /spaces        heading.y   100 → 120  Δ=20
-    /console       header.h   68 → 88  Δ=20
-    /console       headerNav.h   67 → 87  Δ=20
-    /console       main.y   68 → 88  Δ=20
-    /console       mainChild.y   100 → 120  Δ=20
-    /console       firstCard.y   184 → 204  Δ=20
-    /console       heading.y   100 → 120  Δ=20
-    /assessment    header.h   68 → 88  Δ=20
-    /assessment    headerNav.h   67 → 87  Δ=20
-    /assessment    main.y   68 → 88  Δ=20
-    /assessment    mainChild.y   100 → 120  Δ=20
-    /assessment    firstCard.y   205.5 → 225.5  Δ=20
-    /assessment    heading.y   100 → 120  Δ=20
-    /paper         header.h   68 → 88  Δ=20
-    /paper         headerNav.h   67 → 87  Δ=20
-    /paper         main.y   68 → 88  Δ=20
-    /paper         mainChild.y   100 → 120  Δ=20
-    /paper         firstCard.y   205.5 → 225.5  Δ=20
-    /paper         heading.y   100 → 120  Δ=20
-    /chat          header.h   68 → 88  Δ=20
-    /chat          headerNav.h   67 → 87  Δ=20
-    /chat          main.y   68 → 88  Δ=20
-    /chat          main.h   476.25 → 524.25  Δ=48
-    /chat          mainChild.y   100 → 120  Δ=20
-    /chat          mainChild.h   412.25 → 460.25  Δ=48
-    /chat          firstCard.y   270.5 → 290.5  Δ=20
-    /chat          heading.y   100 → 120  Δ=20
-    /attribution   header.h   68 → 88  Δ=20
-    /attribution   headerNav.h   67 → 87  Δ=20
-    /attribution   main.y   68 → 88  Δ=20
-    /attribution   mainChild.y   100 → 120  Δ=20
-    /attribution   firstCard.y   205.5 → 225.5  Δ=20
-    /attribution   heading.y   100 → 120  Δ=20
-    /graph         header.h   68 → 88  Δ=20
-    /graph         headerNav.h   67 → 87  Δ=20
-    /graph         main.y   68 → 88  Δ=20
-    /graph         mainChild.y   100 → 120  Δ=20
-    /graph         firstCard.y   172 → 192  Δ=20
-    /graph         heading.y   100 → 120  Δ=20
-    /report        header.h   68 → 88  Δ=20
-    /report        headerNav.h   67 → 87  Δ=20
-    /report        main.y   68 → 88  Δ=20
-    /report        mainChild.y   100 → 120  Δ=20
-    /report        firstCard.y   206.75 → 226.75  Δ=20
-    /report        heading.y   100 → 120  Δ=20
-    /drive         header.h   68 → 88  Δ=20
-    /drive         headerNav.h   67 → 87  Δ=20
-    /drive         main.y   68 → 88  Δ=20
-    /drive         mainChild.y   100 → 120  Δ=20
-    /drive         firstCard.y   180 → 200  Δ=20
-    /drive         heading.y   100 → 120  Δ=20
-    /me            header.h   68 → 88  Δ=20
-    /me            headerNav.h   67 → 87  Δ=20
-    /me            main.y   68 → 88  Δ=20
-    /me            mainChild.y   100 → 120  Δ=20
-    /me            firstCard.y   180 → 200  Δ=20
-    /me            heading.y   100 → 120  Δ=20
-  （参考：正文文本长度变化 11 处，不计入判据）
+  /self-report  锚点diff= 0  溢出 0px → 0px
+  /spaces       锚点diff= 0  溢出 0px → 0px
+  /console      锚点diff= 0  溢出 0px → 0px
+  /assessment   锚点diff= 0  溢出 0px → 0px
+  /paper        锚点diff= 0  溢出 0px → 0px
+  /chat         锚点diff= 0  溢出 0px → 0px
+  /attribution  锚点diff= 0  溢出 0px → 0px
+  /graph        锚点diff= 0  溢出 0px → 0px
+  /report       锚点diff= 0  溢出 0px → 0px
+  /drive        锚点diff= 0  溢出 0px → 0px
+  /me           锚点diff= 0  溢出 0px → 0px
+  几何 diff：0 项（12 页 × 6 锚点 × 4 维 + 4 字号采样 全等）
 
-→ _pipeline/screenshots/mobile/compare-baseline-after-767_720.json
+=== 768px ===
+  /login        锚点diff= 0  溢出 0px → 0px
+  /self-report  锚点diff= 0  溢出 0px → 0px
+  /spaces       锚点diff= 0  溢出 0px → 0px
+  /console      锚点diff= 0  溢出 0px → 0px
+  /assessment   锚点diff= 0  溢出 0px → 0px
+  /paper        锚点diff= 0  溢出 0px → 0px
+  /chat         锚点diff= 0  溢出 0px → 0px
+  /attribution  锚点diff= 0  溢出 0px → 0px
+  /graph        锚点diff= 0  溢出 0px → 0px
+  /report       锚点diff= 0  溢出 0px → 0px
+  /drive        锚点diff= 0  溢出 0px → 0px
+  /me           锚点diff= 0  溢出 0px → 0px
+  几何 diff：0 项（12 页 × 6 锚点 × 4 维 + 4 字号采样 全等）
 
-结论：PASS —— ≥768 档 0 档逐页逐锚点 diff 全 0
+→ _pipeline/screenshots/mobile/compare-v2-baseline-v2-baseline-1440_1024_768.json
+
+结论：PASS —— ≥768 档 3 档逐页逐锚点 diff 全 0

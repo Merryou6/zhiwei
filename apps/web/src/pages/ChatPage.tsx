@@ -22,10 +22,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import ChatComposer from '../components/chat/ChatComposer';
 import ChatMessageList from '../components/chat/ChatMessageList';
 import ChatTracePanel from '../components/chat/ChatTracePanel';
+import { Button, PageContainer, PageHeader, buttonVariants } from '../components/ui';
+import { cn } from '../lib/cn';
 import ModelBadge, { useModelInfo } from '../components/chat/ModelBadge';
 import { kpName } from '../data/graphSnapshot';
 import { exitChannelText } from '../lib/phrases';
-import { CONSOLE_PATH, SPACES_PATH } from '../router';
+import { ME_PATH, SPACES_PATH } from '../router';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useDialogStore } from '../stores/dialog';
 import { useSpaceStore } from '../stores/space';
@@ -43,51 +45,55 @@ export default function ChatPage() {
     meta?.next_action === 'exit_channel' ? exitChannelText(kpName(meta.kp_match.kp_id)) : null;
 
   return (
-    <section>
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-medium text-ink">跟学长聊两句</h1>
-          <p className="mt-2 text-sm text-ink-soft">
-            卡在哪一步就说哪一步，写半句也行。我不会直接给你答案，会先陪你把思路接上。
-          </p>
-          <div className="mt-2">
-            <ModelBadge mode={model?.mode ?? 'local'} name={model?.name ?? null} />
-          </div>
-        </div>
-
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {meta ? (
-            <span className="text-[13px] text-ink-soft">
-              这轮在聊：{kpName(meta.kp_match.kp_id)}（{Math.round(meta.kp_match.confidence * 100)}%）
+    <PageContainer width="wide">
+      {/* 版式接 PageHeader（2026-09-25 重构 P3）：原来是自己拼的 header + text-xl 标题。
+          模型徽标走 children（标题下方的补充行），右侧操作区整体包一层 flex-col —— 
+          原实现是「按钮 + 说明小字」竖排，PageHeader 的 actions 是横排容器，
+          所以自己管竖排。 */}
+      <PageHeader
+        title="跟学长聊两句"
+        description="卡在哪一步就说哪一步，写半句也行。我不会直接给你答案，会先陪你把思路接上。"
+        actions={
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            {meta ? (
+              <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
+                这轮在聊：{kpName(meta.kp_match.kp_id)}（
+                {Math.round(meta.kp_match.confidence * 100)}%）
+              </span>
+            ) : null}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                // 「收进侧栏」：打开右侧面板并回到「我的」（学习概览所在页，v1.4 起
+                // 旧控制台的概览并入那里），对话上下文随全局 store 一起带走
+                setPanelOpen(true);
+                navigate(ME_PATH);
+              }}
+            >
+              收进侧栏
+            </Button>
+            {/* 清尾轮 L2：原 `text-ink-soft/80` 浅色实测 3.45:1（半透明降级），不达 AA → 纯 text-ink-soft 5.41:1 */}
+            <span className="text-caption text-ink-soft">
+              收进侧栏后，任何页面都能接着聊（现在：{panelOpen ? '侧栏已展开' : '侧栏未展开'}）
             </span>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => {
-              // 「收进侧栏」：打开右侧面板并回到工作台，对话上下文随全局 store 一起带走
-              setPanelOpen(true);
-              navigate(CONSOLE_PATH);
-            }}
-            className="rounded-control border border-line px-3 py-1.5 text-[13px] text-ink-soft hover:bg-surface"
-          >
-            收进侧栏
-          </button>
-          {/* 清尾轮 L2：原 `text-ink-soft/80` 浅色实测 3.45:1（半透明降级），不达 AA → 纯 text-ink-soft 5.41:1 */}
-          <span className="text-[11px] text-ink-soft">
-            收进侧栏后，任何页面都能接着聊（现在：{panelOpen ? '侧栏已展开' : '侧栏未展开'}）
-          </span>
+          </div>
+        }
+      >
+        <div className="mt-2">
+          <ModelBadge mode={model?.mode ?? 'local'} name={model?.name ?? null} />
         </div>
-      </header>
+      </PageHeader>
 
       {exitNotice ? (
-        <div className="mt-4 rounded-xl border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
+        <div className="mt-4 rounded-surface border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
           <p className="font-medium">{exitNotice}</p>
-          <p className="mt-1 text-[13px] text-ink-soft">
+          <p className="mt-1 text-ui-sm text-ink-soft">
             连续几轮都没往前走，多半是更前面的砖没铺稳——我们回去补那一块，不丢人。
           </p>
           <Link
             to={`/graph?path=${encodeURIComponent(meta?.kp_match.kp_id ?? '')}`}
-            className="mt-2 inline-block rounded-lg bg-accent px-3 min-h-9 py-2 text-[13px] text-on-accent"
+            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'mt-2')}
           >
             去图谱看看这一环
           </Link>
@@ -96,11 +102,13 @@ export default function ChatPage() {
 
       {/* 宽屏两栏（左消息流 / 右链路）；<720 上下堆叠，链路折叠为手风琴（D5f） */}
       <div className="mt-5 grid grid-cols-1 items-start gap-5 nav:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
+        {/* max-w-2xl 是**列宽**约束不是页面宽度：它与 PageContainer 的 prose 档同值（672），
+            但语义不同 —— 它是「消息列不该长到难以阅读」，因此保留在这里而不是上提。 */}
         <div className="min-w-0 max-w-2xl">
           <ChatMessageList messages={store.messages} streaming={store.streaming} />
           <ChatComposer disabled={store.streaming} />
 
-          <p className="mt-3 text-[13px] text-ink-soft">
+          <p className="mt-3 text-ui-sm text-ink-soft">
             {activeSpaceId ? '' : `还没有空间，`}
             <Link to={SPACES_PATH} className="underline">
               {activeSpaceId ? '空间与进度' : '先去建一个空间'}
@@ -120,6 +128,6 @@ export default function ChatPage() {
           mode={model?.mode ?? 'local'}
         />
       </div>
-    </section>
+    </PageContainer>
   );
 }

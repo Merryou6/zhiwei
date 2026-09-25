@@ -21,7 +21,7 @@ export default function ProgressBar({ answered, total }: ProgressBarProps) {
           style={{ width: `${Math.round(ratio * 100)}%` }}
         />
       </div>
-      <span className="shrink-0 text-[13px] text-ink-soft">
+      <span className="shrink-0 text-ui-sm text-ink-soft">
         已答 {answered} / {total}
       </span>
     </div>

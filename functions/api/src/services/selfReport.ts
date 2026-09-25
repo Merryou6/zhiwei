@@ -16,8 +16,9 @@ import type { ApiResponse } from '../errors';
 import type { RouteRequest } from '../router';
 import { authedUser } from './auth';
 
-/** 契约 §3：reports ≤ 6 项（章节粒度）。 */
-export const MAX_REPORTS = 6;
+/** 契约 §3：reports ≤ 8 项（章节粒度；v1.4 由 ≤6 上调——两个学段的章节清单实测都是 8，
+ *  页 2 允许全选 + 「按 3 档先填上」一键填满，旧上限会把满选用户必然锁死在 400）。 */
+export const MAX_REPORTS = 8;
 /** level → P(L0) 映射档位（ALGORITHM §0 PRIOR_MAP 的键域）。 */
 export const MIN_LEVEL = 1;
 export const MAX_LEVEL = 5;

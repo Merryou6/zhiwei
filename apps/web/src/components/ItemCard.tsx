@@ -41,13 +41,13 @@ export default function ItemCard({
   return (
     <div
       className={[
-        'rounded-xl border bg-surface p-4',
+        'rounded-surface border bg-surface p-4',
         tone === 'warn' ? 'border-band-weak' : 'border-line',
       ].join(' ')}
     >
-      {header ? <div className="mb-2 text-[13px] text-ink-soft">{header}</div> : null}
+      {header ? <div className="mb-2 text-ui-sm text-ink-soft">{header}</div> : null}
 
-      <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-ink">{item.stem}</p>
+      <p className="whitespace-pre-wrap text-reading leading-relaxed text-ink">{item.stem}</p>
 
       {options && options.length > 0 ? (
         <ul className="mt-4 space-y-2">
@@ -57,7 +57,7 @@ export default function ItemCard({
               <li key={`${item.item_id}_${index}`}>
                 <label
                   className={[
-                    'flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 text-sm transition-colors',
+                    'flex cursor-pointer items-start gap-3 rounded-control border px-3 py-2 text-sm transition-colors',
                     selected ? 'border-accent bg-accent-veil text-ink' : 'border-line hover:bg-raised',
                     disabled ? 'cursor-not-allowed opacity-60' : '',
                   ].join(' ')}
@@ -81,7 +81,7 @@ export default function ItemCard({
         </ul>
       ) : (
         <textarea
-          className="mt-4 w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
+          className="mt-4 w-full resize-y rounded-control border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
           rows={3}
           value={value}
           placeholder={placeholder}

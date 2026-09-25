@@ -54,7 +54,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     return (
       <section className="mx-auto max-w-md py-10">
-        <div className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="rounded-surface border border-line bg-surface p-5 shadow-card">
           <h1 className="text-base font-medium text-ink">这一页没能打开</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft">
             不是你操作的问题，是页面自己出了点状况。你的学习记录都在，重开一下就好。
@@ -63,14 +63,14 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             <button
               type="button"
               onClick={this.handleRetry}
-              className="min-h-11 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent transition-opacity hover:opacity-90"
+              className="min-h-11 rounded-control bg-accent px-4 py-2 text-sm text-on-accent transition-opacity hover:opacity-90"
             >
               重新打开这一页
             </button>
             <button
               type="button"
               onClick={this.handleBackToSpaces}
-              className="min-h-11 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink transition-colors hover:bg-raised"
+              className="min-h-11 rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink transition-colors hover:bg-raised"
             >
               回到学习空间
             </button>

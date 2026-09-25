@@ -26,6 +26,19 @@
  *   · 错误一律走非阻断 toast（不弹窗），并附带字段级行内提示；
  *   · 演示账号一键进入：登录失败（该服务上还没建过）则自动注册；
  *   · 刷新不掉线：登录成功先落会话、再取空间、后导航。
+ *
+ * ── 重构 P3（2026-09-25 · 归队）──────────────────────────────────
+ * 本页此前是全站**唯一未迁移的孤岛**：自己手写 fieldClass / fieldTone 两段样式字符串，
+ * 行内错误色硬编码 hex，三处按钮各写各的，完全不用 ui/ 原语。后果不是「难看」，
+ * 而是**同一件事在这里有第二套真相** —— 改全站输入框的聚焦表达时，这一页不会跟着变；
+ * 而它恰好是 Demo 的开场镜头，也是最不该漂移的一页。
+ *
+ * 本次归队不含版式改动（上一轮版式批五的四条纪律全部保留），只做三件事：
+ *   ① 控件走 FormField + Input tone="onDark"：标签关联、错误态、ARIA 关联、
+ *      触控高度一次定死，本页不再维护任何控件样式；
+ *   ② 行内错误色改 text-danger 令牌（深色下与硬编码的 #FFB088 逐位相同）；
+ *   ③ 三处按钮走 Button 原语（primary / link），去掉三串手写样式 ——
+ *      并借 size="lg" 的 44px 最小高度把主按钮压到触控目标下限上。
  */
 
 import { useState } from 'react';
@@ -35,6 +48,7 @@ import { ApiError } from '../api/client';
 import { listSpaces, login, register } from '../api/endpoints';
 import type { AuthData } from '../api/types';
 import ParticleLogo from '../components/ParticleLogo';
+import { Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
 import { SELF_REPORT_PATH, SPACES_PATH } from '../router';
 import { useAuthStore } from '../stores/auth';
@@ -46,9 +60,6 @@ type Tab = 'login' | 'register';
 /** 演示账号（与后端无耦合：本机/演示环境首次使用会自动创建）。 */
 const DEMO_IDENTIFIER = 'demo_student';
 const DEMO_PASSWORD = 'demo123456';
-
-/** 行内错误文字色。深底上 #FFB088 实测 11.0:1；tone-error(#C96A3A) 在深底上会偏暗。 */
-const ERROR_TEXT = 'text-[#FFB088]';
 
 interface FieldErrors {
   identifier?: string;
@@ -158,25 +169,20 @@ export default function LoginPage() {
     }
   }
 
-  /* ── 控件样式 ─────────────────────────────────────────────────────
-     版式批五：表单不再有外壳，输入框必须自己立住，所以给它们一块实心底
-     （dusk-surface #111A26，比页面底 #070C14 亮一档 ≈1.12:1，边界可感知）。
+  /* ── 控件样式：已交给 ui/ 原语（2026-09-25 重构 P3）─────────────────
+     收敛前这里有 fieldClass / fieldTone 两段手写字符串，是本页作为「未迁移孤岛」的
+     最后两处痕迹；行内错误色还硬编码着 hex。
 
-     表面选择有依据，不是随手取：
-       placeholder 用 dusk-muted(#7A8798) 落在 surface 上是 **4.79:1**，过 AA；
-       落在更亮的 raised(#18222F) 上只有 4.13:1，不到 AA。
-     所以输入框一律用 surface 档，不要"再亮一层"。
-
-     边框策略：默认无边框（靠底色分层），聚焦时才出现主色边 + 柔 ring。
-     深色下「无边框 + 实心底」比「有边框 + 透明底」更干净，也更接近我们要的开场感。 */
-  const fieldClass = [
-    'mt-3 block min-h-12 w-full rounded-control border bg-dusk-surface px-4 py-3',
-    'text-[15px] text-dusk-title placeholder:text-dusk-muted',
-    'transition-colors duration-150 ease-out',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-lift/45',
-  ].join(' ');
-  const fieldTone = (invalid: boolean): string =>
-    invalid ? 'border-[#FFB088]/70' : 'border-transparent focus:border-primary-lift';
+     现在走 `FormField + Input tone="onDark"`：
+       · 表面与占位符的取值依据完整保留在 Input.tsx 的文件头（placeholder 用
+         dusk-muted 落在 dusk-surface 上 4.79:1 过 AA；落在更亮的 raised 上只有
+         4.13:1，所以输入框一律用 surface 档，不「再亮一层」）。
+       · 边框策略：原版默认透明、聚焦才出现主色边；原语改为一律带 dusk-line 细边。
+         这是有意的 —— 无边框输入框只在「用户已经知道这里是个框」时成立，
+         对新用户而言少了一层可发现的边界。
+       · 行内错误色改走 text-danger 令牌：深色下 = #FFB088，与原硬编码逐位相同；
+         浅色下会自动换成 #C96A3A —— 硬编码做不到这件事。
+     ⚠ 本页此后不再维护任何色值。 */
 
   return (
     <section className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-dusk-base px-6 py-10 text-dusk-body">
@@ -195,10 +201,10 @@ export default function LoginPage() {
 
       {/* 品牌字与一句话定位。标题的力度全部来自字号、字重与中文特有的宽字距，
           不用渐变填充——强调应当由字体本身承担。 */}
-      <h1 className="mt-4 pl-[0.3em] text-[38px] font-medium tracking-[0.3em] text-dusk-title sm:text-[42px]">
+      <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-dusk-title sm:text-display-lg">
         知微
       </h1>
-      <p className="mt-3 text-center text-[13px] leading-relaxed text-dusk-muted">
+      <p className="mt-3 text-center text-ui-sm leading-relaxed text-dusk-muted">
         先弄清你卡在哪个知识点，再陪你把它补上
       </p>
 
@@ -206,85 +212,77 @@ export default function LoginPage() {
           字段标签交给 placeholder 承担（读屏器靠 sr-only label 仍能拿到），
           省掉两行可见文字——这是把 13 个元素压到 7 个的关键一步。 */}
       <form onSubmit={handleSubmit} noValidate className="mt-8 w-full max-w-[360px]">
-        <label className="block">
-          <span className="sr-only">手机号或邮箱</span>
-          <input
-            className={`${fieldClass} ${fieldTone(Boolean(fieldErrors.identifier))}`}
+        {/* 字段标签交给 placeholder 承担（读屏器靠 FormField 的 labelHidden 仍拿得到
+            关联的 label），省掉两行可见文字 —— 这是把 13 个元素压到 7 个的关键一步。
+            字段间距由 FormField 的外层 className 给；错误态与 ARIA 关联由 error
+            一个入参同时决定（见 Input.tsx 的 FormField 说明）。 */}
+        <FormField label="手机号或邮箱" labelHidden className="mt-3" error={fieldErrors.identifier}>
+          <Input
+            tone="onDark"
+            fieldSize="lg"
             placeholder="手机号或邮箱"
             value={identifier}
             autoComplete="username"
-            aria-invalid={fieldErrors.identifier ? true : undefined}
-            aria-describedby={fieldErrors.identifier ? 'field-error-identifier' : undefined}
             onChange={(event) => {
               setIdentifier(event.target.value);
               if (fieldErrors.identifier) setFieldErrors((prev) => ({ ...prev, identifier: undefined }));
             }}
           />
-        </label>
-        {fieldErrors.identifier ? (
-          <p id="field-error-identifier" className={`mt-2 text-[13px] ${ERROR_TEXT}`}>
-            {fieldErrors.identifier}
-          </p>
-        ) : null}
+        </FormField>
 
-        <label className="block">
-          <span className="sr-only">密码</span>
-          <input
-            className={`${fieldClass} ${fieldTone(Boolean(fieldErrors.password))}`}
+        <FormField label="密码" labelHidden className="mt-3" error={fieldErrors.password}>
+          <Input
+            tone="onDark"
+            fieldSize="lg"
             placeholder={tab === 'register' ? '设个密码，至少 6 位' : '密码'}
             type="password"
             value={password}
             autoComplete={tab === 'register' ? 'new-password' : 'current-password'}
-            aria-invalid={fieldErrors.password ? true : undefined}
-            aria-describedby={fieldErrors.password ? 'field-error-password' : undefined}
             onChange={(event) => {
               setPassword(event.target.value);
               if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
             }}
           />
-        </label>
-        {fieldErrors.password ? (
-          <p id="field-error-password" className={`mt-2 text-[13px] ${ERROR_TEXT}`}>
-            {fieldErrors.password}
-          </p>
-        ) : null}
+        </FormField>
 
         {tab === 'register' ? (
-          <label className="block">
-            <span className="sr-only">称呼（可选）</span>
-            <input
-              className={`${fieldClass} border-transparent`}
+          <FormField label="称呼（可选）" labelHidden className="mt-3">
+            <Input
+              tone="onDark"
+              fieldSize="lg"
               placeholder="怎么称呼你（可留空）"
               value={nickname}
               onChange={(event) => setNickname(event.target.value)}
             />
-          </label>
+          </FormField>
         ) : null}
 
-        {/* 主按钮：单色实底。按下时下沉 1px 并压暗，给出物理反馈；
-            不用渐变填充 + 零偏移彩色外发光（那层光晕不表示任何层级关系）。 */}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-4 min-h-12 w-full rounded-control bg-primary-lift px-4 py-3 text-[15px] font-medium text-dusk-base transition-[filter,transform] duration-150 ease-out hover:brightness-110 active:translate-y-px active:brightness-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:brightness-100"
-        >
+        {/* 主按钮：单色实底。深色下 bg-accent = #6FB3D4、text-on-accent = #070C14，
+            与原来手写的 primary-lift + dusk-base 逐位同色，所以这次迁移本身不改观感。
+            按下时压暗给出物理反馈；不用渐变填充 + 零偏移彩色外发光 —— 那层光晕
+            不表示任何层级关系。
+            size="lg" 的最小高度是 44px，正好压在触控目标下限上（Accessible & Ethical 的
+            44×44 要求），这也是不再写死 min-h-12 的理由：档位化的值可被统一校验。 */}
+        <Button type="submit" variant="primary" size="lg" full loading={submitting} className="mt-4">
           {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
-        </button>
+        </Button>
 
-        {/* 通道切换：退成一行纯文字，不再做成占一整个横条的分段控件——
-            分段控件是「设置项」的语汇，这里只是换个入口。 */}
-        <p className="mt-4 text-center text-[13px] text-dusk-muted">
+        {/* 通道切换：退成一行纯文字，不再做成占一整个横条的分段控件 ——
+            分段控件是「设置项」的语汇，这里只是换个入口。
+            py-2：文字形态的按钮没有盒模型，默认的可点高度会低于 44px 下限，
+            这里补回纵向内边距把它抬上去 —— 密度只压信息容器，不压交互目标。 */}
+        <p className="mt-4 text-center text-ui-sm text-dusk-muted">
           {tab === 'login' ? '第一次来？' : '已经有账号了？'}
-          <button
-            type="button"
+          <Button
+            variant="link"
             onClick={() => {
               setTab(tab === 'login' ? 'register' : 'login');
               setFieldErrors({});
             }}
-            className="ml-1.5 rounded-[4px] text-primary-lift underline-offset-[0.25em] hover:underline focus-visible:outline-none focus-visible:underline"
+            className="ml-1.5 py-2"
           >
             {tab === 'login' ? '30 秒注册一个' : '去登录'}
-          </button>
+          </Button>
         </p>
       </form>
 
@@ -292,16 +290,16 @@ export default function LoginPage() {
           上一版把它做成了一个带边框的区域（说明段 + 账号 chip + 次级按钮 + 备注），
           体量与主表单相当，主次就反了。 */}
       <div className="mt-7 text-center">
-        <button
-          type="button"
+        <Button
+          variant="link"
+          loading={submitting}
           onClick={handleDemoEnter}
-          disabled={submitting}
-          className="rounded-[4px] text-[13px] text-dusk-muted underline-offset-[0.25em] transition-colors duration-150 ease-out hover:text-primary-lift hover:underline disabled:cursor-not-allowed disabled:opacity-55"
+          className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
         >
           只想先看看效果？用演示账号直接进入
-        </button>
+        </Button>
         {/* 等宽 + 表格数字：字符数一眼可数，抄的时候不容易错 */}
-        <p className="mt-1.5 font-mono text-[11px] tabular-nums text-dusk-muted">
+        <p className="mt-1.5 font-mono text-caption tabular-nums text-dusk-muted">
           {DEMO_IDENTIFIER} · {DEMO_PASSWORD}
         </p>
       </div>

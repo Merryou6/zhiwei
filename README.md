@@ -10,11 +10,13 @@
 
 ![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v1.0%20%E5%8A%9F%E8%83%BD%E5%86%BB%E7%BB%93-brightgreen)
 ![stack](https://img.shields.io/badge/stack-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite%20%C2%B7%20Node.js-2F9C7C)
-![tests](https://img.shields.io/badge/tests-32%20%E6%96%87%E4%BB%B6%20%C2%B7%20364%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
+![tests](https://img.shields.io/badge/tests-34%20%E6%96%87%E4%BB%B6%20%C2%B7%20389%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
 ![license](https://img.shields.io/badge/license-GPL--3.0-lightgrey)
 
 **粤港澳大湾区 AI Coding 创新赛 · 参赛作品**
+
+**在线体验：[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**（注册即用，数据本地隔离）
 
 <img src="docs/screenshots/cover.png" width="720" alt="知微 · 学习伴侣">
 
@@ -28,7 +30,7 @@
 
 The product is a five-step closed loop: **collect evidence → diagnose mastery → locate root cause → prescribe intervention → verify with unseen items**. Mastery is modeled with **Bayesian Knowledge Tracing**; root causes are located by backtracking the prerequisite chain of a hand-curated knowledge graph; the tutor chat follows a Socratic policy (one small hint at a time, never dumping the answer). The loop is closed by **ΔAccuracy** — a post-intervention retest drawn from a disjoint item pool, so the effect is measured, not asserted.
 
-Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **32 test files / 364 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer).
+Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **34 test files / 389 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer). Built by two students from the College of Computer Science and Software Engineering, Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
 
 ---
 
@@ -85,10 +87,6 @@ Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 
 
 <img src="docs/screenshots/chat-desktop.png" width="880" alt="对话辅导页：学长式引导 + 思考与工具链面板">
 
-**控制台（教师 / 管理端）**：面向教师与研究者的观察视图，实时取当前空间的掌握度概览。
-
-<img src="docs/screenshots/console-desktop.png" width="880" alt="控制台：学习概览与模块入口">
-
 **手机端**：顶栏在 720 px 以下收起为汉堡抽屉，375 / 414 档页面级横向溢出为 0。
 
 <p>
@@ -122,11 +120,10 @@ AI 学长的每一轮引导都遵循写进代码的纪律：
 - **接得进真模型，也退得回本地**：默认零依赖的本地规则适配器，几行环境变量即可切换 DeepSeek 等 OpenAI 兼容大模型；远程任何失败自动回落本地，**永不白屏**
 - **过程可见**：SSE 逐字上屏，并把推理摘要、工具调用（参数 / 结果 / 耗时）作为独立事件下发；连接不可用时降级为非流式 JSON，链路轨迹一并携带
 
-### 4. C 端学习闭环 + B 端控制台，一个工程
+### 4. C 端学习闭环 + 概览并入「我的」，一个工程
 
 - **C 端**：登录 → 学习空间 → 自报 → 测评 → 试卷 → 对话 → 归因 → 图谱 → 报告 → 云盘，共 10 个主链路页面
-- **B 端**：`/console` 控制台（教师 / 研究者视角）
-- **「我的」页**：账号、当前空间、主题与对话模型（只读）
+- **「我的」页**：学习概览（掌握度分布与 KPI）、账号、当前空间、主题与对话模型（只读）
 - **多知识库架构**：初中数学（24 节点）与高中数学（12 节点）双库并行，诊断 / 报告 / 对话 / 空间按知识库隔离，可继续扩展学段与学科
 - **多学生空间**：一个账号可管理多个学习空间（家长二孩、教师多生场景）
 
@@ -146,7 +143,7 @@ AI 学长的每一轮引导都遵循写进代码的纪律：
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  apps/web         React 18 · TypeScript · Vite · Tailwind     │
-│                   12 个路由 · HashRouter · Zustand · ECharts   │
+│                   11 个路由 · HashRouter · Zustand · ECharts   │
 │                   响应式三档：桌面 / 平板 / 手机（<720 汉堡抽屉）│
 ├──────────────────────────────────────────────────────────────┤
 │  functions/api    Node.js · 20 个 REST / SSE 接口              │
@@ -258,11 +255,11 @@ docker compose up -d --build
 
 | 维度 | 现状 |
 | --- | --- |
-| 测试 | **32 个测试文件 · 364 个用例全部通过**（引擎 43 + 后端 169 + 前端 152） |
+| 测试 | **34 个测试文件 · 389 个用例全部通过**（引擎 43 + 后端 169 + 前端 177） |
 | 类型 | TypeScript 严格模式，三段工程各自 `tsc --noEmit` 全绿 |
 | 数据闸门 | 静态校验 + 题库复算全部通过 |
 | 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕** |
-| 响应式 | 真浏览器（Chromium CDP）在 **1440 / 1024 / 768 / 720 / 414 / 375** 六档 × 12 页逐页采集溢出量与几何锚点；桌面三档经**逐像素比对**验证零变化 |
+| 响应式 | 真浏览器（Chromium CDP）在 **1440 / 1024 / 768 / 720 / 414 / 375** 六档 × 11 页逐页采集溢出量与几何锚点；桌面三档经**逐像素比对**验证零变化 |
 | 留痕 | 每个模块完成立即提交，中文提交信息完整记录决策与关键数字 |
 
 ---
@@ -271,11 +268,11 @@ docker compose up -d --build
 
 ```
 zhiwei/
-├─ apps/web/             前端：12 个页面 + 组件 + 状态层 + API/SSE 客户端
-│  ├─ src/pages/         主链路 10 页 + console 控制台 + me 我的
+├─ apps/web/             前端：11 个页面 + 组件 + 状态层 + API/SSE 客户端
+│  ├─ src/pages/         主链路 10 页 + me 我的（含学习概览）
 │  ├─ src/components/    设计系统组件（含 chat/ 对话视图七件套）
 │  ├─ src/stores/        Zustand：认证 / 空间 / 测评 / 归因 / 对话 / 面板 / 主题
-│  └─ tests/             16 个测试文件
+│  └─ tests/             18 个测试文件
 ├─ functions/api/        后端：20 个接口 + Store 适配 + 模型适配
 │  └─ tests/             14 个测试文件
 ├─ packages/engine/      BKT 引擎（纯函数、零 IO）
@@ -291,7 +288,18 @@ zhiwei/
 
 ---
 
-## 十一、文档导航
+## 十一、团队
+
+两位成员，均为**深圳大学计算机与软件学院 · 计算机科学与技术**专业学生。
+
+| 成员 | 分工 |
+| --- | --- |
+| [@Merryou6](https://github.com/Merryou6) | 项目主开发与工程底座：脚手架与冻结契约体系、BKT 引擎（纯函数零 IO）、知识图谱与题库数据及其校验闸门、后端 20 个 REST/SSE 接口（认证 / 空间 / 测评 / 归因 / 报告 / 对话）、测试体系（34 文件 389 用例）、两轮 UI 重构与响应式走查闸门、Docker 部署 |
+| [@congming666](https://github.com/congming666) | 模型接入与知识库扩展：远程大模型适配器（OpenAI 兼容协议 / DeepSeek，模式切换工厂 + 失败自动回落本地）、多知识库架构（初中 24 节点 + 高中 12 节点、题库扩至 404 题、按知识库隔离诊断 / 报告 / 对话 / 空间）、一键启动与 e2e 全链路体检脚本、深色设计系统与品牌视觉资产、登录页与前端交互改版 |
+
+---
+
+## 十二、文档导航
 
 | 文档 | 内容 |
 | --- | --- |
@@ -306,7 +314,7 @@ zhiwei/
 
 ---
 
-## 十二、许可证
+## 十三、许可证
 
 本项目以 **GNU General Public License v3.0** 发布，详见 [`LICENSE`](LICENSE)。
 

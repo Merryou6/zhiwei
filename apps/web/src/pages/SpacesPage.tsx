@@ -20,6 +20,8 @@ import type { SpaceView } from '../api/types';
 import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
 import SpaceCreateForm from '../components/SpaceCreateForm';
+import { Button, PageContainer, PageHeader } from '../components/ui';
+import { cn } from '../lib/cn';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { stageLabel } from '../lib/stages';
@@ -66,29 +68,23 @@ export default function SpacesPage() {
   const showForm = loading ? false : ordered.length > 0 || formOpen;
 
   return (
-    <section className="max-w-3xl">
-      <header>
-        <h1 className="text-xl font-medium text-ink">学习空间</h1>
-        <p className="mt-2 text-sm text-ink-soft">
-          一个空间就是一个学科的知识地图。默认空间已经建好了，直接开始就好。
-        </p>
-      </header>
+    <PageContainer width="standard">
+      <PageHeader
+        title="学习空间"
+        description="一个空间就是一个学科的知识地图。默认空间已经建好了，直接开始就好。"
+      />
 
       {loading ? (
         <PageSkeleton label="正在取你的空间…" rows={2} className="mt-8" />
       ) : ordered.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有学习空间"
             hint="一个空间就是一个学科的知识地图。先建一个，我再按你的自报给你排学习顺序。"
             action={
-              <button
-                type="button"
-                onClick={() => setFormOpen(true)}
-                className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
-              >
+              <Button variant="primary" onClick={() => setFormOpen(true)}>
                 新建学习空间
-              </button>
+              </Button>
             }
           />
         </div>
@@ -100,10 +96,10 @@ export default function SpacesPage() {
             return (
               <li
                 key={space.space_id}
-                className={[
-                  'rounded-2xl border bg-surface p-5',
+                className={cn(
+                  'rounded-surface border bg-surface p-5',
                   isActive ? 'border-accent' : 'border-line',
-                ].join(' ')}
+                )}
               >
                 {/* flex-wrap（R7）：窄屏「标题 + 徽标」与右侧按钮组换行堆叠，不再互相挤压 */}
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -111,7 +107,7 @@ export default function SpacesPage() {
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-medium text-ink">{space.name}</h2>
                       {space.is_default ? (
-                        <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent">
+                        <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent-ink">
                           默认空间
                         </span>
                       ) : null}
@@ -121,28 +117,20 @@ export default function SpacesPage() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-[13px] text-ink-soft">
+                    <p className="mt-1 text-ui-sm text-ink-soft">
                       {stageLabel(space.knowledge_source[0])} · 创建于 {formatTime(space.created_at)}
                     </p>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
                     {isActive ? (
-                      <button
-                        type="button"
-                        onClick={() => navigate(action.path)}
-                        className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
-                      >
+                      <Button variant="primary" onClick={() => navigate(action.path)}>
                         {action.label}
-                      </button>
+                      </Button>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => setActive(space.space_id)}
-                        className="rounded-lg border border-line px-3 py-2 text-sm text-ink hover:bg-raised"
-                      >
+                      <Button variant="secondary" onClick={() => setActive(space.space_id)}>
                         切到这个空间
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -153,9 +141,9 @@ export default function SpacesPage() {
       )}
 
       {showForm ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <h2 className="text-base font-medium text-ink">新建空间</h2>
-          <p className="mt-1 text-[13px] text-ink-soft">
+          <p className="mt-1 text-ui-sm text-ink-soft">
             选一个学科；空间名不填就用学科名。同名会自动加序号，放心建。
           </p>
           <div className="mt-4">
@@ -164,6 +152,6 @@ export default function SpacesPage() {
           </div>
         </div>
       ) : null}
-    </section>
+    </PageContainer>
   );
 }

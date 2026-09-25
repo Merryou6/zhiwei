@@ -13,6 +13,13 @@
  * 亦不达 AA，改 `text-ink-soft`（浅色 5.51:1）。状态色由左侧那个会呼吸的圆点承载
  * （bg-accent，非文本装饰，浅色 3.57:1 ≥ 非文本 3:1 要求），文字只负责可读。
  * 详见 ToolTimeline 文件头的实测数字。
+ *
+ * 补（P2，2026-09-25）：上面这条「accent 当文字不达 AA」的结论，当时只能靠**局部规避**
+ * 处理（换成 ink-soft，代价是丢掉品牌色，而且每遇到一处都要重新判断一次）。
+ * 现在已补上「accent 作为文字」的角色令牌 `text-accent-ink`（浅色 #2E6B87：
+ * 白底 5.95:1、accent-veil 上 5.26:1、canvas 上 5.58:1），全站 text-accent 已统一迁移过去。
+ * 本文件当前仍走 ink-soft —— 那是这一处刻意的克制选择，不是遗留问题；若将来想给
+ * 「进行中」上品牌色，直接用 text-accent-ink 即可，不必再降级成灰色。
  */
 
 import { useState } from 'react';
@@ -45,23 +52,23 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
       : '推理摘要';
 
   return (
-    <section className="rounded-2xl border border-line bg-surface shadow-card" aria-label="思考与工具链">
+    <section className="rounded-surface border border-line bg-surface shadow-card" aria-label="思考与工具链">
       <button
         type="button"
         onClick={() => setManualOpen(!expanded)}
         aria-expanded={expanded}
-        className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-2.5 text-left hover:bg-raised"
+        className="flex w-full items-center justify-between gap-2 rounded-surface px-4 py-2.5 text-left hover:bg-raised"
       >
         <span className="flex items-center gap-2">
-          <span className="text-[13px] font-medium text-ink">思考与工具链</span>
+          <span className="text-ui-sm font-medium text-ink">思考与工具链</span>
           {streaming ? (
             // 文本色走 text-ink-soft（浅色 5.51:1）；accent 只留在呼吸圆点上（非文本装饰）
-            <span className="flex items-center gap-1 text-[11px] text-ink-soft">
+            <span className="flex items-center gap-1 text-caption text-ink-soft">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
               进行中
             </span>
           ) : (
-            <span className="text-[11px] text-ink-soft">{toolSteps.length} 步</span>
+            <span className="text-caption text-ink-soft">{toolSteps.length} 步</span>
           )}
         </span>
         <svg
@@ -81,7 +88,7 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
       {expanded ? (
         <div className="border-t border-line px-4 py-3">
           <div>
-            <p className="mb-1.5 text-[11px] tracking-wide text-ink-soft">{title}</p>
+            <p className="mb-1.5 text-caption tracking-wide text-ink-soft">{title}</p>
             <ThoughtStream text={thought} done={!streaming} />
           </div>
           <div className="mt-4 border-t border-line pt-3">

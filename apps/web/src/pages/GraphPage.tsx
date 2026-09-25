@@ -6,6 +6,20 @@
  * 技术：echarts graph series + layout:'none' + 自算分层坐标（lib/graphLayout.ts，D10：不用力导向，
  *       避免演示时位置抖动；横向=上游→下游）；图例常驻右上（BandLegend，四色 + 归因/学习路径）。
  * 空态：未自报也未测评（掌握度全 0 且无 accuracy）→ 引导文案，不伪造数据（D12）。
+ *
+ * ── 重构 P3-3（2026-09-25）本页被认定为「全站最弱一页」，改动集中在四处可见缺陷 ──
+ * ① 节点标签：原为 kpLabel(id, 7) 截断 + fontSize 10，图上是一排「函数的概念与自…」，
+ *    信息量等于零 —— 而「这个点是什么」正是图谱页最该回答的问题。改为
+ *    width + overflow:'break' 先换行再截断（对齐 compact-label-overflow 的口径：
+ *    溢出要换行，不要藏值），字号提到 11，名称上限放到 14 字；完整名称仍在 tooltip。
+ * ② 节点直径 22 → 26（高亮 30 → 34）：原尺寸下 20 个点看起来像一层灰。
+ * ③ 详情卡改用 shadow-overlay + 不透明底：原来用内置 shadow-sm（固定黑色 rgba，
+ *    深色主题下投在深底上完全看不见）配 bg-surface/95（图线从卡面透上来干扰文字）。
+ * ④ 路径徽标改用 inline-flex：原来是在 **inline span** 上写 min-h-9，而行内元素
+ *    忽略 min-height —— 这个最小高度从未生效过。顺带把关闭键从「仅 <720 撑到 36px」
+ *    改为全断点 IconButton size="md"（44×44）：触控目标下限不分断点。
+ * 版式接入 PageContainer（wide / 无空间时 prose）+ PageHeader；两处按钮 Link 复用
+ * buttonVariants，不再抄第二套按钮 class；页脚计数改等宽表格数字。
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -25,8 +39,10 @@ import type { ReportSummaryData } from '../api/types';
 import BandLegend from '../components/BandLegend';
 import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
+import { IconButton, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { GRAPH_NODES, kpName, snapshotNode } from '../data/graphSnapshot';
 import { computeGraphLayout, isPathEdge, parsePathParam } from '../lib/graphLayout';
+import { cn } from '../lib/cn';
 import { kpLabel, percent } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
@@ -141,10 +157,18 @@ export default function GraphPage() {
             label: {
               show: true,
               position: 'bottom',
-              fontSize: 10,
+              distance: 6,
+              fontSize: 11,
+              lineHeight: 13,
+              // 标签走「先换行、再截断」而不是直接截断：
+              // 原实现是 kpLabel(id, 7) + fontSize 10，于是图上是一排「函数的概念与自…」，
+              // 信息量等于零 —— 而这恰恰是图谱页最该回答的问题「这个点是什么」。
+              // width + overflow:'break' 让长名称折成两行；完整名称仍在 tooltip 里。
+              width: 76,
+              overflow: 'break',
               color: textColor,
             },
-            emphasis: { focus: 'adjacency', label: { fontSize: 11 } },
+            emphasis: { focus: 'adjacency', label: { fontSize: 12 } },
             data: layout.nodes.map((placed) => {
               const mastery = masteryById.get(placed.id) ?? 0;
               const band = masteryBandOf(mastery);
@@ -152,10 +176,10 @@ export default function GraphPage() {
               const dim = highlightPath.length > 0 && !onHighlight;
               return {
                 id: placed.id,
-                name: kpLabel(placed.id, 7),
+                name: kpLabel(placed.id, 14),
                 x: placed.x,
                 y: placed.y,
-                symbolSize: onHighlight ? 30 : 22,
+                symbolSize: onHighlight ? 34 : 26,
                 itemStyle: {
                   color: masteryHexOf(mastery),
                   borderColor: onHighlight ? accentColor : BAND_HEX[band],
@@ -223,53 +247,46 @@ export default function GraphPage() {
 
   if (!activeSpaceId) {
     return (
-      <section className="max-w-2xl">
-        <h1 className="text-xl font-medium text-ink">知识图谱</h1>
-        <p className="mt-3 text-sm text-ink-soft">{UI_TEXT.needSelfReport}</p>
-        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-lg bg-accent px-4 py-2 text-sm text-on-accent">
+      <PageContainer width="prose">
+        <PageHeader title="知识图谱" description={UI_TEXT.needSelfReport} />
+        <Link to={SPACES_PATH} className={cn(buttonVariants({ variant: 'primary' }), 'mt-4')}>
           去选空间
         </Link>
-      </section>
+      </PageContainer>
     );
   }
 
   return (
-    <section>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-medium text-ink">你的知识地图</h1>
-          <p className="mt-2 text-sm text-ink-soft">
-            颜色是掌握度（左下角是图例），从左往右是「先学什么再学什么」。点一个点看细节。
-          </p>
-        </div>
-        {highlightPath.length > 0 ? (
-          <span className="rounded-lg bg-accent-veil px-3 min-h-9 py-2 text-[13px] text-accent">
-            {plan && plan.path.join(',') === highlightPath.join(',')
-              ? `学习路径：${plan.strategy}`
-              : '正在高亮一条路径（上游 → 根因）'}
-          </span>
-        ) : null}
-      </div>
+    <PageContainer width="wide">
+      <PageHeader
+        title="你的知识地图"
+        description="颜色是掌握度（左下角是图例），从左往右是「先学什么再学什么」。点一个点看细节。"
+        actions={
+          highlightPath.length > 0 ? (
+            // inline-flex + items-center：原实现是 inline span 上写 min-h-9，
+            // 而**行内元素忽略 min-height** —— 这个最小高度从未生效过（又一次静默失效）。
+            <span className="inline-flex min-h-9 items-center rounded-control bg-accent-veil px-3 text-ui-sm text-accent-ink">
+              {plan && plan.path.join(',') === highlightPath.join(',')
+                ? `学习路径：${plan.strategy}`
+                : '正在高亮一条路径（上游 → 根因）'}
+            </span>
+          ) : undefined
+        }
+      />
 
       {loading ? (
         <PageSkeleton label="正在取你的掌握度…" rows={1} className="mt-6" />
       ) : !hasData ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="这张图还没有你的颜色"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，每个知识点就会按掌握度上色。`}
             action={
               <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  to="/self-report"
-                  className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
-                >
+                <Link to="/self-report" className={cn(buttonVariants({ variant: 'primary' }))}>
                   花 30 秒自报
                 </Link>
-                <Link
-                  to="/assessment"
-                  className="min-h-9 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised"
-                >
+                <Link to="/assessment" className={cn(buttonVariants({ variant: 'secondary' }))}>
                   直接做几道题
                 </Link>
               </div>
@@ -279,7 +296,7 @@ export default function GraphPage() {
       ) : (
         /* 窄屏适配：图例在 <sm 收成卡片内静态一行（不压图），图本身给最小宽度并允许横向滚动，
            保证 20 个节点在手机上不被压扁到标签重叠。 */
-        <div className="relative mt-4 rounded-2xl border border-line bg-surface p-3 sm:p-0">
+        <div className="relative mt-4 rounded-surface border border-line bg-surface p-3 sm:p-0">
           <BandLegend
             counts={counts}
             showPath={highlightPath.length > 0}
@@ -296,18 +313,20 @@ export default function GraphPage() {
           </div>
 
           {selectedNode ? (
-            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-line bg-surface/95 p-3 text-xs shadow-sm">
+            // 浮起层：用 shadow-overlay 而不是内置 shadow-sm。
+            // 内置阴影是固定的黑色 rgba —— 深色主题下投在深底上完全看不见，卡片会失去
+            // 与图面的层级关系（这是本项目记录在案的缺陷类型：P1a 当时就把它与静态卡
+            // 混用的问题写进了 boxShadow 的注释）。
+            // 底色同时从 bg-surface/95 改为不透明：半透明卡面会让下层图线与标签透上来
+            // 干扰文字，而这里没有任何「透视关系」要表达。
+            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm text-ink">{selectedNode.name}</p>
-                <button
-                  type="button"
-                  onClick={() => setSelected(null)}
-                  // 触控目标（R8/D6）：<720 把「×」撑到 36×36 并居中（桌面不加作用域不改像素）
-                  className="text-ink-soft hover:text-ink max-nav:grid max-nav:h-9 max-nav:w-9 max-nav:place-items-center"
-                  aria-label="关闭"
-                >
+                {/* 关闭键走 IconButton size="md"（44×44）：原实现只在 <720 把「×」撑到
+                    36×36，桌面是一个几像素的纯文字 —— 触控目标下限是不分断点的。 */}
+                <IconButton size="md" variant="quiet" onClick={() => setSelected(null)} aria-label="关闭">
                   ×
-                </button>
+                </IconButton>
               </div>
               <p className="mt-1 text-ink-soft">
                 {selectedNode.chapter} · 难度 {selectedNode.difficulty}
@@ -324,9 +343,11 @@ export default function GraphPage() {
         </div>
       )}
 
-      <p className="mt-4 text-[13px] text-ink-soft">
-        共 {GRAPH_NODES.length} 个知识点 / {layout.columns} 层先修链 · 四色阈值与状态带取自引擎同一份常量
+      <p className="mt-4 text-ui-sm text-ink-soft">
+        共 <span className="font-mono tabular-nums text-ink">{GRAPH_NODES.length}</span> 个知识点 /{' '}
+        <span className="font-mono tabular-nums text-ink">{layout.columns}</span> 层先修链 ·
+        四色阈值与状态带取自引擎同一份常量
       </p>
-    </section>
+    </PageContainer>
   );
 }

@@ -109,7 +109,7 @@ res: data = { "files": [ { "file_id", "name", "type", "size" } ] }   // 预置�
 ### POST /api/evidence/self-report
 ```
 req:  { "space_id": "sp_001",
-        "reports": [ { "chapter": "二次函数", "level": 1|2|3|4|5 } ] }   // 章节粒度，≤6 项
+        "reports": [ { "chapter": "二次函数", "level": 1|2|3|4|5 } ] }   // 章节粒度，≤6 项【v1.4 起为 ≤8，见 §11 变更记录】
 res:  data = { "updated": 12 }     // 被写入先验的知识点数
 规则: level → P(L0) 映射 {1:0.10, 2:0.30, 3:0.50, 4:0.70, 5:0.85}
       仅初始化/覆盖 mastery_profiles 的 p_l0 与 mastery
@@ -359,3 +359,5 @@ res: data = {
 | 2026-09-19 | **自审修订 v1.1**：① 新增 recognitions 表与 GET /api/evidence/paper/{id}（识别结果持久化）；② verify 改传 answer、服务端判卷；③ diagnose/submit 增 mode、correct 仅测量模式返回；④ next 移除冗余 pool 参数；⑤ 新增 GET /api/attribution/{id}；⑥ path/suspect/dedup 统一完整 kp id；⑦ dedup 幂等不算 409；⑧ classify 枚举来源澄清；⑨ token 无状态签名机制；⑩ item_sequence 返回完整题对象。共 19 个接口 + 九张表 | 甲 | 乙 |
 | 2026-09-24 | **v1.2**：① space/create 新增可选 `name`，空间唯一约束由「同学科」改为「同用户同名」（409 语义与 `existing_space_id` 保留，§0 错误码表 409 行同步改写——本版唯一一处原文字句修改）；② 新增 #20 GET /api/user/profile（只读，不下发 password_hash / ZHIWEI_LLM_API_KEY） | 项目方 | 总控 |
 | 2026-09-24 | **v1.3**：① #18 /api/agent/chat 新增 SSE 过程事件 phase / thought / tool（工具名闭集 7 项，tool.args / tool.result 为服务端真实中间量）与 JSON 降级 `trace` 字段（delta / meta / done / error 语义不变，向后兼容）；② 远程模型适配器改 `stream:true` 增量抽取（结构化字段序 thought → reply → …，失败回落纪律不变） | 项目方 | 总控 |
+| 2026-09-25 | **v1.4**：#6 self-report `reports` 上限 **≤6 → ≤8**（用户实测 bug：页 2 明示 8 章节可全选、一键「按 3 档填上」也填满 8，提交必 400「reports 最多 6 项」——cz/gz 实测各 8 章节，6 的上限在两个学段都锁不住满选；接口签名与其余语义不变，前端 MAX_REPORTS 同步 + selfReport.test.ts 边界断言改 8/9） | 项目方 | 总控 |
+| 2026-09-25 | **v1.4 伴随前端路由收敛（接口层零变更）**：前端路由 `/console`（PRD 页 11 · B 端教师控制台）砍除，其「学习概览」并入 `/me`（页 12 我的）；对话辅导「收进侧栏」导航目标由 `#/console` 改为 `#/me`；前端路由 12 → 11 | 项目方 | 总控 |

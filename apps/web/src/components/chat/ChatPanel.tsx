@@ -43,7 +43,7 @@ export default function ChatPanel() {
     <div className="flex h-full min-h-0 flex-col bg-surface">
       <header className="flex flex-none items-start gap-2 border-b border-line px-4 py-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-medium text-ink">对话辅导</p>
+          <p className="text-ui-sm font-medium text-ink">对话辅导</p>
           <div className="mt-1">
             <ModelBadge mode={model?.mode ?? 'local'} name={model?.name ?? null} />
           </div>
@@ -52,7 +52,7 @@ export default function ChatPanel() {
         <Link
           to={CHAT_PATH}
           onClick={() => setOpen(false)}
-          className="shrink-0 rounded-control border border-line px-2 py-1 text-[12px] text-ink-soft hover:bg-raised max-nav:min-h-9"
+          className="shrink-0 rounded-control border border-line px-2 py-1 text-caption text-ink-soft hover:bg-raised max-nav:min-h-9"
         >
           全屏打开
         </Link>

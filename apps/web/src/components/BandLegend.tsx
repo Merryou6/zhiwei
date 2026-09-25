@@ -24,7 +24,7 @@ export default function BandLegend({ counts, showPath = false, className }: Band
         // 实底而非半透明白 + 背景模糊：图例经常压在彩色图谱上，
         // 半透明会让四色色块与文字的颜色随底下内容漂移，反而失准。
         // 圆角与阴影统一走令牌（rounded-control / shadow-card）。
-        'rounded-control border border-line bg-surface px-3 py-2 text-[13px] text-ink-soft shadow-card',
+        'rounded-control border border-line bg-surface px-3 py-2 text-ui-sm text-ink-soft shadow-card',
         className ?? '',
       ].join(' ')}
       aria-label="掌握度颜色图例"

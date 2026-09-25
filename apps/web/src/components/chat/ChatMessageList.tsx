@@ -9,6 +9,7 @@
 import { useEffect, useRef } from 'react';
 
 import EmptyState from '../EmptyState';
+import { cn } from '../../lib/cn';
 import { scrollBehavior } from '../../lib/motion';
 import RichText from '../../lib/richText';
 import type { ChatMessage } from '../../stores/dialog';
@@ -28,7 +29,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
   }, [messages.length, streaming]);
 
   return (
-    <div className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
+    <div className="space-y-3 rounded-surface border border-line bg-surface p-4 shadow-card">
       {messages.length === 0 ? (
         <EmptyState
           compact
@@ -40,7 +41,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
       {messages.map((message) => {
         if (message.role === 'notice') {
           return (
-            <p key={message.id} className="text-center text-[13px] text-ink-soft">
+            <p key={message.id} className="text-center text-ui-sm text-ink-soft">
               {message.text}
             </p>
           );
@@ -53,10 +54,10 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
                 overflow-wrap 只在「确实放不下」时生效 → 桌面正常文本零变化。 */}
             <div className={isStudent ? 'max-w-[80%] break-words text-right' : 'max-w-[85%] break-words'}>
               <div
-                className={[
-                  'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed break-words',
+                className={cn(
+                  'inline-block rounded-surface px-4 py-2.5 text-left text-sm leading-relaxed break-words',
                   isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
-                ].join(' ')}
+                )}
               >
                 {message.text.length > 0 ? (
                   // 学长回复走轻量 Markdown 子集（加粗/列表/换行）；学生输入是纯文本，保持原样
@@ -72,7 +73,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
                 )}
               </div>
 
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-ui-sm text-ink-soft">
                 {isStudent && message.imageFileId ? (
                   // break-all（R6）：file_id 是无空格长串，只有强制断行才不溢出
                   <span className="break-all rounded-md bg-canvas px-2 py-0.5">

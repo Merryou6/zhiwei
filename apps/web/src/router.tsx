@@ -4,19 +4,21 @@
  * 本文件是**纯逻辑**：不含 JSX、不 import 任何页面组件（routerGuard.test.ts 直接 import 本文件断言，
  * 不拉起 echarts / react-dom）。页面装配在 App.tsx。
  *
- * 路由表 = 12 页（PRD §5 + 控制台工作台 + 「我的」）：登录/注册、自报、空间列表、控制台、测评、
+ * 路由表 = 11 页（PRD §5 + 「我的」）：登录/注册、自报、空间列表、测评、
  * 试卷上传、对话辅导、归因结果、知识图谱（兼学习路径）、学习报告、云盘（P1）、我的（v1.2）。
- * /console 为 B 端「教师 / 管理端」工作台首页（并入 apps/web 的真实控制台入口）。
- * /me 为账号辅助页（账号信息 / 当前空间 / 主题 / 模型只读），不进 PRD §5 学习主链路口径（D9）。
+ * /console（B 端教师控制台，旧页 11）已于 v1.4 砍除：其「学习概览」并入 /me，
+ * 对话「收进侧栏」落点同步改 /me（见 API_CONTRACT §11）。页号 11 留空不复用，
+ * 保持与 PRD §5 的编号对应关系不破。
+ * /me 为账号辅助页（学习概览 / 账号信息 / 当前空间 / 主题 / 模型只读），
+ * 不进 PRD §5 学习主链路口径（D9）。
  * 查询参数约定：?mode=（测评）、?attribution_id=（归因回显）、?path=（图谱高亮）。
  */
 
 export const LOGIN_PATH = '/login';
 export const SPACES_PATH = '/spaces';
 export const SELF_REPORT_PATH = '/self-report';
-/** 控制台工作台首页（B 端教师 / 管理端入口，并入 apps/web 的真实控制台）。 */
-export const CONSOLE_PATH = '/console';
-/** 「我的」：账号信息 / 当前空间 / 主题 / 模型只读（v1.2 D4a，进顶栏主导航）。 */
+/** 「我的」：学习概览 + 账号信息 / 当前空间 / 主题 / 模型只读（v1.2 D4a，进顶栏主导航；
+ *  v1.4 吸收旧控制台的学习概览）。 */
 export const ME_PATH = '/me';
 
 /** localStorage 键（D2：仅 auth / space / theme 落盘，手动读写、不用 persist 中间件）。 */
@@ -46,12 +48,11 @@ export interface RouteSpec {
   nav: boolean;
 }
 
-/** 12 页路由表（顺序即顶栏顺序）。 */
+/** 11 页路由表（顺序即顶栏顺序；页 11 控制台已于 v1.4 砍除，编号不复用）。 */
 export const ROUTES: readonly RouteSpec[] = [
   { path: LOGIN_PATH, label: '登录 / 注册', page: 1, requiresAuth: false, nav: false },
   { path: SELF_REPORT_PATH, label: '起点自报', page: 2, requiresAuth: true, nav: false },
   { path: SPACES_PATH, label: '学习空间', page: 3, requiresAuth: true, nav: false },
-  { path: CONSOLE_PATH, label: '控制台', page: 11, requiresAuth: true, nav: false },
   { path: '/assessment', label: '测评', page: 4, requiresAuth: true, nav: true },
   { path: '/paper', label: '试卷上传', page: 5, requiresAuth: true, nav: false },
   { path: '/chat', label: '对话辅导', page: 6, requiresAuth: true, nav: true },

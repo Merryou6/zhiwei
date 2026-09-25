@@ -1,7 +1,7 @@
 /**
  * 页 2 · 起点自报（PRD §5 #2「30 秒建先验 + 定主攻章节」；P0 #2）
  *
- * 契约：#6 POST /api/evidence/self-report（章节粒度 × 5 档，≤6 项）
+ * 契约：#6 POST /api/evidence/self-report（章节粒度 × 5 档，≤8 项（v1.4：页 2 全选用例必须过））
  * 交互：一屏一件事（4 张章节卡 × 5 档单选，默认不选）+「按 3 档填」一键加速；
  *       提交后展示 updated（被写入先验的知识点数），并引导进测评（第一屏就让用户开始）。
  * 纪律：自报是先验不是观测（服务端不写 evidence_events）；此处不做任何对错/评价性措辞。
@@ -13,7 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { selfReport } from '../api/endpoints';
 import type { SelfReportLevel, SelfReportRow } from '../api/types';
+import { Button, PageContainer, PageHeader } from '../components/ui';
 import { CHAPTER_SIZES, chapterNames } from '../data/graphSnapshot';
+import { cn } from '../lib/cn';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH, markSelfReportDone } from '../router';
 import { useSpaceStore } from '../stores/space';
@@ -74,60 +76,52 @@ export default function SelfReportPage() {
 
   if (updated !== null) {
     return (
-      <section className="max-w-xl">
-        <h1 className="text-xl font-medium text-ink">起点记下了</h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          已更新 {updated} 个知识点的起点。接下来我出几道题，看看猜得准不准——你把会做的做掉就行，
-          不用纠结对错，我这边只看整体。
+      <PageContainer width="prose">
+        <PageHeader title="起点记下了" />
+        <p className="mt-3 text-reading leading-relaxed text-ink-soft">
+          已更新 <span className="font-mono tabular-nums text-ink">{updated}</span> 个知识点的起点。
+          接下来我出几道题，看看猜得准不准——你把会做的做掉就行，不用纠结对错，我这边只看整体。
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/assessment')}
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
-          >
+          <Button variant="primary" onClick={() => navigate('/assessment')}>
             开始测评
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/graph')}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
-          >
+          </Button>
+          <Button variant="secondary" onClick={() => navigate('/graph')}>
             先看看我的地图
-          </button>
+          </Button>
         </div>
-      </section>
+      </PageContainer>
     );
   }
 
   return (
-    <section className="max-w-2xl">
-      <h1 className="text-xl font-medium text-ink">先说说你大概在哪一档</h1>
-      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-        这不是考试，是让我别把时间浪费在你已经会的东西上。凭感觉选就行，30 秒够用。
-      </p>
+    <PageContainer width="prose">
+      <PageHeader
+        title="先说说你大概在哪一档"
+        description="这不是考试，是让我别把时间浪费在你已经会的东西上。凭感觉选就行，30 秒够用。"
+      />
 
       <div className="mt-4 flex items-center justify-between gap-4">
-        <span className="text-[13px] text-ink-soft">
+        <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
           已选 {chosen.length}/{chapters.length} 个章节
         </span>
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink hover:border-accent hover:text-accent"
         >
           按 3 档先填上
-        </button>
+        </Button>
       </div>
 
       <ul className="mt-4 space-y-3">
         {chapters.map((chapter) => (
-          <li key={chapter} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+          <li key={chapter} className="rounded-surface border border-line bg-surface p-4 shadow-card">
             <div className="flex items-baseline justify-between">
               <h2 className="text-base font-medium text-ink">{chapter}</h2>
-              <span className="text-[13px] text-ink-soft">
+              <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
                 {CHAPTER_SIZES[chapter] ?? 0} 个知识点
               </span>
             </div>
@@ -140,12 +134,12 @@ export default function SelfReportPage() {
                     key={level.value}
                     type="button"
                     onClick={() => setLevels({ ...levels, [chapter]: level.value })}
-                    className={[
-                      'min-h-9 rounded-lg border px-3 py-2 text-left text-[13px] transition-colors',
+                    className={cn(
+                      'min-h-9 rounded-control border px-3 py-2 text-left text-ui-sm transition-colors',
                       selected
                         ? 'border-accent bg-accent-veil font-medium text-ink ring-1 ring-accent'
                         : 'border-line text-ink-soft hover:bg-raised',
-                    ].join(' ')}
+                    )}
                   >
                     <span className="mr-1 font-medium">{level.label}</span>
                     {level.hint}
@@ -157,14 +151,16 @@ export default function SelfReportPage() {
         ))}
       </ul>
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="lg"
+        full
+        loading={submitting}
         onClick={() => void handleSubmit()}
-        disabled={submitting}
-        className="mt-6 min-h-11 w-full rounded-lg bg-accent px-4 py-3 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
+        className="mt-6"
       >
         {submitting ? '正在记下…' : '记下来，开始测评'}
-      </button>
-    </section>
+      </Button>
+    </PageContainer>
   );
 }
