@@ -68,12 +68,12 @@ export default function ReportPage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">学习报告</h1>
-        <div className="mt-5 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-5 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有选中的学习空间"
             hint={UI_TEXT.needSelfReport}
             action={
-              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
+              <Link to={SPACES_PATH} className="inline-block min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
                 去选空间
               </Link>
             }
@@ -100,16 +100,16 @@ export default function ReportPage() {
     return (
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">学习报告</h1>
-        <div className="mt-5 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-5 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有你的学习数据"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，这里就会长出掌握度分布和缺口清单。`}
             action={
               <div className="flex flex-wrap items-center gap-3">
-                <Link to="/self-report" className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
+                <Link to="/self-report" className="min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90">
                   花 30 秒自报
                 </Link>
-                <Link to="/assessment" className="min-h-9 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised">
+                <Link to="/assessment" className="min-h-9 rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised">
                   直接做几道题
                 </Link>
               </div>
@@ -129,12 +129,12 @@ export default function ReportPage() {
   return (
     <section className="max-w-3xl">
       <h1 className="text-xl font-medium text-ink">学习报告</h1>
-      <p className="mt-3 rounded-xl bg-surface px-4 py-3 text-sm leading-relaxed text-ink">
+      <p className="mt-3 rounded-surface bg-surface px-4 py-3 text-sm leading-relaxed text-ink">
         {summaryLine(gaps.length)}
       </p>
 
       {/* ① 掌握度分布 */}
-      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">掌握度分布（{mastery.length} 个知识点）</h2>
 
         <ul className="mt-3 space-y-2">
@@ -177,7 +177,7 @@ export default function ReportPage() {
       </div>
 
       {/* ② 缺口清单 */}
-      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
         {gaps.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
@@ -208,7 +208,7 @@ export default function ReportPage() {
       </div>
 
       {/* ③ 基线 vs 复测 */}
-      <div className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-card">
+      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
         <h2 className="text-base font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
         {accuracy.length === 0 ? (
           <EmptyState

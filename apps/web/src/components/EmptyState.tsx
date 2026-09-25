@@ -28,7 +28,7 @@ export default function EmptyState({ title, hint, action, compact = false }: Emp
       {compact ? null : (
         <span
           aria-hidden
-          className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-canvas"
+          className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-surface border border-line bg-canvas"
         >
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" focusable="false">
             <rect x="3" y="13.5" width="3.6" height="5.5" rx="1" fill="currentColor" className="text-line" />

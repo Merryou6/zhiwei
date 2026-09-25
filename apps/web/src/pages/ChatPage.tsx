@@ -80,14 +80,14 @@ export default function ChatPage() {
       </header>
 
       {exitNotice ? (
-        <div className="mt-4 rounded-xl border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
+        <div className="mt-4 rounded-surface border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
           <p className="font-medium">{exitNotice}</p>
           <p className="mt-1 text-ui-sm text-ink-soft">
             连续几轮都没往前走，多半是更前面的砖没铺稳——我们回去补那一块，不丢人。
           </p>
           <Link
             to={`/graph?path=${encodeURIComponent(meta?.kp_match.kp_id ?? '')}`}
-            className="mt-2 inline-block rounded-lg bg-accent px-3 min-h-9 py-2 text-ui-sm text-on-accent"
+            className="mt-2 inline-block rounded-control bg-accent px-3 min-h-9 py-2 text-ui-sm text-on-accent"
           >
             去图谱看看这一环
           </Link>

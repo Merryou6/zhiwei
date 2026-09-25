@@ -281,3 +281,28 @@ describe('⑨ 打印块必须完整中性化深色主题', () => {
     expect(CSS).toContain("[data-print='hide']");
   });
 });
+
+describe('⑩ 任意值圆角不回流（圆角刻度只有三档）', () => {
+  it('src/** 的 className 里不出现 rounded-[…] 这类任意值圆角', () => {
+    // 圆角的真实刻度是三档，`rounded-[4px]` / `rounded-[5px]` / `rounded-[22px]`
+    // 这类任意值都不属于任何一档：
+    //   micro   6px  状态 chip / 徽标 / 骨架条 / 图标块 —— 走内置 rounded-md
+    //   control 10px 按钮、输入框、下拉项、列表项
+    //   surface 16px 面板、卡片、信息块、抽屉
+    // 本轮收敛时实测到 2 处残留（登录页两个下划线文字按钮上的 rounded-[4px]，
+    // 它只影响焦点环形状，看起来无害，于是最容易被复制到别处）。这类值不报错、
+    // 不挂测试、只是让同一件事多出一种写法，所以必须静态拦。
+    // 注释行不算（TopNav 的注释里记录了「[5px] 是随手写的」这段历史，改掉会让历史失真）。
+    const found: string[] = [];
+    for (const file of FILES) {
+      file.text.split('\n').forEach((line, index) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
+        if (/rounded(-[tb][rl]?)?-\[/.test(line)) {
+          found.push(`${file.rel}:${index + 1}: ${trimmed.slice(0, 110)}`);
+        }
+      });
+    }
+    expect(found, '任意值圆角应改为 rounded-md(6) / rounded-control(10) / rounded-surface(16)').toEqual([]);
+  });
+});

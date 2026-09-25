@@ -63,8 +63,12 @@ export default {
       //   rise             —— Hero / 区块的一次性入场（一次性，不随滚动）
       //   fade             —— 浮层与背景幕
       //   slide-in-panel   —— 移动端导航抽屉入场
-      //   route-in         —— 路由切换时主容器的入场
+      //   route-in         —— 路由切换时主容器的入场（**只做透明度，不做位移**）
       //   reveal           —— 长页面区块进入视口时的揭示
+      //
+      // ⚠ route-in 刻意不做位移：路由切换发生在每一次导航，而 tools/responsive-audit.cjs
+      //   正是「刚加载完就去量锚点几何」——带位移的入场会让 main / mainChild 的 y 在
+      //   动画期间取到中间值，取证结果跟着路由走、不可复现。透明度不参与几何。
       //
       // ⚠ 三条硬纪律（无障碍红线，不是风格偏好）：
       //   1. from 隐藏 → to 可见，且**元素基态必须是可见/终态**。
@@ -93,8 +97,8 @@ export default {
           '100%': { opacity: '1', transform: 'none' },
         },
         'route-in': {
-          '0%': { opacity: '0', transform: 'translateY(4px)' },
-          '100%': { opacity: '1', transform: 'none' },
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
         reveal: {
           '0%': { opacity: '0', transform: 'translateY(12px)' },
@@ -229,14 +233,22 @@ export default {
 
       // ── 圆角刻度（SHAPE CONSISTENCY LOCK）─────────────────────────
       // 一个页面只允许一套圆角规则，且必须有依据。旧的 rounded-[22px]/[26px]
-      // 是随手写的，已删除。三档对应三种层级职责：
-      //   control — 按钮、输入框、分段项（用户直接操作的件）
-      //   surface — 面板、卡片、信息块（承载内容的件）
-      //   shell   — 页面级最大外壳（登录表单容器）
+      // 是随手写的，已删除。
+      //
+      // 2026-09-25 重构 P2 收口：把残留的 78 处内置圆角类收敛到令牌后，核了一遍实际用量 ——
+      // 在用的是两档令牌 + 一种微标签规格，所以圆角的真实刻度是**三档**：
+      //   micro   — 6px，状态 chip / 徽标 / 骨架条 / 图标块。走内置 rounded-md，
+      //             不为它单开令牌：它是「形状的最小单位」，不是一层层级。
+      //   control — 10px，按钮、输入框、下拉项、列表项（用户直接操作的件）
+      //   surface — 16px，面板、卡片、信息块、抽屉（承载内容的件）
+      //
+      // shell(20px) 已删除：它自建立起**零使用点**（登录表单容器实际用的是 rounded-2xl
+      // 的 16px，已收敛到 surface）。留着一个没人用的令牌比没有更危险 —— 后来人会以为
+      // 存在第四档层级，照着它写新值，刻度就散了。（同 index.css 里那对零使用的
+      // .pt-safe / .pb-safe 的处置方式：删掉并把语义交给更具体的类。）
       borderRadius: {
         control: '10px',
         surface: '16px',
-        shell: '20px',
       },
 
       boxShadow: {

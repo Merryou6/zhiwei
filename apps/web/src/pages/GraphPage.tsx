@@ -226,7 +226,7 @@ export default function GraphPage() {
       <section className="max-w-2xl">
         <h1 className="text-xl font-medium text-ink">知识图谱</h1>
         <p className="mt-3 text-sm text-ink-soft">{UI_TEXT.needSelfReport}</p>
-        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-lg bg-accent px-4 py-2 text-sm text-on-accent">
+        <Link to={SPACES_PATH} className="mt-4 inline-block rounded-control bg-accent px-4 py-2 text-sm text-on-accent">
           去选空间
         </Link>
       </section>
@@ -243,7 +243,7 @@ export default function GraphPage() {
           </p>
         </div>
         {highlightPath.length > 0 ? (
-          <span className="rounded-lg bg-accent-veil px-3 min-h-9 py-2 text-ui-sm text-accent-ink">
+          <span className="rounded-control bg-accent-veil px-3 min-h-9 py-2 text-ui-sm text-accent-ink">
             {plan && plan.path.join(',') === highlightPath.join(',')
               ? `学习路径：${plan.strategy}`
               : '正在高亮一条路径（上游 → 根因）'}
@@ -254,7 +254,7 @@ export default function GraphPage() {
       {loading ? (
         <PageSkeleton label="正在取你的掌握度…" rows={1} className="mt-6" />
       ) : !hasData ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="这张图还没有你的颜色"
             hint={`${UI_TEXT.needSelfReport}做完自报或几道题，每个知识点就会按掌握度上色。`}
@@ -262,13 +262,13 @@ export default function GraphPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   to="/self-report"
-                  className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
+                  className="min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
                 >
                   花 30 秒自报
                 </Link>
                 <Link
                   to="/assessment"
-                  className="min-h-9 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised"
+                  className="min-h-9 rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink hover:bg-raised"
                 >
                   直接做几道题
                 </Link>
@@ -279,7 +279,7 @@ export default function GraphPage() {
       ) : (
         /* 窄屏适配：图例在 <sm 收成卡片内静态一行（不压图），图本身给最小宽度并允许横向滚动，
            保证 20 个节点在手机上不被压扁到标签重叠。 */
-        <div className="relative mt-4 rounded-2xl border border-line bg-surface p-3 sm:p-0">
+        <div className="relative mt-4 rounded-surface border border-line bg-surface p-3 sm:p-0">
           <BandLegend
             counts={counts}
             showPath={highlightPath.length > 0}
@@ -296,7 +296,7 @@ export default function GraphPage() {
           </div>
 
           {selectedNode ? (
-            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-line bg-surface/95 p-3 text-xs shadow-sm">
+            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface/95 p-3 text-xs shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm text-ink">{selectedNode.name}</p>
                 <button

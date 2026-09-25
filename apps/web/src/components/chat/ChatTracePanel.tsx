@@ -52,12 +52,12 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
       : '推理摘要';
 
   return (
-    <section className="rounded-2xl border border-line bg-surface shadow-card" aria-label="思考与工具链">
+    <section className="rounded-surface border border-line bg-surface shadow-card" aria-label="思考与工具链">
       <button
         type="button"
         onClick={() => setManualOpen(!expanded)}
         aria-expanded={expanded}
-        className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-2.5 text-left hover:bg-raised"
+        className="flex w-full items-center justify-between gap-2 rounded-surface px-4 py-2.5 text-left hover:bg-raised"
       >
         <span className="flex items-center gap-2">
           <span className="text-ui-sm font-medium text-ink">思考与工具链</span>

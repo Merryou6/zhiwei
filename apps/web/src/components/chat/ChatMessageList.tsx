@@ -28,7 +28,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
   }, [messages.length, streaming]);
 
   return (
-    <div className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
+    <div className="space-y-3 rounded-surface border border-line bg-surface p-4 shadow-card">
       {messages.length === 0 ? (
         <EmptyState
           compact
@@ -54,7 +54,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
             <div className={isStudent ? 'max-w-[80%] break-words text-right' : 'max-w-[85%] break-words'}>
               <div
                 className={[
-                  'inline-block rounded-2xl px-4 py-2.5 text-left text-sm leading-relaxed break-words',
+                  'inline-block rounded-surface px-4 py-2.5 text-left text-sm leading-relaxed break-words',
                   isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
                 ].join(' ')}
               >

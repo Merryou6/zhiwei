@@ -194,8 +194,10 @@ export default function TopNav() {
                 className="rounded-control px-3 py-1.5 text-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
                 aria-expanded={open}
               >
-                {/* 立方体图标块：rounded-md（6px）而非任意值 rounded-[5px] ——
-                    圆角纪律只允许令牌三档 + 微标签的 rounded-md，[5px] 是随手写的。 */}
+                {/* 立方体图标块走微标签圆角档（内置 micro，6px）。
+                    历史上这里是随手写的 5px 任意值圆角，已收敛 ——
+                    任意值圆角由 tokens.test.ts ⑩ 静态拦下，此处不再复述其写法
+                    （闸门连注释一起扫，注释里留范例会把闸门打成假阳性）。 */}
                 <span className="grid h-5 w-5 place-items-center rounded-md border border-accent/40 bg-accent-veil text-accent-ink" aria-hidden="true">
                   <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 5.4 8 2.4l6 3v5.2l-6 3-6-3z" />

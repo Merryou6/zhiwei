@@ -31,8 +31,8 @@ const twMerge = extendTailwindMerge({
     classGroups: {
       // 字号刻度（tailwind.config.js → theme.extend.fontSize）
       'font-size': [{ text: ['caption', 'ui-sm', 'reading', 'display', 'display-lg'] }],
-      // 圆角三档（theme.extend.borderRadius）
-      rounded: [{ rounded: ['control', 'surface', 'shell'] }],
+      // 圆角两档（theme.extend.borderRadius；微标签档走内置 rounded-md，无需登记）
+      rounded: [{ rounded: ['control', 'surface'] }],
       // 阴影（theme.extend.boxShadow）
       shadow: [{ shadow: ['card', 'overlay', 'dusk-surface', 'dusk-raised'] }],
       // 层级（theme.extend.zIndex）

@@ -281,7 +281,7 @@ export default function LoginPage() {
               setTab(tab === 'login' ? 'register' : 'login');
               setFieldErrors({});
             }}
-            className="ml-1.5 rounded-[4px] text-primary-lift underline-offset-[0.25em] hover:underline focus-visible:outline-none focus-visible:underline"
+            className="ml-1.5 rounded-md text-primary-lift underline-offset-[0.25em] hover:underline focus-visible:outline-none focus-visible:underline"
           >
             {tab === 'login' ? '30 秒注册一个' : '去登录'}
           </button>
@@ -296,7 +296,7 @@ export default function LoginPage() {
           type="button"
           onClick={handleDemoEnter}
           disabled={submitting}
-          className="rounded-[4px] text-ui-sm text-dusk-muted underline-offset-[0.25em] transition-colors duration-150 ease-out hover:text-primary-lift hover:underline disabled:cursor-not-allowed disabled:opacity-55"
+          className="rounded-md text-ui-sm text-dusk-muted underline-offset-[0.25em] transition-colors duration-150 ease-out hover:text-primary-lift hover:underline disabled:cursor-not-allowed disabled:opacity-55"
         >
           只想先看看效果？用演示账号直接进入
         </button>

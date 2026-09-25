@@ -88,7 +88,7 @@ export default function MePage() {
     navigate(LOGIN_PATH, { replace: true });
   }
 
-  const card = 'rounded-2xl border border-line bg-surface p-5 shadow-card';
+  const card = 'rounded-surface border border-line bg-surface p-5 shadow-card';
 
   return (
     <section className="max-w-3xl">

@@ -57,7 +57,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
   return (
     <div>
       {pickerOpen ? (
-        <div className="mt-3 rounded-xl border border-line bg-surface p-3">
+        <div className="mt-3 rounded-surface border border-line bg-surface p-3">
           <p className="text-ui-sm text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
           <ul className="mt-2 space-y-1">
             {files.map((file) => (
@@ -66,7 +66,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
                   type="button"
                   onClick={() => setImageFileId(file.file_id)}
                   className={[
-                    'w-full rounded-lg px-3 py-1.5 text-left text-xs max-nav:min-h-9',
+                    'w-full rounded-control px-3 py-1.5 text-left text-xs max-nav:min-h-9',
                     imageFileId === file.file_id ? 'bg-accent-veil text-accent-ink' : 'text-ink hover:bg-raised',
                   ].join(' ')}
                 >
@@ -90,7 +90,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
           textarea 给一个 12rem 的可用下限，避免被挤到不可读。 */}
       <div className="mt-4 flex flex-wrap items-end gap-2">
         <textarea
-          className="min-h-[44px] min-w-[min(100%,12rem)] flex-1 resize-y rounded-xl border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
+          className="min-h-[44px] min-w-[min(100%,12rem)] flex-1 resize-y rounded-surface border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-accent"
           rows={2}
           placeholder="写一句你的思路，或者直接说卡在哪"
           value={input}
@@ -100,7 +100,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
         <button
           type="button"
           onClick={() => void openPicker()}
-          className="shrink-0 rounded-xl border border-line px-3 py-2.5 text-ui-sm text-ink-soft hover:bg-surface"
+          className="shrink-0 rounded-surface border border-line px-3 py-2.5 text-ui-sm text-ink-soft hover:bg-surface"
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
@@ -110,7 +110,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
           type="button"
           disabled={disabled}
           onClick={() => void submit()}
-          className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
+          className="shrink-0 rounded-surface bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {disabled ? '正在回…' : '发送'}
         </button>

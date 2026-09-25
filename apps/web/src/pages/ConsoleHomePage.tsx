@@ -141,14 +141,14 @@ export default function ConsoleHomePage() {
         </div>
         <Link
           to={SPACES_PATH}
-          className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent-ink"
+          className="rounded-control border border-line bg-surface px-3 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent-ink"
         >
           管理空间
         </Link>
       </header>
 
       {/* ── 实时学习概览（真数据，不是摆设） ── */}
-      <div className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-card">
+      <div className="mt-6 rounded-surface border border-line bg-surface p-6 shadow-card">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-base font-medium text-ink">学习概览</h2>
           <span className="text-xs text-ink-soft">实时取自当前空间</span>
@@ -157,7 +157,7 @@ export default function ConsoleHomePage() {
         {loading ? (
           <PageSkeleton label="正在拉取概览…" rows={2} className="mt-4" />
         ) : distribution.total === 0 ? (
-          <div className="mt-4 rounded-xl border border-line bg-canvas p-4 text-sm text-ink-soft">
+          <div className="mt-4 rounded-surface border border-line bg-canvas p-4 text-sm text-ink-soft">
             这个空间还没有学习数据。先去
             <Link to="/assessment" className="text-accent-ink hover:underline">
               做一次测评
@@ -219,10 +219,10 @@ export default function ConsoleHomePage() {
           <li key={m.path}>
             <Link
               to={m.path}
-              className="group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition-colors hover:border-accent"
+              className="group flex h-full flex-col rounded-surface border border-line bg-surface p-5 shadow-card transition-colors hover:border-accent"
             >
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl border border-accent/40 bg-accent-veil text-accent-ink">
+                <span className="grid h-10 w-10 place-items-center rounded-surface border border-accent/40 bg-accent-veil text-accent-ink">
                   <svg
                     width="20"
                     height="20"
@@ -259,7 +259,7 @@ export default function ConsoleHomePage() {
 /** 概览小卡片。 */
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="rounded-xl border border-line bg-canvas p-3">
+    <div className="rounded-surface border border-line bg-canvas p-3">
       <p className="text-xs text-ink-soft">{label}</p>
       <p className={`mt-1 text-xl font-semibold ${tone ?? 'text-ink'}`}>{value}</p>
     </div>

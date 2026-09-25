@@ -84,14 +84,14 @@ export default function SelfReportPage() {
           <button
             type="button"
             onClick={() => navigate('/assessment')}
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
           >
             开始测评
           </button>
           <button
             type="button"
             onClick={() => navigate('/graph')}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
+            className="rounded-control border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
           >
             先看看我的地图
           </button>
@@ -116,7 +116,7 @@ export default function SelfReportPage() {
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-ui-sm text-ink hover:border-accent hover:text-accent-ink"
+          className="min-h-9 shrink-0 rounded-control border border-line bg-surface px-3 py-2 text-ui-sm text-ink hover:border-accent hover:text-accent-ink"
         >
           按 3 档先填上
         </button>
@@ -124,7 +124,7 @@ export default function SelfReportPage() {
 
       <ul className="mt-4 space-y-3">
         {chapters.map((chapter) => (
-          <li key={chapter} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+          <li key={chapter} className="rounded-surface border border-line bg-surface p-4 shadow-card">
             <div className="flex items-baseline justify-between">
               <h2 className="text-base font-medium text-ink">{chapter}</h2>
               <span className="text-ui-sm text-ink-soft">
@@ -141,7 +141,7 @@ export default function SelfReportPage() {
                     type="button"
                     onClick={() => setLevels({ ...levels, [chapter]: level.value })}
                     className={[
-                      'min-h-9 rounded-lg border px-3 py-2 text-left text-ui-sm transition-colors',
+                      'min-h-9 rounded-control border px-3 py-2 text-left text-ui-sm transition-colors',
                       selected
                         ? 'border-accent bg-accent-veil font-medium text-ink ring-1 ring-accent'
                         : 'border-line text-ink-soft hover:bg-raised',
@@ -161,7 +161,7 @@ export default function SelfReportPage() {
         type="button"
         onClick={() => void handleSubmit()}
         disabled={submitting}
-        className="mt-6 min-h-11 w-full rounded-lg bg-accent px-4 py-3 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
+        className="mt-6 min-h-11 w-full rounded-control bg-accent px-4 py-3 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
       >
         {submitting ? '正在记下…' : '记下来，开始测评'}
       </button>

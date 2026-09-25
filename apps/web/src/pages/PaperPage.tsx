@@ -200,7 +200,7 @@ export default function PaperPage() {
 
         <ul className="mt-4 space-y-2">
           {confirmed.mastery_updates.map((update) => (
-            <li key={update.knowledge_point} className="rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink-soft">
+            <li key={update.knowledge_point} className="rounded-control border border-line bg-surface px-4 py-2 text-sm text-ink-soft">
               {update.knowledge_point}：{Math.round(update.before * 100)}% → {Math.round(update.after * 100)}%
             </li>
           ))}
@@ -210,7 +210,7 @@ export default function PaperPage() {
           <button
             type="button"
             onClick={() => navigate('/attribution')}
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
           >
             挑错题看看根源
           </button>
@@ -222,7 +222,7 @@ export default function PaperPage() {
               setStage('pick');
               setStatus('');
             }}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
+            className="rounded-control border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
           >
             再传一份
           </button>
@@ -256,7 +256,7 @@ export default function PaperPage() {
 
         <ul className="mt-6 space-y-3">
           {rows.map((row) => (
-            <li key={row.seq} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+            <li key={row.seq} className="rounded-surface border border-line bg-surface p-4 shadow-card">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <span className="text-ui-sm text-ink-soft">第 {row.seq} 题</span>
@@ -280,7 +280,7 @@ export default function PaperPage() {
                 <label className="text-ui-sm text-ink-soft">
                   知识点
                   <select
-                    className="ml-2 rounded-lg border border-line px-2 min-h-9 py-2 text-ui-sm text-ink outline-none focus:border-accent"
+                    className="ml-2 rounded-control border border-line px-2 min-h-9 py-2 text-ui-sm text-ink outline-none focus:border-accent"
                     value={row.kpId}
                     onChange={(event) =>
                       setRows(rows.map((item) => (item.seq === row.seq ? { ...item, kpId: event.target.value } : item)))
@@ -305,7 +305,7 @@ export default function PaperPage() {
                           setRows(rows.map((item) => (item.seq === row.seq ? { ...item, result: value } : item)))
                         }
                         className={[
-                          'rounded-lg border px-3 min-h-9 py-2 text-ui-sm transition-colors',
+                          'rounded-control border px-3 min-h-9 py-2 text-ui-sm transition-colors',
                           active ? 'border-accent bg-accent-veil text-ink' : 'border-line text-ink-soft hover:bg-raised',
                         ].join(' ')}
                       >
@@ -324,7 +324,7 @@ export default function PaperPage() {
             type="button"
             disabled={!allMarked || busy}
             onClick={() => void submitConfirm()}
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? '正在记账…' : '确认，更新掌握度'}
           </button>
@@ -355,7 +355,7 @@ export default function PaperPage() {
                   type="button"
                   onClick={() => setSelected(file.file_id)}
                   className={[
-                    'w-full rounded-2xl border bg-surface p-4 text-left',
+                    'w-full rounded-surface border bg-surface p-4 text-left',
                     active ? 'border-accent' : 'border-line hover:border-accent/60',
                   ].join(' ')}
                 >
@@ -378,7 +378,7 @@ export default function PaperPage() {
         type="button"
         disabled={busy || !selected}
         onClick={() => void startRecognize()}
-        className="mt-6 w-full rounded-lg bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
+        className="mt-6 w-full rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
       >
         {busy ? '正在识别…' : '开始识别'}
       </button>

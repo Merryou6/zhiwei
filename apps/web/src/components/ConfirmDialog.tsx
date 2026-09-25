@@ -35,7 +35,7 @@ export default function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-sm rounded-2xl border border-line bg-surface p-5 shadow-lg"
+        className="w-full max-w-sm rounded-surface border border-line bg-surface p-5 shadow-lg"
       >
         <h2 className="text-base font-medium text-ink">{title}</h2>
         {description ? <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p> : null}
@@ -44,7 +44,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-raised"
+            className="rounded-control px-3 py-2 text-sm text-ink-soft hover:bg-raised"
           >
             {cancelLabel}
           </button>
@@ -52,7 +52,7 @@ export default function ConfirmDialog({
             type="button"
             autoFocus
             onClick={onConfirm}
-            className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
+            className="rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
           >
             {confirmLabel}
           </button>

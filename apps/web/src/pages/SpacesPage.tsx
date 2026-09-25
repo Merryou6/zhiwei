@@ -77,7 +77,7 @@ export default function SpacesPage() {
       {loading ? (
         <PageSkeleton label="正在取你的空间…" rows={2} className="mt-8" />
       ) : ordered.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <EmptyState
             title="还没有学习空间"
             hint="一个空间就是一个学科的知识地图。先建一个，我再按你的自报给你排学习顺序。"
@@ -85,7 +85,7 @@ export default function SpacesPage() {
               <button
                 type="button"
                 onClick={() => setFormOpen(true)}
-                className="min-h-9 rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
+                className="min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
               >
                 新建学习空间
               </button>
@@ -101,7 +101,7 @@ export default function SpacesPage() {
               <li
                 key={space.space_id}
                 className={[
-                  'rounded-2xl border bg-surface p-5',
+                  'rounded-surface border bg-surface p-5',
                   isActive ? 'border-accent' : 'border-line',
                 ].join(' ')}
               >
@@ -131,7 +131,7 @@ export default function SpacesPage() {
                       <button
                         type="button"
                         onClick={() => navigate(action.path)}
-                        className="rounded-lg bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
+                        className="rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90"
                       >
                         {action.label}
                       </button>
@@ -139,7 +139,7 @@ export default function SpacesPage() {
                       <button
                         type="button"
                         onClick={() => setActive(space.space_id)}
-                        className="rounded-lg border border-line px-3 py-2 text-sm text-ink hover:bg-raised"
+                        className="rounded-control border border-line px-3 py-2 text-sm text-ink hover:bg-raised"
                       >
                         切到这个空间
                       </button>
@@ -153,7 +153,7 @@ export default function SpacesPage() {
       )}
 
       {showForm ? (
-        <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
           <h2 className="text-base font-medium text-ink">新建空间</h2>
           <p className="mt-1 text-ui-sm text-ink-soft">
             选一个学科；空间名不填就用学科名。同名会自动加序号，放心建。

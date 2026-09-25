@@ -115,7 +115,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
       ) : (
         <ol className="mt-3 space-y-2">
           {steps.map((step, index) => (
-            <li key={step.id} className="relative rounded-lg border border-line bg-canvas/50 p-2">
+            <li key={step.id} className="relative rounded-control border border-line bg-canvas/50 p-2">
               {/* 竖向连接线（非文本装饰） */}
               {index < steps.length - 1 ? (
                 <span className="absolute left-[15px] top-[26px] h-[calc(100%-10px)] w-px bg-line" aria-hidden="true" />
