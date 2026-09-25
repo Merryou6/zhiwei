@@ -41,7 +41,7 @@ export default function EmptyState({ title, hint, action, compact = false }: Emp
       <p className="text-base font-medium text-ink">{title}</p>
 
       {hint ? (
-        <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-ink-soft">{hint}</p>
+        <p className="mt-1 max-w-prose text-ui-sm leading-relaxed text-ink-soft">{hint}</p>
       ) : null}
 
       {action ? <div className={compact ? 'mt-3' : 'mt-4'}>{action}</div> : null}

@@ -53,15 +53,15 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
         className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-2.5 text-left hover:bg-raised"
       >
         <span className="flex items-center gap-2">
-          <span className="text-[13px] font-medium text-ink">思考与工具链</span>
+          <span className="text-ui-sm font-medium text-ink">思考与工具链</span>
           {streaming ? (
             // 文本色走 text-ink-soft（浅色 5.51:1）；accent 只留在呼吸圆点上（非文本装饰）
-            <span className="flex items-center gap-1 text-[11px] text-ink-soft">
+            <span className="flex items-center gap-1 text-caption text-ink-soft">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
               进行中
             </span>
           ) : (
-            <span className="text-[11px] text-ink-soft">{toolSteps.length} 步</span>
+            <span className="text-caption text-ink-soft">{toolSteps.length} 步</span>
           )}
         </span>
         <svg
@@ -81,7 +81,7 @@ export default function ChatTracePanel({ thought, toolSteps, phase, streaming, m
       {expanded ? (
         <div className="border-t border-line px-4 py-3">
           <div>
-            <p className="mb-1.5 text-[11px] tracking-wide text-ink-soft">{title}</p>
+            <p className="mb-1.5 text-caption tracking-wide text-ink-soft">{title}</p>
             <ThoughtStream text={thought} done={!streaming} />
           </div>
           <div className="mt-4 border-t border-line pt-3">

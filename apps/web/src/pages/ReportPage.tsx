@@ -140,14 +140,14 @@ export default function ReportPage() {
         <ul className="mt-3 space-y-2">
           {byBand.map(({ band, rows }) => (
             <li key={band} className="flex items-center gap-3">
-              <span className="w-16 shrink-0 text-[13px] text-ink-soft">{band}</span>
+              <span className="w-16 shrink-0 text-ui-sm text-ink-soft">{band}</span>
               <span className="h-2 flex-1 overflow-hidden rounded-full bg-canvas">
                 <span
                   className="block h-full rounded-full"
                   style={{ width: `${(rows.length / maxBandCount) * 100}%`, backgroundColor: BAND_HEX[band] }}
                 />
               </span>
-              <span className="w-10 shrink-0 text-right text-[13px] text-ink-soft">{rows.length}</span>
+              <span className="w-10 shrink-0 text-right text-ui-sm text-ink-soft">{rows.length}</span>
             </li>
           ))}
         </ul>
@@ -155,7 +155,7 @@ export default function ReportPage() {
         <div className="mt-4 space-y-3">
           {byBand.map(({ band, rows }) => (
             <div key={band}>
-              <p className="text-[13px] text-ink-soft">
+              <p className="text-ui-sm text-ink-soft">
                 {band}（{rows.length}）
               </p>
               <div className="mt-1 flex flex-wrap gap-1.5">
@@ -169,7 +169,7 @@ export default function ReportPage() {
                     {row.name} {percent(row.mastery)}
                   </span>
                 ))}
-                {rows.length === 0 ? <span className="text-[13px] text-ink-soft/60">—</span> : null}
+                {rows.length === 0 ? <span className="text-ui-sm text-ink-soft/60">—</span> : null}
               </div>
             </div>
           ))}
@@ -185,7 +185,7 @@ export default function ReportPage() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[420px] text-left text-sm">
             <thead>
-              <tr className="text-[13px] text-ink-soft">
+              <tr className="text-ui-sm text-ink-soft">
                 <th className="py-1 font-normal">知识点</th>
                 <th className="py-1 font-normal">掌握度</th>
                 <th className="py-1 font-normal">最近一次归因</th>
@@ -216,7 +216,7 @@ export default function ReportPage() {
             title="还没有测量数据"
             hint="先做一次基线测量，干预后再复测一次，这里就会出现变化。"
             action={
-              <Link to="/assessment" className="text-[13px] text-accent hover:underline">
+              <Link to="/assessment" className="text-ui-sm text-accent hover:underline">
                 去做基线测量 →
               </Link>
             }
@@ -225,7 +225,7 @@ export default function ReportPage() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[420px] text-left text-sm">
             <thead>
-              <tr className="text-[13px] text-ink-soft">
+              <tr className="text-ui-sm text-ink-soft">
                 <th className="py-1 font-normal">知识点</th>
                 <th className="py-1 font-normal">基线</th>
                 <th className="py-1 font-normal">复测</th>
@@ -245,8 +245,8 @@ export default function ReportPage() {
                         row.delta === null
                           ? 'bg-canvas text-ink-soft'
                           : row.delta > 0
-                            ? 'bg-band-mastered/12 text-band-mastered'
-                            : 'bg-band-weak/12 text-band-weak',
+                            ? 'bg-band-mastered/10 text-band-mastered'
+                            : 'bg-band-weak/10 text-band-weak',
                       ].join(' ')}
                     >
                       {deltaPercent(row.delta)}

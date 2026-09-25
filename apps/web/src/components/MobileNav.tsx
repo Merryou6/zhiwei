@@ -268,14 +268,14 @@ export default function MobileNav() {
           <div className="my-3 border-t border-line" />
 
           <div className="flex min-h-9 items-center justify-between px-1">
-            <span className="text-[13px] text-ink-soft">深浅主题</span>
+            <span className="text-ui-sm text-ink-soft">深浅主题</span>
             <ThemeToggle />
           </div>
 
           <div className="my-3 border-t border-line" />
 
           <div className="px-1">
-            <p className="text-[13px] text-ink-soft">当前空间</p>
+            <p className="text-ui-sm text-ink-soft">当前空间</p>
             <p className="mt-0.5 break-words text-sm text-ink">{active ? active.name : '未选择'}</p>
 
             <ul className="mt-2 flex flex-col gap-0.5">
@@ -290,12 +290,12 @@ export default function MobileNav() {
                     ].join(' ')}
                   >
                     <span className="min-w-0 flex-1 truncate">{space.name}</span>
-                    {space.is_default ? <span className="ml-1 flex-none text-[13px] text-ink-soft">（默认）</span> : null}
+                    {space.is_default ? <span className="ml-1 flex-none text-ui-sm text-ink-soft">（默认）</span> : null}
                   </button>
                 </li>
               ))}
               {spaces.length === 0 ? (
-                <li className="min-h-9 px-2 py-2 text-[13px] text-ink-soft">还没有空间</li>
+                <li className="min-h-9 px-2 py-2 text-ui-sm text-ink-soft">还没有空间</li>
               ) : null}
             </ul>
 

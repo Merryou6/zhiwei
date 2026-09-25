@@ -68,12 +68,12 @@ function KeyValueRows({ title, data }: { title: string; data?: Record<string, un
   if (entries.length === 0) return null;
   return (
     <div className="mt-1.5">
-      <p className="text-[10px] uppercase tracking-wide text-ink-soft">{title}</p>
+      <p className="text-caption uppercase tracking-wide text-ink-soft">{title}</p>
       <dl className="mt-0.5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5">
         {entries.map(([key, value]) => (
           <div key={key} className="col-span-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-2">
-            <dt className="font-mono text-[10px] text-ink-soft">{key}</dt>
-            <dd className="truncate text-[11px] text-ink" title={formatValue(value)}>
+            <dt className="font-mono text-caption text-ink-soft">{key}</dt>
+            <dd className="truncate text-caption text-ink" title={formatValue(value)}>
               {formatValue(value)}
             </dd>
           </div>
@@ -96,10 +96,10 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
     <div>
       {/* 阶段进度：第 n/4 档 + 进度条 */}
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] text-ink-soft" role="status">
+        <p className="text-caption text-ink-soft" role="status">
           {phase ? `阶段 ${phaseIndex + 1}/${PHASE_ORDER.length} · ${phase.label}` : '等待开始'}
         </p>
-        <p className="font-mono text-[10px] text-ink-soft">
+        <p className="font-mono text-caption text-ink-soft">
           {steps.length > 0 ? `第 ${steps.length} 步` : ''}
         </p>
       </div>
@@ -111,7 +111,7 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
       </div>
 
       {steps.length === 0 ? (
-        <p className="mt-3 text-[11px] text-ink-soft">还没有调用工具。</p>
+        <p className="mt-3 text-caption text-ink-soft">还没有调用工具。</p>
       ) : (
         <ol className="mt-3 space-y-2">
           {steps.map((step, index) => (
@@ -126,14 +126,14 @@ export default function ToolTimeline({ steps, phase }: ToolTimelineProps) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
-                    <p className="truncate text-[13px] text-ink">
+                    <p className="truncate text-ui-sm text-ink">
                       第 {index + 1} 步 · {step.label}
                     </p>
-                    <span className="shrink-0 font-mono text-[10px] text-ink-soft">
+                    <span className="shrink-0 font-mono text-caption text-ink-soft">
                       {typeof step.ms === 'number' ? `${metric(step.ms)}ms` : '—'}
                     </span>
                   </div>
-                  <p className="font-mono text-[10px] text-ink-soft">{step.name}</p>
+                  <p className="font-mono text-caption text-ink-soft">{step.name}</p>
                   <KeyValueRows title="入参" data={step.args} />
                   <KeyValueRows title="产出" data={step.result} />
                 </div>

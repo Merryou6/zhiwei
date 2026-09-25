@@ -180,7 +180,7 @@ export default function TopNav() {
 
               {open ? (
                 <div className="absolute right-0 mt-2 w-56 rounded-surface border border-line bg-surface p-2 shadow-card">
-                  <p className="px-2 py-1 text-[13px] text-ink-soft">切到另一个空间</p>
+                  <p className="px-2 py-1 text-ui-sm text-ink-soft">切到另一个空间</p>
                   <ul>
                     {spaces.map((space) => (
                       <li key={space.space_id}>
@@ -196,12 +196,12 @@ export default function TopNav() {
                           ].join(' ')}
                         >
                           {space.name}
-                          {space.is_default ? <span className="ml-1 text-[13px] text-ink-soft">（默认）</span> : null}
+                          {space.is_default ? <span className="ml-1 text-ui-sm text-ink-soft">（默认）</span> : null}
                         </button>
                       </li>
                     ))}
                     {spaces.length === 0 ? (
-                      <li className="min-h-9 px-2 py-2 text-[13px] text-ink-soft">还没有空间</li>
+                      <li className="min-h-9 px-2 py-2 text-ui-sm text-ink-soft">还没有空间</li>
                     ) : null}
                   </ul>
                   {createOpen ? (

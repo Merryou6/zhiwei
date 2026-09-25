@@ -108,7 +108,7 @@ export default function SelfReportPage() {
       </p>
 
       <div className="mt-4 flex items-center justify-between gap-4">
-        <span className="text-[13px] text-ink-soft">
+        <span className="text-ui-sm text-ink-soft">
           已选 {chosen.length}/{chapters.length} 个章节
         </span>
         <button
@@ -116,7 +116,7 @@ export default function SelfReportPage() {
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink hover:border-accent hover:text-accent"
+          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-ui-sm text-ink hover:border-accent hover:text-accent"
         >
           按 3 档先填上
         </button>
@@ -127,7 +127,7 @@ export default function SelfReportPage() {
           <li key={chapter} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
             <div className="flex items-baseline justify-between">
               <h2 className="text-base font-medium text-ink">{chapter}</h2>
-              <span className="text-[13px] text-ink-soft">
+              <span className="text-ui-sm text-ink-soft">
                 {CHAPTER_SIZES[chapter] ?? 0} 个知识点
               </span>
             </div>
@@ -141,7 +141,7 @@ export default function SelfReportPage() {
                     type="button"
                     onClick={() => setLevels({ ...levels, [chapter]: level.value })}
                     className={[
-                      'min-h-9 rounded-lg border px-3 py-2 text-left text-[13px] transition-colors',
+                      'min-h-9 rounded-lg border px-3 py-2 text-left text-ui-sm transition-colors',
                       selected
                         ? 'border-accent bg-accent-veil font-medium text-ink ring-1 ring-accent'
                         : 'border-line text-ink-soft hover:bg-raised',

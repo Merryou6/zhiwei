@@ -199,7 +199,7 @@ export default function AssessmentPage() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-base font-medium text-ink">{MODE_LABEL[card.value]}</span>
-                  <span className="text-[13px] text-ink-soft">{card.value}</span>
+                  <span className="text-ui-sm text-ink-soft">{card.value}</span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{card.desc}</p>
               </button>
@@ -224,7 +224,7 @@ export default function AssessmentPage() {
     <section className="max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-base font-medium text-ink">{MODE_LABEL[store.mode]}</h1>
-        <span className="text-[13px] text-ink-soft">剩 {store.remaining} 题</span>
+        <span className="text-ui-sm text-ink-soft">剩 {store.remaining} 题</span>
       </div>
 
       <div className="mt-3">
@@ -254,7 +254,7 @@ export default function AssessmentPage() {
         </button>
       </div>
 
-      <p className="mt-4 text-[13px] text-ink-soft">
+      <p className="mt-4 text-ui-sm text-ink-soft">
         我不会当场告诉你对错——分数攒着，等这一轮完了我们一起看整体。跳过也没关系。
       </p>
     </section>

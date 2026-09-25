@@ -45,9 +45,9 @@ export default function ItemCard({
         tone === 'warn' ? 'border-band-weak' : 'border-line',
       ].join(' ')}
     >
-      {header ? <div className="mb-2 text-[13px] text-ink-soft">{header}</div> : null}
+      {header ? <div className="mb-2 text-ui-sm text-ink-soft">{header}</div> : null}
 
-      <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-ink">{item.stem}</p>
+      <p className="whitespace-pre-wrap text-reading leading-relaxed text-ink">{item.stem}</p>
 
       {options && options.length > 0 ? (
         <ul className="mt-4 space-y-2">

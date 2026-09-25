@@ -157,7 +157,7 @@ export default function ConsoleHomePage() {
         {loading ? (
           <PageSkeleton label="正在拉取概览…" rows={2} className="mt-4" />
         ) : distribution.total === 0 ? (
-          <div className="mt-4 rounded-xl border border-line bg-sunken p-4 text-sm text-ink-soft">
+          <div className="mt-4 rounded-xl border border-line bg-canvas p-4 text-sm text-ink-soft">
             这个空间还没有学习数据。先去
             <Link to="/assessment" className="text-accent hover:underline">
               做一次测评
@@ -179,7 +179,7 @@ export default function ConsoleHomePage() {
 
             {/* 四状态带分布条 */}
             <div className="mt-5">
-              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-sunken">
+              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-canvas">
                 {BAND_ORDER.map((band) => {
                   const n = distribution.counts[band];
                   if (n === 0) return null;
@@ -219,7 +219,7 @@ export default function ConsoleHomePage() {
           <li key={m.path}>
             <Link
               to={m.path}
-              className="card-hover group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition-colors hover:border-accent"
+              className="group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition-colors hover:border-accent"
             >
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-xl border border-accent/40 bg-accent-veil text-accent">
@@ -237,15 +237,15 @@ export default function ConsoleHomePage() {
                     {m.icon}
                   </svg>
                 </span>
-                <h3 className="text-[15px] font-medium text-ink">{m.title}</h3>
+                <h3 className="text-reading font-medium text-ink">{m.title}</h3>
                 {m.badge ? (
-                  <span className="ml-auto rounded-md bg-band-mastered/12 px-2 py-0.5 text-xs text-band-mastered">
+                  <span className="ml-auto rounded-md bg-band-mastered/10 px-2 py-0.5 text-xs text-band-mastered">
                     {m.badge}
                   </span>
                 ) : null}
               </div>
-              <p className="mt-3 flex-1 text-[13px] leading-relaxed text-ink-soft">{m.desc}</p>
-              <span className="mt-3 text-[13px] font-medium text-accent transition-transform group-hover:translate-x-0.5">
+              <p className="mt-3 flex-1 text-ui-sm leading-relaxed text-ink-soft">{m.desc}</p>
+              <span className="mt-3 text-ui-sm font-medium text-accent transition-transform group-hover:translate-x-0.5">
                 进入 →
               </span>
             </Link>
@@ -259,7 +259,7 @@ export default function ConsoleHomePage() {
 /** 概览小卡片。 */
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="rounded-xl border border-line bg-sunken p-3">
+    <div className="rounded-xl border border-line bg-canvas p-3">
       <p className="text-xs text-ink-soft">{label}</p>
       <p className={`mt-1 text-xl font-semibold ${tone ?? 'text-ink'}`}>{value}</p>
     </div>

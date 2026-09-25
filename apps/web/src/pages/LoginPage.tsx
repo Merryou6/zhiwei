@@ -171,7 +171,7 @@ export default function LoginPage() {
      深色下「无边框 + 实心底」比「有边框 + 透明底」更干净，也更接近我们要的开场感。 */
   const fieldClass = [
     'mt-3 block min-h-12 w-full rounded-control border bg-dusk-surface px-4 py-3',
-    'text-[15px] text-dusk-title placeholder:text-dusk-muted',
+    'text-reading text-dusk-title placeholder:text-dusk-muted',
     'transition-colors duration-150 ease-out',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-lift/45',
   ].join(' ');
@@ -195,10 +195,10 @@ export default function LoginPage() {
 
       {/* 品牌字与一句话定位。标题的力度全部来自字号、字重与中文特有的宽字距，
           不用渐变填充——强调应当由字体本身承担。 */}
-      <h1 className="mt-4 pl-[0.3em] text-[38px] font-medium tracking-[0.3em] text-dusk-title sm:text-[42px]">
+      <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-dusk-title sm:text-display-lg">
         知微
       </h1>
-      <p className="mt-3 text-center text-[13px] leading-relaxed text-dusk-muted">
+      <p className="mt-3 text-center text-ui-sm leading-relaxed text-dusk-muted">
         先弄清你卡在哪个知识点，再陪你把它补上
       </p>
 
@@ -222,7 +222,7 @@ export default function LoginPage() {
           />
         </label>
         {fieldErrors.identifier ? (
-          <p id="field-error-identifier" className={`mt-2 text-[13px] ${ERROR_TEXT}`}>
+          <p id="field-error-identifier" className={`mt-2 text-ui-sm ${ERROR_TEXT}`}>
             {fieldErrors.identifier}
           </p>
         ) : null}
@@ -244,7 +244,7 @@ export default function LoginPage() {
           />
         </label>
         {fieldErrors.password ? (
-          <p id="field-error-password" className={`mt-2 text-[13px] ${ERROR_TEXT}`}>
+          <p id="field-error-password" className={`mt-2 text-ui-sm ${ERROR_TEXT}`}>
             {fieldErrors.password}
           </p>
         ) : null}
@@ -266,14 +266,14 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-4 min-h-12 w-full rounded-control bg-primary-lift px-4 py-3 text-[15px] font-medium text-dusk-base transition-[filter,transform] duration-150 ease-out hover:brightness-110 active:translate-y-px active:brightness-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:brightness-100"
+          className="mt-4 min-h-12 w-full rounded-control bg-primary-lift px-4 py-3 text-reading font-medium text-dusk-base transition-[filter,transform] duration-150 ease-out hover:brightness-110 active:translate-y-px active:brightness-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:brightness-100"
         >
           {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
         </button>
 
         {/* 通道切换：退成一行纯文字，不再做成占一整个横条的分段控件——
             分段控件是「设置项」的语汇，这里只是换个入口。 */}
-        <p className="mt-4 text-center text-[13px] text-dusk-muted">
+        <p className="mt-4 text-center text-ui-sm text-dusk-muted">
           {tab === 'login' ? '第一次来？' : '已经有账号了？'}
           <button
             type="button"
@@ -296,12 +296,12 @@ export default function LoginPage() {
           type="button"
           onClick={handleDemoEnter}
           disabled={submitting}
-          className="rounded-[4px] text-[13px] text-dusk-muted underline-offset-[0.25em] transition-colors duration-150 ease-out hover:text-primary-lift hover:underline disabled:cursor-not-allowed disabled:opacity-55"
+          className="rounded-[4px] text-ui-sm text-dusk-muted underline-offset-[0.25em] transition-colors duration-150 ease-out hover:text-primary-lift hover:underline disabled:cursor-not-allowed disabled:opacity-55"
         >
           只想先看看效果？用演示账号直接进入
         </button>
         {/* 等宽 + 表格数字：字符数一眼可数，抄的时候不容易错 */}
-        <p className="mt-1.5 font-mono text-[11px] tabular-nums text-dusk-muted">
+        <p className="mt-1.5 font-mono text-caption tabular-nums text-dusk-muted">
           {DEMO_IDENTIFIER} · {DEMO_PASSWORD}
         </p>
       </div>

@@ -59,7 +59,7 @@ export interface ModelBadgeProps {
 
 export default function ModelBadge({ mode, name }: ModelBadgeProps) {
   return (
-    <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-ink-soft">
+    <span className="flex flex-wrap items-center gap-1.5 text-caption text-ink-soft">
       <span className="rounded-md bg-accent-veil px-1.5 py-0.5 text-accent">
         {mode === 'remote' ? '远程大模型' : '本地规则'}
       </span>

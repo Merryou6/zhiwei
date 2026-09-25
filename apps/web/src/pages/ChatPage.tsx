@@ -57,7 +57,7 @@ export default function ChatPage() {
 
         <div className="flex shrink-0 flex-col items-end gap-1">
           {meta ? (
-            <span className="text-[13px] text-ink-soft">
+            <span className="text-ui-sm text-ink-soft">
               这轮在聊：{kpName(meta.kp_match.kp_id)}（{Math.round(meta.kp_match.confidence * 100)}%）
             </span>
           ) : null}
@@ -68,12 +68,12 @@ export default function ChatPage() {
               setPanelOpen(true);
               navigate(CONSOLE_PATH);
             }}
-            className="rounded-control border border-line px-3 py-1.5 text-[13px] text-ink-soft hover:bg-surface"
+            className="rounded-control border border-line px-3 py-1.5 text-ui-sm text-ink-soft hover:bg-surface"
           >
             收进侧栏
           </button>
           {/* 清尾轮 L2：原 `text-ink-soft/80` 浅色实测 3.45:1（半透明降级），不达 AA → 纯 text-ink-soft 5.41:1 */}
-          <span className="text-[11px] text-ink-soft">
+          <span className="text-caption text-ink-soft">
             收进侧栏后，任何页面都能接着聊（现在：{panelOpen ? '侧栏已展开' : '侧栏未展开'}）
           </span>
         </div>
@@ -82,12 +82,12 @@ export default function ChatPage() {
       {exitNotice ? (
         <div className="mt-4 rounded-xl border border-band-weak bg-band-weak/10 px-4 py-3 text-sm text-ink">
           <p className="font-medium">{exitNotice}</p>
-          <p className="mt-1 text-[13px] text-ink-soft">
+          <p className="mt-1 text-ui-sm text-ink-soft">
             连续几轮都没往前走，多半是更前面的砖没铺稳——我们回去补那一块，不丢人。
           </p>
           <Link
             to={`/graph?path=${encodeURIComponent(meta?.kp_match.kp_id ?? '')}`}
-            className="mt-2 inline-block rounded-lg bg-accent px-3 min-h-9 py-2 text-[13px] text-on-accent"
+            className="mt-2 inline-block rounded-lg bg-accent px-3 min-h-9 py-2 text-ui-sm text-on-accent"
           >
             去图谱看看这一环
           </Link>
@@ -100,7 +100,7 @@ export default function ChatPage() {
           <ChatMessageList messages={store.messages} streaming={store.streaming} />
           <ChatComposer disabled={store.streaming} />
 
-          <p className="mt-3 text-[13px] text-ink-soft">
+          <p className="mt-3 text-ui-sm text-ink-soft">
             {activeSpaceId ? '' : `还没有空间，`}
             <Link to={SPACES_PATH} className="underline">
               {activeSpaceId ? '空间与进度' : '先去建一个空间'}

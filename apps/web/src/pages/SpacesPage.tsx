@@ -121,7 +121,7 @@ export default function SpacesPage() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-[13px] text-ink-soft">
+                    <p className="mt-1 text-ui-sm text-ink-soft">
                       {stageLabel(space.knowledge_source[0])} · 创建于 {formatTime(space.created_at)}
                     </p>
                   </div>
@@ -155,7 +155,7 @@ export default function SpacesPage() {
       {showForm ? (
         <div className="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-card">
           <h2 className="text-base font-medium text-ink">新建空间</h2>
-          <p className="mt-1 text-[13px] text-ink-soft">
+          <p className="mt-1 text-ui-sm text-ink-soft">
             选一个学科；空间名不填就用学科名。同名会自动加序号，放心建。
           </p>
           <div className="mt-4">

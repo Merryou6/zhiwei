@@ -58,7 +58,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
     <div>
       {pickerOpen ? (
         <div className="mt-3 rounded-xl border border-line bg-surface p-3">
-          <p className="text-[13px] text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
+          <p className="text-ui-sm text-ink-soft">传图读题（演示态）：从预置文件里选一张，随下一条消息发我。</p>
           <ul className="mt-2 space-y-1">
             {files.map((file) => (
               <li key={file.file_id}>
@@ -100,11 +100,11 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
         <button
           type="button"
           onClick={() => void openPicker()}
-          className="shrink-0 rounded-xl border border-line px-3 py-2.5 text-[13px] text-ink-soft hover:bg-surface"
+          className="shrink-0 rounded-xl border border-line px-3 py-2.5 text-ui-sm text-ink-soft hover:bg-surface"
           title="本地演示态：选预置文件代替真实直传"
         >
           传图读题
-          <span className="ml-1 text-[10px] text-ink-soft">演示态</span>
+          <span className="ml-1 text-caption text-ink-soft">演示态</span>
         </button>
         <button
           type="button"

@@ -45,7 +45,7 @@ const MODEL_NOTE = '对话模型由服务端配置，不可在此自定义。';
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-2 py-2">
-      <span className="text-[13px] text-ink-soft">{label}</span>
+      <span className="text-ui-sm text-ink-soft">{label}</span>
       <span className="text-sm text-ink">{value}</span>
     </div>
   );
@@ -123,7 +123,7 @@ export default function MePage() {
               <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm text-ink">{activeSpace.name}</p>
-                  <p className="mt-1 text-[13px] text-ink-soft">{stageLabel(activeSpace.knowledge_source[0])}</p>
+                  <p className="mt-1 text-ui-sm text-ink-soft">{stageLabel(activeSpace.knowledge_source[0])}</p>
                 </div>
                 <Link
                   to={SPACES_PATH}
@@ -165,13 +165,13 @@ export default function MePage() {
                 <span className="text-sm text-ink">{profile.model.name}</span>
               ) : null}
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{MODEL_NOTE}</p>
+            <p className="mt-2 text-ui-sm leading-relaxed text-ink-soft">{MODEL_NOTE}</p>
           </div>
 
           {/* 5) 退出登录 */}
           <div className={card}>
             <h2 className="text-base font-medium text-ink">退出登录</h2>
-            <p className="mt-2 text-[13px] text-ink-soft">退出后要重新登录才能接着学，学习记录不会丢。</p>
+            <p className="mt-2 text-ui-sm text-ink-soft">退出后要重新登录才能接着学，学习记录不会丢。</p>
             <button
               type="button"
               onClick={() => setConfirmLogout(true)}

@@ -40,7 +40,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
       {messages.map((message) => {
         if (message.role === 'notice') {
           return (
-            <p key={message.id} className="text-center text-[13px] text-ink-soft">
+            <p key={message.id} className="text-center text-ui-sm text-ink-soft">
               {message.text}
             </p>
           );
@@ -72,7 +72,7 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
                 )}
               </div>
 
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-ui-sm text-ink-soft">
                 {isStudent && message.imageFileId ? (
                   // break-all（R6）：file_id 是无空格长串，只有强制断行才不溢出
                   <span className="break-all rounded-md bg-canvas px-2 py-0.5">

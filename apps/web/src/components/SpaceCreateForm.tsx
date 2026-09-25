@@ -111,7 +111,7 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
         }}
       >
         <fieldset>
-          <legend className={compact ? 'text-[13px] text-ink-soft' : 'text-sm text-ink-soft'}>
+          <legend className={compact ? 'text-ui-sm text-ink-soft' : 'text-sm text-ink-soft'}>
             选一个学科
           </legend>
           <div className={compact ? 'mt-1.5 flex flex-col gap-1' : 'mt-2 flex flex-wrap gap-2'}>
@@ -140,7 +140,7 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
         </fieldset>
 
         <label className={compact ? 'mt-3 block' : 'mt-4 block'}>
-          <span className={compact ? 'text-[13px] text-ink-soft' : 'text-sm text-ink-soft'}>
+          <span className={compact ? 'text-ui-sm text-ink-soft' : 'text-sm text-ink-soft'}>
             空间名（可不填）
           </span>
           <input
@@ -164,7 +164,7 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
           {creating ? '正在新建…' : '新建空间'}
         </button>
 
-        <p className={`mt-2 text-[13px] leading-relaxed text-ink-soft ${compact ? '' : 'max-w-prose'}`}>
+        <p className={`mt-2 text-ui-sm leading-relaxed text-ink-soft ${compact ? '' : 'max-w-prose'}`}>
           同一个学科可以建多个空间，名字不重复就行（最多 {SPACE_NAME_MAX} 字）。
         </p>
       </form>

@@ -42,10 +42,10 @@ export default function ThoughtStream({ text, done }: ThoughtStreamProps) {
 
   if (text.length === 0) {
     if (done) {
-      return <p className="text-[13px] text-ink-soft">这一轮没有推理摘要。</p>;
+      return <p className="text-ui-sm text-ink-soft">这一轮没有推理摘要。</p>;
     }
     return (
-      <p className="flex items-center gap-1.5 text-[13px] text-ink-soft" role="status">
+      <p className="flex items-center gap-1.5 text-ui-sm text-ink-soft" role="status">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink-soft/60" aria-hidden="true" />
         正在整理思路…
       </p>
@@ -56,7 +56,7 @@ export default function ThoughtStream({ text, done }: ThoughtStreamProps) {
   const caughtUp = reduced || shown >= text.length;
 
   return (
-    <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink">
+    <p className="whitespace-pre-wrap text-ui-sm leading-relaxed text-ink">
       {visible}
       {!done && !caughtUp ? (
         <span className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse bg-accent" aria-hidden="true" />

@@ -14,7 +14,7 @@ const TONE_CLASS: Record<ToastTone, { box: string; dot: string }> = {
   // error 底色原为写死的浅暖色 #FDF4EE——它只在浅底上成立，深色主题下会是一块
   // 发亮的米色。改为 tone-error 的 12% 透明度：由边框色自己调出面纱，
   // 浅底上是极淡暖底、深底上是暗棕底，两套主题都保持「暖而不刺眼」（PRD §6）。
-  error: { box: 'border-tone-error bg-tone-error/12 text-ink', dot: 'bg-tone-error' },
+  error: { box: 'border-tone-error bg-tone-error/10 text-ink', dot: 'bg-tone-error' },
 };
 
 export interface ToastItem {
@@ -58,7 +58,7 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
             <button
               type="button"
               onClick={() => onDismiss(item.id)}
-              className="ml-1 shrink-0 rounded-md px-2 py-1 text-[13px] text-ink-soft hover:bg-raised max-nav:min-h-9"
+              className="ml-1 shrink-0 rounded-md px-2 py-1 text-ui-sm text-ink-soft hover:bg-raised max-nav:min-h-9"
               aria-label="关闭提示"
             >
               知道了
