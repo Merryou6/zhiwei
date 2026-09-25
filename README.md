@@ -10,11 +10,13 @@
 
 ![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v1.0%20%E5%8A%9F%E8%83%BD%E5%86%BB%E7%BB%93-brightgreen)
 ![stack](https://img.shields.io/badge/stack-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite%20%C2%B7%20Node.js-2F9C7C)
-![tests](https://img.shields.io/badge/tests-32%20%E6%96%87%E4%BB%B6%20%C2%B7%20364%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
+![tests](https://img.shields.io/badge/tests-34%20%E6%96%87%E4%BB%B6%20%C2%B7%20389%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
 ![license](https://img.shields.io/badge/license-GPL--3.0-lightgrey)
 
 **粤港澳大湾区 AI Coding 创新赛 · 参赛作品**
+
+**在线体验：[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**（注册即用，数据本地隔离）
 
 <img src="docs/screenshots/cover.png" width="720" alt="知微 · 学习伴侣">
 
@@ -28,7 +30,7 @@
 
 The product is a five-step closed loop: **collect evidence → diagnose mastery → locate root cause → prescribe intervention → verify with unseen items**. Mastery is modeled with **Bayesian Knowledge Tracing**; root causes are located by backtracking the prerequisite chain of a hand-curated knowledge graph; the tutor chat follows a Socratic policy (one small hint at a time, never dumping the answer). The loop is closed by **ΔAccuracy** — a post-intervention retest drawn from a disjoint item pool, so the effect is measured, not asserted.
 
-Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **32 test files / 364 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer).
+Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **34 test files / 389 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer). Built by two students from the College of Computer Science and Software Engineering, Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
 
 ---
 
@@ -286,7 +288,18 @@ zhiwei/
 
 ---
 
-## 十一、文档导航
+## 十一、团队
+
+两位成员，均为**深圳大学计算机与软件学院 · 计算机科学与技术**专业学生。
+
+| 成员 | 分工 |
+| --- | --- |
+| [@Merryou6](https://github.com/Merryou6) | 项目主开发与工程底座：脚手架与冻结契约体系、BKT 引擎（纯函数零 IO）、知识图谱与题库数据及其校验闸门、后端 20 个 REST/SSE 接口（认证 / 空间 / 测评 / 归因 / 报告 / 对话）、测试体系（34 文件 389 用例）、两轮 UI 重构与响应式走查闸门、Docker 部署 |
+| [@congming666](https://github.com/congming666) | 模型接入与知识库扩展：远程大模型适配器（OpenAI 兼容协议 / DeepSeek，模式切换工厂 + 失败自动回落本地）、多知识库架构（初中 24 节点 + 高中 12 节点、题库扩至 404 题、按知识库隔离诊断 / 报告 / 对话 / 空间）、一键启动与 e2e 全链路体检脚本、深色设计系统与品牌视觉资产、登录页与前端交互改版 |
+
+---
+
+## 十二、文档导航
 
 | 文档 | 内容 |
 | --- | --- |
@@ -301,7 +314,7 @@ zhiwei/
 
 ---
 
-## 十二、许可证
+## 十三、许可证
 
 本项目以 **GNU General Public License v3.0** 发布，详见 [`LICENSE`](LICENSE)。
 
