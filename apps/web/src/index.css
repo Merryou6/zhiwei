@@ -35,6 +35,17 @@
   --c-accent-veil: 234 242 246; /* #EAF2F6 = primary-soft */
   --c-on-accent: 255 255 255;
   --shadow-card: 0 1px 2px rgba(34, 48, 58, 0.04), 0 2px 6px rgba(34, 48, 58, 0.05);
+
+  /* ── 2026-09-25 视觉重构 P1a：把「浏览器部件」也纳入令牌 ──────────
+     收敛前这些位置是**硬编码 hex**（焦点环 #4e8fb0、插入符 #4e8fb0、
+     滚动条 #c3d0d8 / #a9bac5），于是只能靠 html.dusk 再写一遍覆盖 —— 同一件事
+     两份真相，且焦点环不随主题变量走。改为变量后，深色那份覆盖可以整段删除。 */
+  --c-scroll-thumb: 195 208 216; /* #C3D0D8 滚动条滑块 */
+  --c-scroll-thumb-hover: 169 186 197; /* #A9BAC5 */
+  --c-danger: 201 106 58; /* #C96A3A = tone-error */
+  /* 浮起层的阴影（对话框 / 下拉 / 图谱节点明细卡）。
+     浅色下比 card 更深更远，与「贴在页面平面上的静态卡」拉开层级差别。 */
+  --shadow-overlay: 0 2px 4px rgba(34, 48, 58, 0.06), 0 12px 28px -8px rgba(34, 48, 58, 0.18);
 }
 
 /* 深色主题 —— 值取自 tailwind 的 dusk-* 令牌，与登录页同一套表面层次。
@@ -58,6 +69,14 @@ html.dusk {
      改用上缘 1px 内高光定义边界，外羽化压得更深更近，才有浮起来的读感。 */
   --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.055) inset,
     0 10px 26px -14px rgba(2, 6, 14, 0.85);
+
+  /* 浏览器部件的深色取值（P1a）。滚动条走蓝调深灰而非浅色那支冷灰，
+     否则深色页面上挂一条浅灰滑块会显得很脏。 */
+  --c-scroll-thumb: 38 49 63; /* #26313F */
+  --c-scroll-thumb-hover: 51 65 84; /* #334154 */
+  --c-danger: 255 176 136; /* #FFB088 原登录页错误色，深底 11:1 */
+  /* 深色下的浮起：靠上缘内高光定义边界（深底上黑影看不见），外羽化更深更近。 */
+  --shadow-overlay: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 20px 48px -18px rgba(2, 6, 14, 0.92);
 }
 
 /* 全局底色与字体（PRD §6：低饱和、不刺眼；界面色一律走 tailwind 令牌，见 theme/bands.ts）。 */
@@ -107,9 +126,13 @@ body {
   }
 
   /* 键盘焦点可见性（2026-09-20 风格走查）：全站统一主色描边环。
-     用 :focus-visible 而非 :focus，鼠标点击不出现描边。 */
+     用 :focus-visible 而非 :focus，鼠标点击不出现描边。
+
+     2026-09-25 P1a：描边色改为消费 --c-accent。此前是硬编码 #4e8fb0，
+     于是深色主题必须再写一条 `html.dusk :focus-visible { outline-color: #6fb3d4 }`
+     去打补丁；改成变量后那整段覆盖可以删掉，焦点环自动跟随主题。 */
   :focus-visible {
-    outline: 2px solid #4e8fb0;
+    outline: 2px solid rgb(var(--c-accent));
     outline-offset: 2px;
     border-radius: 8px;
   }
@@ -117,21 +140,24 @@ body {
   /* ── 浏览器表面 ──────────────────────────────────────────────────
      这些部件不是我们画的，但同样携带设计：选中色、文字光标、滚动条、
      原生表单控件。用调色板统一主题化它们，是一个界面「被建造过」
-     最便宜、也最可靠的信号——恰恰也是生成式页面漏得最彻底的一环。 */
+     最便宜、也最可靠的信号——恰恰也是生成式页面漏得最彻底的一环。
+
+     P1a：以下全部改为消费 --c-* 变量，三种元素（选中色 / 插入符 / 滚动条）
+     都不再需要深色专版覆盖。 */
 
   ::selection {
-    background-color: rgb(78 143 176 / 0.26);
+    background-color: rgb(var(--c-accent) / 0.26);
   }
 
   input,
   textarea,
   [contenteditable] {
-    caret-color: #4e8fb0;
+    caret-color: rgb(var(--c-accent));
   }
 
   /* 滚动条：细轨 + 圆头滑块 + 悬停加深，颜色取自墨色系而非浏览器默认灰 */
   html {
-    scrollbar-color: #c3d0d8 transparent;
+    scrollbar-color: rgb(var(--c-scroll-thumb)) transparent;
   }
   ::-webkit-scrollbar {
     width: 10px;
@@ -141,13 +167,13 @@ body {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background-color: #c3d0d8;
+    background-color: rgb(var(--c-scroll-thumb));
     border-radius: 999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #a9bac5;
+    background-color: rgb(var(--c-scroll-thumb-hover));
   }
   ::-webkit-scrollbar-corner {
     background: transparent;
@@ -195,32 +221,19 @@ body {
 }
 
 /* ── 深色场景作用域 ────────────────────────────────────────────────
-   登录页把 html/body 底色临时压深（见 LoginPage 的 useEffect），
-   这里同步把依赖 color-scheme 的浏览器部件切成深色。
-   否则会出现「深色页面 + 亮白滚动条 / 亮白下拉菜单」这种露馅细节。
+   这里只保留**无法变量化**的两条：color-scheme 决定 UA 给不给原生控件套深色
+   （滚动条、下拉菜单、自动填充），它是关键字不是颜色；scrollbar-color 是
+   Firefox 通道，不认 ::-webkit-scrollbar 那条。
+
+   2026-09-25 P1a：原先这里还有 ::selection / caret-color / ::-webkit-scrollbar-thumb
+   / :focus-visible 四条深色覆盖 —— 它们全部已被变量化（见 @layer base），
+   留着就是同一件事的第二个真相，已删除。
 
    刻意不放进 @layer：未分层样式优先级最高，确保能覆盖上面的浅色取值，
    不必靠提高选择器权重去打补丁。 */
 html.dusk {
   color-scheme: dark;
-  scrollbar-color: #26313f transparent;
-}
-html.dusk ::selection {
-  background-color: rgb(111 179 212 / 0.3);
-}
-html.dusk input,
-html.dusk textarea,
-html.dusk [contenteditable] {
-  caret-color: #6fb3d4;
-}
-html.dusk ::-webkit-scrollbar-thumb {
-  background-color: #26313f;
-}
-html.dusk ::-webkit-scrollbar-thumb:hover {
-  background-color: #334154;
-}
-html.dusk :focus-visible {
-  outline-color: #6fb3d4;
+  scrollbar-color: rgb(var(--c-scroll-thumb)) transparent;
 }
 
 /* ── 原生表单控件 ─────────────────────────────────────────────────
@@ -265,5 +278,42 @@ textarea::placeholder {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ── 打印（2026-09-25 视觉重构 P1a）────────────────────────────────
+   ReportPage 的「打印 / 存为 PDF」是纯客户端 window.print()，服务端没有导出端点。
+
+   ① 打印强制浅色：深色主题直接打出来是**一整页黑底**，既费墨又几乎不可读。
+      这里不是把浅色基线抄一遍 —— 打印是另一种介质（墨会洇、对比度会掉），
+      所以刻意取了比屏幕浅色**更深**的文字与更浅的边框，是打印调优值，
+      不是重复定义。改屏幕浅色基线时不必同步这里。
+   ② 隐藏外壳：用 [data-print='hide'] 显式标记，而不是靠 header / aside 这类
+      结构选择器 —— 页面自身的 <header> 也要打印，靠标签名会连它一起干掉。
+   ③ 去掉阴影与浮起感：纸面上没有 z 轴。 */
+@media print {
+  html.dusk {
+    --c-canvas: 255 255 255;
+    --c-surface: 255 255 255;
+    --c-raised: 255 255 255;
+    --c-ink: 15 23 30; /* 比屏幕深：打印墨色会洇开，对比度会掉 */
+    --c-ink-soft: 82 96 108;
+    --c-line: 196 206 214;
+    --c-accent: 61 122 156; /* 同样压深一档，保住 AA */
+    --c-accent-veil: 240 246 250;
+    --c-on-accent: 255 255 255;
+    --c-danger: 172 84 40;
+    --shadow-card: none;
+    --shadow-overlay: none;
+  }
+
+  [data-print='hide'] {
+    display: none !important;
+  }
+
+  /* 打印时不要让内容被视口宽度切掉：屏幕上靠内部横滚的宽表/图谱，
+     纸面没有滚动条。允许容器溢出由分页承担。 */
+  .overflow-x-auto {
+    overflow-x: visible;
   }
 }
