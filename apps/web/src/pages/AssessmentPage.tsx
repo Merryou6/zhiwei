@@ -21,6 +21,7 @@ import type { DiagnoseMode } from '../api/types';
 import ItemCard from '../components/ItemCard';
 import PageSkeleton from '../components/PageSkeleton';
 import ProgressBar from '../components/ProgressBar';
+import { Button, PageContainer, PageHeader } from '../components/ui';
 import { MODE_LABEL } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
@@ -141,52 +142,44 @@ export default function AssessmentPage() {
   if (phase === 'done') {
     const tooFast = store.submittedCount === 0;
     return (
-      <section className="max-w-xl">
-        <h1 className="text-xl font-medium text-ink">
-          {tooFast ? '这一轮很快就收敛了' : UI_TEXT.assessmentDone}
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          {tooFast ? UI_TEXT.assessmentDoneTooFast : '你的地图已经更新，接下来可以看图谱或报告，也可以直接进对话问我。'}
-        </p>
+      <PageContainer width="prose">
+        <PageHeader
+          title={tooFast ? '这一轮很快就收敛了' : UI_TEXT.assessmentDone}
+          description={
+            tooFast
+              ? UI_TEXT.assessmentDoneTooFast
+              : '你的地图已经更新，接下来可以看图谱或报告，也可以直接进对话问我。'
+          }
+        />
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(tooFast ? '/self-report' : '/graph')}
-            className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90"
-          >
+          <Button variant="primary" onClick={() => navigate(tooFast ? '/self-report' : '/graph')}>
             {tooFast ? '去花 30 秒自报' : '看看我的地图'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/report')}
-            className="rounded-control border border-line px-4 py-2.5 text-sm text-ink hover:bg-surface"
-          >
+          </Button>
+          <Button variant="secondary" onClick={() => navigate('/report')}>
             打开学习报告
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => {
               store.reset();
               setPhase('select');
             }}
-            className="rounded-control px-4 py-2.5 text-sm text-ink-soft hover:bg-surface"
           >
             换一种测评
-          </button>
+          </Button>
         </div>
-      </section>
+      </PageContainer>
     );
   }
 
   // ------------------------------------------------------------ 模式选择屏
   if (phase === 'select') {
     return (
-      <section className="max-w-2xl">
-        <h1 className="text-xl font-medium text-ink">选一种测评</h1>
-        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-          一次只做一件事：你要么让我找卡点（诊断），要么先量一个基准（基线/复测）。题目都只出现一次，
-          做过的不再出。
-        </p>
+      <PageContainer width="standard">
+        <PageHeader
+          title="选一种测评"
+          description="一次只做一件事：你要么让我找卡点（诊断），要么先量一个基准（基线/复测）。题目都只出现一次，做过的不再出。"
+        />
 
         <ul className="mt-6 space-y-3">
           {MODE_CARDS.map((card) => (
@@ -195,18 +188,19 @@ export default function AssessmentPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void startMode(card.value)}
-                className="w-full rounded-surface border border-line bg-surface p-5 shadow-card text-left hover:border-accent disabled:opacity-60"
+                className="w-full rounded-surface border border-line bg-surface p-5 text-left shadow-card transition-colors hover:border-accent disabled:opacity-60"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="text-base font-medium text-ink">{MODE_LABEL[card.value]}</span>
-                  <span className="text-ui-sm text-ink-soft">{card.value}</span>
+                  {/* mode 标识是技术性元信息（diagnose/baseline/retest），等宽处理 */}
+                  <span className="font-mono text-ui-sm text-ink-soft">{card.value}</span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{card.desc}</p>
               </button>
             </li>
           ))}
         </ul>
-      </section>
+      </PageContainer>
     );
   }
 
@@ -214,17 +208,19 @@ export default function AssessmentPage() {
   const item = store.currentItem;
   if (!item) {
     return (
-      <section className="max-w-2xl">
+      <PageContainer width="standard">
         <PageSkeleton label="正在取题…" rows={1} />
-      </section>
+      </PageContainer>
     );
   }
 
   return (
-    <section className="max-w-2xl">
-      <div className="flex items-center justify-between">
+    <PageContainer width="standard">
+      {/* 这里不用 PageHeader：单题屏的「模式名 + 剩题数」是**进行中状态条**，
+          不是页面标题区 —— 它该贴着进度条，而不是撑出一个 24px 的落点。 */}
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-base font-medium text-ink">{MODE_LABEL[store.mode]}</h1>
-        <span className="text-ui-sm text-ink-soft">剩 {store.remaining} 题</span>
+        <span className="font-mono text-ui-sm tabular-nums text-ink-soft">剩 {store.remaining} 题</span>
       </div>
 
       <div className="mt-3">
@@ -236,27 +232,17 @@ export default function AssessmentPage() {
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void submitAnswer()}
-          className="rounded-control bg-accent px-4 py-2.5 text-sm text-on-accent hover:opacity-90 disabled:opacity-60"
-        >
+        <Button variant="primary" disabled={busy} onClick={() => void submitAnswer()}>
           {busy ? '记一下…' : '下一题'}
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void skipItem()}
-          className="rounded-control border border-line px-4 py-2.5 text-sm text-ink-soft hover:bg-surface disabled:opacity-60"
-        >
+        </Button>
+        <Button variant="secondary" disabled={busy} onClick={() => void skipItem()}>
           这道先跳过
-        </button>
+        </Button>
       </div>
 
       <p className="mt-4 text-ui-sm text-ink-soft">
         我不会当场告诉你对错——分数攒着，等这一轮完了我们一起看整体。跳过也没关系。
       </p>
-    </section>
+    </PageContainer>
   );
 }

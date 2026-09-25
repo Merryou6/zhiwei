@@ -61,6 +61,7 @@ import {
   PageHeader,
   Select,
   Textarea,
+  buttonVariants,
 } from '../components/ui';
 import { GRAPH_NODES, kpName } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
@@ -504,7 +505,7 @@ export default function AttributionPage() {
                 </ul>
                 <Link
                   to={`/graph?path=${encodeURIComponent(plan.path.join(','))}`}
-                  className="mt-4 inline-flex min-h-9 items-center rounded-control border border-line px-3 text-ui-sm text-ink transition-colors duration-150 ease-out hover:border-accent hover:bg-raised"
+                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'mt-4')}
                 >
                   去图谱看学习路径
                 </Link>
@@ -815,7 +816,7 @@ export default function AttributionPage() {
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Link
                   to="/assessment"
-                  className="inline-flex min-h-9 items-center rounded-control bg-accent px-3 text-ui-sm text-on-accent transition-opacity duration-150 ease-out hover:opacity-90"
+                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }))}
                 >
                   再练几道
                 </Link>
