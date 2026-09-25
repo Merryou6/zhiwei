@@ -33,6 +33,10 @@
   --c-line: 220 228 233; /* #DCE4E9 */
   --c-accent: 78 143 176; /* #4E8FB0 = primary */
   --c-accent-veil: 234 242 246; /* #EAF2F6 = primary-soft */
+  /* 强调色作为**文字**的取值（P2）：#4E8FB0 当文字只有 3.57:1（白底）/ 3.15:1（veil 上），
+     不达 AA。同色相压深到 #2E6B87：白底 5.95:1、veil 上 5.26:1、canvas 上 5.58:1。
+     详见 tailwind.config.js 的 accent-ink 注释。 */
+  --c-accent-ink: 46 107 135; /* #2E6B87 */
   --c-on-accent: 255 255 255;
   --shadow-card: 0 1px 2px rgba(34, 48, 58, 0.04), 0 2px 6px rgba(34, 48, 58, 0.05);
 
@@ -64,6 +68,9 @@ html.dusk {
      #6FB3D4，它承载近黑字有 8.5:1。两个值色相一致，全站仍只有一个强调色。 */
   --c-accent: 111 179 212; /* #6FB3D4 */
   --c-accent-veil: 15 31 42; /* #0F1F2A 品牌色极暗面纱，替代浅色下的 primary-soft */
+  /* 深色下 accent 本身就是 #6FB3D4，当文字用已达标（veil 上 7.20:1、surface 上 6.5:1），
+     所以 accent-ink 与 accent 同值 —— 但仍必须成对定义，否则切到深色时该变量会缺失。 */
+  --c-accent-ink: 111 179 212; /* #6FB3D4 */
   --c-on-accent: 7 12 20; /* 落在 accent 底上的文字：深色主题下用近黑 */
   /* 深色下的「抬起」不能靠深色阴影——深底上的黑影看不见。
      改用上缘 1px 内高光定义边界，外羽化压得更深更近，才有浮起来的读感。 */
@@ -301,6 +308,10 @@ textarea::placeholder {
     --c-line: 196 206 214;
     --c-accent: 61 122 156; /* 同样压深一档，保住 AA */
     --c-accent-veil: 240 246 250;
+    /* ⚠ accent-ink 也必须在这里覆盖。打印时若深色主题生效，不覆盖的话它会是
+       #6FB3D4（浅蓝），落在白纸上只有 2.31:1 —— 这正是「打印块漏覆盖」的典型后果。
+       tokens.test.ts 里有一条断言锁这件事。 */
+    --c-accent-ink: 45 98 124;
     --c-on-accent: 255 255 255;
     --c-danger: 172 84 40;
     --shadow-card: none;

@@ -39,6 +39,8 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
     // top-16 / right-4 → 安全区工具类（见 index.css @layer utilities）——桌面非刘海设备
     // env() 恒为 0，计算值与 4rem / 1rem 逐字相同。
     <div
+      // data-print='hide'：提示条是临时浮层，不该出现在打印稿里。
+      data-print="hide"
       className="pointer-events-none fixed right-safe-4 top-safe-16 z-overlay flex w-[min(22rem,calc(100vw-2rem))] flex-col items-stretch gap-2"
       role="status"
       aria-live="polite"
@@ -49,7 +51,9 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
           <div
             key={item.id}
             className={[
-              'pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-card',
+              // 浮层该用 shadow-overlay 而不是 shadow-card：card 是「贴在页面平面上的静态卡」，
+              // 提示条是「浮在内容之上、随时会走」的临时层，两者必须能一眼分开。
+              'pointer-events-auto flex animate-rise items-start gap-3 rounded-surface border px-4 py-3 text-sm shadow-overlay',
               tone.box,
             ].join(' ')}
           >
@@ -58,7 +62,7 @@ export default function ToastList({ items, onDismiss }: ToastListProps) {
             <button
               type="button"
               onClick={() => onDismiss(item.id)}
-              className="ml-1 shrink-0 rounded-md px-2 py-1 text-ui-sm text-ink-soft hover:bg-raised max-nav:min-h-9"
+              className="ml-1 shrink-0 rounded-md px-2 py-1 text-ui-sm text-ink-soft transition-colors duration-150 ease-out hover:bg-raised max-nav:min-h-9"
               aria-label="关闭提示"
             >
               知道了

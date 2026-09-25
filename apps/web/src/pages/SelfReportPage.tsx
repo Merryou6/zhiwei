@@ -116,7 +116,7 @@ export default function SelfReportPage() {
           onClick={() =>
             setLevels(Object.fromEntries(chapters.map((chapter) => [chapter, QUICK_LEVEL])))
           }
-          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-ui-sm text-ink hover:border-accent hover:text-accent"
+          className="min-h-9 shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-ui-sm text-ink hover:border-accent hover:text-accent-ink"
         >
           按 3 档先填上
         </button>

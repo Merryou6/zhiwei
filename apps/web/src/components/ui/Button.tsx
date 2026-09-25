@@ -43,8 +43,12 @@ export const buttonVariants = cva(
           'text-ink-soft transition-colors duration-150 ease-out hover:bg-raised hover:text-ink',
         /** 纯文字操作（「换一道」「回到上一步」）。不占盒模型，不用在行内加方块。 */
         quiet: 'px-2 text-ink-soft transition-colors duration-150 ease-out hover:text-ink',
-        /** 视觉上等同链接。用于「管理空间」这类附着在正文里的跳转。 */
-        link: 'p-0 text-accent transition-colors duration-150 ease-out hover:text-accent/80 hover:underline',
+        /**
+         * 视觉上等同链接。用于「管理空间」这类附着在正文里的跳转。
+         * hover 只用下划线，不用「文字变淡」：把 accent-ink 再乘 0.8 的透明度后
+         * 对比度会从 5.95:1 掉到约 3.8:1，重新跌破 AA —— 悬停态不该变得难读。
+         */
+        link: 'p-0 text-accent-ink transition-colors duration-150 ease-out hover:underline',
       },
       size: {
         sm: 'min-h-8 gap-1.5 px-3 text-ui-sm max-nav:min-h-9',

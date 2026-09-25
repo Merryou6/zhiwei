@@ -6,6 +6,23 @@
  * 「零变化」这种强断言 —— 需要可复算的数字：同一批路由、同一批几何锚点，改造前后逐项 diff。
  * 本脚本就是那台量尺：跑两遍（tag=baseline / tag=after），第三遍 --compare 出 diff 表。
  *
+ * 【⚠ 2026-09-25 起 --compare 闸门临时停用（UI 视觉重构轮）】
+ * 那一轮的任务是「比赛级 UI 视觉重构」，**有意改变桌面视觉**（信息架构、字号刻度、
+ * 卡片层级、导航形态）。这与本脚本 --compare 的判据在**定义上互斥**：判据要求
+ * ≥768 三档逐锚点 diff 全 0，而重构正是要去动这些锚点。跑它必然 exit 1 ——
+ * 一个「必然红灯」的闸门会让真红灯失去意义。
+ *
+ * 处理方式（不删脚本、不删基线）：
+ *   · 加 SKIP_RESPONSIVE_AUDIT=1 开关，**只短路 --compare**（采样与 --probe-nav 不受影响
+ *     —— 它们是取证工具，不是闸门）。这样在 CI 里跳过闸门，同时仍能截图留证。
+ *   · 既有基线（_pipeline/screenshots/mobile/*）原样保留，未删除、未覆盖。
+ *   · TODO(UI 稳定后恢复)：去掉 CI 侧的 SKIP_RESPONSIVE_AUDIT=1，重采一份新基线
+ *     `--tag v2-baseline`，之后按 `--compare v2-baseline <new>` 继续。
+ *     跟踪项：项目 issue「恢复 responsive-audit 桌面零变化闸门（UI 稳定后）」。
+ *
+ * 恢复前的替代判据（本轮实际使用）：4 档宽度（1440/1024/768/375）× 深/浅两套主题的
+ * 截图 + 每页 overflowPx 与溢出元素清单 + --probe-nav 行为探针。
+ *
  * 【它采集什么】（每个宽度档 × 12 条路由各一份）
  *   a) 页面级横向溢出：documentElement.scrollWidth - clientWidth（px）
  *   b) 溢出元素清单：getBoundingClientRect().right > 视口宽 +1 的前 10 个（tag + class 片段）
@@ -36,10 +53,15 @@
  *   ZHIWEI_AUDIT_WIDTHS  逗号分隔宽度，等价于 --widths（两者都给时以 CLI 为准）
  *   ZHIWEI_AUDIT_IDENT / ZHIWEI_AUDIT_PASS  走查账号，默认 e2e_smoke / e2e_test_2026
  *   ZHIWEI_AUDIT_CDP_PORT  CDP 端口，默认 9334（避开 e2e-smoke 的 9333）
+ *   ZHIWEI_AUDIT_THEME   采样主题：light / dark，默认 dark（应用默认就是深色）。
+ *                        P2 新增：两套主题都要按同等标准验收，而原先采样固定落深色，
+ *                        浅色一套无证可取。实现是在 clear 之后写 zhiwei_theme 并 reload，
+ *                        纯增量，不改任何既有行为。
+ *   SKIP_RESPONSIVE_AUDIT  置 1 时短路 --compare（见文件头停用说明）。不影响采样与探针。
  *
  * 【输出】
- *   <OUT>/audit-<tag>-<width>.json         采样结果（12 页）
- *   <OUT>/<tag>-<width>-<route>.png        逐页截图
+ *   <OUT>/audit-<tag>-<width>.json         采样结果（12 页，含 theme 字段）
+ *   <OUT>/<tag>-<width>-<theme>-<route>.png 逐页截图（P2 起文件名带主题，便于两套并列比对）
  *   <OUT>/compare-<A>-<B>-<widths>.json    --compare 的机器可读结果
  *
  * 【退出码】0 = 通过 / 采样完成；1 = 有失败项（--compare 有 diff、Chrome 未就绪、脚本异常）。
@@ -57,6 +79,18 @@ const OUT = process.env.ZHIWEI_AUDIT_OUT
 const IDENT = process.env.ZHIWEI_AUDIT_IDENT ?? 'e2e_smoke';
 const PASS = process.env.ZHIWEI_AUDIT_PASS ?? 'e2e_test_2026';
 const CDP_PORT = Number(process.env.ZHIWEI_AUDIT_CDP_PORT ?? 9334);
+
+/** 采样主题（P2 新增）：应用默认就是深色，故默认 dark；'light' 时在 clear 之后写入并 reload。 */
+const THEME = process.env.ZHIWEI_AUDIT_THEME === 'light' ? 'light' : undefined;
+
+/**
+ * 桌面零变化闸门的临时停用开关（见文件头）。**只短路 --compare** ——
+ * 采样与 --probe-nav 是取证工具而非闸门，停掉它们只会让本轮无证可取。
+ */
+const SKIP_COMPARE = process.env.SKIP_RESPONSIVE_AUDIT === '1';
+
+/** 写入 localStorage 的主题值：未指定时显式写 dark，让「这次是哪套皮肤」变成事实而非默认值推断。 */
+const THEME_KEY_VALUE = THEME ?? 'dark';
 
 /** 12 页路由表（与 apps/web/src/router.tsx 的 ROUTES 同序；本脚本不 import 业务代码）。 */
 const ROUTES = [
@@ -137,6 +171,8 @@ function usage() {
   say('  node tools/responsive-audit.cjs --compare <tagA> <tagB> --widths 1440,1024,768');
   say('  node tools/responsive-audit.cjs --probe-nav --widths 375');
   say('提示：ZHIWEI_AUDIT_WIDTHS 等价于 --widths；按宽度分档跑防 60s 超时。');
+  say('      ZHIWEI_AUDIT_THEME=light 采浅色一套（默认深色），截图文件名带主题。');
+  say('      SKIP_RESPONSIVE_AUDIT=1 短路 --compare（不影响采样与探针）。');
 }
 
 /** 视口高度：≥768 走桌面比例（与 e2e-smoke 同 1440×900），窄档走手机比例（375×812 系）。 */
@@ -341,6 +377,7 @@ async function runSample(cdp, opts) {
   say('base    = ' + BASE);
   say('out     = ' + OUT);
   say('tag     = ' + opts.tag);
+  say('theme   = ' + THEME_KEY_VALUE + (THEME ? '' : '（默认；用 ZHIWEI_AUDIT_THEME=light 采浅色）'));
   say('widths  = ' + opts.widths.join(','));
 
   for (const width of opts.widths) {
@@ -359,6 +396,13 @@ async function runSample(cdp, opts) {
     const stamp = String(Date.now());
     await goto(cdp, `${BASE}/?audit=${stamp}b#/login`);
     await cdp.ev('localStorage.clear(); sessionStorage.clear(); 1');
+
+    // 主题（P2 新增）：必须写在 clear **之后**，否则会被清掉。
+    // 未显式指定时也写 dark：应用默认是深色，但把「这次采的是哪套皮肤」变成
+    // 写进 JSON 的事实，而不是靠默认值推断 —— 两套主题要并列比对时这一点很关键。
+    await cdp.ev(`localStorage.setItem('zhiwei_theme', '${THEME_KEY_VALUE}'); 1`);
+    await cdp.ev('location.reload(); 1');
+    await sleep(500);
 
     const pages = [];
     let authed = false;
@@ -380,10 +424,12 @@ async function runSample(cdp, opts) {
       sample.width = width;
       sample.height = height;
       sample.tag = opts.tag;
+      sample.theme = THEME_KEY_VALUE;
       pages.push(sample);
 
       const shot = await cdp.send('Page.captureScreenshot', { format: 'png' });
-      const file = path.join(OUT, `${opts.tag}-${width}-${route.name}.png`);
+      // 文件名带主题（P2）：两套主题的截图并列时不会互相覆盖。
+      const file = path.join(OUT, `${opts.tag}-${width}-${THEME_KEY_VALUE}-${route.name}.png`);
       fs.writeFileSync(file, Buffer.from(shot.data, 'base64'));
 
       say(
@@ -403,6 +449,7 @@ async function runSample(cdp, opts) {
       width,
       height,
       mobile,
+      theme: THEME_KEY_VALUE,
       base: BASE,
       capturedAt: new Date().toISOString(),
       pages,
@@ -724,6 +771,15 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
 
   if (opts.compare) {
+    if (SKIP_COMPARE) {
+      say('== --compare 已临时停用（SKIP_RESPONSIVE_AUDIT=1）==');
+      say('   原因：2026-09-25 UI 视觉重构**有意**改变桌面视觉，与「桌面 ≥768');
+      say('   像素级零变化」判据在定义上互斥 —— 跑它必然 exit 1，属预期而非失败。');
+      say('   脚本未删、既有基线未删。恢复步骤见本文件 main() 上方的 TODO。');
+      say('   ⚠ 采样与 --probe-nav 不受此开关影响：unset SKIP_RESPONSIVE_AUDIT 后');
+      say('     加 --tag 即可继续截图取证。');
+      process.exit(0);
+    }
     // 对比模式不启浏览器
     fs.writeFileSync(path.join(OUT, `last-compare-log.txt`), '', 'utf8');
     const code = runCompare(opts);

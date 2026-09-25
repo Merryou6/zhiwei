@@ -224,3 +224,60 @@ describe('⑦ 已修死类不回流', () => {
     }
   });
 });
+
+describe('⑧ accent 只做填充与描边，文字一律走 accent-ink', () => {
+  it('src/** 不再出现 text-accent（应为 text-accent-ink）', () => {
+    // 为什么单独设一条：accent 在浅色下是 #4E8FB0，当文字只有 3.57:1（白底）/
+    // 3.15:1（accent-veil 上），不达 AA。这类写法「看起来完全正确」，渲染出来也不报错，
+    // 只是读起来费力 —— 项目此前已经踩过一次（ChatTracePanel 里把「进行中」降级成灰色）。
+    // accent-ink = #2E6B87（白底 5.95:1 / veil 上 5.26:1），是同一个「accent 作为文字」角色。
+    // 注释行不算 —— 注释里提到 text-accent 多半是在记录历史结论，改掉会让历史失真。
+    const found: string[] = [];
+    for (const file of FILES) {
+      file.text.split('\n').forEach((line, index) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
+        if (/text-accent(?![\w-])/.test(line)) {
+          found.push(`${file.rel}:${index + 1}: ${trimmed.slice(0, 110)}`);
+        }
+      });
+    }
+    expect(found).toEqual([]);
+  });
+});
+
+describe('⑨ 打印块必须完整中性化深色主题', () => {
+  it('@media print 覆盖全部前景/表面角色变量', () => {
+    // 为什么需要这条：@media print 里的 html.dusk { ... } 是**追加**覆盖 ——
+    // 没被列出的变量会保留上面那套深色取值。于是「深色主题 + 打印」会出现
+    // 浅色文字落在白纸上（例如漏掉 --c-accent-ink 就是 #6FB3D4 on white = 2.31:1）。
+    // 这类漏项不会报错，只会打出一张几乎读不清的纸。
+    const printPart = CSS.slice(CSS.indexOf('@media print'));
+    expect(printPart.length, 'index.css 里找不到 @media print 块').toBeGreaterThan(0);
+
+    for (const name of [
+      '--c-canvas',
+      '--c-surface',
+      '--c-raised',
+      '--c-ink',
+      '--c-ink-soft',
+      '--c-line',
+      '--c-accent',
+      '--c-accent-ink',
+      '--c-accent-veil',
+      '--c-on-accent',
+      '--c-danger',
+      '--shadow-card',
+      '--shadow-overlay',
+    ]) {
+      expect(printPart, `打印块缺少 ${name} —— 深色主题下会打出不可读的对比度`).toContain(
+        `${name}:`,
+      );
+    }
+  });
+
+  it('外壳元素靠 [data-print=hide] 显式标记，不用 header / aside 这类结构选择器', () => {
+    // 页面自身的 <header> 也要打印，靠标签名会连它一起干掉。
+    expect(CSS).toContain("[data-print='hide']");
+  });
+});

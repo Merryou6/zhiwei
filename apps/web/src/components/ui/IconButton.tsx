@@ -27,10 +27,10 @@ export const iconButtonVariants = cva(
       variant: {
         /** 描边式：浮在内容上、需要自己划出边界（顶栏汉堡键、抽屉关闭键）。 */
         outline:
-          'border border-line bg-surface text-ink-soft hover:border-accent hover:text-accent',
+          'border border-line bg-surface text-ink-soft hover:border-accent hover:text-accent-ink',
         /** 有影浮起（返回顶部）。比 outline 多一层「离开了页面平面」的表达。 */
         raised:
-          'border border-line bg-surface text-ink-soft shadow-card hover:border-accent hover:text-accent',
+          'border border-line bg-surface text-ink-soft shadow-card hover:border-accent hover:text-accent-ink',
         /** 无边界：贴在卡片内部，靠 hover 底色表达可点（图谱节点明细卡关闭键）。 */
         quiet: 'text-ink-soft hover:bg-raised hover:text-ink',
         /** 实心主色。 */

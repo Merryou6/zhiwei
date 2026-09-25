@@ -46,7 +46,7 @@ export const badgeVariants = cva(
         /** 中性元信息：ID、编号、计数。 */
         neutral: 'bg-canvas text-ink-soft',
         /** 品牌强调：当前空间、路径高亮、模型标识。 */
-        accent: 'bg-accent-veil text-accent',
+        accent: 'bg-accent-veil text-accent-ink',
         /** 正向：已验证、掌握度上升。 */
         positive: 'bg-band-mastered/10 text-band-mastered',
         /** 负向（低饱和暖橙，不是刺眼大红）：待巩固、掌握度下降。 */

@@ -67,7 +67,7 @@ export default function ChatComposer({ disabled }: ChatComposerProps) {
                   onClick={() => setImageFileId(file.file_id)}
                   className={[
                     'w-full rounded-lg px-3 py-1.5 text-left text-xs max-nav:min-h-9',
-                    imageFileId === file.file_id ? 'bg-accent-veil text-accent' : 'text-ink hover:bg-raised',
+                    imageFileId === file.file_id ? 'bg-accent-veil text-accent-ink' : 'text-ink hover:bg-raised',
                   ].join(' ')}
                 >
                   {file.name}

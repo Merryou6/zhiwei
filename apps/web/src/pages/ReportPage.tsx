@@ -216,7 +216,7 @@ export default function ReportPage() {
             title="还没有测量数据"
             hint="先做一次基线测量，干预后再复测一次，这里就会出现变化。"
             action={
-              <Link to="/assessment" className="text-ui-sm text-accent hover:underline">
+              <Link to="/assessment" className="text-ui-sm text-accent-ink hover:underline">
                 去做基线测量 →
               </Link>
             }

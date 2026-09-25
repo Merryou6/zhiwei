@@ -158,7 +158,7 @@ export default function MePage() {
           <div className={card}>
             <h2 className="text-base font-medium text-ink">对话模型</h2>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent">
+              <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent-ink">
                 {profile ? MODEL_MODE_LABEL[profile.model.mode] : '—'}
               </span>
               {profile?.model.name ? (

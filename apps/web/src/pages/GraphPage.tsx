@@ -243,7 +243,7 @@ export default function GraphPage() {
           </p>
         </div>
         {highlightPath.length > 0 ? (
-          <span className="rounded-lg bg-accent-veil px-3 min-h-9 py-2 text-ui-sm text-accent">
+          <span className="rounded-lg bg-accent-veil px-3 min-h-9 py-2 text-ui-sm text-accent-ink">
             {plan && plan.path.join(',') === highlightPath.join(',')
               ? `学习路径：${plan.strategy}`
               : '正在高亮一条路径（上游 → 根因）'}

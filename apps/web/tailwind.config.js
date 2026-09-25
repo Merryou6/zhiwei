@@ -135,6 +135,29 @@ export default {
         // 而 primary 被守恒测试锁死不能改，只能另起一问一答的令牌。
         accent: 'rgb(var(--c-accent) / <alpha-value>)',
         'accent-veil': 'rgb(var(--c-accent-veil) / <alpha-value>)',
+        // 强调色**作为文字**时的取值（2026-09-25 P2 补，系统性修复一个既有缺陷）。
+        //
+        // 问题：accent 在浅色下 = #4E8FB0，落在白底上只有 3.57:1、落在 accent-veil
+        // (#EAF2F6) 上只有 3.15:1 —— 都不达 AA 的 4.5:1。全站却有 20+ 处把它当文字用
+        // （导航激活态、徽标、链接、卡片眉标…）。
+        //
+        // 项目其实早就发现过这一点，但当时只能**局部规避**：清尾轮 L2 在 ChatTracePanel
+        // 里把「进行中」从 text-accent 改成 text-ink-soft，并留下实测数字，结论是
+        // 「accent 只当非文本装饰用（3:1 门槛），文字交给 ink 家族」。问题是这样一来
+        // 品牌色在文字层面就消失了，而且每遇到一处都要重新判断一次。
+        //
+        // 所以这里补一个「accent 作为文字」的角色令牌，与既有的 on-accent
+        // （「落在 accent 底上的文字」）成对 —— 同一件事的一问一答：
+        //   accent      → 填充、描边、图形（非文本，3:1 门槛）
+        //   accent-ink  → 文字（4.5:1 门槛）
+        //   on-accent   → 落在 accent 填充上的文字
+        //
+        // 取值：浅色 #2E6B87（同色相压深；白底 5.95:1、accent-veil 上 5.26:1、
+        // canvas 上 5.58:1，三处都过 AA）；深色沿用 #6FB3D4（= accent 本身，
+        // 在 accent-veil 上 7.20:1，本来就是达标的）。
+        // ⚠ 全站纪律：text-accent 一律用 text-accent-ink 代替；accent 只用于
+        //   bg-/border-/ring-/描边与 currentColor 图形。
+        'accent-ink': 'rgb(var(--c-accent-ink) / <alpha-value>)',
         // 落在 accent 底上的文字：浅色下白、深色下近黑（#6FB3D4 上
         // 白字仅 2.32:1，黑字 8.5:1）。这是唯一能让强调块在两套主题下
         // 都达标的方式。

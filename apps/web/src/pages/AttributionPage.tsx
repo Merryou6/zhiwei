@@ -270,7 +270,7 @@ export default function AttributionPage() {
                     ].join(' ')}
                   >
                     <span className="block">{kpName(id)}</span>
-                    {isRoot ? <span className="block text-xs text-accent">根因就在这里</span> : null}
+                    {isRoot ? <span className="block text-xs text-accent-ink">根因就在这里</span> : null}
                   </div>
                 </li>
               );
@@ -386,7 +386,7 @@ export default function AttributionPage() {
               {plan ? (
                 <div className="mt-4">
                   <p className="text-sm text-ink">
-                    策略：<span className="text-accent">{plan.strategy}</span>
+                    策略：<span className="text-accent-ink">{plan.strategy}</span>
                   </p>
                   <ol className="mt-2 space-y-1 text-sm text-ink-soft">
                     {plan.explanation_outline.map((line, index) => (

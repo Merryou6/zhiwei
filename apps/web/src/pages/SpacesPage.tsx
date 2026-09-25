@@ -111,7 +111,7 @@ export default function SpacesPage() {
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-medium text-ink">{space.name}</h2>
                       {space.is_default ? (
-                        <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent">
+                        <span className="rounded-md bg-accent-veil px-2 py-0.5 text-xs text-accent-ink">
                           默认空间
                         </span>
                       ) : null}

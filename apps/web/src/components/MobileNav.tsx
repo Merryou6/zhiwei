@@ -7,8 +7,18 @@
  * 手机上顶栏只留「知微」+ 汉堡键，抽屉承载全部导航项 + 主题 + 空间切换。
  *
  * 【形态】全高覆盖式（D5）：fixed inset-0 + z-overlay（50，压在 z-nav 40 的顶栏之上），
- * 从右滑入，自带头部（标题 + 关闭键），不与顶栏并排——56px 顶栏里塞不下第二排导航，
+ * 自带头部（标题 + 关闭键），不与顶栏并排——56px 顶栏里塞不下第二排导航，
  * 且全高形态回避了「top:56px 与安全区 top 叠加」的复杂度。
+ *
+ * 【入场动画（P2，2026-09-25）】此前注释写着「从右滑入」，但实现只是条件挂载 + 绝对定位，
+ * **没有任何过渡** —— 打开时抽屉是硬出现的。现已补上令牌动画 animate-slide-in-panel
+ * （240ms，与全站同一条指数缓出曲线）。
+ * ⚠ 只做入场、不做退场：`if (!open) return null` 让抽屉关闭时**不渲染任何 DOM**，
+ * 这是无障碍设计的一部分（不给隐藏的可交互节点留后门）；为了退场动画改成常驻 DOM
+ * 是拿正确性换观感，不划算。
+ * ⚠ 该 keyframe 的 from 是 opacity 0、to 可见，元素基态可见 —— 全局
+ * prefers-reduced-motion 会把 duration 压到 0.01ms 瞬时收敛到终态；若基态写成
+ * opacity-0，抽屉在开启「减弱动态效果」的系统上会**永久隐形**。
  *
  * 【无障碍（D17）】不用 inert（React 18 对布尔 inert 支持不完整），改用三条独立闭合的路径：
  *   1) 背景幕是**全屏 button**，指针路径被拦截；
@@ -37,6 +47,7 @@ import { useMobileNavStore } from '../stores/mobileNav';
 import { useSpaceStore } from '../stores/space';
 import SpaceCreateForm from './SpaceCreateForm';
 import ThemeToggle from './ThemeToggle';
+import { IconButton } from './ui';
 
 /** 需特判为面板开合按钮的导航项（与 router.ROUTES 的 '/chat' 一致；路由数据本身不改）。 */
 const CHAT_PATH = '/chat';
@@ -180,14 +191,18 @@ export default function MobileNav() {
     'flex min-h-11 w-full items-center rounded-control px-4 py-2.5 text-left text-sm transition-colors duration-150 ease-out';
 
   return (
-    <div className="fixed inset-0 z-overlay nav:hidden">
+    <div
+      // data-print='hide'：打印时导航抽屉不该出现（正常情况下它是关闭态不渲染，这里是兜底）。
+      data-print="hide"
+      className="fixed inset-0 z-overlay nav:hidden"
+    >
       {/* 背景幕：全屏 button，指针路径由此闭合（与 ChatPanelDock 同款写法）。
           aria-label 与抽屉头部关闭键不同名，避免读屏出现两个同名可访问名。 */}
       <button
         type="button"
         aria-label="点击空白处关闭导航菜单"
         onClick={() => setOpen(false)}
-        className="absolute inset-0 bg-canvas/60"
+        className="absolute inset-0 animate-fade bg-canvas/60"
       />
 
       <aside
@@ -197,15 +212,16 @@ export default function MobileNav() {
         aria-modal="true"
         aria-label="导航菜单"
         tabIndex={-1}
-        className="absolute inset-y-0 right-0 flex w-[min(20rem,85vw)] flex-col border-l border-line bg-surface shadow-card outline-none"
+        // animate-slide-in-panel：入场滑入（见文件头说明：只做入场，且基态可见）。
+        className="absolute inset-y-0 right-0 flex w-[min(20rem,85vw)] animate-slide-in-panel flex-col border-l border-line bg-surface shadow-card outline-none"
       >
         <header className="flex flex-none items-center justify-between border-b border-line px-4 py-3">
           <p className="text-sm font-medium text-ink">菜单</p>
-          <button
-            type="button"
+          <IconButton
+            size="sm"
+            variant="outline"
             onClick={() => setOpen(false)}
             aria-label="关闭导航菜单"
-            className="grid h-9 w-9 flex-none place-items-center rounded-control border border-line text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
           >
             <svg
               className="h-3.5 w-3.5"
@@ -218,7 +234,7 @@ export default function MobileNav() {
             >
               <path d="m4.5 4.5 7 7M11.5 4.5l-7 7" />
             </svg>
-          </button>
+          </IconButton>
         </header>
 
         {/* 滚动区：底部 pb-safe-3 = 安全区 + 原 pb-3（非刘海设备 env()=0 → 仍是 12px） */}
@@ -238,7 +254,7 @@ export default function MobileNav() {
                       }}
                       className={[
                         itemBase,
-                        panelOpen ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
+                        panelOpen ? 'bg-accent-veil text-accent-ink' : 'text-ink-soft hover:bg-raised',
                       ].join(' ')}
                     >
                       {route.label}
@@ -254,7 +270,7 @@ export default function MobileNav() {
                     className={({ isActive }) =>
                       [
                         itemBase,
-                        isActive ? 'bg-accent-veil text-accent' : 'text-ink-soft hover:bg-raised',
+                        isActive ? 'bg-accent-veil text-accent-ink' : 'text-ink-soft hover:bg-raised',
                       ].join(' ')
                     }
                   >
@@ -286,7 +302,7 @@ export default function MobileNav() {
                     onClick={() => setActive(space.space_id)}
                     className={[
                       'flex min-h-9 w-full items-center rounded-control px-2 py-1.5 text-left text-sm',
-                      space.space_id === activeSpaceId ? 'bg-accent-veil text-accent' : 'text-ink hover:bg-raised',
+                      space.space_id === activeSpaceId ? 'bg-accent-veil text-accent-ink' : 'text-ink hover:bg-raised',
                     ].join(' ')}
                   >
                     <span className="min-w-0 flex-1 truncate">{space.name}</span>
@@ -308,7 +324,7 @@ export default function MobileNav() {
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="mt-1 flex min-h-9 w-full items-center rounded-control px-2 py-1.5 text-left text-sm text-accent hover:bg-raised"
+                className="mt-1 flex min-h-9 w-full items-center rounded-control px-2 py-1.5 text-left text-sm text-accent-ink hover:bg-raised"
               >
                 + 新建空间
               </button>

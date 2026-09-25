@@ -141,7 +141,7 @@ export default function ConsoleHomePage() {
         </div>
         <Link
           to={SPACES_PATH}
-          className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent-ink"
         >
           管理空间
         </Link>
@@ -159,11 +159,11 @@ export default function ConsoleHomePage() {
         ) : distribution.total === 0 ? (
           <div className="mt-4 rounded-xl border border-line bg-canvas p-4 text-sm text-ink-soft">
             这个空间还没有学习数据。先去
-            <Link to="/assessment" className="text-accent hover:underline">
+            <Link to="/assessment" className="text-accent-ink hover:underline">
               做一次测评
             </Link>
             ，或到
-            <Link to="/drive" className="text-accent hover:underline">
+            <Link to="/drive" className="text-accent-ink hover:underline">
               云盘
             </Link>
             上传一份试卷，概览就会在这里出现。
@@ -222,7 +222,7 @@ export default function ConsoleHomePage() {
               className="group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition-colors hover:border-accent"
             >
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl border border-accent/40 bg-accent-veil text-accent">
+                <span className="grid h-10 w-10 place-items-center rounded-xl border border-accent/40 bg-accent-veil text-accent-ink">
                   <svg
                     width="20"
                     height="20"
@@ -245,7 +245,7 @@ export default function ConsoleHomePage() {
                 ) : null}
               </div>
               <p className="mt-3 flex-1 text-ui-sm leading-relaxed text-ink-soft">{m.desc}</p>
-              <span className="mt-3 text-ui-sm font-medium text-accent transition-transform group-hover:translate-x-0.5">
+              <span className="mt-3 text-ui-sm font-medium text-accent-ink transition-transform group-hover:translate-x-0.5">
                 进入 →
               </span>
             </Link>

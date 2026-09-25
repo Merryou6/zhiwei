@@ -41,7 +41,7 @@ function formatValue(value: unknown): string {
 function StatusIcon({ status }: { status: ChatToolStatus }) {
   if (status === 'running') {
     return (
-      <svg className="h-3.5 w-3.5 animate-spin text-accent" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg className="h-3.5 w-3.5 animate-spin text-accent-ink" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
         <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
