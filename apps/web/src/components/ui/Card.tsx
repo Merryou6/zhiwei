@@ -9,10 +9,20 @@
  * 【三档 variant 的分工 —— 这是「克制使用卡片」的机制，不是装饰选项】
  *   plain  静态承载块：边框 + 浅阴影。页面的第一层信息容器，一个页面用几张。
  *   raised 真正浮起的层：更强的阴影。只给对话框、下拉、浮在内容上的明细卡。
- *   quiet  下沉的区块：**无边框、无阴影**，只靠底色（canvas）与卡片表面区分。
- *          它的存在意义就是「让嵌套内容不再是卡片」—— 卡里的分组用 quiet，
- *          就自然得到「一层卡 + 若干下沉区块」，而不是「卡里还有卡」。
+ *   quiet  下沉的区块：**无边框、无阴影**，只靠表面色与页面底色区分。
+ *          它的存在意义是「让嵌套内容不再是卡片」—— 卡里的分组用 quiet，
+ *          就自然得到「一层卡 + 若干安静区块」，而不是「卡里还有卡」。
  *   bare   完全无装饰。给「本来就不该有边界」的内容用（例如 Hero）。
+ *
+ * ⚠ quiet 的底色为什么是 surface 而不是 canvas（P3 走查实测修正）：
+ *   第一版把 quiet 写成 bg-canvas，结果在真实页面上**完全看不见** ——
+ *   页面底色（body bg-canvas）与它逐字相同，容器边界彻底消失，标题和进度条
+ *   像浮在空气里。浅色下同样失效（canvas #F5F8F9 也是页面底色）。
+ *   真正的分工是：
+ *     · 页面底             = canvas
+ *     · quiet 容器         = surface（比页面底亮/深一档，无边框无阴影 → 比 plain 安静）
+ *     · 卡片内部的凹陷块   = canvas（此时外层是 surface，canvas 才有对比）
+ *   即 canvas 是「嵌在 surface 里的凹陷」，不是「页面上的容器」。
  *
  * 【为什么 base 里带 space-y-3】
  * 卡片内部各段之间的垂直节奏本该是一致的，但收敛前是每处手写 mt-4 / mt-5 / mt-3。
@@ -23,7 +33,7 @@
  */
 
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
 
@@ -32,7 +42,7 @@ export const cardVariants = cva('rounded-surface space-y-3', {
     variant: {
       plain: 'border border-line bg-surface shadow-card',
       raised: 'border border-line bg-surface shadow-overlay',
-      quiet: 'bg-canvas',
+      quiet: 'bg-surface',
       bare: '',
     },
     padding: {
@@ -59,24 +69,42 @@ export const cardVariants = cva('rounded-surface space-y-3', {
   },
 });
 
-export interface CardProps extends VariantProps<typeof cardVariants> {
+export interface CardProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'>,
+    VariantProps<typeof cardVariants> {
   className?: string;
   children?: ReactNode;
 }
 
-export function Card({ className, variant, padding, interactive, children }: CardProps) {
+/**
+ * 开放标准的 div 属性（id / aria-* / data-* / onClick）：
+ * 卡片经常需要被当作滚动锚点（id）、被读屏描述（aria-labelledby）或被整体点击。
+ * 把它们挡住只会逼调用方在外面再套一层没有意义的 div。
+ */
+export function Card({ className, variant, padding, interactive, children, ...rest }: CardProps) {
   return (
-    <div className={cn(cardVariants({ variant, padding, interactive }), className)}>
+    <div className={cn(cardVariants({ variant, padding, interactive }), className)} {...rest}>
       {children}
     </div>
   );
 }
 
-export function CardTitle({ className, children }: { className?: string; children: ReactNode }) {
-  return <h2 className={cn('text-base font-medium text-ink', className)}>{children}</h2>;
+export function CardTitle({
+  className,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLHeadingElement> & { children: ReactNode }) {
+  // text-lg(18px) 而非 text-base(16px)：卡片标题与正文(14px) 之间必须有一段**看得见**的
+  // 阶差。16→14 只差 2px，中文正文下几乎读不出层级，一排卡片就会糊成一片「等权方块」——
+  // 这正是改版前 AttributionPage 最明显的问题。18→14 是 1.29 倍，一眼分得开。
+  return (
+    <h2 className={cn('text-lg font-medium text-ink', className)} {...rest}>
+      {children}
+    </h2>
+  );
 }
 
-export interface CardHeaderProps {
+export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title' | 'className'> {
   title?: ReactNode;
   /** 标题下的一行说明。 */
   description?: ReactNode;
@@ -87,9 +115,16 @@ export interface CardHeaderProps {
   children?: ReactNode;
 }
 
-export function CardHeader({ title, description, actions, className, children }: CardHeaderProps) {
+export function CardHeader({
+  title,
+  description,
+  actions,
+  className,
+  children,
+  ...rest
+}: CardHeaderProps) {
   return (
-    <div className={cn('flex flex-wrap items-start justify-between gap-3', className)}>
+    <div className={cn('flex flex-wrap items-start justify-between gap-3', className)} {...rest}>
       {children ?? (
         <>
           <div className="min-w-0">
@@ -105,10 +140,26 @@ export function CardHeader({ title, description, actions, className, children }:
   );
 }
 
-export function CardContent({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={className}>{children}</div>;
+export function CardContent({
+  className,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
+  return (
+    <div className={className} {...rest}>
+      {children}
+    </div>
+  );
 }
 
-export function CardFooter({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('flex flex-wrap items-center gap-3', className)}>{children}</div>;
+export function CardFooter({
+  className,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
+  return (
+    <div className={cn('flex flex-wrap items-center gap-3', className)} {...rest}>
+      {children}
+    </div>
+  );
 }
