@@ -18,7 +18,6 @@
 
 **在线体验：[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**（注册即用，数据本地隔离）
 
-<img src="docs/screenshots/cover.png" width="720" alt="知微 · 学习伴侣">
 
 </div>
 
