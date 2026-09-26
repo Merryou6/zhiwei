@@ -14,7 +14,7 @@
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
 ![license](https://img.shields.io/badge/license-GPL--3.0-lightgrey)
 
-**粤港澳大湾区 AI Coding 创新赛 · 参赛作品**
+**粤港澳大湾区 AI Coding 创新赛 · 参赛作品 | 方向一：AI + 教学管理助手**
 
 **在线体验：[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**（注册即用，数据本地隔离）
 
