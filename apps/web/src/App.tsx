@@ -25,9 +25,11 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import MePage from './pages/MePage';
 import PaperPage from './pages/PaperPage';
+import PracticePage from './pages/PracticePage';
 import ReportPage from './pages/ReportPage';
 import SelfReportPage from './pages/SelfReportPage';
 import SpacesPage from './pages/SpacesPage';
+import StartPage from './pages/StartPage';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherRecommendations from './pages/teacher/TeacherRecommendations';
 import TeacherStudentDetail from './pages/teacher/TeacherStudentDetail';
@@ -52,6 +54,9 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   '/report': ReportPage,
   '/drive': DrivePage,
   '/me': MePage,
+  // v2.1：冷启动分叉 + 专项练习（逐步批改）
+  '/start': StartPage,
+  '/practice': PracticePage,
 };
 
 /** 懒加载页面的占位（骨架屏，批三）：与页面内加载态同语气，避免白屏闪烁。 */

@@ -13,7 +13,7 @@
  * 502 / 504：模型上游失败或超时时返回 msg = "这道题我没看清，麻烦你手动标一下对错"（用户可读）。
  */
 
-import { buildDedupKey, updateMastery } from '../../../../packages/engine/src/index';
+import { buildDedupKey, masteryToBand, updateMastery } from '../../../../packages/engine/src/index';
 
 import { isoPlusDays, nowIso, ok, requireSpaceOwnership } from '../context';
 import type { AppContext } from '../context';
@@ -39,6 +39,29 @@ export function mapModelError(error: unknown): ApiError {
   return /timeout|timed out|ETIMEDOUT/i.test(message)
     ? httpError.modelTimeout(PAPER_FALLBACK_MSG)
     : httpError.modelUpstreamFailed(PAPER_FALLBACK_MSG);
+}
+
+/** v2.1 冷启动：单卷最多页数（多图 file_ids 上限）。 */
+export const PAPER_MAX_FILES = 5;
+
+/**
+ * v2.1 追加式入参解析：file_ids（多页整卷，1–5 张）优先；缺省回落单图 file_id（旧客户端零破坏）。
+ * 返回 null 表示请求里两者都没给（由调用方 400）。
+ */
+export function parseFileIds(body: Record<string, unknown>): string[] | null {
+  if (body.file_ids !== undefined) {
+    const raw = body.file_ids;
+    if (!Array.isArray(raw)) throw httpError.badRequest('file_ids 必须是字符串数组');
+    const ids = raw.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+    if (ids.length === 0) throw httpError.badRequest('file_ids 不能为空');
+    if (ids.length > PAPER_MAX_FILES) {
+      throw httpError.badRequest(`一份卷子最多 ${PAPER_MAX_FILES} 张图片`);
+    }
+    return ids;
+  }
+  const fileId = body.file_id;
+  if (typeof fileId === 'string' && fileId.trim().length > 0) return [fileId];
+  return null;
 }
 
 /** 响应白名单（契约 §5 五项；crop_url 属存储字段，不下发）。 */
@@ -75,9 +98,9 @@ export async function upload(req: RouteRequest, ctx: AppContext): Promise<ApiRes
   const user = await authedUser(req, ctx);
   const space = await requireSpaceOwnership(ctx, user.user_id, req.body.space_id);
 
-  const fileId = req.body.file_id;
-  if (typeof fileId !== 'string' || fileId.trim().length === 0) {
-    throw httpError.badRequest('file_id 不能为空');
+  const fileIds = parseFileIds(req.body);
+  if (!fileIds) {
+    throw httpError.badRequest('file_id 不能为空（多页整卷请传 file_ids）');
   }
 
   const recognitionId = newId('rec_');
@@ -87,7 +110,8 @@ export async function upload(req: RouteRequest, ctx: AppContext): Promise<ApiRes
   try {
     recognized = await createModels().recognizePaper({
       space_id: space.space_id,
-      file_id: fileId,
+      file_id: fileIds[0],
+      file_ids: fileIds.length > 1 ? fileIds : undefined,
       recognition_id: recognitionId,
     });
   } catch (error) {
@@ -98,7 +122,8 @@ export async function upload(req: RouteRequest, ctx: AppContext): Promise<ApiRes
     recognition_id: recognitionId,
     user_id: user.user_id,
     space_id: space.space_id,
-    file_id: fileId,
+    file_id: fileIds[0],
+    file_ids: fileIds.length > 1 ? fileIds : undefined,
     status: 'pending_confirm',
     items: recognized,
     created_at: nowIso(nowMs),
@@ -293,8 +318,20 @@ export async function confirmPaper(req: RouteRequest, ctx: AppContext): Promise<
   record.expire_at = isoPlusDays(nowMs, PAPER_EXPIRE_DAYS);
   await ctx.store.updateRecognition(record);
 
+  // v2.1 冷启动：确认响应附带建图摘要（covered_kps / band_counts），
+  // 口径与 graph.mastery / teacher.bandCounts 同源（masteryToBand；未覆盖不计入）。
+  const coveredKps = new Set(masteryByKp.keys());
+  const bootstrapBandCounts: Record<string, number> = { 待巩固: 0, 不稳定: 0, 基本掌握: 0, 已掌握: 0 };
+  for (const update of masteryByKp.values()) {
+    bootstrapBandCounts[masteryToBand(update.after)] += 1;
+  }
+
   return ok({
     events_created: eventsCreated,
     mastery_updates: [...masteryByKp.values()],
+    bootstrap: {
+      covered_kps: coveredKps.size,
+      band_counts: bootstrapBandCounts,
+    },
   });
 }

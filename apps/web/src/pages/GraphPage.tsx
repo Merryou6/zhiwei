@@ -1,31 +1,27 @@
 /**
- * 页 8 · 知识图谱（兼「学习路径页」；P0 #10）
+ * 页 8 · 知识图谱（兼「学习路径页」）→ v2.1 技能树 2.0
  *
- * 契约：#19 GET /api/report/summary?space_id=xxx（全部 20 节点掌握度）+ graphSnapshot 静态副本（结构，D7）
- *       查询参数 ?path=kp1,kp2（来自页 7 归因跳转或 #17 plan.path）→ 路径节点描边加粗 + 边走主色，其余降透明度
- * 技术：echarts graph series + layout:'none' + 自算分层坐标（lib/graphLayout.ts，D10：不用力导向，
- *       避免演示时位置抖动；横向=上游→下游）；图例常驻右上（BandLegend，四色 + 归因/学习路径）。
- * 空态：未自报也未测评（掌握度全 0 且无 accuracy）→ 引导文案，不伪造数据（D12）。
+ * 数据：#32 GET /api/graph/mastery（v2.1 起本页唯一数据源 —— 一次带回结构化掌握度 +
+ *       游戏化摘要：evidence_total / newly_mastered_7d / weakest / confidence）。
+ *       band 由服务端 engine.masteryToBand 同源计算，前端只消费不重算（纪律不变）。
  *
- * ── 重构 P3-3（2026-09-25）本页被认定为「全站最弱一页」，改动集中在四处可见缺陷 ──
- * ① 节点标签：原为 kpLabel(id, 7) 截断 + fontSize 10，图上是一排「函数的概念与自…」，
- *    信息量等于零 —— 而「这个点是什么」正是图谱页最该回答的问题。改为
- *    width + overflow:'break' 先换行再截断（对齐 compact-label-overflow 的口径：
- *    溢出要换行，不要藏值），字号提到 11，名称上限放到 14 字；完整名称仍在 tooltip。
- * ② 节点直径 22 → 26（高亮 30 → 34）：原尺寸下 20 个点看起来像一层灰。
- * ③ 详情卡改用 shadow-overlay + 不透明底：原来用内置 shadow-sm（固定黑色 rgba，
- *    深色主题下投在深底上完全看不见）配 bg-surface/95（图线从卡面透上来干扰文字）。
- * ④ 路径徽标改用 inline-flex：原来是在 **inline span** 上写 min-h-9，而行内元素
- *    忽略 min-height —— 这个最小高度从未生效过。顺带把关闭键从「仅 <720 撑到 36px」
- *    改为全断点 IconButton size="md"（44×44）：触控目标下限不分断点。
- * 版式接入 PageContainer（wide / 无空间时 prose）+ PageHeader；两处按钮 Link 复用
- * buttonVariants，不再抄第二套按钮 class；页脚计数改等宽表格数字。
+ * v2.1 新增（对应战略三张牌之一「让越用越懂你被看见」）：
+ *   ① 六态视觉机：四带实色（BAND_HEX）+ 未点亮空心 + 先修锁定（灰 + ？）；
+ *   ② 先修边「打通」着色：两端均已掌握 → 亮边（进度感来源）；
+ *   ③ 首屏常驻证据计数器：「这张图谱记录了你 N 条学习证据」+「本周点亮 +N」；
+ *   ④ 章节徽章：全章 ≥ 基本掌握 → ✓；
+ *   ⑤ 低置信角标：confidence=low（仅旧试卷/自报触达）→ 节点带 ？，提示做复测校准；
+ *   ⑥ 成长海报：客户端 canvas 生成 PNG 分享（lib/poster.ts，零后端）；
+ *   ⑦ 冷启动横幅：?bootstrapped=1（拍卷建图完成跳转）→「初始图谱已生成」；
+ *   ⑧ 节点错落点亮动画（echarts 逐点 delay，非用力导向的既有纪律不变）。
+ *
+ * 版式纪律继承：echarts 配色读 CSS 变量（themeColor）；图例常驻（BandLegend）；
+ * 详情卡不透明底 + shadow-overlay；标签先换行再截断。
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-// 按需引入（前端优化批一）：本页只用到 graph 系列 + tooltip + canvas 渲染器，
-// 全量 `import * as echarts` 会把整个库（含未用图表类型）打进 echarts chunk（约 1MB）。
+// 按需引入（前端优化批一）：本页只用到 graph 系列 + tooltip + canvas 渲染器。
 import * as echarts from 'echarts/core';
 import { GraphChart } from 'echarts/charts';
 import { TooltipComponent } from 'echarts/components';
@@ -34,14 +30,21 @@ import { CanvasRenderer } from 'echarts/renderers';
 echarts.use([GraphChart, TooltipComponent, CanvasRenderer]);
 
 import { ApiError } from '../api/client';
-import { reportSummary } from '../api/endpoints';
-import type { ReportSummaryData } from '../api/types';
+import { getGraphMastery } from '../api/endpoints';
+import type { GraphMasteryData } from '../api/types';
 import BandLegend from '../components/BandLegend';
-import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
-import { IconButton, PageContainer, PageHeader, buttonVariants } from '../components/ui';
-import { GRAPH_NODES, kpName, snapshotNode } from '../data/graphSnapshot';
+import { Badge, Button, IconButton, PageContainer, PageHeader, buttonVariants } from '../components/ui';
+import { GRAPH_NODES, snapshotNode } from '../data/graphSnapshot';
 import { computeGraphLayout, isPathEdge, parsePathParam } from '../lib/graphLayout';
+import {
+  chapterBadges,
+  edgeLit,
+  masteryByKpOf,
+  treeNodeState,
+} from '../lib/graphMastery';
+import type { ChapterBadge } from '../lib/graphMastery';
+import { buildGrowthPoster, downloadPoster } from '../lib/poster';
 import { cn } from '../lib/cn';
 import { kpLabel, percent } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
@@ -57,17 +60,27 @@ const DIM_OPACITY = 0.28;
 /** 主题取不到时的兜底（浅色值）。正常情况下不会用到。 */
 const EDGE_COLOR_FALLBACK = '#C9D3D8';
 const TEXT_COLOR_FALLBACK = '#22303A';
+/** 未点亮 / 锁定的描边色（跟随主题 line 变量，兜底深色值）。 */
+const LOCKED_COLOR_FALLBACK = '#4A5560';
 
-/**
- * 读取主题变量的当前解析值。
- *
- * echarts 把图画在 canvas 上，拿不到 tailwind 的 class，所以它的配色必须由 JS 提供。
- * 上一版把节点标签写成 #22303A、边线写成 #C9D3D8 —— 这是「按浅色底选的色」，
- * 深色主题下标签会直接消失在深底里。改为回头读 CSS 变量，
- * 图表与 DOM 就共用同一份主题真相，将来加主题切换也不必再改这里。
- *
- * 变量值是「R G B」三元组，需要补上 rgb() 外壳。
- */
+/** 六态在图表里的视觉（颜色/描边在 setOption 处组装，这里只管语义标签）。 */
+const STATE_HINT: Record<string, string> = {
+  mastered: '已点亮',
+  basic: '接近点亮',
+  unstable: '不太稳',
+  weak: '待攻克',
+  untouched: '还没碰过',
+  locked: '先修未通，暂锁定',
+};
+
+const EVIDENCE_LABEL: Record<string, string> = {
+  silent: '静默观察',
+  paper: '试卷',
+  diagnose: '测评',
+  self_report: '自报',
+  practice: '练习批改',
+};
+
 function themeColor(name: string, fallback: string): string {
   if (typeof window === 'undefined') return fallback;
   const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -75,12 +88,14 @@ function themeColor(name: string, fallback: string): string {
 }
 
 export default function GraphPage() {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const highlightPath = parsePathParam(params.get('path'));
+  const bootstrapped = params.get('bootstrapped') === '1';
 
-  const [report, setReport] = useState<ReportSummaryData | null>(null);
+  const [report, setReport] = useState<GraphMasteryData | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
@@ -89,15 +104,15 @@ export default function GraphPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const layout = useMemo(() => computeGraphLayout(), []);
-  const masteryById = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const row of report?.mastery ?? []) map.set(row.kp_id, row.mastery);
-    return map;
-  }, [report]);
+  const byKp = useMemo(() => masteryByKpOf(report?.nodes ?? []), [report]);
+  const summary = report?.summary ?? null;
+  const badges = useMemo<ChapterBadge[]>(() => chapterBadges(byKp), [byKp]);
 
-  const hasData = Boolean(
-    report && (report.accuracy.length > 0 || report.mastery.some((row) => row.mastery > 0)),
-  );
+  /** 冷启动（拍卷建图）横幅：确认后带 ?bootstrapped=1 跳入，展示一次即关闭。 */
+  function dismissBootstrap(): void {
+    params.delete('bootstrapped');
+    setParams(params, { replace: true });
+  }
 
   useEffect(() => {
     if (!activeSpaceId) {
@@ -107,7 +122,7 @@ export default function GraphPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const data = await reportSummary(activeSpaceId);
+        const data = await getGraphMastery(activeSpaceId);
         if (!cancelled) setReport(data);
       } catch (error) {
         if (!cancelled) toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
@@ -126,12 +141,10 @@ export default function GraphPage() {
     if (!container || !report) return;
 
     const chart = echarts.init(container);
-    // 图表配色随主题解析（见 themeColor 注释）。取值的时机放在这里而非模块顶层：
-    // 模块加载时样式表未必已生效，此时读变量会拿到空串。
     const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
     const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
-    // 高亮路径走 accent：深色下是提亮过的 #6FB3D4，与页面强调色同源。
     const accentColor = themeColor('--c-accent', PRIMARY_HEX);
+    const lockedColor = themeColor('--c-line', LOCKED_COLOR_FALLBACK);
     const onPath = (id: string): boolean => highlightPath.includes(id);
 
     chart.setOption(
@@ -140,11 +153,26 @@ export default function GraphPage() {
           formatter: (raw: unknown) => {
             const data = (raw as { data?: { id?: string } }).data;
             if (!data?.id) return '';
-            const mastery = masteryById.get(data.id) ?? 0;
-            const node = snapshotNode(data.id);
-            return `${kpName(data.id)}<br/>章节：${node?.chapter ?? '—'}<br/>掌握度：${percent(mastery)}（${masteryBandOf(mastery)}）`;
+            const snapshot = snapshotNode(data.id);
+            const profile = byKp.get(data.id);
+            const mastery = profile?.mastery ?? 0;
+            const state = treeNodeState(snapshot ?? { ...GRAPH_NODES[0], id: data.id }, byKp);
+            const lines = [
+              kpNameOf(data.id, profile?.name),
+              `章节：${snapshot?.chapter ?? '—'}`,
+              `掌握度：${percent(mastery)}（${masteryBandOf(mastery)}）`,
+              `状态：${STATE_HINT[state] ?? state}`,
+            ];
+            if (profile && profile.confidence === 'low') {
+              lines.push('？从旧卷/自报估的 —— 做 2 道复测会更准');
+            }
+            return lines.join('<br/>');
           },
         },
+        // 节点错落点亮：先修链上游先亮，下游跟进（一次性的「点火」仪式感）
+        animationDuration: 900,
+        animationDelay: (rawIndex: number) => rawIndex * 36,
+        animationEasing: 'cubicOut',
         series: [
           {
             type: 'graph',
@@ -160,45 +188,66 @@ export default function GraphPage() {
               distance: 6,
               fontSize: 11,
               lineHeight: 13,
-              // 标签走「先换行、再截断」而不是直接截断：
-              // 原实现是 kpLabel(id, 7) + fontSize 10，于是图上是一排「函数的概念与自…」，
-              // 信息量等于零 —— 而这恰恰是图谱页最该回答的问题「这个点是什么」。
-              // width + overflow:'break' 让长名称折成两行；完整名称仍在 tooltip 里。
               width: 76,
               overflow: 'break',
               color: textColor,
             },
             emphasis: { focus: 'adjacency', label: { fontSize: 12 } },
             data: layout.nodes.map((placed) => {
-              const mastery = masteryById.get(placed.id) ?? 0;
-              const band = masteryBandOf(mastery);
+              const snapshot = snapshotNode(placed.id);
+              const state = treeNodeState(snapshot ?? { ...GRAPH_NODES[0], id: placed.id }, byKp);
+              const profile = byKp.get(placed.id);
+              const mastery = profile?.mastery ?? 0;
               const onHighlight = onPath(placed.id);
               const dim = highlightPath.length > 0 && !onHighlight;
+
+              // 六态 → 视觉
+              const filled = state !== 'untouched' && state !== 'locked';
+              const color = filled
+                ? masteryHexOf(mastery)
+                : state === 'locked'
+                  ? 'transparent'
+                  : 'transparent';
+              const border =
+                state === 'locked'
+                  ? lockedColor
+                  : state === 'untouched'
+                    ? edgeColor
+                    : onHighlight
+                      ? accentColor
+                      : BAND_HEX[masteryBandOf(mastery) as MasteryBand];
+              const borderType: 'solid' | 'dashed' =
+                state === 'locked' || (profile?.confidence === 'low' && onHighlight) ? 'dashed' : 'solid';
+              // 低置信：边框加虚线语义（tooltip 再补 ？说明），待攻克加粗描边
+              const borderWidth = onHighlight ? 3 : state === 'weak' ? 2.5 : state === 'untouched' || state === 'locked' ? 1.5 : 1;
+
               return {
                 id: placed.id,
-                name: kpLabel(placed.id, 14),
+                name: state === 'locked' ? `${kpLabel(placed.id, 14)}？` : kpLabel(placed.id, 14),
                 x: placed.x,
                 y: placed.y,
-                symbolSize: onHighlight ? 34 : 26,
+                symbolSize: onHighlight ? 34 : state === 'weak' ? 30 : 26,
                 itemStyle: {
-                  color: masteryHexOf(mastery),
-                  borderColor: onHighlight ? accentColor : BAND_HEX[band],
-                  borderWidth: onHighlight ? 3 : 1,
+                  color,
+                  borderColor: border,
+                  borderWidth,
+                  borderType,
                   opacity: dim ? DIM_OPACITY : 1,
                 },
                 label: { opacity: dim ? DIM_OPACITY : 1 },
               };
             }),
             edges: layout.edges.map((edge) => {
+              const lit = edgeLit(edge.from, edge.to, byKp);
               const onHighlight = isPathEdge(edge.from, edge.to, highlightPath);
               const dim = highlightPath.length > 0 && !onHighlight;
               return {
                 source: edge.from,
                 target: edge.to,
                 lineStyle: {
-                  color: onHighlight ? accentColor : edgeColor,
-                  width: onHighlight ? 2.5 : 1,
-                  opacity: dim ? DIM_OPACITY * 0.8 : 1,
+                  color: onHighlight ? accentColor : lit ? accentColor : edgeColor,
+                  width: onHighlight ? 2.5 : lit ? 2 : 1,
+                  opacity: dim ? DIM_OPACITY * 0.8 : lit ? 0.9 : 0.5,
                   curveness: 0.06,
                 },
               };
@@ -217,10 +266,6 @@ export default function GraphPage() {
     const onResize = (): void => chart.resize();
     window.addEventListener('resize', onResize);
 
-    // 容器尺寸变化的重绘（R2）：window 的 resize 只在视口变化时触发，而正文列的宽度还会
-    // 因「右侧对话面板开合时的让位 padding」（≥1280 挤压态）而变化——那时 window 不 resize，
-    // 图表会留着旧尺寸的白边或裁切。ResizeObserver 观察的是容器本身，是标准信号；
-    // window 监听保留作兜底（极旧浏览器无 ResizeObserver 时行为不劣于改造前）。
     const observer =
       typeof ResizeObserver === 'undefined'
         ? null
@@ -235,15 +280,31 @@ export default function GraphPage() {
       chart.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report, highlightPath.join(','), layout]);
+  }, [report, highlightPath.join(','), layout, byKp]);
 
   const counts = BAND_ORDER.reduce<Partial<Record<MasteryBand, number>>>((accumulator, band) => {
-    accumulator[band] = (report?.mastery ?? []).filter((row) => masteryBandOf(row.mastery) === band).length;
+    accumulator[band] = summary?.band_counts[band] ?? 0;
     return accumulator;
   }, {});
 
   const selectedNode = selected ? snapshotNode(selected) : null;
-  const selectedMastery = selected ? (masteryById.get(selected) ?? 0) : 0;
+  const selectedProfile = selected ? byKp.get(selected) : undefined;
+  const selectedMastery = selectedProfile?.mastery ?? 0;
+
+  async function sharePoster(): Promise<void> {
+    if (!summary || posting) return;
+    setPosting(true);
+    try {
+      const blob = await buildGrowthPoster(summary, badges);
+      if (!blob || !downloadPoster(blob)) {
+        toast('这个浏览器导不了图片，截个屏分享也一样', 'warn');
+      } else {
+        toast('海报已生成，看看下载列表');
+      }
+    } finally {
+      setPosting(false);
+    }
+  }
 
   if (!activeSpaceId) {
     return (
@@ -256,98 +317,175 @@ export default function GraphPage() {
     );
   }
 
+  const hasAnyEvidence = (summary?.evidence_total ?? 0) > 0;
+
   return (
     <PageContainer width="wide">
       <PageHeader
-        title="你的知识地图"
-        description="颜色是掌握度（左下角是图例），从左往右是「先学什么再学什么」。点一个点看细节。"
+        title="你的技能树"
+        description="颜色是掌握度（左下角图例），从左往右是「先学什么再学什么」。两个点都亮了，中间这条路就算打通。点一个点看细节。"
         actions={
-          highlightPath.length > 0 ? (
-            // inline-flex + items-center：原实现是 inline span 上写 min-h-9，
-            // 而**行内元素忽略 min-height** —— 这个最小高度从未生效过（又一次静默失效）。
-            <span className="inline-flex min-h-9 items-center rounded-control bg-accent-veil px-3 text-ui-sm text-accent-ink">
-              {plan && plan.path.join(',') === highlightPath.join(',')
-                ? `学习路径：${plan.strategy}`
-                : '正在高亮一条路径（上游 → 根因）'}
-            </span>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {summary && hasAnyEvidence ? (
+              <Button variant="secondary" size="sm" disabled={posting} onClick={() => void sharePoster()}>
+                {posting ? '正在画…' : '生成成长海报'}
+              </Button>
+            ) : null}
+            {highlightPath.length > 0 ? (
+              <span className="inline-flex min-h-9 items-center rounded-control bg-accent-veil px-3 text-ui-sm text-accent-ink">
+                {plan && plan.path.join(',') === highlightPath.join(',')
+                  ? `学习路径：${plan.strategy}`
+                  : '正在高亮一条路径（上游 → 根因）'}
+              </span>
+            ) : null}
+          </div>
         }
       />
 
+      {bootstrapped && summary ? (
+        <div className="mt-4 flex items-start justify-between gap-3 rounded-surface border border-band-basic bg-surface p-4 shadow-card">
+          <div>
+            <p className="text-sm text-ink">
+              初始图谱已生成：覆盖{' '}
+              <span className="font-mono tabular-nums">{summary.covered_kp}</span> 个知识点，
+              <span className="font-mono tabular-nums">{summary.band_counts['待巩固'] ?? 0}</span>{' '}
+              个待巩固。
+            </p>
+            <p className="mt-1 text-ui-sm text-ink-soft">
+              带「？」的点是从旧卷估出来的，做两道复测就会更准。
+            </p>
+          </div>
+          <IconButton size="md" variant="quiet" onClick={dismissBootstrap} aria-label="关闭横幅">
+            ×
+          </IconButton>
+        </div>
+      ) : null}
+
+      {/* 「越用越懂你」的量化：证据计数器 + 本周点亮（v2.1 技能树首屏常驻） */}
+      {summary ? (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Badge tone={hasAnyEvidence ? 'positive' : 'neutral'} size="md">
+            这张图谱记录了你 {summary.evidence_total} 条学习证据
+          </Badge>
+          {summary.newly_mastered_7d > 0 ? (
+            <Badge tone="positive" size="md">
+              本周点亮 +{summary.newly_mastered_7d}
+            </Badge>
+          ) : null}
+          <Badge tone="neutral" size="md">
+            已覆盖 {summary.covered_kp}/{summary.total_kp}
+          </Badge>
+          {badges
+            .filter((badge) => badge.complete)
+            .map((badge) => (
+              <Badge key={badge.name} tone="positive" size="md">
+                {badge.name} ✓ 通关
+              </Badge>
+            ))}
+        </div>
+      ) : null}
+
       {loading ? (
         <PageSkeleton label="正在取你的掌握度…" rows={1} className="mt-6" />
-      ) : !hasData ? (
-        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
-          <EmptyState
-            title="这张图还没有你的颜色"
-            hint={`${UI_TEXT.needSelfReport}做完自报或几道题，每个知识点就会按掌握度上色。`}
-            action={
-              <div className="flex flex-wrap items-center gap-3">
-                <Link to="/self-report" className={cn(buttonVariants({ variant: 'primary' }))}>
-                  花 30 秒自报
-                </Link>
-                <Link to="/assessment" className={cn(buttonVariants({ variant: 'secondary' }))}>
-                  直接做几道题
-                </Link>
-              </div>
-            }
-          />
-        </div>
-      ) : (
-        /* 窄屏适配：图例在 <sm 收成卡片内静态一行（不压图），图本身给最小宽度并允许横向滚动，
-           保证 20 个节点在手机上不被压扁到标签重叠。 */
-        <div className="relative mt-4 rounded-surface border border-line bg-surface p-3 sm:p-0">
-          <BandLegend
-            counts={counts}
-            showPath={highlightPath.length > 0}
-            className="mb-3 sm:absolute sm:right-3 sm:top-3 sm:z-10 sm:mb-0"
-          />
-          <div className="overflow-x-auto">
-            <div
-              ref={containerRef}
-              style={{
-                minWidth: Math.max(720, layout.width + 200),
-                height: Math.max(420, layout.height + 200),
-              }}
-            />
+      ) : !hasAnyEvidence ? (
+        <div className="mt-4 rounded-surface border border-line bg-surface p-5 shadow-card">
+          <p className="text-sm text-ink">这张图还没有你的颜色。</p>
+          <p className="mt-1 text-ui-sm text-ink-soft">
+            不用刷题也可以开始：拍一张最近的试卷，一分钟点亮它；或者花 30 秒自报，先给个大概。
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Link to="/paper" className={cn(buttonVariants({ variant: 'primary' }))}>
+              拍试卷建图（推荐）
+            </Link>
+            <Link to="/self-report" className={cn(buttonVariants({ variant: 'secondary' }))}>
+              花 30 秒自报
+            </Link>
+            <Link to="/assessment" className={cn(buttonVariants({ variant: 'secondary' }))}>
+              直接做几道题
+            </Link>
           </div>
-
-          {selectedNode ? (
-            // 浮起层：用 shadow-overlay 而不是内置 shadow-sm。
-            // 内置阴影是固定的黑色 rgba —— 深色主题下投在深底上完全看不见，卡片会失去
-            // 与图面的层级关系（这是本项目记录在案的缺陷类型：P1a 当时就把它与静态卡
-            // 混用的问题写进了 boxShadow 的注释）。
-            // 底色同时从 bg-surface/95 改为不透明：半透明卡面会让下层图线与标签透上来
-            // 干扰文字，而这里没有任何「透视关系」要表达。
-            <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm text-ink">{selectedNode.name}</p>
-                {/* 关闭键走 IconButton size="md"（44×44）：原实现只在 <720 把「×」撑到
-                    36×36，桌面是一个几像素的纯文字 —— 触控目标下限是不分断点的。 */}
-                <IconButton size="md" variant="quiet" onClick={() => setSelected(null)} aria-label="关闭">
-                  ×
-                </IconButton>
-              </div>
-              <p className="mt-1 text-ink-soft">
-                {selectedNode.chapter} · 难度 {selectedNode.difficulty}
-              </p>
-              <p className="mt-1 text-ink-soft">
-                掌握度 {percent(selectedMastery)}（
-                <span style={{ color: masteryHexOf(selectedMastery) }}>{masteryBandOf(selectedMastery)}</span>）
-              </p>
-              <p className="mt-1 text-ink-soft">
-                先修：{selectedNode.prerequisites.length === 0 ? '无（起点）' : selectedNode.prerequisites.map((id) => kpName(id)).join('、')}
-              </p>
-            </div>
-          ) : null}
         </div>
-      )}
+      ) : null}
+
+      <div className="relative mt-4 rounded-surface border border-line bg-surface p-3 sm:p-0">
+        <BandLegend
+          counts={counts}
+          showPath={highlightPath.length > 0}
+          className="mb-3 sm:absolute sm:right-3 sm:top-3 sm:z-10 sm:mb-0"
+        />
+        <div className="overflow-x-auto">
+          <div
+            ref={containerRef}
+            style={{
+              minWidth: Math.max(720, layout.width + 200),
+              height: Math.max(420, layout.height + 200),
+            }}
+          />
+        </div>
+
+        {selectedNode ? (
+          <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm text-ink">{selectedNode.name}</p>
+              <IconButton size="md" variant="quiet" onClick={() => setSelected(null)} aria-label="关闭">
+                ×
+              </IconButton>
+            </div>
+            <p className="mt-1 text-ink-soft">
+              {selectedNode.chapter} · 难度 {selectedNode.difficulty}
+            </p>
+            <p className="mt-1 text-ink-soft">
+              掌握度 {percent(selectedMastery)}（
+              <span style={{ color: masteryHexOf(selectedMastery) }}>{masteryBandOf(selectedMastery)}</span>）
+            </p>
+            {selectedProfile ? (
+              <>
+                <p className="mt-1 text-ink-soft">
+                  证据{' '}
+                  <span className="font-mono tabular-nums text-ink">{selectedProfile.evidence_count}</span>{' '}
+                  条
+                  {selectedProfile.last_evidence_type
+                    ? ` · 最近：${EVIDENCE_LABEL[selectedProfile.last_evidence_type] ?? selectedProfile.last_evidence_type}`
+                    : ''}
+                </p>
+                {selectedProfile.confidence === 'low' ? (
+                  <p className="mt-1 text-band-weak">？从旧卷估的 —— 做 2 道复测会更准</p>
+                ) : null}
+              </>
+            ) : (
+              <p className="mt-1 text-ink-soft">还没碰过这个点——先修打通后就从它开始。</p>
+            )}
+            <p className="mt-1 text-ink-soft">
+              先修：
+              {selectedNode.prerequisites.length === 0
+                ? '无（起点）'
+                : selectedNode.prerequisites.map((id) => byKp.get(id)?.name ?? id).join('、')}
+            </p>
+            <div className="mt-2 flex gap-2">
+              <Link
+                to="/assessment"
+                className={cn(buttonVariants({ variant: 'primary', size: 'sm' }))}
+              >
+                去攻克
+              </Link>
+              <Link to="/practice" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}>
+                分步练一道
+              </Link>
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <p className="mt-4 text-ui-sm text-ink-soft">
         共 <span className="font-mono tabular-nums text-ink">{GRAPH_NODES.length}</span> 个知识点 /{' '}
         <span className="font-mono tabular-nums text-ink">{layout.columns}</span> 层先修链 ·
-        四色阈值与状态带取自引擎同一份常量
+        虚线空心 = 先修未通 · 颜色阈值与状态带取自引擎同一份常量
       </p>
     </PageContainer>
   );
+}
+
+/** kp 显示名：优先 #32 的服务端名称，兜底结构快照（禁止白屏的既有纪律）。 */
+function kpNameOf(id: string, serverName: string | undefined): string {
+  return serverName ?? (snapshotNode(id)?.name ?? id);
 }

@@ -7,7 +7,7 @@
  * 属调用方职责，见 DATA_SCHEMA §4.4。
  */
 
-export type EvidenceSource = 'silent' | 'paper' | 'diagnose' | 'self_report';
+export type EvidenceSource = 'silent' | 'paper' | 'diagnose' | 'self_report' | 'practice';
 
 export interface DedupKeyInput {
   userId: string;

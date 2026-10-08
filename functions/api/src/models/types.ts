@@ -37,7 +37,13 @@ export interface ClassifyOutput {
 
 export interface RecognizeInput {
   space_id: string;
+  /** 单图（v2.1 前的唯一形态，保留兼容）；多页整卷经 file_ids 传入。 */
   file_id: string;
+  /**
+   * v2.1 冷启动（可选，追加式）：多页整卷的 file_id 列表（≤5 张）。
+   * 适配器应逐张识别后合并去重（按题干），seq 由服务层统一重排。
+   */
+  file_ids?: string[];
   recognition_id: string;
 }
 

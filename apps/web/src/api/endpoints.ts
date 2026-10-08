@@ -22,6 +22,9 @@ import type {
   DiagnoseSubmitData,
   DiagnoseSubmitRequest,
   DriveData,
+  GradeStepsRequest,
+  GradeStepsData,
+  GraphMasteryData,
   LoginRequest,
   PaperConfirmData,
   PaperConfirmRequest,
@@ -159,6 +162,20 @@ export function generatePlan(body: PlanGenerateRequest): Promise<PlanData> {
 /** #19 GET /api/report/summary?space_id=xxx */
 export function reportSummary(spaceId: string): Promise<ReportSummaryData> {
   return request<ReportSummaryData>('/api/report/summary', { query: { space_id: spaceId } });
+}
+
+// ---------------------------------------------------------------- §14 技能树（v2.1）
+
+/** #32 GET /api/graph/mastery?space_id=xxx —— 技能树全量掌握度 + 游戏化摘要。 */
+export function getGraphMastery(spaceId: string): Promise<GraphMasteryData> {
+  return request<GraphMasteryData>('/api/graph/mastery', { query: { space_id: spaceId } });
+}
+
+// ---------------------------------------------------------------- §15 逐步批改（v2.1）
+
+/** #33 POST /api/grade/steps —— 分步提交，逐步批改并定位思路断点。 */
+export function gradeSteps(body: GradeStepsRequest): Promise<GradeStepsData> {
+  return request<GradeStepsData>('/api/grade/steps', { method: 'POST', body });
 }
 
 // ---------------------------------------------------------------- §12 老师端（v1.6）

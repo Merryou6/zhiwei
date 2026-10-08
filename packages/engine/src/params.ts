@@ -13,6 +13,8 @@ export interface Params {
   P_T: number;
   W_DIAGNOSE: number;
   W_PAPER: number;
+  /** v2.1 逐步批改（practice 通路）的证据权重。 */
+  W_PRACTICE: number;
   ALPHA_SILENT: number;
   PRIOR_MAP: Record<string, number>;
   PRUNE_THRESHOLD: number;
@@ -27,13 +29,14 @@ export interface Params {
   CLAMP: [number, number];
 }
 
-/** ALGORITHM §0 参数总表（17 项）的键名清单，用于加载后的完整性断言。 */
+/** ALGORITHM §0 参数总表（v2.1 起含 W_PRACTICE，共 18 项）的键名清单，用于加载后的完整性断言。 */
 export const PARAM_KEYS = [
   'P_S',
   'P_G',
   'P_T',
   'W_DIAGNOSE',
   'W_PAPER',
+  'W_PRACTICE',
   'ALPHA_SILENT',
   'PRIOR_MAP',
   'PRUNE_THRESHOLD',

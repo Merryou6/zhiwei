@@ -17,6 +17,12 @@
 export const LOGIN_PATH = '/login';
 export const SPACES_PATH = '/spaces';
 export const SELF_REPORT_PATH = '/self-report';
+/** v2.1 冷启动分叉：注册成功后的「两种方式认识你」。 */
+export const START_PATH = '/start';
+export const ASSESSMENT_PATH = '/assessment';
+export const PAPER_PATH = '/paper';
+/** v2.1 专项练习（逐步批改）。 */
+export const PRACTICE_PATH = '/practice';
 /** v1.6 双端：老师端工作台（/t/* 双壳，不进学生 ROUTES 11 页口径）。 */
 export const TEACHER_HOME = '/t';
 export const TEACHER_PREFIX = '/t';
@@ -53,7 +59,7 @@ export interface RouteSpec {
   nav: boolean;
 }
 
-/** 11 页路由表（顺序即顶栏顺序；页 11 控制台已于 v1.4 砍除，编号不复用）。 */
+/** 13 页路由表（v2.1 起含冷启动分叉 /start 与专项练习 /practice；页 11 永久空号）。 */
 export const ROUTES: readonly RouteSpec[] = [
   { path: LOGIN_PATH, label: '登录 / 注册', page: 1, requiresAuth: false, nav: false },
   { path: SELF_REPORT_PATH, label: '起点自报', page: 2, requiresAuth: true, nav: false },
@@ -61,12 +67,16 @@ export const ROUTES: readonly RouteSpec[] = [
   { path: '/assessment', label: '测评', page: 4, requiresAuth: true, nav: true },
   { path: '/paper', label: '试卷上传', page: 5, requiresAuth: true, nav: false },
   { path: '/chat', label: '对话辅导', page: 6, requiresAuth: true, nav: true },
+  // v2.1 专项练习：逐步批改（分步提交 → 定位思路断点）
+  { path: '/practice', label: '专项练习', page: 14, requiresAuth: true, nav: true },
   { path: '/attribution', label: '归因结果', page: 7, requiresAuth: true, nav: false },
   { path: '/graph', label: '知识图谱', page: 8, requiresAuth: true, nav: true },
   { path: '/report', label: '学习报告', page: 9, requiresAuth: true, nav: true },
   { path: '/drive', label: '云盘', page: 10, requiresAuth: true, nav: true },
   // v1.2（D4a）：「我的」= 账号辅助页，进顶栏主导航（末位）
   { path: ME_PATH, label: '我的', page: 12, requiresAuth: true, nav: true },
+  // v2.1 冷启动分叉：不进主导航（注册后一次性落地页）
+  { path: '/start', label: '开始建图', page: 13, requiresAuth: true, nav: false },
 ];
 
 /** 顶栏主导航项（空间不占首屏：/spaces 与 /self-report 不进主导航）。 */

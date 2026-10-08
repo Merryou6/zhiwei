@@ -4,6 +4,7 @@
   "P_T": 0.15,
   "W_DIAGNOSE": 1.0,
   "W_PAPER": 0.8,
+  "W_PRACTICE": 0.7,
   "ALPHA_SILENT": 0.1,
   "PRIOR_MAP": {
     "1": 0.1,

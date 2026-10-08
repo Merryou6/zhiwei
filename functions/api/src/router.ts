@@ -25,7 +25,9 @@ import {
 import { login, register } from './services/auth';
 import { chat as agentChat } from './services/chat';
 import { classifyError } from './services/classify';
+import { gradeSteps } from './services/grade';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
+import { mastery as graphMastery } from './services/graph';
 import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { generate as generatePlan } from './services/plan';
 import { profile as userProfile } from './services/profile';
@@ -89,7 +91,7 @@ export interface DispatchInput {
   headers?: Headers;
 }
 
-/** 20 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
+/** 33 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
 export function createRoutes(): RouteDefinition[] {
   return [
     // 步骤 2：认证 + 空间（#1–#5）
@@ -141,6 +143,10 @@ export function createRoutes(): RouteDefinition[] {
     { method: 'GET', pattern: '/api/student/links', handler: listMyTeachers },
     { method: 'GET', pattern: '/api/student/recommendations', handler: listMyRecommendations },
     { method: 'POST', pattern: '/api/student/recommendations/:recommendationId/feedback', handler: recommendationFeedback },
+
+    // v2.1 技能树 + 逐步批改（#32–#33）——静态段，与既有路由无前缀冲突（追加式挂表尾）
+    { method: 'GET', pattern: '/api/graph/mastery', handler: graphMastery },
+    { method: 'POST', pattern: '/api/grade/steps', handler: gradeSteps },
   ];
 }
 

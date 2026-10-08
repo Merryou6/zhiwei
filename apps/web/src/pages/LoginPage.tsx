@@ -50,7 +50,7 @@ import type { AuthData } from '../api/types';
 import ParticleLogo from '../components/ParticleLogo';
 import { Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
-import { SELF_REPORT_PATH, SPACES_PATH, TEACHER_HOME } from '../router';
+import { SPACES_PATH, START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { pickDefaultSpace, useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
@@ -112,7 +112,8 @@ export default function LoginPage() {
 
     if (isRegister) {
       toast(`已为你建好「${defaultName}」学习空间`);
-      navigate(SELF_REPORT_PATH, { replace: true });
+      // v2.1 冷启动分叉：注册后先选「拍试卷 / 做摸底题」，不再强制先做题
+      navigate(START_PATH, { replace: true });
     } else {
       navigate(SPACES_PATH, { replace: true });
     }

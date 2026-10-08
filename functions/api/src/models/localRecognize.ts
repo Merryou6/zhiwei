@@ -69,11 +69,24 @@ export function pickRecognizedItems(fileId: string, count = RECOGNIZED_ITEM_COUN
   return picked;
 }
 
-/** D14 主入口：确定性识别 3 题。 */
+/** D14 主入口：确定性识别。单图恒 3 题；v2.1 多页整卷（file_ids）逐张识别后合并去重。 */
 export async function recognizePaper(input: RecognizeInput): Promise<RecognizeItemOutput[]> {
-  const picked = pickRecognizedItems(input.file_id);
+  const fileIds =
+    Array.isArray(input.file_ids) && input.file_ids.length > 0
+      ? input.file_ids
+      : [input.file_id];
 
-  return picked.map((item, offset) => {
+  const merged: BankItemRecord[] = [];
+  const seen = new Set<string>();
+  for (const fileId of fileIds) {
+    for (const item of pickRecognizedItems(fileId)) {
+      if (seen.has(item.item_id)) continue;
+      seen.add(item.item_id);
+      merged.push(item);
+    }
+  }
+
+  return merged.map((item, offset) => {
     const seq = offset + 1;
     const unclear = seq % 3 === 0;
     return {

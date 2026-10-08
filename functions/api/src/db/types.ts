@@ -10,7 +10,11 @@
 
 import type { BankItemRecord, ErrorType } from '../data/staticData';
 
-export type EvidenceSource = 'silent' | 'paper' | 'diagnose' | 'self_report';
+/**
+ * 证据来源四路 + practice（v2.1 追加，逐步批改通路）：
+ *   silent（静默弱负）/ paper（试卷确认）/ diagnose（测评）/ self_report（自报/自述）/ practice（分步练习批改）
+ */
+export type EvidenceSource = 'silent' | 'paper' | 'diagnose' | 'self_report' | 'practice';
 export type EvidenceMode = 'diagnose' | 'baseline' | 'retest';
 export type EvidenceResult = 'correct' | 'wrong';
 export type ProfileStatus = 'active' | 'blocked_by_prerequisite';
@@ -162,6 +166,11 @@ export interface RecognitionRecord {
   user_id: string;
   space_id: string;
   file_id: string;
+  /**
+   * v2.1 冷启动（可选，追加式）：多页整卷的全部图片 file_id（≤5 张）。
+   * 旧记录只有 file_id 单图；两字段并存，读取侧优先 file_ids。
+   */
+  file_ids?: string[];
   status: RecognitionStatus;
   items: RecognitionItemRecord[];
   created_at: string;

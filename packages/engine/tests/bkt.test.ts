@@ -12,7 +12,7 @@
  *   T8 dedup_key：同时间戳一致、跨小时桶不同、格式五段冒号分隔
  * 另含 params 外置完整性（与六、6.2 同源）与掌握度状态带四区间映射（验收 C6）。
  *
- * 参数一律取自 config/params.json（ALGORITHM §0 的 17 项由该文件提供），
+ * 参数一律取自 config/params.json（ALGORITHM §0 的 18 项（v2.1 起含 W_PRACTICE）由该文件提供），
  * 测试内不内联任何参数数值；末段另有「独立复算」用例，用第二种写法核对公式。
  */
 
@@ -37,9 +37,9 @@ import {
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const P = loadParams(resolve(REPO_ROOT, 'config/params.json'));
 
-describe('params · 参数外置（ALGORITHM §0 全部 17 键）', () => {
-  it('键清单与 params.json 实际键完全一致且为 17 项', () => {
-    expect(PARAM_KEYS).toHaveLength(17);
+describe('params · 参数外置（ALGORITHM §0 全部键；v2.1 起含 W_PRACTICE 共 18 项）', () => {
+  it('键清单与 params.json 实际键完全一致且为 18 项', () => {
+    expect(PARAM_KEYS).toHaveLength(18);
     expect(Object.keys(P).sort()).toEqual([...PARAM_KEYS].sort());
   });
 

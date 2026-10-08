@@ -513,11 +513,11 @@ describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
     }
   });
 
-  it('E1 路由闭合：31 个接口全部挂载（契约 v1.6：#1–#20 + 双端 #21–#31 逐项核对）', () => {
+  it('E1 路由闭合：33 个接口全部挂载（契约 v2.1：#1–#20 + 双端 #21–#31 + 技能树/批改 #32–#33）', () => {
     const routes = createRoutes().map((route) => `${route.method} ${route.pattern}`);
 
-    expect(routes).toHaveLength(31);
-    expect(new Set(routes).size).toBe(31);
+    expect(routes).toHaveLength(33);
+    expect(new Set(routes).size).toBe(33);
     expect(routes).toEqual([
       'POST /api/auth/register',
       'POST /api/auth/login',
@@ -552,6 +552,9 @@ describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
       'GET /api/student/links',
       'GET /api/student/recommendations',
       'POST /api/student/recommendations/:recommendationId/feedback',
+      // v2.1 技能树 + 逐步批改（#32–#33）：路由表计数 31 → 33
+      'GET /api/graph/mastery',
+      'POST /api/grade/steps',
     ]);
   });
 });

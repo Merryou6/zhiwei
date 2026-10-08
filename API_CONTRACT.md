@@ -147,6 +147,36 @@ res:  data = { "correct": true | null,             // 仅 baseline/retest 模式
         幂等：dedup_key 命中【不算错误】，静默返回当前状态、不重复更新（HTTP 200）
 ```
 
+**v2.1 新增通路（2026-10-08，见 §11）：专项练习 · 逐步批改（source="practice"，w = W_PRACTICE = 0.7）**
+
+取题复用 #7 POST /api/diagnose/next（mode="diagnose"，可选 `scope_chapter` 按章节取题，只取题不落证据）。
+
+### POST /api/grade/steps  【#33 · v2.1 新增】
+```
+req:  { "space_id", "item_id", "steps": ["第 1 步过程", …] }
+                                                   // 1–8 步；元素也可为 { "text": "…" }（两态兼容）
+res:  data = { "step_results": [ { "index": 0, "verdict": "pass" | "slip" | "concept_gap" | "unclear",
+                                   "matched_error_code": "typical_errors 项 | null",
+                                   "feedback": "处方话术（已值级清洗）", "hint": "string | null" } ],
+               "overall": { "correct": true | false,        // 最终答案归一化判等
+                            "pass_ratio": 0.75,             // pass 步数 / 总步数
+                            "first_break_step": 2 | null,   // 首个非 pass 步下标（断点定位）
+                            "kp_id", "kp_name" },
+               "evidence_written": true,          // dedup 命中幂等时 false
+               "weight_applied": 0.7 }            // 实际权重（见下）
+规则: 两层匹配——① 步文本与 item.solution_steps 归一化互为包含 → pass；
+      ② 步文本命中 item.distractors → slip（procedural_slip / misreading）或 concept_gap；
+      ③ ①② 均未命中且该步之后存在 pass → 升格 concept_gap（参照后置正证据）；
+         否则 unclear（不计证据、不计 pass）；
+      权重：correct ? W_PRACTICE : W_PRACTICE × (1 − pass_ratio / 2)
+      （答错但部分步骤正确 → 部分正证据折算；W_PRACTICE ∈ config/params.json，PARAM_KEYS 同步断言）；
+      写 evidence_events(source="practice", w=weight_applied) + mastery_logs；
+      幂等同 #8：dedup_key 命中不算错误，静默返回当前状态（HTTP 200，evidence_written=false）；
+      feedback / hint 经 scrubFeedback 值级清洗：话术片段与 answer 归一化相等且题干未含该值 →
+      替换为安全话术（题干本身含该值的豁免，防误伤）；响应过 assertNoForbiddenKeys——
+      answer / solution_steps / distractors 永不下发（solution_steps 仅服务端比对用）。
+```
+
 ---
 
 ## 5. 试卷上传（通路二，w = 0.8）
@@ -182,6 +212,18 @@ res:  data = { "events_created": 8,
       确认后 recognitions.status → confirmed
       expire_at = now + 30d（试卷图片保留期限，合规项）
 ```
+
+**v2.1 变更（2026-10-08，见 §11；上行原文保留，本节为现行口径）**
+
+#9 两端点扩展（向后兼容，旧客户端不受影响）：
+
+- `POST /api/evidence/paper` 请求新增**可选** `file_ids: string[]`（多页整卷，1–5 张；
+  空数组或超 5 张 → 400，用户可读文案「一次最多传 5 张」）。传 `file_ids` 时优先、忽略 `file_id`，
+  recognitions 记 `file_ids` 数组（识别文本按 item_id 跨页去重、seq 重排）；不传时单图行为与 v1.6 一字不变。
+- `POST /api/evidence/paper/confirm` 响应 data 追加**冷启动摘要**（追加式，既有字段不变）：
+  `bootstrap: { "covered_kps": 8, "band_counts": { "待巩固": 0, "不稳定": 0, "基本掌握": 0, "已掌握": 0 } }`
+  ——逐题证据落库后按 engine.masteryToBand 同源统计（四带补 0 口径），
+  供前端「初始图谱已生成」横幅与技能树首屏（冷启动叙事：拍一张月考卷就能建图）。
 
 ---
 
@@ -361,6 +403,30 @@ res: data = {
       mode=baseline 的事件算基线正确率，mode=retest 的事件算复测正确率
 ```
 
+**v2.1 新增（2026-10-08，见 §11）：#32 GET /api/graph/mastery —— 技能树唯一数据源**
+
+### GET /api/graph/mastery?space_id=xxx  【#32 · v2.1 新增】
+```
+res:  data = {
+  "space_id": "sp_001",
+  "nodes": [ { "kp_id", "name", "chapter", "mastery": 0.62,
+               "band": "四带（engine.masteryToBand，与 #19 status_band 同源）",
+               "evidence_count": 5,
+               "last_evidence_type": "silent | paper | diagnose | self_report | practice | null",
+               "last_updated": "ISO8601 | null",
+               "confidence": "normal" | "low" } ],
+  "summary": { "total_kp", "covered_kp",
+               "band_counts": {四带，补 0 口径},
+               "evidence_total": 42,
+               "newly_mastered_7d": 3,           // mastery_logs 近 7 天跨入「已掌握」阈值的节点数
+               "weakest": [ { "kp_id", "name", "mastery" } ] } }  // 待巩固按 mastery 升序前 3
+规则: band 一律服务端 engine.masteryToBand 同源计算，前端只消费不重算（纪律同 #19）；
+      confidence = "low" ⇔ last_evidence_type ∈ {paper, self_report}
+      （仅旧试卷/自报触达，建议复测校准；前端渲染为节点 ？ 角标）；
+      零证据空间正常返回：全节点待巩固、summary 全 0 口径（冷启动「先看空白树」入口）；
+      响应显式字面构造，不下发 answer / 对话原文 / 分数明细（成长海报数据面同口径）。
+```
+
 ---
 
 ## 11. 变更记录
@@ -376,3 +442,4 @@ res: data = {
 | 2026-09-25 | **v1.4 伴随新增公开门户页（接口层零变更）**：新增前端路由 `/`（LandingPage 公开入口门户，介绍项目 / 数据资产 / GitHub 链接 / 「立即体验」CTA）。它**不占 PRD §5 页面编号、不进 ROUTES 11 页口径**（App.tsx 直挂 Route，无守卫无顶栏外壳）；「立即体验」→ `/login` 由既有守卫按会话状态分流（未登录进登录页、已登录直送 `#/spaces`） | 项目方 | 总控 |
 | 2026-10-08 | **v1.5**：① #18 /api/agent/chat 新增可选 `image_data`（传图读题图片本体，data URL ≤400K 字符，服务端校验前缀与大小；纯图消息允许 message 为空并以「（发来一张题图）」占位入库；**图片不落库**，dialogs 仍只记 `image_file_id`；远程适配器升级 vision 多模态 content 块，本地适配器诚实告知看不了图，不再伪造读题）；② #7/#8 及全部题目下发接口的 `options` 字段启用「选项化合成」：`type=fill` 且 distractors≥2 的题由服务端把 [标准答案+至多 3 条干扰项答案] 以 item_id 为种确定性洗牌后作为 options 下发（**响应结构零变更**——options 本就是 `string[]\|null`；answer/solution_steps/distractors 对象仍绝不下发；判分仍按归一化文本判等，选错干扰项照常命中 typical_error_code）。两条均为向后兼容的可选增量，旧客户端不受影响 | 项目方 | 总控 |
 | 2026-10-08 | **v1.6 双端（老师端 + 学生端增量，#21–#31）**：① `users` 加可选 `role`（`student`（缺省，旧记录读取侧兜底）/`teacher`），register 请求可选 `role`、register/login 响应新增 `role`；② 三张新表 `invite_codes`（6 位码、7 天有效、限 30 人）/`links`（师生绑定，归属到 space）/`recommendations`（推荐闭环 assigned→viewed→in_progress→done/dismissed/expired，`delta_accuracy` 由复测闭环自动回写）；③ 老师端 6 端点（#21 生成邀请码【同师复用活跃码】/#22 码列表/#23 学生摘要列表【聚合层】/#24 学生详情快照【含答卷/答题/错题原文与归因，**对话原文永不下发**】/#25 下发推荐【同生活跃推荐幂等】/#26 推荐列表）；④ 学生端 5 端点（#27 邀请码预览/#28 确认绑定【双向确认：preview 只回老师昵称，confirm 才建立关系；码大小写归一】/#29 我的老师/#30 我的推荐【超窗 14 天未开始视图层标 expired】/#31 推荐反馈【终态不可逆】）；⑤ #8 diagnose/submit 在 mode=retest 落库后回写该 kp 未完结推荐的 ΔAccuracy（同 report 口径 baseline/retest 正确率差），首次回写置 done；⑥ 三条服务端守卫：requireTeacher / requireLinkedSpace / requireStudent。路由表 20 → 31（closedLoop E1 同步）。全部为追加式变更，旧客户端不受影响 | 项目方 | 总控 |
+| 2026-10-08 | **v2.1 三张牌（技能树 + 拍卷冷启动 + 逐步批改，#32–#33）**：① 新增 #32 GET /api/graph/mastery（技能树唯一数据源：nodes 全量 kp 掌握度 + band 同源 + confidence{normal,low} + summary{band_counts 补 0、evidence_total、newly_mastered_7d、weakest 前 3}，见 §10 注记）；② 新增 #33 POST /api/grade/steps（分步提交 → 两层匹配逐步判定 pass/slip/concept_gap/unclear + first_break_step 断点定位 + scrubFeedback 值级清洗 + practice 证据 `weight = correct ? W_PRACTICE : W_PRACTICE × (1 − pass_ratio/2)`，幂等同 #8，见 §4 注记）；③ #9 试卷上传扩展（上传可选 `file_ids[]` 多页整卷 1–5 张、file_ids 优先；confirm 响应追加 `bootstrap{covered_kps, band_counts}` 冷启动摘要，见 §5 注记）；④ `EvidenceSource` 枚举追加 `'practice'`（db/types.ts 与 packages/engine/src/dedup.ts 两处同步）；⑤ `config/params.json` 新增 `W_PRACTICE: 0.7`（PARAM_KEYS 17 → 18 项，完整性断言同步）。路由表 31 → 33（closedLoop E1 同步）。全部为追加式变更，旧客户端不受影响 | 项目方 | 总控 |

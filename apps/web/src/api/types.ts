@@ -307,7 +307,10 @@ export interface RecognitionItemView {
 
 export interface PaperUploadRequest {
   space_id: string;
-  file_id: string;
+  /** 单图（v2.1 前唯一形态，保留）。 */
+  file_id?: string;
+  /** v2.1 冷启动：多页整卷（1–5 张）。与 file_id 二选一，file_ids 优先。 */
+  file_ids?: string[];
 }
 
 export interface PaperUploadData {
@@ -337,9 +340,17 @@ export interface MasteryUpdateView {
   after: number;
 }
 
+/** v2.1 冷启动：确认响应附带的建图摘要（band 名与 engine 同源）。 */
+export interface BootstrapSummary {
+  covered_kps: number;
+  band_counts: Record<string, number>;
+}
+
 export interface PaperConfirmData {
   events_created: number;
   mastery_updates: MasteryUpdateView[];
+  /** v2.1 追加式：旧服务端可能不带，前端判空降级。 */
+  bootstrap?: BootstrapSummary;
 }
 
 // ---------------------------------------------------------------- §6 错误类型诊断
@@ -566,6 +577,76 @@ export interface ReportSummaryData {
   mastery: MasteryRowData[];
   gaps: GapRowData[];
   accuracy: AccuracyRowData[];
+}
+
+// ---------------------------------------------------------------- §14 技能树（v2.1 #32）
+
+export type Confidence = 'low' | 'normal';
+
+/** #32 的单节点视图（band 由服务端 masteryToBand 同源计算，前端不重算）。 */
+export interface GraphMasteryNode {
+  kp_id: string;
+  name: string;
+  chapter: string;
+  mastery: number;
+  band: string;
+  evidence_count: number;
+  last_evidence_type: string | null;
+  last_updated: string | null;
+  confidence: Confidence;
+}
+
+export interface GraphWeakestRow {
+  kp_id: string;
+  name: string;
+  mastery: number;
+}
+
+export interface GraphMasterySummary {
+  total_kp: number;
+  covered_kp: number;
+  band_counts: Record<string, number>;
+  evidence_total: number;
+  newly_mastered_7d: number;
+  weakest: GraphWeakestRow[];
+}
+
+export interface GraphMasteryData {
+  space_id: string;
+  nodes: GraphMasteryNode[];
+  summary: GraphMasterySummary;
+}
+
+// ---------------------------------------------------------------- §15 逐步批改（v2.1 #33）
+
+export type StepVerdict = 'pass' | 'slip' | 'concept_gap' | 'unclear';
+
+export interface StepResultView {
+  index: number;
+  verdict: StepVerdict;
+  matched_error_code: string | null;
+  feedback: string;
+  hint: string | null;
+}
+
+export interface GradeStepsRequest {
+  space_id: string;
+  item_id: string;
+  /** 每步文本（1–8 步）；也可以传 { text } 对象数组，服务端两态兼容。 */
+  steps: string[];
+}
+
+export interface GradeStepsData {
+  step_results: StepResultView[];
+  overall: {
+    correct: boolean;
+    pass_ratio: number;
+    first_break_step: number | null;
+    kp_id: string;
+    kp_name: string;
+  };
+  evidence_written: boolean;
+  weight_applied: number;
 }
 
 // ---------------------------------------------------------------- §1 认证 · #20（v1.2 新增，只读）

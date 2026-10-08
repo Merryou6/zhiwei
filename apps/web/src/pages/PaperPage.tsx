@@ -47,6 +47,9 @@ interface RowState extends Omit<RecognitionItemView, 'kp_guess'> {
   result: ConfirmResult | null;
 }
 
+/** v2.1 多页整卷上限（与后端 PAPER_MAX_FILES 一致）。 */
+const MAX_UPLOAD_FILES = 5;
+
 /** 知识点下拉选项（20 节点，章节分组显示）。 */
 const KP_OPTIONS = GRAPH_NODES.map((node) => ({
   id: node.id,
@@ -55,7 +58,8 @@ const KP_OPTIONS = GRAPH_NODES.map((node) => ({
 
 export default function PaperPage() {
   const [files, setFiles] = useState<DriveFileView[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  /** v2.1 冷启动：多页整卷（≤5 张）。空数组 = 未选。 */
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [stage, setStage] = useState<'pick' | 'confirm'>('pick');
   const [status, setStatus] = useState<string>('');
   const [recognitionId, setRecognitionId] = useState<string | null>(null);
@@ -80,7 +84,7 @@ export default function PaperPage() {
         const data = await drive(activeSpaceId);
         if (!cancelled) {
           setFiles(data.files);
-          setSelected(data.files[0]?.file_id ?? null);
+          setSelectedIds(data.files[0] ? [data.files[0].file_id] : []);
         }
       } catch (error) {
         if (!cancelled) toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
@@ -120,14 +124,29 @@ export default function PaperPage() {
     return activeSpaceId;
   }
 
+  /** v2.1：单/多图切换。预置文件点选即切换（已选则取消）。 */
+  function toggleFile(fileId: string): void {
+    setSelectedIds((prev) =>
+      prev.includes(fileId)
+        ? prev.filter((id) => id !== fileId)
+        : prev.length >= MAX_UPLOAD_FILES
+          ? prev
+          : [...prev, fileId],
+    );
+  }
+
   async function startRecognize(): Promise<void> {
     const spaceId = guardSpace();
-    if (!spaceId || !selected || busy) return;
+    if (!spaceId || selectedIds.length === 0 || busy) return;
 
     setBusy(true);
-    setStatus('识别中…');
+    setStatus(selectedIds.length > 1 ? `识别中…（${selectedIds.length} 页整卷）` : '识别中…');
     try {
-      const data = await uploadPaper({ space_id: spaceId, file_id: selected });
+      // v2.1 追加式：多页走 file_ids；单页仍传 file_id（服务端两态兼容）
+      const data =
+        selectedIds.length > 1
+          ? await uploadPaper({ space_id: spaceId, file_ids: selectedIds })
+          : await uploadPaper({ space_id: spaceId, file_id: selectedIds[0] });
       setRows(toRows(data));
       setStatus(data.status);
       setRecognitionId(data.recognition_id);
@@ -139,6 +158,23 @@ export default function PaperPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  /** v2.1 快捷标注：把「参考对错」一键应用到全部可参考行（unclear 仍必须手标）。 */
+  function adoptSuggestions(): void {
+    let adopted = 0;
+    setRows((prev) =>
+      prev.map((row) => {
+        if (row.result !== null) return row;
+        if (row.suggested_result === 'correct' || row.suggested_result === 'wrong') {
+          adopted += 1;
+          return { ...row, result: row.suggested_result };
+        }
+        return row;
+      }),
+    );
+    if (adopted > 0) toast(`已按参考标好 ${adopted} 题，过一眼再确认`);
+    else toast('没有可采纳的参考行（识别不清的要手标）', 'warn');
   }
 
   async function submitConfirm(): Promise<void> {
@@ -192,13 +228,16 @@ export default function PaperPage() {
 
   // ------------------------------------------------------------ 确认完成
   if (confirmed) {
+    const bootstrap = confirmed.bootstrap;
     return (
       <PageContainer width="prose">
         <PageHeader title="这份卷子记下了" />
         <p className="mt-3 text-reading leading-relaxed text-ink-soft">
           新增了 <span className="font-mono tabular-nums text-ink">{confirmed.events_created}</span> 条证据，
           更新了 <span className="font-mono tabular-nums text-ink">{confirmed.mastery_updates.length}</span> 个知识点。
-          要不要挑一道错题，我们一起看看它是怎么错的？
+          {bootstrap
+            ? `你的初始图谱已生成：覆盖 ${bootstrap.covered_kps} 个知识点，${bootstrap.band_counts['待巩固'] ?? 0} 个待巩固。`
+            : '要不要挑一道错题，我们一起看看它是怎么错的？'}
         </p>
 
         <ul className="mt-4 space-y-2">
@@ -216,7 +255,16 @@ export default function PaperPage() {
         </ul>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Button variant="primary" onClick={() => navigate('/attribution')}>
+          {/* v2.1 冷启动：建图完成 → 主按钮直达技能树（游戏化的「点亮时刻」） */}
+          {bootstrap ? (
+            <Button
+              variant="primary"
+              onClick={() => navigate('/graph?bootstrapped=1')}
+            >
+              看看你的技能树
+            </Button>
+          ) : null}
+          <Button variant={bootstrap ? 'secondary' : 'primary'} onClick={() => navigate('/attribution')}>
             挑错题看看根源
           </Button>
           <Button
@@ -333,11 +381,17 @@ export default function PaperPage() {
           >
             {busy ? '正在记账…' : '确认，更新掌握度'}
           </Button>
+          {/* v2.1 快捷标注：一键采纳参考（unclear 行不参与，仍必须手标） */}
+          <Button variant="secondary" disabled={busy || allMarked} onClick={adoptSuggestions}>
+            按参考标好没标的题
+          </Button>
           {!allMarked ? (
             <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
               还有 {rows.filter((r) => r.result === null).length} 题没标
             </span>
-          ) : null}
+          ) : (
+            <span className="text-ui-sm text-ink-soft">标完了，过一眼再确认</span>
+          )}
         </div>
       </PageContainer>
     );
@@ -348,49 +402,66 @@ export default function PaperPage() {
     <PageContainer width="prose">
       <PageHeader
         title="传一份卷子"
-        description="演示态：从预置文件里挑一份（真实的相册上传在云端开放）。识别结果只是草稿，对错由你最后确认，看清楚才记账。"
+        description="演示态：从预置文件里挑（可多选，最多 5 页拼一份整卷）。识别结果只是草稿，对错由你最后确认，看清楚才记账。"
       />
 
       {files.length === 0 ? (
         <PageSkeleton label="正在取文件列表…" rows={2} className="mt-6" />
       ) : (
-        <ul className="mt-6 space-y-3">
-          {files.map((file) => {
-            const active = selected === file.file_id;
-            return (
-              <li key={file.file_id}>
-                <button
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setSelected(file.file_id)}
-                  className={cn(
-                    'w-full rounded-surface border bg-surface p-4 text-left transition-colors',
-                    active ? 'border-accent' : 'border-line hover:border-accent/60',
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-ink">{file.name}</span>
-                    <span className="shrink-0 font-mono text-ui-sm tabular-nums text-ink-soft">
-                      {file.type.toUpperCase()} · {fileSize(file.size)}
-                    </span>
-                  </div>
-                  {/* break-all（R6）：file_id 无空格长串，窄屏强制断行 */}
-                  <p className="mt-1 break-all text-ui-sm text-ink-soft">{file.file_id}</p>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-ui-sm text-ink-soft">
+              已选{' '}
+              <span className="font-mono tabular-nums text-ink">{selectedIds.length}</span>/{MAX_UPLOAD_FILES} 页
+            </span>
+            {selectedIds.length > 0 ? (
+              <Button variant="quiet" size="sm" onClick={() => setSelectedIds([])}>
+                清空
+              </Button>
+            ) : null}
+          </div>
+          <ul className="mt-3 space-y-3">
+            {files.map((file) => {
+              const active = selectedIds.includes(file.file_id);
+              return (
+                <li key={file.file_id}>
+                  <button
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => toggleFile(file.file_id)}
+                    className={cn(
+                      'w-full rounded-surface border bg-surface p-4 text-left transition-colors',
+                      active ? 'border-accent' : 'border-line hover:border-accent/60',
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-ink">{file.name}</span>
+                      <span className="shrink-0 font-mono text-ui-sm tabular-nums text-ink-soft">
+                        {file.type.toUpperCase()} · {fileSize(file.size)}
+                      </span>
+                    </div>
+                    {/* break-all（R6）：file_id 无空格长串，窄屏强制断行 */}
+                    <p className="mt-1 break-all text-ui-sm text-ink-soft">{file.file_id}</p>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
 
       <Button
         variant="primary"
         full
         className="mt-6"
-        disabled={busy || !selected}
+        disabled={busy || selectedIds.length === 0}
         onClick={() => void startRecognize()}
       >
-        {busy ? '正在识别…' : '开始识别'}
+        {busy
+          ? '正在识别…'
+          : selectedIds.length > 1
+            ? `开始识别（${selectedIds.length} 页整卷）`
+            : '开始识别'}
       </Button>
 
       {status ? <p className="mt-3 text-ui-sm text-ink-soft">{status}</p> : null}
