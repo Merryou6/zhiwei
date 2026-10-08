@@ -32,6 +32,7 @@ import type { RouteRequest } from '../router';
 import { toClientItem } from '../serialization';
 import type { BankItemRecord } from '../data/staticData';
 import { authedUser, DEFAULT_KB_ID } from './auth';
+import { writebackOnRetest } from './studentLink';
 
 export const MODES: readonly SelectionMode[] = ['diagnose', 'baseline', 'retest'];
 
@@ -308,6 +309,16 @@ export async function submit(req: RouteRequest, ctx: AppContext): Promise<ApiRes
     last_updated: createdAt,
     last_evidence_type: 'diagnose',
   });
+
+  // v1.6 推荐闭环：复测证据落库后回写老师推荐的 ΔAccuracy（首次回写即置 done）。
+  // 非复测模式零开销；回写自身失败不阻断作答主链路。
+  if (mode === 'retest') {
+    try {
+      await writebackOnRetest(ctx, user.user_id, space.space_id, item.knowledge_point, createdAt);
+    } catch {
+      // 回写是增强路径，不因它让作答请求失败
+    }
+  }
 
   const outcome = await computeSelection(ctx, user.user_id, space.space_id, mode, graph);
 

@@ -32,6 +32,21 @@ import { profile as userProfile } from './services/profile';
 import { summary as reportSummary } from './services/report';
 import { selfReport } from './services/selfReport';
 import { create as createSpace, drive as spaceDrive, list as listSpaces } from './services/space';
+import {
+  assignRecommendation,
+  createInvite,
+  getStudent,
+  listInvites,
+  listRecommendations,
+  listStudents,
+} from './services/teacher';
+import {
+  confirmLink,
+  listMyRecommendations,
+  listMyTeachers,
+  previewLink,
+  recommendationFeedback,
+} from './services/studentLink';
 
 export interface SseEvent {
   /**
@@ -112,6 +127,20 @@ export function createRoutes(): RouteDefinition[] {
 
     // 步骤 8：用户资料（#20 · v1.2）—— 静态段，与既有路由无前缀冲突
     { method: 'GET', pattern: '/api/user/profile', handler: userProfile },
+
+    // 步骤 9：双端（#21–#31 · v1.6）—— 参数段（/students/:studentId 等）段数与
+    // 静态段不同，无前缀冲突；学生端 /recommendations/:id/feedback 同理
+    { method: 'POST', pattern: '/api/teacher/invites', handler: createInvite },
+    { method: 'GET', pattern: '/api/teacher/invites', handler: listInvites },
+    { method: 'GET', pattern: '/api/teacher/students', handler: listStudents },
+    { method: 'GET', pattern: '/api/teacher/students/:studentId', handler: getStudent },
+    { method: 'POST', pattern: '/api/teacher/recommendations', handler: assignRecommendation },
+    { method: 'GET', pattern: '/api/teacher/recommendations', handler: listRecommendations },
+    { method: 'GET', pattern: '/api/student/link/preview', handler: previewLink },
+    { method: 'POST', pattern: '/api/student/link', handler: confirmLink },
+    { method: 'GET', pattern: '/api/student/links', handler: listMyTeachers },
+    { method: 'GET', pattern: '/api/student/recommendations', handler: listMyRecommendations },
+    { method: 'POST', pattern: '/api/student/recommendations/:recommendationId/feedback', handler: recommendationFeedback },
   ];
 }
 

@@ -17,6 +17,9 @@
 export const LOGIN_PATH = '/login';
 export const SPACES_PATH = '/spaces';
 export const SELF_REPORT_PATH = '/self-report';
+/** v1.6 双端：老师端工作台（/t/* 双壳，不进学生 ROUTES 11 页口径）。 */
+export const TEACHER_HOME = '/t';
+export const TEACHER_PREFIX = '/t';
 /** 「我的」：学习概览 + 账号信息 / 当前空间 / 主题 / 模型只读（v1.2 D4a，进顶栏主导航；
  *  v1.4 吸收旧控制台的学习概览）。 */
 export const ME_PATH = '/me';
@@ -25,6 +28,8 @@ export const ME_PATH = '/me';
 export const STORAGE_KEYS = {
   token: 'zhiwei_token',
   userId: 'zhiwei_user_id',
+  /** v1.6 双端：'student'（缺省）| 'teacher'。 */
+  role: 'zhiwei_role',
   activeSpace: 'zhiwei_active_space',
   /** 主题偏好（D3）：'dark'（默认）| 'light'；index.html 内联脚本与本键同源。 */
   theme: 'zhiwei_theme',
@@ -87,9 +92,16 @@ export interface GuardState {
  *   - 已登录访问 #/login → #/spaces
  *   - 已登录但无活跃空间 → #/spaces（/spaces 与 /self-report 豁免：注册后直进自报）
  *   - 未知路径 → 已登录去 #/spaces，未登录去 #/login
+ *   - v1.6：/t/* 老师端双壳是独立路由族——不进 11 页口径、不要求活跃空间
+ *     （老师不参加学习链路），只要求登录；角色校验由页面内读 store 兜底。
  * 返回 null 表示放行。
  */
 export function guardPath(path: string, state: GuardState): string | null {
+  // 老师端路由族先于 ROUTES 匹配（/t 不是 11 页之一，否则会落进「未知路径」分支）
+  if (path === TEACHER_HOME || path.startsWith(`${TEACHER_PREFIX}/`)) {
+    return state.token ? null : LOGIN_PATH;
+  }
+
   const route = routeOf(path);
 
   if (!route) return state.token ? SPACES_PATH : LOGIN_PATH;

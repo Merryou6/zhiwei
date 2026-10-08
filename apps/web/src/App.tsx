@@ -15,6 +15,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import PageSkeleton from './components/PageSkeleton';
 import ToastHost from './components/ToastHost';
+import TeacherShell from './components/teacher/TeacherShell';
 import { LOGIN_PATH, ROUTES, STORAGE_KEYS, guardPath } from './router';
 import AssessmentPage from './pages/AssessmentPage';
 import AttributionPage from './pages/AttributionPage';
@@ -27,6 +28,9 @@ import PaperPage from './pages/PaperPage';
 import ReportPage from './pages/ReportPage';
 import SelfReportPage from './pages/SelfReportPage';
 import SpacesPage from './pages/SpacesPage';
+import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import TeacherRecommendations from './pages/teacher/TeacherRecommendations';
+import TeacherStudentDetail from './pages/teacher/TeacherStudentDetail';
 
 /**
  * 图谱页按需加载（2026-09-20 风格走查）：它独占 echarts 依赖（主包一半以上体积），
@@ -106,6 +110,52 @@ export default function App() {
             不进 router.ROUTES 的 11 页口径。「立即体验」→ /login，未登录进登录页、
             已登录被守卫直接送进 #/spaces，一条路径自动分状态。 */}
         <Route path="/" element={<LandingPage />} />
+
+        {/* v1.6 双端：/t/* 老师端路由族——独立壳（TeacherShell），不进学生 11 页口径。
+            守卫只要求登录；角色校验由页面数据请求的服务端 403 兜底（学生调老师端接口即被拒）。 */}
+        <Route
+          path="/t"
+          element={
+            <Guarded bare>
+              <ErrorBoundary key="page:/t">
+                <Suspense fallback={<PageLoading />}>
+                  <TeacherShell>
+                    <TeacherDashboard />
+                  </TeacherShell>
+                </Suspense>
+              </ErrorBoundary>
+            </Guarded>
+          }
+        />
+        <Route
+          path="/t/recommendations"
+          element={
+            <Guarded bare>
+              <ErrorBoundary key="page:/t/recommendations">
+                <Suspense fallback={<PageLoading />}>
+                  <TeacherShell>
+                    <TeacherRecommendations />
+                  </TeacherShell>
+                </Suspense>
+              </ErrorBoundary>
+            </Guarded>
+          }
+        />
+        <Route
+          path="/t/student/:studentId"
+          element={
+            <Guarded bare>
+              <ErrorBoundary key="page:/t/student">
+                <Suspense fallback={<PageLoading />}>
+                  <TeacherShell>
+                    <TeacherStudentDetail />
+                  </TeacherShell>
+                </Suspense>
+              </ErrorBoundary>
+            </Guarded>
+          }
+        />
+
         {ROUTES.map((route) => {
           const Page = PAGE_COMPONENTS[route.path];
           return (

@@ -23,7 +23,7 @@ afterEach(() => {
 
 describe('authStore · 持久化（刷新不掉线）', () => {
   it('setSession 同时写内存与 localStorage（键名 zhiwei_token / zhiwei_user_id）', () => {
-    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc' });
+    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc', role: 'student' });
 
     expect(useAuthStore.getState().token).toBe('tok_abc');
     expect(useAuthStore.getState().userId).toBe('u_1024');
@@ -43,7 +43,7 @@ describe('authStore · 持久化（刷新不掉线）', () => {
   });
 
   it('clear 双清（内存 + localStorage），模拟登出 / 401 清理', () => {
-    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc' });
+    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc', role: 'student' });
     useAuthStore.getState().clear();
 
     expect(useAuthStore.getState().token).toBeNull();
@@ -70,7 +70,7 @@ describe('authStore · 持久化（刷新不掉线）', () => {
     const fresh = (await import('../src/stores/auth')).useAuthStore;
 
     expect(fresh.getState().token).toBeNull();
-    fresh.getState().setSession({ user_id: 'u_1', token: 'tok_mem' });
+    fresh.getState().setSession({ user_id: 'u_1', token: 'tok_mem', role: 'student' });
     expect(fresh.getState().token).toBe('tok_mem');
     fresh.getState().clear();
     expect(fresh.getState().token).toBeNull();

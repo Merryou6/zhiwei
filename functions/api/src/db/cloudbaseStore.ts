@@ -22,9 +22,12 @@ import type {
   AttributionRecord,
   DialogRecord,
   EvidenceEventRecord,
+  InviteCodeRecord,
+  LinkRecord,
   MasteryLogRecord,
   MasteryProfileRecord,
   RecognitionRecord,
+  RecommendationRecord,
   SpaceRecord,
   Store,
   UserRecord,
@@ -181,6 +184,82 @@ export class CloudBaseStore implements Store {
 
   async updateRecognition(_recognition: RecognitionRecord): Promise<void> {
     // 等价调用：db.collection('recognitions').doc(_recognition.recognition_id).update(_recognition)
+    notConfigured();
+  }
+
+  // --------------------------------------------- v1.6 双端三张表（接线时同九张表）
+  async getInviteCode(_code: string): Promise<InviteCodeRecord | null> {
+    // 等价调用：db.collection('invite_codes').doc(_code).get()
+    notConfigured();
+  }
+
+  async listInviteCodesByTeacher(_teacherId: string): Promise<InviteCodeRecord[]> {
+    // 等价调用：db.collection('invite_codes').where({ teacher_id: _teacherId }).get()
+    notConfigured();
+  }
+
+  async insertInviteCode(_code: InviteCodeRecord): Promise<void> {
+    // 等价调用：db.collection('invite_codes').doc(_code.code).add(_code)
+    notConfigured();
+  }
+
+  async updateInviteCode(_code: InviteCodeRecord): Promise<void> {
+    // 等价调用：db.collection('invite_codes').doc(_code.code).update(_code)
+    notConfigured();
+  }
+
+  async getLink(_linkId: string): Promise<LinkRecord | null> {
+    // 等价调用：db.collection('links').doc(_linkId).get()
+    notConfigured();
+  }
+
+  async insertLink(_link: LinkRecord): Promise<void> {
+    // 等价调用：db.collection('links').add(_link)
+    notConfigured();
+  }
+
+  async deleteLink(_linkId: string): Promise<void> {
+    // 等价调用：db.collection('links').doc(_linkId).remove()
+    notConfigured();
+  }
+
+  async listLinksByTeacher(_teacherId: string): Promise<LinkRecord[]> {
+    // 等价调用：db.collection('links').where({ teacher_id: _teacherId }).get()
+    notConfigured();
+  }
+
+  async listLinksByStudent(_studentId: string): Promise<LinkRecord[]> {
+    // 等价调用：db.collection('links').where({ student_id: _studentId }).get()
+    notConfigured();
+  }
+
+  async findLinkByStudentAndSpace(_studentId: string, _spaceId: string): Promise<LinkRecord[]> {
+    // 等价调用：db.collection('links').where({ student_id: _studentId, space_id: _spaceId }).get()
+    notConfigured();
+  }
+
+  async getRecommendation(_recommendationId: string): Promise<RecommendationRecord | null> {
+    // 等价调用：db.collection('recommendations').doc(_recommendationId).get()
+    notConfigured();
+  }
+
+  async insertRecommendation(_recommendation: RecommendationRecord): Promise<void> {
+    // 等价调用：db.collection('recommendations').add(_recommendation)
+    notConfigured();
+  }
+
+  async updateRecommendation(_recommendation: RecommendationRecord): Promise<void> {
+    // 等价调用：db.collection('recommendations').doc(_recommendation.recommendation_id).update(_recommendation)
+    notConfigured();
+  }
+
+  async listRecommendationsByTeacher(_teacherId: string): Promise<RecommendationRecord[]> {
+    // 等价调用：db.collection('recommendations').where({ teacher_id: _teacherId }).get()
+    notConfigured();
+  }
+
+  async listRecommendationsByStudent(_studentId: string): Promise<RecommendationRecord[]> {
+    // 等价调用：db.collection('recommendations').where({ student_id: _studentId }).get()
     notConfigured();
   }
 }

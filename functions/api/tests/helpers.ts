@@ -30,6 +30,7 @@ export interface TestUser {
   user_id: string;
   token: string;
   space_id: string;
+  role: 'student' | 'teacher';
 }
 
 export interface TestApp {
@@ -49,7 +50,12 @@ export interface TestApp {
   ): Promise<ApiResponse<T>>;
   /** SSE 通路：收集事件序列（chat 专用）。 */
   stream(path: string, body: Record<string, unknown>, options?: CallOptions): Promise<SseEvent[]>;
-  register(identifier: string, password?: string, nickname?: string | null): Promise<TestUser>;
+  register(
+    identifier: string,
+    password?: string,
+    nickname?: string | null,
+    role?: 'student' | 'teacher',
+  ): Promise<TestUser>;
   login(identifier: string, password: string): Promise<ApiResponse<{ user_id: string; token: string }>>;
   cleanup(): Promise<void>;
 }
@@ -133,12 +139,13 @@ export async function createTestApp(
     identifier: string,
     password: string = DEFAULT_PASSWORD,
     nickname: string | null = null,
+    role: 'student' | 'teacher' = 'student',
   ): Promise<TestUser> {
-    const response = await call<{ user_id: string; token: string }>('POST', '/api/auth/register', {
-      identifier,
-      password,
-      nickname,
-    });
+    const response = await call<{ user_id: string; token: string; role: string }>(
+      'POST',
+      '/api/auth/register',
+      { identifier, password, nickname, role },
+    );
     if (response.code !== 0 || !response.data) {
       throw new Error(`注册失败：${response.code} ${response.msg}`);
     }
@@ -147,7 +154,12 @@ export async function createTestApp(
     });
     const spaceId = spaces.data?.spaces[0]?.space_id;
     if (!spaceId) throw new Error('注册后未自动创建默认空间');
-    return { user_id: response.data.user_id, token: response.data.token, space_id: spaceId };
+    return {
+      user_id: response.data.user_id,
+      token: response.data.token,
+      space_id: spaceId,
+      role: response.data.role === 'teacher' ? 'teacher' : 'student',
+    };
   }
 
   async function login(

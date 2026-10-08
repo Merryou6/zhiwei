@@ -101,7 +101,7 @@ const META: ChatMeta = {
 };
 
 beforeEach(() => {
-  useAuthStore.getState().setSession({ user_id: 'u_1', token: 'tok_sse' });
+  useAuthStore.getState().setSession({ user_id: 'u_1', token: 'tok_sse', role: 'student' });
 });
 
 afterEach(() => {

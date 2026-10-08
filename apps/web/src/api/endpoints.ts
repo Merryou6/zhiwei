@@ -38,6 +38,14 @@ import type {
   SpaceCreateData,
   SpaceCreateRequest,
   SpaceListData,
+  InviteInfo,
+  InviteListItem,
+  LinkConfirmResult,
+  LinkPreview,
+  MyTeacher,
+  TeacherRecommendation,
+  TeacherStudentCard,
+  TeacherStudentDetail,
 } from './types';
 
 // ---------------------------------------------------------------- §1 认证
@@ -151,4 +159,83 @@ export function generatePlan(body: PlanGenerateRequest): Promise<PlanData> {
 /** #19 GET /api/report/summary?space_id=xxx */
 export function reportSummary(spaceId: string): Promise<ReportSummaryData> {
   return request<ReportSummaryData>('/api/report/summary', { query: { space_id: spaceId } });
+}
+
+// ---------------------------------------------------------------- §12 老师端（v1.6）
+
+/** #21 POST /api/teacher/invites —— 生成（或复用）绑定邀请码。 */
+export function createInvite(): Promise<InviteInfo> {
+  return request<InviteInfo>('/api/teacher/invites', { method: 'POST', body: {} });
+}
+
+/** #22 GET /api/teacher/invites —— 我的邀请码列表。 */
+export function listInvites(): Promise<{ invites: InviteListItem[] }> {
+  return request<{ invites: InviteListItem[] }>('/api/teacher/invites');
+}
+
+/** #23 GET /api/teacher/students —— 学生卡片墙。 */
+export function listTeacherStudents(): Promise<{ students: TeacherStudentCard[]; total: number }> {
+  return request<{ students: TeacherStudentCard[]; total: number }>('/api/teacher/students');
+}
+
+/** #24 GET /api/teacher/students/:studentId?space_id= —— 学生详情快照。 */
+export function getTeacherStudent(studentId: string, spaceId: string): Promise<TeacherStudentDetail> {
+  return request<TeacherStudentDetail>(`/api/teacher/students/${encodeURIComponent(studentId)}`, {
+    query: { space_id: spaceId },
+  });
+}
+
+/** #25 POST /api/teacher/recommendations —— 下发推荐。 */
+export function assignRecommendation(body: {
+  space_id: string;
+  kp_id: string;
+  note?: string;
+}): Promise<TeacherRecommendation> {
+  return request<TeacherRecommendation>('/api/teacher/recommendations', { method: 'POST', body });
+}
+
+/** #26 GET /api/teacher/recommendations —— 我的推荐（可按学生/空间过滤）。 */
+export function listTeacherRecommendations(params: { student_id?: string; space_id?: string } = {}): Promise<{
+  recommendations: TeacherRecommendation[];
+}> {
+  return request<{ recommendations: TeacherRecommendation[] }>('/api/teacher/recommendations', {
+    query: { student_id: params.student_id, space_id: params.space_id },
+  });
+}
+
+// ---------------------------------------------------------------- §13 学生端（v1.6）
+
+/** #27 GET /api/student/link/preview?code= —— 绑定前预览（双向确认第一步）。 */
+export function previewLink(code: string): Promise<LinkPreview> {
+  return request<LinkPreview>('/api/student/link/preview', { query: { code } });
+}
+
+/** #28 POST /api/student/link —— 确认绑定（双向确认第二步）。 */
+export function confirmLink(body: { invite_code: string; space_id: string }): Promise<LinkConfirmResult> {
+  return request<LinkConfirmResult>('/api/student/link', { method: 'POST', body });
+}
+
+/** #29 GET /api/student/links —— 我的老师。 */
+export function listMyTeachers(): Promise<{ teachers: MyTeacher[] }> {
+  return request<{ teachers: MyTeacher[] }>('/api/student/links');
+}
+
+/** #30 GET /api/student/recommendations?space_id= —— 我的推荐。 */
+export function listMyRecommendations(spaceId: string): Promise<{
+  recommendations: TeacherRecommendation[];
+}> {
+  return request<{ recommendations: TeacherRecommendation[] }>('/api/student/recommendations', {
+    query: { space_id: spaceId },
+  });
+}
+
+/** #31 POST /api/student/recommendations/:id/feedback —— 推荐反馈（推进闭环）。 */
+export function recommendationFeedback(
+  recommendationId: string,
+  action: 'viewed' | 'in_progress' | 'dismissed',
+): Promise<TeacherRecommendation> {
+  return request<TeacherRecommendation>(
+    `/api/student/recommendations/${encodeURIComponent(recommendationId)}/feedback`,
+    { method: 'POST', body: { action } },
+  );
 }

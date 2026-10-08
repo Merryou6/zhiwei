@@ -50,7 +50,7 @@ import type { AuthData } from '../api/types';
 import ParticleLogo from '../components/ParticleLogo';
 import { Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
-import { SELF_REPORT_PATH, SPACES_PATH } from '../router';
+import { SELF_REPORT_PATH, SPACES_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { pickDefaultSpace, useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
@@ -71,6 +71,8 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  /** v1.6 双端：注册角色（默认学生；老师注册后进老师端工作台）。 */
+  const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
@@ -88,9 +90,15 @@ export default function LoginPage() {
     return errors;
   }
 
-  /** 登录/注册成功后的公共收尾：落会话 → 取空间（失败不阻断）→ 导航。 */
+  /** 登录/注册成功后的公共收尾：落会话 → 取空间（失败不阻断）→ 按角色导航。 */
   async function finishAuth(data: AuthData, isRegister: boolean): Promise<void> {
     setSession(data);
+
+    // v1.6 双端：老师不进学习链路（无自报/测评），登录后直送老师工作台
+    if (data.role === 'teacher') {
+      navigate(TEACHER_HOME, { replace: true });
+      return;
+    }
 
     // 取空间列表：注册后服务端已自动建默认空间；此处落 activeSpace（刷新不掉线）
     let defaultName = '初中数学';
@@ -127,7 +135,12 @@ export default function LoginPage() {
     try {
       const data =
         tab === 'register'
-          ? await register({ identifier: identifier.trim(), password, nickname: nickname.trim() || null })
+          ? await register({
+              identifier: identifier.trim(),
+              password,
+              nickname: nickname.trim() || null,
+              role,
+            })
           : await login({ identifier: identifier.trim(), password });
 
       await finishAuth(data, tab === 'register');
@@ -255,6 +268,38 @@ export default function LoginPage() {
               onChange={(event) => setNickname(event.target.value)}
             />
           </FormField>
+        ) : null}
+
+        {/* v1.6 双端：注册角色二选一（学生 = 现在的完整学习链路；老师 = 工作台）。 */}
+        {tab === 'register' ? (
+          <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="注册身份">
+            {(
+              [
+                { value: 'student', label: '我是学生', hint: '完整学习链路' },
+                { value: 'teacher', label: '我是老师', hint: '带学生看学情' },
+              ] as const
+            ).map((option) => {
+              const active = role === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setRole(option.value)}
+                  className={
+                    'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +
+                    (active
+                      ? 'border-accent bg-accent-veil text-ink'
+                      : 'border-line bg-surface text-ink-soft hover:text-ink')
+                  }
+                >
+                  {option.label}
+                  <span className="mt-0.5 block text-ui-sm text-ink-soft">{option.hint}</span>
+                </button>
+              );
+            })}
+          </div>
         ) : null}
 
         {/* 主按钮：单色实底。深色下 bg-accent = #6FB3D4、text-on-accent = #070C14，

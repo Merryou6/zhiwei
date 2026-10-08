@@ -17,15 +17,18 @@ import type {
   AttributionRecord,
   DialogRecord,
   EvidenceEventRecord,
+  InviteCodeRecord,
+  LinkRecord,
   MasteryLogRecord,
   MasteryProfileRecord,
   RecognitionRecord,
+  RecommendationRecord,
   SpaceRecord,
   Store,
   UserRecord,
 } from './types';
 
-/** 八张运行期表 → 文件名（item_bank 不入本地库，运行时只读静态文件）。 */
+/** 运行期表 → 文件名（item_bank 不入本地库，运行时只读静态文件；v1.6 加三张双端表）。 */
 export const TABLE_FILES = {
   users: 'users.json',
   spaces: 'spaces.json',
@@ -35,6 +38,9 @@ export const TABLE_FILES = {
   attributions: 'attributions.json',
   dialogs: 'dialogs.json',
   recognitions: 'recognitions.json',
+  invite_codes: 'invite_codes.json',
+  links: 'links.json',
+  recommendations: 'recommendations.json',
 } as const;
 
 export type TableName = keyof typeof TABLE_FILES;
@@ -233,5 +239,94 @@ export class LocalJsonStore implements Store {
     if (index >= 0) rows[index] = recognition;
     else rows.push(recognition);
     await this.writeTable('recognitions', rows);
+  }
+
+  // ------------------------------------------------------- invite_codes（v1.6）
+  async getInviteCode(code: string): Promise<InviteCodeRecord | null> {
+    const rows = await this.readTable<InviteCodeRecord>('invite_codes');
+    return rows.find((row) => row.code === code) ?? null;
+  }
+
+  async listInviteCodesByTeacher(teacherId: string): Promise<InviteCodeRecord[]> {
+    const rows = await this.readTable<InviteCodeRecord>('invite_codes');
+    return rows.filter((row) => row.teacher_id === teacherId);
+  }
+
+  async insertInviteCode(code: InviteCodeRecord): Promise<void> {
+    const rows = await this.readTable<InviteCodeRecord>('invite_codes');
+    rows.push(code);
+    await this.writeTable('invite_codes', rows);
+  }
+
+  async updateInviteCode(code: InviteCodeRecord): Promise<void> {
+    const rows = await this.readTable<InviteCodeRecord>('invite_codes');
+    const index = rows.findIndex((row) => row.code === code.code);
+    if (index >= 0) rows[index] = code;
+    else rows.push(code);
+    await this.writeTable('invite_codes', rows);
+  }
+
+  // -------------------------------------------------------------- links（v1.6）
+  async getLink(linkId: string): Promise<LinkRecord | null> {
+    const rows = await this.readTable<LinkRecord>('links');
+    return rows.find((row) => row.link_id === linkId) ?? null;
+  }
+
+  async insertLink(link: LinkRecord): Promise<void> {
+    const rows = await this.readTable<LinkRecord>('links');
+    rows.push(link);
+    await this.writeTable('links', rows);
+  }
+
+  async deleteLink(linkId: string): Promise<void> {
+    const rows = await this.readTable<LinkRecord>('links');
+    await this.writeTable('links', rows.filter((row) => row.link_id !== linkId));
+  }
+
+  async listLinksByTeacher(teacherId: string): Promise<LinkRecord[]> {
+    const rows = await this.readTable<LinkRecord>('links');
+    return rows.filter((row) => row.teacher_id === teacherId);
+  }
+
+  async listLinksByStudent(studentId: string): Promise<LinkRecord[]> {
+    const rows = await this.readTable<LinkRecord>('links');
+    return rows.filter((row) => row.student_id === studentId);
+  }
+
+  async findLinkByStudentAndSpace(studentId: string, spaceId: string): Promise<LinkRecord[]> {
+    const rows = await this.readTable<LinkRecord>('links');
+    return rows.filter((row) => row.student_id === studentId && row.space_id === spaceId);
+  }
+
+  // ---------------------------------------------------- recommendations（v1.6）
+  async getRecommendation(recommendationId: string): Promise<RecommendationRecord | null> {
+    const rows = await this.readTable<RecommendationRecord>('recommendations');
+    return rows.find((row) => row.recommendation_id === recommendationId) ?? null;
+  }
+
+  async insertRecommendation(recommendation: RecommendationRecord): Promise<void> {
+    const rows = await this.readTable<RecommendationRecord>('recommendations');
+    rows.push(recommendation);
+    await this.writeTable('recommendations', rows);
+  }
+
+  async updateRecommendation(recommendation: RecommendationRecord): Promise<void> {
+    const rows = await this.readTable<RecommendationRecord>('recommendations');
+    const index = rows.findIndex(
+      (row) => row.recommendation_id === recommendation.recommendation_id,
+    );
+    if (index >= 0) rows[index] = recommendation;
+    else rows.push(recommendation);
+    await this.writeTable('recommendations', rows);
+  }
+
+  async listRecommendationsByTeacher(teacherId: string): Promise<RecommendationRecord[]> {
+    const rows = await this.readTable<RecommendationRecord>('recommendations');
+    return rows.filter((row) => row.teacher_id === teacherId);
+  }
+
+  async listRecommendationsByStudent(studentId: string): Promise<RecommendationRecord[]> {
+    const rows = await this.readTable<RecommendationRecord>('recommendations');
+    return rows.filter((row) => row.student_id === studentId);
   }
 }

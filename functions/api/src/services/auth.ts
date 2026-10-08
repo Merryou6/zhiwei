@@ -16,6 +16,7 @@ import { httpError } from '../errors';
 import type { ApiResponse } from '../errors';
 import { newId } from '../ids';
 import type { RouteRequest } from '../router';
+import { userRoleOf } from '../db/types';
 import type { SpaceRecord, UserRecord } from '../db/types';
 
 /** 当前唯一合法知识库（契约 §2）。 */
@@ -70,6 +71,7 @@ export async function register(req: RouteRequest, ctx: AppContext): Promise<ApiR
   const identifier = readString(req.body, 'identifier');
   const password = readString(req.body, 'password');
   const nicknameRaw = req.body.nickname;
+  const roleRaw = req.body.role;
 
   if (!identifier || identifier.trim().length === 0) {
     throw httpError.badRequest('identifier 不能为空');
@@ -79,6 +81,10 @@ export async function register(req: RouteRequest, ctx: AppContext): Promise<ApiR
   }
   if (nicknameRaw !== undefined && nicknameRaw !== null && typeof nicknameRaw !== 'string') {
     throw httpError.badRequest('nickname 必须是字符串');
+  }
+  // v1.6 双端：role 可选，缺省 student；非法值直接拒绝（不做静默纠正）
+  if (roleRaw !== undefined && roleRaw !== null && roleRaw !== 'student' && roleRaw !== 'teacher') {
+    throw httpError.badRequest('role 必须是 student 或 teacher');
   }
 
   const trimmedIdentifier = identifier.trim();
@@ -92,6 +98,7 @@ export async function register(req: RouteRequest, ctx: AppContext): Promise<ApiR
     identifier: trimmedIdentifier,
     password_hash: hashPassword(password),
     nickname: typeof nicknameRaw === 'string' && nicknameRaw.length > 0 ? nicknameRaw : null,
+    role: roleRaw === 'teacher' ? 'teacher' : 'student',
     created_at: ctxNowIso(ctx),
   };
   await ctx.store.insertUser(user);
@@ -99,7 +106,7 @@ export async function register(req: RouteRequest, ctx: AppContext): Promise<ApiR
   // 契约 §1 副作用：注册成功即自动创建默认空间
   await ctx.store.insertSpace(buildDefaultSpace(ctx, user.user_id));
 
-  return ok({ user_id: user.user_id, token: signToken(user.user_id) });
+  return ok({ user_id: user.user_id, token: signToken(user.user_id), role: user.role });
 }
 
 /** POST /api/auth/login */
@@ -119,7 +126,8 @@ export async function login(req: RouteRequest, ctx: AppContext): Promise<ApiResp
     throw httpError.unauthorized('账号或密码不正确');
   }
 
-  return ok({ user_id: user.user_id, token: signToken(user.user_id) });
+  // v1.6：响应带 role（旧记录兜底 student，前端据此进对应壳）
+  return ok({ user_id: user.user_id, token: signToken(user.user_id), role: userRoleOf(user) });
 }
 
 /** 受保护接口的统一入口（路由层用；供 services 复用，避免各处重复 requireAuth）。 */

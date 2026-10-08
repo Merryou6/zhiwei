@@ -62,7 +62,7 @@ describe('client · 解包与鉴权头（契约 §0）', () => {
   });
 
   it('自动附 Authorization: Bearer <token>', async () => {
-    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc' });
+    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc', role: 'student' });
     stubFetch(() => jsonResponse({ code: 0, msg: 'success', data: { spaces: [] } }));
 
     await api.listSpaces();
@@ -71,7 +71,7 @@ describe('client · 解包与鉴权头（契约 §0）', () => {
   });
 
   it('register / login 不带 Authorization（auth:false）', async () => {
-    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc' });
+    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc', role: 'student' });
     stubFetch(() => jsonResponse({ code: 0, msg: 'success', data: { user_id: 'u_1', token: 't' } }));
 
     await api.register({ identifier: 'a@example.com', password: 'secret123' });
@@ -133,7 +133,7 @@ describe('client · 错误码分支（九码不扩展，msg 原样透出）', ()
   });
 
   it('401 → 清 token（内存 + localStorage）+ hash 跳 #/login + 抛 ApiError(401)', async () => {
-    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc' });
+    useAuthStore.getState().setSession({ user_id: 'u_1024', token: 'tok_abc', role: 'student' });
     expect(localStorage.getItem(STORAGE_KEYS.token)).toBe('tok_abc');
 
     stubFetch(() => jsonResponse({ code: 401, msg: 'token 无效或已过期', data: null }, 401));

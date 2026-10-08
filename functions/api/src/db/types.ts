@@ -18,6 +18,9 @@ export type RecognitionStatus = 'pending_confirm' | 'confirmed' | 'failed';
 export type DialogStatus = 'open' | 'exited' | 'closed';
 export type SuggestedResult = 'correct' | 'wrong' | 'unclear';
 
+/** v1.6 双端：用户角色（缺省 student；旧记录无此字段时按 student 兜底）。 */
+export type UserRole = 'student' | 'teacher';
+
 /** §4.1 users */
 export interface UserRecord {
   user_id: string;
@@ -25,7 +28,14 @@ export interface UserRecord {
   /** 形态 "salt:hash"（十六进制）；字段名沿用 DATA_SCHEMA（算法为 scrypt，见 D5）。 */
   password_hash: string;
   nickname: string | null;
+  /** v1.6 双端（可选字段，向后兼容）：读取侧 userRoleOf() 兜底 'student'。 */
+  role?: UserRole;
   created_at: string;
+}
+
+/** 读取侧角色兜底：旧记录 / 未带 role 字段一律按学生（零破坏）。 */
+export function userRoleOf(user: Pick<UserRecord, 'role'> | null | undefined): UserRole {
+  return user?.role === 'teacher' ? 'teacher' : 'student';
 }
 
 /** §4.2 spaces */
@@ -161,6 +171,64 @@ export interface RecognitionRecord {
 /** classify 的题库候选上下文（services/classify 组装，供 localClassify 判定命中）。 */
 export type ClassifyCandidate = Pick<BankItemRecord, 'item_id' | 'answer' | 'distractors'>;
 
+// ============================================================================
+// v1.6 双端三张新表（TEACHER_PORTAL_DESIGN §3；与既有九张表同构：本地 JSON 文件、
+// CloudBase 集合同名。归属纪律：除 invite_codes 外全部带 space_id，与数据归属一致）
+// ============================================================================
+
+/** §4.10 invite_codes：老师生成的绑定邀请码（无 space 归属——码在绑定前不指向具体空间）。 */
+export interface InviteCodeRecord {
+  /** 6 位大写字母数字码本身（主键）。 */
+  code: string;
+  teacher_id: string;
+  created_at: string;
+  /** 过期时间（创建 + 7 天）。 */
+  expire_at: string;
+  /** 最多可绑定学生数。 */
+  max_uses: number;
+  used_count: number;
+  status: 'active' | 'disabled';
+}
+
+/** §4.11 links：老师—学生（空间）绑定关系（绑定到 space 而非 user，与数据归属一致）。 */
+export interface LinkRecord {
+  link_id: string;
+  teacher_id: string;
+  student_id: string;
+  space_id: string;
+  created_at: string;
+}
+
+/** v1.6 推荐闭环状态机：assigned → viewed → in_progress → done / dismissed；expired 由读取侧惰性判定。 */
+export type RecommendationStatus =
+  | 'assigned'
+  | 'viewed'
+  | 'in_progress'
+  | 'done'
+  | 'dismissed'
+  | 'expired';
+
+/** §4.12 recommendations：老师下发的薄弱知识点推荐（闭环见 TEACHER_PORTAL_DESIGN §5）。 */
+export interface RecommendationRecord {
+  recommendation_id: string;
+  teacher_id: string;
+  student_id: string;
+  space_id: string;
+  link_id: string;
+  /** 完整 kp id（快照 gaps 的口径）。 */
+  kp_id: string;
+  kp_name: string;
+  /** 老师的一句话说明（学生端确认卡与推荐卡展示）。 */
+  note: string;
+  status: RecommendationStatus;
+  viewed_at: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  /** 复测闭环自动回写：该 kp 的 retest 正确率 − baseline 正确率（diagnose 服务钩子）。 */
+  delta_accuracy: number | null;
+  created_at: string;
+}
+
 /** 九张表读写语义的 Store 接口（D3）。本地 JSON 与 CloudBase 两套实现。 */
 export interface Store {
   init(): Promise<void>;
@@ -204,4 +272,25 @@ export interface Store {
   getRecognition(recognitionId: string): Promise<RecognitionRecord | null>;
   insertRecognition(recognition: RecognitionRecord): Promise<void>;
   updateRecognition(recognition: RecognitionRecord): Promise<void>;
+
+  // invite_codes（v1.6 双端）
+  getInviteCode(code: string): Promise<InviteCodeRecord | null>;
+  listInviteCodesByTeacher(teacherId: string): Promise<InviteCodeRecord[]>;
+  insertInviteCode(code: InviteCodeRecord): Promise<void>;
+  updateInviteCode(code: InviteCodeRecord): Promise<void>;
+
+  // links（v1.6 双端）
+  getLink(linkId: string): Promise<LinkRecord | null>;
+  insertLink(link: LinkRecord): Promise<void>;
+  deleteLink(linkId: string): Promise<void>;
+  listLinksByTeacher(teacherId: string): Promise<LinkRecord[]>;
+  listLinksByStudent(studentId: string): Promise<LinkRecord[]>;
+  findLinkByStudentAndSpace(studentId: string, spaceId: string): Promise<LinkRecord[]>;
+
+  // recommendations（v1.6 双端）
+  getRecommendation(recommendationId: string): Promise<RecommendationRecord | null>;
+  insertRecommendation(recommendation: RecommendationRecord): Promise<void>;
+  updateRecommendation(recommendation: RecommendationRecord): Promise<void>;
+  listRecommendationsByTeacher(teacherId: string): Promise<RecommendationRecord[]>;
+  listRecommendationsByStudent(studentId: string): Promise<RecommendationRecord[]>;
 }

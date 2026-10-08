@@ -30,6 +30,7 @@ import { getUserProfile, reportSummary } from '../api/endpoints';
 import type { ProfileData, ReportSummaryData } from '../api/types';
 import ConfirmDialog from '../components/ConfirmDialog';
 import PageSkeleton from '../components/PageSkeleton';
+import StudentTeacherSection from '../components/StudentTeacherSection';
 import ThemeToggle from '../components/ThemeToggle';
 import { Badge, Button, Card, CardTitle, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { cn } from '../lib/cn';
@@ -234,6 +235,9 @@ export default function MePage() {
       {/* 0) 学习概览（v1.4 自控制台并入）：自己管取数与加载态，
           不被账号信息的 loading 挡住——概览只依赖当前空间，先到先渲染。 */}
       {activeSpace ? <div className="mt-6"><OverviewCard spaceId={activeSpace.space_id} /></div> : null}
+
+      {/* v1.6 双端：老师推荐 + 我的老师（推荐为空时自动隐藏；绑定卡常驻入口） */}
+      <StudentTeacherSection activeSpaceId={activeSpace?.space_id ?? null} />
 
       {loading ? (
         <PageSkeleton label="正在取你的账号信息…" rows={2} className="mt-6" />

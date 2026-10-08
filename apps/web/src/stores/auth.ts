@@ -11,9 +11,13 @@ import { create } from 'zustand';
 import { STORAGE_KEYS } from '../router';
 import type { AuthData } from '../api/types';
 
+export type SessionRole = 'student' | 'teacher';
+
 export interface AuthState {
   token: string | null;
   userId: string | null;
+  /** v1.6 双端：登录/注册响应落盘的角色（旧会话无此键时兜底 student）。 */
+  role: SessionRole;
   /** 登录 / 注册成功后落盘（契约 #1 / #2 的 data）。 */
   setSession: (data: AuthData) => void;
   /** 401 或主动登出：内存与 localStorage 一起清（P0 #1「刷新不掉线」的反向操作）。 */
@@ -47,16 +51,20 @@ function remove(slot: string): void {
 export const useAuthStore = create<AuthState>((set) => ({
   token: read(STORAGE_KEYS.token),
   userId: read(STORAGE_KEYS.userId),
+  role: read(STORAGE_KEYS.role) === 'teacher' ? 'teacher' : 'student',
 
   setSession: (data: AuthData) => {
     write(STORAGE_KEYS.token, data.token);
     write(STORAGE_KEYS.userId, data.user_id);
-    set({ token: data.token, userId: data.user_id });
+    const role: SessionRole = data.role === 'teacher' ? 'teacher' : 'student';
+    write(STORAGE_KEYS.role, role);
+    set({ token: data.token, userId: data.user_id, role });
   },
 
   clear: () => {
     remove(STORAGE_KEYS.token);
     remove(STORAGE_KEYS.userId);
-    set({ token: null, userId: null });
+    remove(STORAGE_KEYS.role);
+    set({ token: null, userId: null, role: 'student' });
   },
 }));

@@ -30,6 +30,8 @@ export interface RegisterRequest {
   identifier: string;
   password: string;
   nickname?: string | null;
+  /** v1.6 双端：注册角色（缺省 student）。 */
+  role?: 'student' | 'teacher';
 }
 
 export interface LoginRequest {
@@ -40,6 +42,155 @@ export interface LoginRequest {
 export interface AuthData {
   user_id: string;
   token: string;
+  /** v1.6 双端：登录/注册响应带角色（旧账号服务端兜底 student）。 */
+  role: 'student' | 'teacher';
+}
+
+// ---------------------------------------------------------------- §12/§13 双端（v1.6）
+
+export type UserRole = 'student' | 'teacher';
+
+export type RecommendationStatus =
+  | 'assigned'
+  | 'viewed'
+  | 'in_progress'
+  | 'done'
+  | 'dismissed'
+  | 'expired';
+
+export interface InviteInfo {
+  code: string;
+  expire_at: string;
+  reused?: boolean;
+}
+
+export interface InviteListItem {
+  code: string;
+  created_at: string;
+  expire_at: string;
+  used_count: number;
+  max_uses: number;
+  status: 'active' | 'disabled';
+}
+
+export interface LinkPreview {
+  code: string;
+  teacher_id: string;
+  teacher_nickname: string;
+  expire_at: string;
+}
+
+export interface LinkConfirmResult {
+  link_id: string;
+  teacher_id: string;
+  teacher_nickname?: string;
+  space_id?: string;
+  duplicated: boolean;
+}
+
+export interface MyTeacher {
+  link_id: string;
+  teacher_id: string;
+  teacher_nickname: string;
+  space_id: string;
+  space_name: string;
+  linked_at: string;
+}
+
+export interface TeacherStudentCard {
+  student_id: string;
+  nickname: string | null;
+  space_id: string;
+  space_name: string;
+  linked_at: string;
+  kp_total: number;
+  bands: Record<string, number>;
+  avg_mastery: number;
+  top_gaps: { kp_id: string; name: string; mastery: number }[];
+  last_active_at: string | null;
+  active_recommendations: number;
+}
+
+export interface TeacherMasteryRow {
+  kp_id: string;
+  name: string;
+  mastery: number;
+  status_band: string;
+}
+
+export interface TeacherGapRow {
+  kp_id: string;
+  name: string;
+  mastery: number;
+  error_type_last: string | null;
+}
+
+export interface TeacherAccuracyRow {
+  kp_id: string;
+  name: string;
+  baseline: number | null;
+  retest: number | null;
+  delta: number | null;
+}
+
+export interface TeacherRecentAnswer {
+  created_at: string;
+  source: string;
+  mode: string | null;
+  kp: string;
+  item_id: string | null;
+  result: 'correct' | 'wrong';
+  student_answer: string | null;
+  matched_error_code: string | null;
+}
+
+export interface TeacherAttribution {
+  attribution_id: string;
+  from_kp: string;
+  root_cause: string;
+  error_type: string;
+  path: string[];
+  verified: boolean;
+  rejected_by_student: boolean;
+  created_at: string;
+}
+
+export interface TeacherRecommendation {
+  recommendation_id: string;
+  student_id: string;
+  kp_id: string;
+  kp_name: string;
+  note: string;
+  status: RecommendationStatus;
+  delta_accuracy: number | null;
+  viewed_at: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  created_at: string;
+}
+
+export interface TeacherStudentDetail {
+  student: {
+    student_id: string;
+    nickname: string | null;
+    space_id: string;
+    space_name: string;
+    linked_at: string;
+  };
+  summary: {
+    kp_total: number;
+    bands: Record<string, number>;
+    avg_mastery: number;
+    behavior: Record<string, number>;
+    mastery_log_count: number;
+  };
+  activity: { date: string; count: number }[];
+  mastery: TeacherMasteryRow[];
+  gaps: TeacherGapRow[];
+  accuracy: TeacherAccuracyRow[];
+  recent_answers: TeacherRecentAnswer[];
+  attributions: TeacherAttribution[];
+  recommendations: TeacherRecommendation[];
 }
 
 // ---------------------------------------------------------------- §2 空间

@@ -2,13 +2,14 @@
  * ID 生成（契约 §0 ID 前缀约定）
  *
  * 用户 `u_`、空间 `sp_`、证据事件 `evt_`、掌握度日志 `log_`、归因 `attr_`、
- * 对话 `dlg_`、识别任务 `rec_`；题目 `q_` 来自静态题库（不由本模块生成）。
+ * 对话 `dlg_`、识别任务 `rec_`；v1.6 双端新增：师生绑定 `lnk_`、推荐 `rcm_`
+ * （不用 rec_——与识别任务前缀区分）。题目 `q_` 来自静态题库（不由本模块生成）。
  *
  * 形态：前缀 + base36 时间戳 + 两位自增序号 + 三位随机后缀。
  * 随机后缀用于跨进程/跨测试文件隔离（同一毫秒内多次生成也不重号）。
  */
 
-export const ID_PREFIXES = ['u_', 'sp_', 'evt_', 'log_', 'attr_', 'dlg_', 'rec_'] as const;
+export const ID_PREFIXES = ['u_', 'sp_', 'evt_', 'log_', 'attr_', 'dlg_', 'rec_', 'lnk_', 'rcm_'] as const;
 
 export type IdPrefix = (typeof ID_PREFIXES)[number];
 
