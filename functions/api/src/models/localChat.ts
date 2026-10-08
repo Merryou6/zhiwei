@@ -78,11 +78,15 @@ export function guideText(kp: KnowledgeNode | null): string {
   return `我们先把「${kp.name}」的定义过一遍：${error ? error.desc : '先把基本概念说清楚'}。你先按这个思路试一步，写完发我。`;
 }
 
+/**
+ * 带图首轮（2026-10-08 传图读题改版）：本地规则适配器**没有视觉能力**，
+ * 旧版会假装"读出了知识点"——那是伪造，违背 D4「未发生的步骤零事件」精神。
+ * 现在诚实告知看不了图、给出两条可走的路（打字描述 / 请服务端配远程模型），
+ * 语气仍是学长，不让学生卡死在"发了图却没反应"。
+ */
 export function readPaperText(candidate: KpCandidate | null): string {
-  if (!candidate) {
-    return '我看到了这道题，但一时没认出它考哪个知识点。你先告诉我这是哪个章节的题？';
-  }
-  return `我看到了这道题，它考的是「${candidate.name}」。我们一起把它拆开看。`;
+  void candidate;
+  return '图我收到了，不过我现在是本地规则模式，还看不了图片里的字。你把题目用文字打给我——抄题也行，说个大概也行，我们先动起来。等这边配上大模型，我就能直接看图讲题了。';
 }
 
 /** 方向性提示（提示阶梯第 2 档）：取该 kp 的典型错误补救话术。 */

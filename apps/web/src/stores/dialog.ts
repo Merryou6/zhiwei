@@ -23,6 +23,11 @@ export interface ChatMessage {
   role: ChatRole;
   text: string;
   imageFileId?: string | null;
+  /**
+   * 传图读题（2026-10-08）：学生气泡的题图缩略（压缩后的 data URL）。
+   * **仅会话内存**——不落库，刷新后只剩 imageFileId 标记（与后端"图片不落库"一致）。
+   */
+  imageData?: string | null;
   /** 学长气泡的注脚（如 kp 匹配低置信的澄清提示）。 */
   note?: string | null;
   /** 方向提示徽标（next_action=hint_down）。 */
@@ -42,7 +47,7 @@ export interface DialogState {
   toolSteps: ChatToolStep[];
   /** 当轮阶段（最后一次 phase 事件）。 */
   phase: ChatSsePhaseData | null;
-  appendStudent: (text: string, imageFileId?: string | null) => string;
+  appendStudent: (text: string, imageFileId?: string | null, imageData?: string | null) => string;
   startAssistant: () => string;
   appendDelta: (id: string, text: string) => void;
   setMeta: (meta: ChatMeta) => void;
@@ -74,9 +79,11 @@ export const useDialogStore = create<DialogState>((set, get) => ({
   toolSteps: [],
   phase: null,
 
-  appendStudent: (text: string, imageFileId: string | null = null) => {
+  appendStudent: (text: string, imageFileId: string | null = null, imageData: string | null = null) => {
     const id = nextId('msg');
-    set({ messages: [...get().messages, { id, role: 'student', text, imageFileId }] });
+    set({
+      messages: [...get().messages, { id, role: 'student', text, imageFileId, imageData }],
+    });
     return id;
   },
 

@@ -67,6 +67,12 @@ export interface ChatStreamIncrement {
 export interface ChatTurnInput {
   message: string;
   image_file_id: string | null;
+  /**
+   * 传图读题的图片本体（2026-10-08 追加，可选）：data URL（data:image/*;base64,…）。
+   * 服务层已校验前缀与大小上限；**只在当轮转发给适配器，不写 dialogs**（图片不落库）。
+   * 远程适配器据其构建 vision 多模态 content；本地适配器忽略（诚实告知看不了图）。
+   */
+  image_data?: string | null;
   /** 知识图谱（kp 匹配候选集） */
   nodes: KnowledgeNode[];
   /** 对话历史（dialogs.messages，适配器只读结构化字段） */

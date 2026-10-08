@@ -24,6 +24,7 @@ import { Link } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
+import NextStepCard from '../components/NextStepCard';
 import PageSkeleton from '../components/PageSkeleton';
 import { Button, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { reportSummary } from '../api/endpoints';
@@ -58,8 +59,10 @@ export default function ReportPage() {
   const toast = useUiStore((state) => state.toast);
   /** 滚动揭示（Motion-Driven 的 reveal 词汇）见 lib/reveal.ts 的三段式：
       环境不允许时钩子什么都不做，区块按 CSS 默认保持可见。
-      文档级作用域、不需要容器 ref —— 少包一层 div 就不会改动取证锚点的取法。 */
-  useReveal();
+      文档级作用域、不需要容器 ref —— 少包一层 div 就不会改动取证锚点的取法。
+      deps 传 loading（2026-10-08）：报告区块是数据到达后才挂载的，
+      钩子需在数据就绪后重新观察，否则新区块永远 opacity:0（首屏空白根因）。 */
+  useReveal([loading, report]);
 
   useEffect(() => {
     if (!activeSpaceId) {
@@ -164,30 +167,86 @@ export default function ReportPage() {
         {summaryLine(gaps.length)}
       </p>
 
-      {/* ① 掌握度分布 */}
+      {/* 首屏双栏（2026-10-08 用户走查修复：此前首屏只有一句总结，分布与缺口都要滚动才见）。
+          桌面两列并排（分布条 | 缺口表），一屏看全"现状 + 最该补什么"；窄屏自动回落单列。 */}
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        {/* ① 掌握度分布（状态带计数条） */}
+        <div className="rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
+          <h2 className="text-base font-medium text-ink">
+            掌握度分布（<span className="font-mono tabular-nums">{mastery.length}</span> 个知识点）
+          </h2>
+
+          <ul className="mt-3 space-y-2">
+            {byBand.map(({ band, rows }) => (
+              <li key={band} className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-ui-sm text-ink-soft">{band}</span>
+                <span className="h-2 flex-1 overflow-hidden rounded-full bg-canvas">
+                  <span
+                    className="block h-full rounded-full"
+                    style={{ width: `${(rows.length / maxBandCount) * 100}%`, backgroundColor: BAND_HEX[band] }}
+                  />
+                </span>
+                <span className="w-10 shrink-0 text-right font-mono text-ui-sm tabular-nums text-ink-soft">
+                  {rows.length}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-3 text-ui-sm text-ink-soft">每个点的具体掌握度在下方「分状态带明细」。</p>
+        </div>
+
+        {/* ② 缺口清单 */}
+        <div className="rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
+          <h2 className="text-base font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
+          {gaps.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[420px] text-left text-sm">
+              <thead>
+                <tr className="text-ui-sm text-ink-soft">
+                  <th className="py-1 font-normal">知识点</th>
+                  <th className="py-1 font-normal">掌握度</th>
+                  <th className="py-1 font-normal">最近一次归因</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gaps.map((row) => (
+                  <tr key={row.kp_id} className="border-t border-line">
+                    <td className="py-2 text-ink">{row.name}</td>
+                    <td className={cn('py-2 font-mono tabular-nums', BAND_CLASS['待巩固'].text)}>
+                      {percent(row.mastery)}
+                    </td>
+                    <td className="py-2 text-ink-soft">
+                      {row.error_type_last ? ERROR_TYPE_LABEL[row.error_type_last] : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 下一步路标（2026-10-08 用户走查）：有缺口时把"去哪补"显式递出来 */}
+      {gaps.length > 0 ? (
+        <NextStepCard
+          className="mt-5"
+          status={`缺口清单里排最前的是「${gaps[0]?.name ?? ''}」`}
+          hint="去对话页把这处晃的地方补稳——学长会一次只给一小步，不直接抛答案。"
+          actions={[
+            { label: '去对话页补一补', to: '/chat', primary: true },
+            { label: '在图谱里看它的先修链', to: '/graph' },
+          ]}
+        />
+      ) : null}
+
+      {/* ①b 分状态带明细（chips） */}
       <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
-        <h2 className="text-base font-medium text-ink">
-          掌握度分布（<span className="font-mono tabular-nums">{mastery.length}</span> 个知识点）
-        </h2>
-
-        <ul className="mt-3 space-y-2">
-          {byBand.map(({ band, rows }) => (
-            <li key={band} className="flex items-center gap-3">
-              <span className="w-16 shrink-0 text-ui-sm text-ink-soft">{band}</span>
-              <span className="h-2 flex-1 overflow-hidden rounded-full bg-canvas">
-                <span
-                  className="block h-full rounded-full"
-                  style={{ width: `${(rows.length / maxBandCount) * 100}%`, backgroundColor: BAND_HEX[band] }}
-                />
-              </span>
-              <span className="w-10 shrink-0 text-right font-mono text-ui-sm tabular-nums text-ink-soft">
-                {rows.length}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-4 space-y-3">
+        <h2 className="text-base font-medium text-ink">分状态带明细</h2>
+        <div className="mt-3 space-y-3">
           {byBand.map(({ band, rows }) => (
             <div key={band}>
               <p className="text-ui-sm text-ink-soft">
@@ -210,39 +269,6 @@ export default function ReportPage() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* ② 缺口清单 */}
-      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
-        <h2 className="text-base font-medium text-ink">需要先补的地方（掌握度 &lt; 40%）</h2>
-        {gaps.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-soft">暂时没有明显缺口。</p>
-        ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[420px] text-left text-sm">
-            <thead>
-              <tr className="text-ui-sm text-ink-soft">
-                <th className="py-1 font-normal">知识点</th>
-                <th className="py-1 font-normal">掌握度</th>
-                <th className="py-1 font-normal">最近一次归因</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gaps.map((row) => (
-                <tr key={row.kp_id} className="border-t border-line">
-                  <td className="py-2 text-ink">{row.name}</td>
-                  <td className={cn('py-2 font-mono tabular-nums', BAND_CLASS['待巩固'].text)}>
-                    {percent(row.mastery)}
-                  </td>
-                  <td className="py-2 text-ink-soft">
-                    {row.error_type_last ? ERROR_TYPE_LABEL[row.error_type_last] : '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        )}
       </div>
 
       {/* ③ 基线 vs 复测 */}

@@ -375,7 +375,12 @@ async function callChatCompletionsStream(
   input: ChatTurnInput,
   onIncrement?: (chunk: FieldStreamChunk) => void,
 ): Promise<string> {
-  const messages: { role: string; content: string }[] = [{ role: 'system', content: systemPrompt }];
+  // OpenAI vision 兼容的内容块（2026-10-08 传图读题）：带图时最后一条 user 消息
+  // 升级为 text + image_url 多模态数组；不带图保持纯字符串（兼容文本模型）。
+  type ContentBlock = { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } };
+  const messages: { role: string; content: string | ContentBlock[] }[] = [
+    { role: 'system', content: systemPrompt },
+  ];
   for (const entry of input.history.slice(-16)) {
     if (entry.role === 'student') {
       messages.push({ role: 'user', content: entry.content });
@@ -385,7 +390,21 @@ async function callChatCompletionsStream(
       messages.push({ role: 'assistant', content: JSON.stringify({ reply: entry.content }) });
     }
   }
-  messages.push({ role: 'user', content: input.message });
+  if (input.image_data) {
+    const blocks: ContentBlock[] = [
+      {
+        type: 'text',
+        text:
+          input.message.trim().length > 0
+            ? input.message
+            : '（学生发来一张题目图片，请先读出题目的核心条件与问题，再按纪律引导第一步）',
+      },
+      { type: 'image_url', image_url: { url: input.image_data } },
+    ];
+    messages.push({ role: 'user', content: blocks });
+  } else {
+    messages.push({ role: 'user', content: input.message });
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.timeoutMs);

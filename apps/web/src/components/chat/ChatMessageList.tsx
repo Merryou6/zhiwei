@@ -53,19 +53,30 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
             {/* break-words（R6）：无空格长串（file_id / 行内 code）不再撑破气泡。
                 overflow-wrap 只在「确实放不下」时生效 → 桌面正常文本零变化。 */}
             <div className={isStudent ? 'max-w-[80%] break-words text-right' : 'max-w-[85%] break-words'}>
+              {isStudent && message.imageData ? (
+                // 传图读题（2026-10-08）：题图缩略直接进气泡；data URL 只在会话内存，
+                // 刷新后走 imageFileId 标记的兜底文案。
+                <img
+                  src={message.imageData}
+                  alt="学生发的题图"
+                  className="mb-1.5 ml-auto max-h-44 w-auto max-w-full rounded-surface border border-line object-contain"
+                />
+              ) : null}
               <div
                 className={cn(
                   'inline-block rounded-surface px-4 py-2.5 text-left text-sm leading-relaxed break-words',
                   isStudent ? 'whitespace-pre-wrap bg-accent-veil text-ink' : 'bg-canvas text-ink',
                 )}
               >
-                {message.text.length > 0 ? (
+                {message.text.length > 0 && message.text !== '（发来一张题图）' ? (
                   // 学长回复走轻量 Markdown 子集（加粗/列表/换行）；学生输入是纯文本，保持原样
                   isStudent ? (
                     message.text
                   ) : (
                     <RichText text={message.text} className="space-y-1.5" />
                   )
+                ) : message.text === '（发来一张题图）' ? (
+                  <span className="text-ink-soft">（发了题图，等我看一眼）</span>
                 ) : message.pending ? (
                   '正在想…'
                 ) : (
@@ -74,10 +85,11 @@ export default function ChatMessageList({ messages, streaming }: ChatMessageList
               </div>
 
               <div className="mt-1 flex flex-wrap items-center gap-2 text-ui-sm text-ink-soft">
-                {isStudent && message.imageFileId ? (
+                {isStudent && message.imageFileId && !message.imageData ? (
                   // break-all（R6）：file_id 是无空格长串，只有强制断行才不溢出
+                  // （历史会话刷新后只剩标记、图本体不落库，这里给诚实兜底文案）
                   <span className="break-all rounded-md bg-canvas px-2 py-0.5">
-                    已带题图（演示态 · {message.imageFileId}）
+                    这条消息带过一张题图（图片不保存）
                   </span>
                 ) : null}
                 {message.badge === 'hint' ? (

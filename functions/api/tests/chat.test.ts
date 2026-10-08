@@ -5,7 +5,8 @@
  * kp 匹配 ≥0.6 → silent 弱负证据（mastery ×0.9）；同小时同 kp 去重不新增事件；
  * 无关键词 → 澄清且零证据；提示阶梯（第 2 轮 hint_down）；
  * 连续 3 轮 false → exit_channel + consecutive_false=3 + blocked_by_prerequisite +
- * 切到最近低掌握上游（≤MAX_EXIT_HOPS）；dialog 续聊复用；JSON 降级路径（携 trace）；首轮带图读题。
+ * 切到最近低掌握上游（≤MAX_EXIT_HOPS）；dialog 续聊复用；JSON 降级路径（携 trace）；
+ * 首轮带图（2026-10-08 改版：本地模式诚实告知看不了图 + image_data 校验）。
  *
  * 过程链路（v1.3）另起 describe：tool 事件字段全真实中间量、未发生的步骤零事件、
  * JSON 降级 trace 与 SSE 事件序列同形。
@@ -280,7 +281,7 @@ describe('chat · 契约 §9 弱负证据与澄清', () => {
     });
   });
 
-  it('首轮带 image_file_id → 先读题（reply 含 Top-1 kp 名，meta.kp_match 返回最优候选）', async () => {
+  it('首轮带 image_file_id → 本地模式诚实告知看不了图（2026-10-08 传图读题改版：不再伪造读题），dialogs 落 image_file_id 标记', async () => {
     const user = await bootstrap();
     const events = await streamChat(user, {
       message: KP_MESSAGE,
@@ -288,12 +289,33 @@ describe('chat · 契约 §9 弱负证据与澄清', () => {
     });
 
     const meta = metaOf(events);
+    // kp 匹配照常从文字里跑（匹配链路不变），但 reply 不再声称"读出了题"
     expect(meta.kp_match.kp_id).toBe(VERTEX_KP);
-    expect(firstDelta(events).text).toContain('我看到了这道题');
-    expect(firstDelta(events).text).toContain(SD.nodeById.get(VERTEX_KP)!.name);
+    const reply = firstDelta(events).text;
+    expect(reply).toContain('看不了');
+    expect(reply).toContain('文字打给我');
+    expect(reply).not.toContain(SD.nodeById.get(VERTEX_KP)!.name);
 
     const dialog = await app.ctx.store.getDialog(meta.dialog_id);
     expect(dialog?.messages[0].image_file_id).toBe('cos://demo/chat.jpg');
+  });
+
+  it('带 image_data（data URL）→ 纯图消息可发送（服务端占位 message）；超大图 → 400 用户可读文案', async () => {
+    const user = await bootstrap();
+    const ok = await jsonChat(user, {
+      message: '',
+      image_file_id: 'img_local_1',
+      image_data: 'data:image/jpeg;base64,AAAA',
+    });
+    expect(ok.code).toBe(0);
+    expect(typeof ok.data!.reply).toBe('string');
+
+    const tooBig = await jsonChat(user, {
+      message: '看图',
+      image_data: `data:image/jpeg;base64,${'A'.repeat(400_001)}`,
+    });
+    expect(tooBig.code).toBe(400);
+    expect(tooBig.msg).toContain('图片太大');
   });
 });
 

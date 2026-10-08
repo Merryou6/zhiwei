@@ -315,6 +315,11 @@ export interface ChatRequest {
   dialog_id?: string;
   message: string;
   image_file_id?: string;
+  /**
+   * 传图读题的图片本体（2026-10-08 追加，可选）：压缩后的 data URL。
+   * 服务端只在当轮转发给模型适配器，不落库；本地规则模式会诚实回复看不了图。
+   */
+  image_data?: string;
 }
 
 export interface ChatJsonData {

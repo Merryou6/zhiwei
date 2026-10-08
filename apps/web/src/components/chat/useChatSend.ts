@@ -27,8 +27,17 @@ function badgeOf(meta: ChatMeta | null): 'hint' | 'exit' | null {
 }
 
 export interface ChatSendApi {
-  /** 发送一条学生消息（同一条链路：面板与全屏页共用 store，上下文互通）。 */
-  send: (text: string, imageFileId?: string | null) => Promise<void>;
+  /**
+   * 发送一条学生消息（同一条链路：面板与全屏页共用 store，上下文互通）。
+   * imageData = 传图读题的压缩 data URL（可选；随消息进 store 供气泡渲染缩略，
+   * 服务端只当轮转发给模型适配器、不落库）。
+   */
+  send: (
+    text: string,
+    imageFileId?: string | null,
+    imageData?: string | null,
+    options?: { allowEmptyText?: boolean },
+  ) => Promise<void>;
   /** 是否正在回复（发送键据此禁用）。 */
   streaming: boolean;
 }
@@ -38,16 +47,22 @@ export function useChatSend(): ChatSendApi {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
 
-  async function send(text: string, imageFileId: string | null = null): Promise<void> {
+  async function send(
+    text: string,
+    imageFileId: string | null = null,
+    imageData: string | null = null,
+    options: { allowEmptyText?: boolean } = {},
+  ): Promise<void> {
     const store = useDialogStore.getState();
     if (!activeSpaceId) {
       toast('先选一个学习空间', 'warn');
       return;
     }
     const trimmed = text.trim();
-    if (trimmed.length === 0 || store.streaming) return;
+    if (store.streaming) return;
+    if (trimmed.length === 0 && !options.allowEmptyText) return;
 
-    store.appendStudent(trimmed, imageFileId);
+    store.appendStudent(trimmed, imageFileId, imageData);
     const assistantId = store.startAssistant();
 
     try {
@@ -57,6 +72,7 @@ export function useChatSend(): ChatSendApi {
           dialog_id: store.dialogId ?? undefined,
           message: trimmed,
           image_file_id: imageFileId ?? undefined,
+          image_data: imageData ?? undefined,
         },
         {
           onDelta: (delta) => useDialogStore.getState().appendDelta(assistantId, delta),

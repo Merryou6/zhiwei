@@ -127,8 +127,14 @@ let armedConsumers = 0;
  * 子元素），锚点几何是取证基线的一部分。揭示是纯表现层的事，不该换来 DOM 结构变化。
  *
  * 环境不允许时**什么都不做**（属性不挂，区块按 CSS 默认保持可见）。
+ *
+ * deps（2026-10-08 修复）：异步页面传入「内容是否就绪」的依赖（如 [loading, data]）。
+ * 背景：ReportPage 的揭示区块在数据到达**之后**才挂载——首帧只有骨架屏，
+ * 观察器装配时无项可观察；数据到达后新增的 data-reveal-item 永远无人观察、
+ * 永远 opacity:0（正是「报告页首屏大片空白」的根因）。deps 变化时重新
+ * markInViewDone + observeReveal，把后来出现的区块补进观察。
  */
-export function useReveal(): void {
+export function useReveal(deps: readonly unknown[] = []): void {
   useEffect(() => {
     if (!revealAvailable()) return;
 
@@ -137,14 +143,21 @@ export function useReveal(): void {
       // 顺序不能换：先标记首屏内的项，再挂开关（见 markInViewDone 的说明）。
       markInViewDone(root);
       root.setAttribute(REVEAL_SCOPE_ATTR, 'on');
+      armedConsumers += 1;
+      const stop = observeReveal(root);
+      return () => {
+        stop();
+        armedConsumers -= 1;
+        if (armedConsumers === 0) root.removeAttribute(REVEAL_SCOPE_ATTR);
+      };
     }
-    armedConsumers += 1;
-
+    // 已有消费者武装过开关（如异步数据到达触发重跑）：只补标记 + 重新观察，
+    // 不动开关与计数（卸载计数归属第一个装配者）。
+    markInViewDone(root);
     const stop = observeReveal(root);
     return () => {
       stop();
-      armedConsumers -= 1;
-      if (armedConsumers === 0) root.removeAttribute(REVEAL_SCOPE_ATTR);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }

@@ -19,6 +19,7 @@ import { ApiError } from '../api/client';
 import { diagnoseNext, diagnoseSubmit } from '../api/endpoints';
 import type { DiagnoseMode } from '../api/types';
 import ItemCard from '../components/ItemCard';
+import NextStepCard from '../components/NextStepCard';
 import PageSkeleton from '../components/PageSkeleton';
 import ProgressBar from '../components/ProgressBar';
 import { Button, PageContainer, PageHeader } from '../components/ui';
@@ -141,32 +142,91 @@ export default function AssessmentPage() {
   // ------------------------------------------------------------ 结束屏
   if (phase === 'done') {
     const tooFast = store.submittedCount === 0;
+    // 下一步引导按模式分流（2026-10-08 用户走查：五步闭环的转场不该靠学生自己悟）：
+    //   diagnose → 已定位卡点，去看图谱/报告；baseline → 基准已量，去干预（对话/图谱）后复测；
+    //   retest → 复测完成，直接去报告看 ΔAccuracy。
+    const doneGuidance: Record<DiagnoseMode, { title: string; description: string }> = {
+      diagnose: {
+        title: tooFast ? '这一轮很快就收敛了' : UI_TEXT.assessmentDone,
+        description: tooFast
+          ? UI_TEXT.assessmentDoneTooFast
+          : '你的地图已经更新，接下来可以看图谱或报告，也可以直接进对话问我。',
+      },
+      baseline: {
+        title: '基准记下了',
+        description:
+          '这 3 题就是你的"干预前水平"。接下来去对话页让我带你补一补，或者去图谱挑个薄弱点——之后回来做一次复测，就能看到变化。',
+      },
+      retest: {
+        title: '复测完成',
+        description:
+          '这两组题和基线零重叠，所以变化是真实的。去报告页看 ΔAccuracy——补没补上，数字说话。',
+      },
+    };
+    const guidance = doneGuidance[store.mode] ?? {
+      title: UI_TEXT.assessmentDone,
+      description: '你的地图已经更新，接下来可以看图谱或报告，也可以直接进对话问我。',
+    };
+    const doneActions =
+      store.mode === 'retest'
+        ? [
+            { label: '去看 ΔAccuracy', to: '/report', primary: true },
+            { label: '换一种测评', to: '', primary: false },
+          ]
+        : store.mode === 'baseline'
+          ? [
+              { label: '去对话页补一补', to: '/chat', primary: true },
+              { label: '看看我的地图', to: '/graph', primary: false },
+            ]
+          : [
+              { label: tooFast ? '去花 30 秒自报' : '看看我的地图', to: tooFast ? '/self-report' : '/graph', primary: true },
+              { label: '打开学习报告', to: '/report', primary: false },
+            ];
     return (
       <PageContainer width="prose">
-        <PageHeader
-          title={tooFast ? '这一轮很快就收敛了' : UI_TEXT.assessmentDone}
-          description={
-            tooFast
-              ? UI_TEXT.assessmentDoneTooFast
-              : '你的地图已经更新，接下来可以看图谱或报告，也可以直接进对话问我。'
-          }
-        />
+        <PageHeader title={guidance.title} description={guidance.description} />
+        {store.mode === 'retest' ? (
+          <NextStepCard
+            className="mt-6"
+            status="复测 3 题记完了"
+            hint="同一批知识点的基线和复测现在可以并排比了。"
+            actions={[{ label: '打开学习报告', to: '/report', primary: true }]}
+          />
+        ) : null}
+        {store.mode === 'baseline' ? (
+          <NextStepCard
+            className="mt-6"
+            status="基线 3 题记完了（复测池）"
+            hint="补完回来再做一次「复测测量」，两次对比就是干预效果。"
+            actions={[
+              { label: '去对话页补一补', to: '/chat', primary: true },
+              { label: '看看我的地图', to: '/graph' },
+            ]}
+          />
+        ) : null}
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Button variant="primary" onClick={() => navigate(tooFast ? '/self-report' : '/graph')}>
-            {tooFast ? '去花 30 秒自报' : '看看我的地图'}
-          </Button>
-          <Button variant="secondary" onClick={() => navigate('/report')}>
-            打开学习报告
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              store.reset();
-              setPhase('select');
-            }}
-          >
-            换一种测评
-          </Button>
+          {doneActions.map((action) =>
+            action.to.length > 0 ? (
+              <Button
+                key={action.label}
+                variant={action.primary ? 'primary' : 'secondary'}
+                onClick={() => navigate(action.to)}
+              >
+                {action.label}
+              </Button>
+            ) : (
+              <Button
+                key={action.label}
+                variant="ghost"
+                onClick={() => {
+                  store.reset();
+                  setPhase('select');
+                }}
+              >
+                {action.label}
+              </Button>
+            ),
+          )}
         </div>
       </PageContainer>
     );
@@ -239,6 +299,20 @@ export default function AssessmentPage() {
           这道先跳过
         </Button>
       </div>
+
+      {/* 中途路标（2026-10-08 用户走查）：答过 2 题后出现——告诉学生"随时可以走，
+          进度与地图都在"，把闭环下一步显式递到眼前，不用等做完 10 题。 */}
+      {answered >= 2 ? (
+        <NextStepCard
+          className="mt-5"
+          status={`已经记了 ${answered} 题（可随时离开，进度留着）`}
+          hint="想先看看这些题撬动了什么，随时可以去地图或报告瞄一眼，回来接着答。"
+          actions={[
+            { label: '看看我的地图', to: '/graph', primary: true },
+            { label: '打开学习报告', to: '/report' },
+          ]}
+        />
+      ) : null}
 
       <p className="mt-4 text-ui-sm text-ink-soft">
         我不会当场告诉你对错——分数攒着，等这一轮完了我们一起看整体。跳过也没关系。

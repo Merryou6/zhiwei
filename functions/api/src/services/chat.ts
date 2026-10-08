@@ -131,17 +131,46 @@ export interface PreparedChat {
   graphMs: number;
   message: string;
   imageFileId: string | null;
+  /**
+   * 传图读题的图片本体（可选，data URL）：只在当轮转发给模型适配器，
+   * **不写 dialogs、不进任何表**（图片不落库；dialogs 里只有 image_file_id 标记）。
+   */
+  imageData: string | null;
   dialog: DialogRecord;
 }
+
+/** 图片本体大小上限（data URL 字符长度 ≈ 4/3 × 二进制字节；约对应 300KB 图片）。 */
+export const IMAGE_DATA_MAX_LENGTH = 400_000;
 
 export async function prepareChat(req: RouteRequest, ctx: AppContext): Promise<PreparedChat> {
   const user = await authedUser(req, ctx);
   const space = await requireSpaceOwnership(ctx, user.user_id, req.body.space_id);
 
-  const message = req.body.message;
-  if (typeof message !== 'string' || message.trim().length === 0) {
+  const rawMessage = req.body.message;
+  if (typeof rawMessage !== 'string') {
+    throw httpError.badRequest('message 必须是字符串');
+  }
+  const imageData = req.body.image_data;
+  if (imageData !== undefined && imageData !== null) {
+    if (typeof imageData !== 'string' || !imageData.startsWith('data:image/')) {
+      throw httpError.badRequest('image_data 必须是 data:image/ 开头的 data URL');
+    }
+    if (imageData.length > IMAGE_DATA_MAX_LENGTH) {
+      throw httpError.badRequest('图片太大，请换一张小一些的（或截图后裁一裁）再发');
+    }
+  }
+  // 带图消息允许纯图发送：message 为空时用中性占位（dialogs 记录可读、kp 匹配可跑）；
+  // 纯文本消息仍要求非空（原纪律不变）。
+  const message =
+    rawMessage.trim().length > 0
+      ? rawMessage
+      : typeof imageData === 'string' && imageData.startsWith('data:image/')
+        ? '（发来一张题图）'
+        : rawMessage;
+  if (message.trim().length === 0) {
     throw httpError.badRequest('message 不能为空');
   }
+
   const imageFileId = req.body.image_file_id;
   if (
     imageFileId !== undefined &&
@@ -169,6 +198,7 @@ export async function prepareChat(req: RouteRequest, ctx: AppContext): Promise<P
     graphMs,
     message,
     imageFileId: typeof imageFileId === 'string' ? imageFileId : null,
+    imageData: typeof imageData === 'string' ? imageData : null,
     dialog,
   };
 }
@@ -409,7 +439,7 @@ export async function runChat(
   ctx: AppContext,
   emit: ChatEmit,
 ): Promise<ChatResult> {
-  const { userId, spaceId, kb, nodes, message, imageFileId, dialog } = prepared;
+  const { userId, spaceId, kb, nodes, message, imageFileId, imageData, dialog } = prepared;
 
   // ---- analyze：加载知识图谱（真实动作 = prepareChat 内的 nodesForKb）
   emit.event(phaseEvent('analyze'));
@@ -444,6 +474,7 @@ export async function runChat(
     turn = await createModels().chatTurn({
       message,
       image_file_id: imageFileId,
+      image_data: imageData,
       nodes,
       history: dialog.messages,
       onIncrement: (chunk) => {
