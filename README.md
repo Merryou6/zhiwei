@@ -4,11 +4,11 @@
 
 # 知微 · ZhiWei
 
-**基于知识图谱归因的一对一 AI 学习伴侣**
+**基于知识图谱归因的 AI 学习伴侣 —— 学生端 × 老师端**
 
-采集证据 → 诊断掌握度 → 定位根因 → 生成处方 → 新题验证
+证据多源采集 → 诊断掌握度 → 定位根因 → 干预（对话辅导 / 专项练习）→ 新题验证 → 效果回流
 
-![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v1.0%20%E5%8A%9F%E8%83%BD%E5%86%BB%E7%BB%93-brightgreen)
+![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v2.0%20%E5%8F%8C%E7%AB%AF%E8%A7%84%E5%88%92%E7%89%88-blue)
 ![stack](https://img.shields.io/badge/stack-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite%20%C2%B7%20Node.js-2F9C7C)
 ![tests](https://img.shields.io/badge/tests-34%20%E6%96%87%E4%BB%B6%20%C2%B7%20389%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
@@ -18,18 +18,19 @@
 
 **在线体验：[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**（注册即用，数据本地隔离）
 
-
 </div>
 
 ---
 
 ## English Overview
 
-**ZhiWei** is a one-on-one AI learning companion for junior-high mathematics, built around **knowledge-graph attribution**. Drill apps answer *"what did you get wrong?"*; ZhiWei answers the harder question — *"which knowledge node are you actually stuck on, and what kind of error is it?"*
+**ZhiWei** is a dual-portal AI learning companion for junior-high mathematics, built around **knowledge-graph attribution**. Drill apps answer *"what did you get wrong?"*; ZhiWei answers the harder question — *"which knowledge node are you actually stuck on, and what kind of error is it?"* — and now lets teachers see it too.
 
-The product is a five-step closed loop: **collect evidence → diagnose mastery → locate root cause → prescribe intervention → verify with unseen items**. Mastery is modeled with **Bayesian Knowledge Tracing**; root causes are located by backtracking the prerequisite chain of a hand-curated knowledge graph; the tutor chat follows a Socratic policy (one small hint at a time, never dumping the answer). The loop is closed by **ΔAccuracy** — a post-intervention retest drawn from a disjoint item pool, so the effect is measured, not asserted.
+The student portal runs a five-step closed loop: **collect evidence → diagnose mastery → locate root cause → intervene → verify with unseen items**. Evidence comes from four sources — self-report, adaptive items, **photos of past exam papers / answer sheets / homework (no need to solve anything first)**, and tutor chat. Interventions come in two flavors: a Socratic tutor that **explains concepts as complete knowledge systems** and **walks through reasoning step by step in plain language**, and a **module-wise practice mode where the system grades every step** — locating where the reasoning went off track, awarding partial credit the way a teacher would, and classifying each error into a typology. Mastery is modeled with **Bayesian Knowledge Tracing**; the loop is closed by **ΔAccuracy** on a disjoint retest pool.
 
-Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 REST/SSE endpoints**, and a **pure-functional, zero-IO BKT engine**. Data assets: **36 knowledge nodes**, **149 typical errors**, **404 calibrated items** across two curricula. **34 test files / 389 cases**, all green. Fully responsive across desktop, tablet and phone (below 720 px the top bar collapses into a hamburger drawer). Built by two students from the College of Computer Science and Software Engineering, Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
+The teacher portal is a lightweight workbench: bind students via invite codes, read a **mastery snapshot of the whole class** (aggregated profiles, answer originals, error originals), **push targeted recommendations**, and watch the **measured effect (ΔAccuracy) flow back** to each recommendation.
+
+Monorepo: React 18 + TypeScript + Vite, a Node.js API surface, and a **pure-functional, zero-IO BKT engine** with all 17 parameters externalized. Data assets: knowledge graphs (36 nodes), **149 typical errors**, **404 calibrated items** plus a curated module-wise practice bank, and dual data gates (static validation + per-item answer recomputation). Built by two students from Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
 
 ---
 
@@ -39,63 +40,67 @@ Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 
 
 传统刷题产品的逻辑是「哪儿错补哪儿」：二次函数配方出错了，就再刷十道配方的题。但真实课堂里，配方出错的原因至少有四种：**符号意识没建立、运算基本功不牢、概念理解偏差、程序性步骤缺失**。补错了方向，刷再多题也只是把错误练得更熟练。
 
-家长和老师面对的则是另一重困境：一张 78 分的试卷只能说出「孩子二次函数不行」，**说不出具体卡在哪一个知识节点、因哪一类错误**。诊断的粒度，决定了干预的精度。
+**学生和家长**面对的困境：一张 78 分的试卷只能说出「孩子二次函数不行」，**说不出具体卡在哪一个知识节点、因哪一类错误**。
 
-知微要做的，就是把「感觉不行」变成「精确制导」：
+**老师**面对的则是更大的杠杆落空：一个班四五十份卷子，批改只能给分，**没有精力逐人归因**；讲评课只能讲共性问题，**谁在哪个节点上晃、该给谁推哪一环，全凭印象**。诊断的粒度，决定了干预的精度——这句话对学生成立，对整个班级更成立。
 
-> **每一分丢在哪里 → 归因到哪个知识点 → 属于哪类错误 → 开什么处方 → 用没见过的新题验证是否真的补上了。**
+知微 v2.0 要做的，就是把「感觉不行」变成「精确制导」，并同时给到两端：
+
+> **学生端**：每一分丢在哪里 → 归因到哪个知识点 → 属于哪类错误 → 对话引导 / 专项练习 → 用没见过的新题验证是否真的补上了。
+>
+> **老师端**：一眼看清全班每个人的掌握地图 → 看得到答卷与错题原文 → 给具体学生推具体知识点 → 每一条推荐都能看到实测效果。
 
 ---
 
 ## 二、产品闭环：五步教学法的产品化
 
 ```
- ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐
- │ ① 采集   │   │ ② 诊断   │   │ ③ 归因   │   │ ④ 处方   │   │ ⑤ 验证   │
- │ 多源证据 │ → │ BKT建模  │ → │ 图谱定位 │ → │ 对话辅导 │ → │ 新题复测 │
- └─────────┘   └─────────┘   └─────────┘   └─────────┘   └─────────┘
-  自报/测评      动态出题       根因分析       学长式引导     retest 池
-  试卷/对话      掌握度状态带    错误分类       一步一引导     零重叠新题
-                                                    ↓
-                                        ΔAccuracy = 干预效果实测
+ ┌─────────────┐   ┌─────────┐   ┌─────────┐   ┌──────────────┐   ┌─────────┐
+ │ ① 采集证据   │   │ ② 诊断   │   │ ③ 归因   │   │ ④ 干预        │   │ ⑤ 验证   │
+ │ 四路证据     │ → │ BKT建模  │ → │ 图谱定位 │ → │ 双通道         │ → │ 新题复测 │
+ └─────────────┘   └─────────┘   └─────────┘   └──────────────┘   └─────────┘
+  自报 / 测评        动态出题       根因分析       对话辅导（概念体系/分步引导）  retest 池
+  试卷/答题卡/作业    掌握度状态带    错误类型学     专项练习（逐步批改+思路纠偏）  零重叠新题
+  对话                                                                       ↓
+                                                    ΔAccuracy = 干预效果实测 → 回流老师端推荐
 ```
 
 | 步骤 | 学生看到的 | 系统里发生的 |
 | --- | --- | --- |
-| **① 采集证据** | 「我哪块儿没底」自报卡点、测评答题、拍照传试卷、和 AI 学长聊天 | 四路证据统一入库，按数据通路加权融合 |
-| **② 诊断掌握度** | 一道接一道「恰到好处」的题 | BKT 引擎自适应选题：太熟的不问、太生的先铺垫；每个知识点落到掌握度状态带 |
+| **① 采集证据** | 自报卡点、测评答题、和 AI 学长聊天，**或者什么都不做——把以前的试卷、答题卡、平时的作业拍上来就行** | 五路证据统一入库，按数据通路加权融合；历史材料经识别管线还原「每题作答 → 对错 → 考点」，反推掌握度 |
+| **② 诊断掌握度** | 一张自动生成的掌握地图——**不用先刷题就能有** | BKT 引擎以历史材料为冷启动证据，后续做题持续精化；每个知识点落到掌握度状态带 |
 | **③ 定位根因** | 「你不是粗心，是符号意识这一环还晃」 | 沿知识图谱先修链向上游回溯，区分「根因节点」与「表现节点」；错误落到类型学 |
-| **④ 生成处方** | 一份看得懂的学习计划 + 一个不直接抛答案的 AI 学长 | 干预方案按状态带生成；对话遵循语气纪律——像耐心的学长，不像评判者 |
+| **④ 干预** | 一个**分两种教法**的 AI 学长 + 一个**逐题逐步骤批改**的专项练习场 | 概念问题给完整知识体系；推理问题一步步引导；专项练习按模块系统刷题、系统批改每一步 |
 | **⑤ 新题验证** | 三道**从没见过**的复测题 | 复测题与训练题**零重叠**；ΔAccuracy 用实测回答「补上了没有」 |
 
-**闭环的灵魂在第五步**：多数产品在「辅导完成」就结束了，知微坚持用不重复的新题做干预后复测——效果不靠感觉，靠 ΔAccuracy。
+**闭环的两个灵魂**：
+
+- **第五步**：多数产品在「辅导完成」就结束了，知微坚持用不重复的新题做干预后复测——效果不靠感觉，靠 ΔAccuracy。
+- **第一步的新自由**：诊断不必以做题为门槛。学生把过往的试卷、答题卡、作业上传，系统识别出每道题的作答与对错，**用「已经发生过的真实作答」推断掌握情况**——第一次打开产品就能拿到一张像样的地图；之后再做题，只是让地图越来越准。
 
 ---
 
-## 三、界面速览
+## 三、双端架构：学生端 × 老师端
 
-**归因与图谱**：掌握度着色 + 先修链回溯，把「薄弱」落到具体节点与错误类型。
+```
+ 学生端（产品本体）                    老师端（教师工作台）
+ ┌──────────────────────┐            ┌──────────────────────┐
+ │ 五步闭环 · 对话 · 专项练习 │ ◀── 邀请码 ── │ 生成邀请码 · 双向确认绑定   │
+ │ 我的老师 · 推荐卡        │ ◀── 推荐 ───  │ 班级总览 · 学生详情（快照）  │
+ │ 定向补漏 → 复测          │ ─── 效果 ──▶ │ 推荐管理 · ΔAccuracy 回流  │
+ └──────────────────────┘            └──────────────────────┘
+        ↓ 共用一套 BKT 引擎 / 知识图谱 / 题库 / 报告口径，学生端行为零变化 ↑
+```
 
-<img src="docs/screenshots/graph-desktop.png" width="880" alt="知识图谱页：掌握度着色与先修链">
+**老师端四个动作**：**看**（全班掌握概览卡片墙：平均掌握度、薄弱点 Top3、7 日趋势、活跃度）→ **判**（点进学生：掌握地图、缺口清单、**答卷原文、答题原文、错题原文**——批改讲评与归因复核的基础）→ **推**（在缺口里勾选 2–3 个知识点、附一句话留言、下发）→ **验**（推荐状态机 `已下发 → 看过 → 进行中 → 已完成/已搁置`，完成后自动回写该次复测的 ΔAccuracy——**推荐必须可度量**，老师看到的是「布置了、做了、顶点式 +8%」，不是「我布置过」）。
 
-**学习报告**：掌握度分布、待巩固清单与缺口排序，一屏看清该先补哪个。
+**可见性分级（写进契约与代码白名单）**：老师可见——聚合掌握度、趋势、行为计数、时间戳，以及**答卷 / 答题 / 错题原文**（教学必需）；老师不可见——学长与学生的对话原文（内部辅导过程），产品也不收集真实身份信息。绑定采用**邀请码 + 学生端确认**的双向流程，未成年人数据不经学生/家长同意不得被第三方查看。
 
-<img src="docs/screenshots/report-desktop.png" width="880" alt="学习报告页：掌握度分布与缺口清单">
-
-**对话辅导**：右侧「思考与工具链」面板逐步披露推理依据与工具调用——不是黑箱，每一轮为什么这么引导都看得见。
-
-<img src="docs/screenshots/chat-desktop.png" width="880" alt="对话辅导页：学长式引导 + 思考与工具链面板">
-
-**手机端**：顶栏在 720 px 以下收起为汉堡抽屉，375 / 414 档页面级横向溢出为 0。
-
-<p>
-  <img src="docs/screenshots/mobile-spaces.png" width="252" alt="手机端：学习空间">
-  <img src="docs/screenshots/mobile-nav-drawer.png" width="252" alt="手机端：汉堡抽屉导航">
-</p>
+**老师端的语气纪律**：老师是加油站，不是监控器——不做排行榜、不搞「落后于班级平均」的对比话术；学生三天没来，卡片上的提示是「3 天没来了——也许是忙，不催，但可以问问」。
 
 ---
 
-## 四、五大核心亮点
+## 四、核心亮点
 
 ### 1. 知识图谱归因，不是题库匹配
 
@@ -105,33 +110,58 @@ Monorepo: React 18 + TypeScript + Vite front end, a Node.js API surface of **20 
 
 然后沿图谱检查上游，避免「头痛医头」。
 
-### 2. BKT 认知建模，掌握度是算出来的
+### 2. BKT 认知建模 + 多源证据，掌握度是算出来的
 
-采用贝叶斯知识追踪（BKT）：每答一题，该知识点的掌握概率被证据实时更新，落到**四档掌握度状态带**（待巩固 / 不稳定 / 基本掌握 / 已掌握），统一驱动选题、处方、报告与图谱着色。引擎是**纯函数、零 IO** 的 TypeScript 实现，**17 个算法参数全部外置**于 `config/params.json`——调参不动代码，教育学假设全部显式可审计。
+采用贝叶斯知识追踪（BKT）：每条证据（自报、答题、历史材料作答、对话中的默会信号）都会实时更新对应知识点的掌握概率，落到**四档掌握度状态带**（待巩固 / 不稳定 / 基本掌握 / 已掌握），统一驱动选题、处方、报告、图谱着色与老师端快照。引擎是**纯函数、零 IO** 的 TypeScript 实现，**17 个算法参数全部外置**于 `config/params.json`——调参不动代码，教育学假设全部显式可审计。
 
-### 3. 对话有教育学纪律，远程模型可插可退
+**历史材料冷启动**是 v2.0 对证据通路的关键扩展：上传的试卷 / 答题卡 / 作业经「切图 → 逐题切分 → 作答与对错识别 → 考点匹配」管线还原为结构化证据，按通路权重进入 BKT——**学生不必先做题，系统先看做过的事**。
 
-AI 学长的每一轮引导都遵循写进代码的纪律：
+### 3. 对话有两种教法：概念给体系，推理给阶梯
 
-- **像耐心的学长，不像评判者**——「这一环还有点晃，我们再稳一下」，不说「你掌握很差」
-- **一次只给一小步的方向性提示**，学生没明确要完整解法前不抛答案
-- **状态机权威**：模型只产出结构化字段，学习路径决策权在确定性服务层，不被大模型自然语言覆盖
-- **接得进真模型，也退得回本地**：默认零依赖的本地规则适配器，几行环境变量即可切换 DeepSeek 等 OpenAI 兼容大模型；远程任何失败自动回落本地，**永不白屏**
-- **过程可见**：SSE 逐字上屏，并把推理摘要、工具调用（参数 / 结果 / 耗时）作为独立事件下发；连接不可用时降级为非流式 JSON，链路轨迹一并携带
+AI 学长把问题分成两类，分别对待——
 
-### 4. C 端学习闭环 + 概览并入「我的」，一个工程
+**概念性问题：不给一句孤立的答案，给完整的知识概念体系。** 学生问「什么是对称轴」，得到的不是一个定义，而是这个概念的完整拼图：**定义（是什么）→ 几何直观（为什么长这样）→ 来历（从配方法推出来）→ 常见变式（一般式 / 顶点式 / 交点式里分别怎么找）→ 易混点（对称轴和对称中心别搅在一起）**。学生带走的是一个能**触类旁通**的知识节点，而不是一句背完就忘的话。
 
-- **C 端**：登录 → 学习空间 → 自报 → 测评 → 试卷 → 对话 → 归因 → 图谱 → 报告 → 云盘，共 10 个主链路页面
-- **「我的」页**：学习概览（掌握度分布与 KPI）、账号、当前空间、主题与对话模型（只读）
-- **多知识库架构**：初中数学（24 节点）与高中数学（12 节点）双库并行，诊断 / 报告 / 对话 / 空间按知识库隔离，可继续扩展学段与学科
-- **多学生空间**：一个账号可管理多个学习空间（家长二孩、教师多生场景）
+**推理性问题：用最简单、最通俗的话，一步一步引导，扶着走完。** 不抛完整解法，每次只推一小步；这一步用大白话讲清「为什么要做这一步」，学生卡住就给脚手架（具体到「下一步试试把 b 和 c 挪到左边」），走对了就确认方向。**思路是学生自己走出来的，学长负责不让他在岔路上耗着。**
 
-### 5. 效果用硬指标说话
+两条都延续既有纪律：像耐心的学长不像评判者；模型只产出结构化字段，学习路径决策权在确定性服务层；接得进真模型、退得回本地，远程任何失败自动回落，永不白屏。
+
+### 4. 专项练习：像老师一样，批改每一步
+
+学生想系统性提升某个模块时，进入**专项练习**：按「模块 → 知识点 → 题型 → 难度」四级组织（如：函数 → 二次函数 → 含参判别式 → 中档），每个专项是一条由易到难的完整阶梯。
+
+**批改不是「答案对不对」，而是逐步骤走一遍学生的推理链**：
+
+| 批改维度 | 系统做的事 | 对应的老师视角 |
+| --- | --- | --- |
+| **错误起点定位** | 沿步骤逐步校验数学是否成立，标出「从第 2 步开始走偏」——而不是只判最后答案 | 「你列方程那步把 + 写成了 −，后面全盘皆输」 |
+| **按得分点给分** | 每一步对应考场评分标准中的得分点，给出「这一步在考场上值几分、丢了几分、为什么丢」 | 「方法对了，计算失误，考场上能拿 4/6」 |
+| **思路纠偏** | 方法选错（该用配方法却硬套公式）单独归类——**结果对了也要指出思路绕远** | 「这题答案对了，但你走的是最费力的路」 |
+| **错因归类** | 每处错误落到 149 条典型错误库，接回归因与 BKT——练完不是练完，是证据 | 「这类错和你上周试卷里的是同一个根子」 |
+
+**一题多解的宽容**：每题预存多种标准解法与每步得分点；学生的解法不在预存之列时，由模型做数学合理性判断，推理链自洽即认可，存疑的标记复核——**AI 要做的是给所有合理的思路开绿灯，不是把学生掰成一种解法**。
+
+练完即回流：专项练习的每一步批改结果作为证据进入 BKT，掌握度、报告、图谱、老师端同步更新；老师推荐的知识点可一键直达对应专项。
+
+### 5. 双端：老师工作台 + 可度量的推荐闭环
+
+见第三节。一句话总结：**学生端管学，老师端管教，中间靠一条可度量的推荐闭环连起来**——不是布置了就完了，是布置了、做了、看得见效果。
+
+### 6. 工程底座：模型可插可退，契约冻结驱动
+
+- **本地规则适配器零依赖默认可用**，几行环境变量切换 DeepSeek 等 OpenAI 兼容大模型（含视觉多模态，支撑传图读题与历史材料识别），远程失败自动回落本地
+- **答案不下发前端**：`answer` / `solution_steps` 在序列化层被硬性过滤，杜绝「F12 看答案」；判分永远在服务端
+- **契约冻结 + 追加式留痕**：`API_CONTRACT > ALGORITHM > DATA_SCHEMA > PRD` 四层文档驱动，冲突有法可依
+- **过程可见**：SSE 逐字上屏，推理摘要与工具调用作为独立事件下发，对话不是黑箱
+
+### 7. 效果用硬指标说话
 
 | 指标 | 设计 | 判据 |
 | --- | --- | --- |
 | **新题正确率提升** | 基线 3 题（retest 池）→ 干预 → 复测 3 题（**与基线零重叠**） | ΔAccuracy ≥ 0.3 且复测正确率 ≥ 0.75 |
 | **归因认可率** | 多名学生 ≥15 条归因记录，一线教师逐条判定 | ≥ 75%（冲刺 80%） |
+| **推荐闭环达成率**（v2.0 新增） | 老师下发推荐 → 学生完成 → 复测 ΔAccuracy 回写 | 覆盖率与提升幅度双指标，答辩现场实测 |
+| **逐步批改吻合率**（v2.0 新增） | 系统按步给分 vs 教师逐份人工评分 | 步骤级得分点一致率 ≥ 85% |
 
 演示数据全程可重置，所有数字以实测为准。
 
@@ -142,27 +172,29 @@ AI 学长的每一轮引导都遵循写进代码的纪律：
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  apps/web         React 18 · TypeScript · Vite · Tailwind     │
-│                   11 个路由 · HashRouter · Zustand · ECharts   │
-│                   响应式三档：桌面 / 平板 / 手机（<720 汉堡抽屉）│
+│                   学生端 11 路由 + 老师端 /t/* 双壳路由          │
+│                   HashRouter · Zustand · ECharts · 响应式三档   │
 ├──────────────────────────────────────────────────────────────┤
-│  functions/api    Node.js · 20 个 REST / SSE 接口              │
-│                   Store 适配层（本地 JSON ⇄ CloudBase 可切换）  │
-│                   ModelAdapter 工厂（本地规则 / 远程大模型）     │
+│  functions/api    Node.js · REST / SSE 接口                    │
+│                   学生链路 + teacher 服务（快照聚合/绑定/推荐）    │
+│                   Store 适配层（本地 JSON ⇄ CloudBase 可切换）   │
+│                   ModelAdapter 工厂（本地规则 / 远程大模型·视觉） │
 ├──────────────────────────────────────────────────────────────┤
 │  packages/engine  BKT 引擎 · 纯函数 · 零 IO · 参数全外置        │
+│                   + practice 分步批改核心（步骤校验/得分点/归因）  │
 ├──────────────────────────────────────────────────────────────┤
-│  data/            知识图谱 · 题库 · 知识库索引                 │
+│  data/            知识图谱 · 题库 · 专项练习库 · 知识库索引       │
 │  config/          params.json（17 个算法参数）                  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 **几条刻进工程的硬约束：**
 
-- **答案不下发前端**——`answer` / `solution_steps` 在接口序列化层被硬性过滤，杜绝「F12 看答案」
-- **算法零硬编码**——所有阈值、初值、状态带边界只存在于 `config/params.json`
+- **答案不下发前端**——判分在服务端；专项练习的得分点比对同样在服务端完成
+- **算法零硬编码**——所有阈值、初值、状态带边界、批改给分规则只存在于 `config/params.json` 与题库结构化字段
 - **状态带唯一来源**——前端四色语义直接复用引擎导出常量，前后端不各写一份阈值
 - **幂等语义**——重复提交不重复扣分，同一知识点换一道题仍正常计分
-- **首屏轻量**——构建按依赖拆包，业务代码与 React 分离，ECharts 独立 chunk 懒加载，只在图谱页拉取
+- **白名单序列化**——学生端、老师端各走各的序列化白名单，老师端可见性分级写进契约
 - **同构部署**——本地开发、CloudBase 云函数、Docker 单容器三种形态同一套代码
 
 ---
@@ -173,15 +205,22 @@ AI 应用的壁垒不在界面，在数据。知微的数据资产**全部结构
 
 | 资产 | 规模 | 说明 |
 | --- | --- | --- |
-| 知识图谱 | **36 节点**（初中 24 + 高中 12） | 含先修关系、章节归属、课标出处（`source.standard`）与典型错误挂载 |
-| 典型错误库 | **149 条**（初中 93 + 高中 56） | 每条含错误描述与干预建议，归因与对话共用的「弹药库」 |
-| 题目银行 | **404 题**（初中 272 / 高中 132） | **train / retest 双池隔离**，复测题与训练题零重叠 |
+| 知识图谱 | **36 节点**（初中 24 + 高中 12） | 含先修关系、章节归属、课标出处与典型错误挂载 |
+| 典型错误库 | **149 条**（初中 93 + 高中 56） | 归因、对话、专项批改三处共用的「错因弹药库」 |
+| 题目银行 | **404 题**（train / retest 双池隔离） | 复测题与训练题零重叠 |
+| **专项练习库**（v2.0） | 按「模块 → 知识点 → 题型 → 难度」四级组织 | 每题带：分步参考思路（多解法）、**每步得分点**、常见错法映射、完整解析 |
 | 算法参数 | **17 项**外置 | BKT 初值 / 阈值 / 状态带边界，全部可调可审计 |
 
-配套两道质检工序：
+**专项练习库的数据建设路径（v2.0）**：以公开教研资源为底料——各版本教材必考题型汇编、中考真题按模块专题（方程与不等式 / 函数 / 几何 / 统计概率）、经典母题体系（一题多解 + 举一反三）——走**三道工序入库**：
+
+1. **整理结构化**：按知识图谱节点归位，补齐分步思路、得分点分配、常见错法映射
+2. **答案复算**：延续 `verify_items.py` 工序，每题答案与每步得分点**逐一重算固化**，杜绝「错题库教错知识」
+3. **双池纪律**：专项题与复测池零重叠，练得再多也不污染 ΔAccuracy 的可信度
+
+配套两道质检工序（全库通用）：
 
 - `scripts/validate_data.py` —— 静态数据闸门：数据结构、图谱连通性（DAG）、双池重叠等**负例有牙**的断言
-- `scripts/verify_items.py` —— 题库复算：每题答案**逐一重算固化**，杜绝「错题库教错知识」
+- `scripts/verify_items.py` —— 题库复算：每题答案**逐一重算固化**
 
 ---
 
@@ -195,6 +234,9 @@ npm run all          # 一条命令同时拉起后端 :8787 与前端 :5173
 ```
 
 浏览器打开 **http://127.0.0.1:5173** 即可。
+
+- **学生身份**：注册即用，或用登录页的演示账号（demo_student · demo123456）
+- **老师身份**：注册时选择「我是老师」，进入教师工作台——生成邀请码 → 另开一个学生账号输入邀请码绑定，即可体验双端闭环
 
 <details>
 <summary>常用命令（分步 / 测试 / 校验）</summary>
@@ -220,7 +262,7 @@ npm run build:web
 
 </details>
 
-**接真模型（可选）**：在环境变量里把 `ZHIWEI_MODEL_MODE` 置为 `remote` 并填入 OpenAI 兼容接口的地址、模型名与密钥，即可切换到 DeepSeek 等大模型；远程失败会自动、干净地回落本地规则模型。完整变量清单见 `.env.example`。
+**接真模型（可选）**：在环境变量里把 `ZHIWEI_MODEL_MODE` 置为 `remote` 并填入 OpenAI 兼容接口的地址、模型名与密钥，即可切换到 DeepSeek 等大模型——**对话双策略、传图读题、历史材料识别同时升级**；远程失败会自动、干净地回落本地规则模型。完整变量清单见 `.env.example`。
 
 ---
 
@@ -237,7 +279,7 @@ docker compose up -d --build
 - **形态**：一个容器 = 静态前端 + `/api` 同源流式反向代理，对外仅一个端口（SSE 直通，无缓冲）
 - **数据**：用户与作答记录落在 volume，不进镜像；备份 / 恢复命令见教程
 - **健康检查**：内置 `/healthz`
-- **限制**：单实例部署（JSON 存储无并发锁）；CloudBase 适配器为接口桩
+- **限制**：单实例部署（JSON 存储无并发锁，双端三张新表一并纳入后续 SQLite 迁移）；CloudBase 适配器为接口桩
 
 完整教程（含反向代理、备份恢复、真模型配置、常见问题）见 **`deploy/DEPLOY.md`**。
 
@@ -254,55 +296,73 @@ docker compose up -d --build
 
 | 维度 | 现状 |
 | --- | --- |
-| 测试 | **34 个测试文件 · 389 个用例全部通过**（引擎 43 + 后端 169 + 前端 177） |
+| 测试 | **34 个测试文件 · 389 个用例全部通过**（引擎 43 + 后端 169 + 前端 177）；v2.0 新增模块沿用同一纪律，交付即全绿 |
 | 类型 | TypeScript 严格模式，三段工程各自 `tsc --noEmit` 全绿 |
-| 数据闸门 | 静态校验 + 题库复算全部通过 |
-| 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕** |
-| 响应式 | 真浏览器（Chromium CDP）在 **1440 / 1024 / 768 / 720 / 414 / 375** 六档 × 11 页逐页采集溢出量与几何锚点；桌面三档经**逐像素比对**验证零变化 |
+| 数据闸门 | 静态校验 + 题库复算全部通过；专项练习库入库走同一闸门 |
+| 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕**（v1.5 传图读题与选项化、v1.6 双端增量均已留痕） |
+| 响应式 | 真浏览器在 **1440 / 1024 / 768 / 720 / 414 / 375** 六档 × 各页逐页采集溢出量与几何锚点，桌面三档**逐像素比对**零变化 |
 | 留痕 | 每个模块完成立即提交，中文提交信息完整记录决策与关键数字 |
 
 ---
 
-## 十、项目结构
+## 十、版本路线
+
+**v1.0（已交付，功能冻结）**：五步闭环全链路（自报 / 测评 / 试卷 / 归因 / 处方 / 对话 / 复测）、知识图谱与报告、多知识库（初中 + 高中）、多学生空间、响应式三档、Docker 部署、389 用例全绿。
+
+**v2.0（本版规划，设计定稿 → 实施中）**：
+
+| 模块 | 内容 | 状态 |
+| --- | --- | --- |
+| **双端架构** | 角色模型、邀请码双向绑定、老师工作台三页、推荐闭环与 ΔAccuracy 回流 | 设计定稿（[`TEACHER_PORTAL_DESIGN.md`](TEACHER_PORTAL_DESIGN.md)） |
+| **历史材料建图** | 试卷 / 答题卡 / 作业上传 → 识别管线 → 掌握度冷启动 | 设计定稿 |
+| **对话双策略** | 概念问题给完整知识体系；推理问题通俗分步引导 | 设计定稿 |
+| **专项练习 + 逐步批改** | 四级专项组织、逐步骤校验、按得分点给分、思路纠偏、错因回流 | 设计定稿 |
+| 传图读题 / 选项化作答 / 步骤引导 / 报告首屏 / 云盘关联 | v1.5 体验升级 | 已交付 |
+| 班级共性分析 / 班级模型 / 周报导出 / SSE 实时 | P2 展望 | 规划 |
+
+---
+
+## 十一、项目结构
 
 ```
 zhiwei/
-├─ apps/web/             前端：11 个页面 + 组件 + 状态层 + API/SSE 客户端
-│  ├─ src/pages/         主链路 10 页 + me 我的（含学习概览）
-│  ├─ src/components/    设计系统组件（含 chat/ 对话视图七件套）
-│  ├─ src/stores/        Zustand：认证 / 空间 / 测评 / 归因 / 对话 / 面板 / 主题
+├─ apps/web/             前端：学生端 11 页 + 老师端 /t/* 三页 + 组件 + 状态层
+│  ├─ src/pages/         主链路 10 页 + me 我的 + teacher/（工作台三页）
+│  ├─ src/components/    设计系统组件（含 chat/ 对话视图、practice/ 批改视图）
+│  ├─ src/stores/        Zustand：认证 / 空间 / 测评 / 归因 / 对话 / 面板 / 主题 / 会话
 │  └─ tests/             18 个测试文件
-├─ functions/api/        后端：20 个接口 + Store 适配 + 模型适配
-│  └─ tests/             14 个测试文件
-├─ packages/engine/      BKT 引擎（纯函数、零 IO）
-│  └─ tests/             2 个测试文件
-├─ data/                 知识图谱 / 题库 / 知识库索引
+├─ functions/api/        后端：学生链路 + teacher 服务 + Store 适配 + 模型适配
+│  └─ tests/             14+ 个测试文件
+├─ packages/engine/      BKT 引擎 + 分步批改核心（纯函数、零 IO）
+├─ data/                 知识图谱 / 题库 / 专项练习库 / 知识库索引
 ├─ config/params.json    17 个算法参数（唯一来源）
 ├─ scripts/              数据校验与题库复算
 ├─ tools/                品牌资源与浏览器走查脚本
 ├─ deploy/               Docker 部署与运维教程
 ├─ docs/screenshots/     README 配图
+├─ TEACHER_PORTAL_DESIGN.md  双端架构设计方案（v2.0 蓝图）
 └─ _pipeline/            开发流水线产物（计划 / 执行报告 / 审查报告 / 走查截图）
 ```
 
 ---
 
-## 十一、团队
+## 十二、团队
 
 两位成员，均为**深圳大学计算机与软件学院 · 计算机科学与技术**专业学生。
 
 | 成员 | 分工 |
 | --- | --- |
-| [@Merryou6](https://github.com/Merryou6) | 项目主开发与工程底座：脚手架与冻结契约体系、BKT 引擎（纯函数零 IO）、知识图谱与题库数据及其校验闸门、后端 20 个 REST/SSE 接口（认证 / 空间 / 测评 / 归因 / 报告 / 对话）、测试体系（34 文件 389 用例）、两轮 UI 重构与响应式走查闸门、Docker 部署 |
-| [@congming666](https://github.com/congming666) | 模型接入与知识库扩展：远程大模型适配器（OpenAI 兼容协议 / DeepSeek，模式切换工厂 + 失败自动回落本地）、多知识库架构（初中 24 节点 + 高中 12 节点、题库扩至 404 题、按知识库隔离诊断 / 报告 / 对话 / 空间）、一键启动与 e2e 全链路体检脚本、深色设计系统与品牌视觉资产、登录页与前端交互改版 |
+| [@Merryou6](https://github.com/Merryou6) | 项目主开发与工程底座：脚手架与冻结契约体系、BKT 引擎（纯函数零 IO）、知识图谱与题库数据及其校验闸门、后端 REST/SSE 接口（认证 / 空间 / 测评 / 归因 / 报告 / 对话）、测试体系、两轮 UI 重构与响应式走查闸门、Docker 部署 |
+| [@congming666](https://github.com/congming666) | 模型接入与知识库扩展：远程大模型适配器（OpenAI 兼容协议 / DeepSeek，模式切换工厂 + 失败自动回落本地）、多知识库架构与题库扩充、一键启动与 e2e 全链路体检脚本、深色设计系统与品牌视觉资产、登录页与前端交互改版 |
 
 ---
 
-## 十二、文档导航
+## 十三、文档导航
 
 | 文档 | 内容 |
 | --- | --- |
-| [`API_CONTRACT.md`](API_CONTRACT.md) | 20 个接口的冻结契约：路由、字段、错误码、认证、变更记录 |
+| [`API_CONTRACT.md`](API_CONTRACT.md) | 接口冻结契约：路由、字段、错误码、认证、变更记录（含 v1.5 / v1.6 增量） |
+| [`TEACHER_PORTAL_DESIGN.md`](TEACHER_PORTAL_DESIGN.md) | 双端架构设计方案：老师端数据模型、API、前端页面、推荐闭环、排期 |
 | [`ALGORITHM.md`](ALGORITHM.md) | 算法规格：参数总表、BKT 三段式、自适应选题、错误诊断、归因定位、退出通道、状态带、复测指标 |
 | [`DATA_SCHEMA.md`](DATA_SCHEMA.md) | 数据结构：图谱与题库静态字段规格 + 运行时数据表 + 校验脚本要求 |
 | [`PRD.md`](PRD.md) | 范围与验收：P0 清单、页面清单、交互纪律、效果验证指标 |
@@ -313,7 +373,7 @@ zhiwei/
 
 ---
 
-## 十三、许可证
+## 十四、许可证
 
 本项目以 **GNU General Public License v3.0** 发布，详见 [`LICENSE`](LICENSE)。
 
@@ -323,8 +383,11 @@ zhiwei/
 
 **知微不生产题海。**
 
-它做的是把「这孩子二次函数不行」翻译成「卡在 B3 对称轴、属于概念类错误、上游 A7 也松了」，
-然后用一个不抛答案的 AI 学长陪他走回正轨，
-**最后用三道从没见过的新题，证明这条路走对了。**
+它把「这孩子二次函数不行」翻译成「卡在 B3 对称轴、属于概念类错误、上游 A7 也松了」——
+不必等他再考一次，过往的试卷和作业就足够说明问题；
+概念不懂，学长给他整个知识体系；思路不会，学长用大白话扶他一步步走；
+专项刷题，系统像老师一样批改每一步、按得分点给分、指出从哪一步开始走偏；
+老师打开工作台，全班的掌握地图一屏看完，推荐落到人、效果看得见——
+**最后用三道从没见过的新题，证明这一切真的有用。**
 
 </div>
