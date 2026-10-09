@@ -27,6 +27,7 @@ import { cn } from '../lib/cn';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { stageLabel } from '../lib/stages';
+import { useReveal } from '../lib/useReveal';
 import { START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
@@ -56,6 +57,9 @@ export default function SpacesPage() {
   // 【P1 双端切换回路】页面级判断：teacher 账号没有学习空间，本页对它只做指引不做建空间
   const isTeacher = useAuthStore((state) => state.role) === 'teacher';
 
+  // 章节揭示（awwwards 入场）：页头 fade-up，once + reduced-motion 直出由 useReveal 兜底。
+  const header = useReveal<HTMLDivElement>();
+
   async function load(): Promise<void> {
     try {
       const data = await listSpaces();
@@ -78,10 +82,12 @@ export default function SpacesPage() {
 
   return (
     <PageContainer width="standard">
-      <PageHeader
-        title="学习空间"
-        description="一个空间就是一个学科的知识地图。默认空间已经建好了，直接开始就好。"
-      />
+      <div ref={header.ref} className={cn('reveal-section', header.inView && 'is-revealed')}>
+        <PageHeader
+          title="学习空间"
+          description="一个空间就是一个学科的知识地图。默认空间已经建好了，直接开始就好。"
+        />
+      </div>
 
       {/* 【P1 双端切换回路】teacher 访问本页只给指引：不建空间、不引导学习链路，
           一颗「回老师端」把唯一的正确去向放在眼前（原来只会看到「还没有学习空间」空态）。 */}
@@ -118,8 +124,9 @@ export default function SpacesPage() {
             return (
               <li
                 key={space.space_id}
+                // 玻璃面：空间层次（awwwards layered depth）——直接拼类名，补钉自动盖过 Card 底色
                 className={cn(
-                  'rounded-surface border bg-surface p-5',
+                  'glass-card rounded-surface border p-5',
                   isActive ? 'border-accent' : 'border-line',
                 )}
               >
@@ -170,7 +177,8 @@ export default function SpacesPage() {
       )}
 
       {showForm ? (
-        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
+        // 玻璃面：新建面板与列表卡同一面层语汇（awwwards layered depth）；表单控件不动
+        <div className="glass-card mt-6 rounded-surface border border-line p-5 shadow-card">
           <h2 className="text-base font-medium text-ink">新建空间</h2>
           <p className="mt-1 text-ui-sm text-ink-soft">
             选一个学科；空间名不填就用学科名。同名会自动加序号，放心建。

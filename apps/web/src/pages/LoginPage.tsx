@@ -61,6 +61,7 @@ import type { AuthData } from '../api/types';
 import ParticleLogo from '../components/ParticleLogo';
 import { Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
+import { useReveal } from '../lib/useReveal';
 import { SPACES_PATH, START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { pickDefaultSpace, useSpaceStore } from '../stores/space';
@@ -94,6 +95,11 @@ export default function LoginPage() {
   const setSession = useAuthStore((state) => state.setSession);
   const setSpaces = useSpaceStore((state) => state.setSpaces);
   const toast = useUiStore((state) => state.toast);
+
+  // 章节揭示（awwwards 入场）：表单区 fade-up（标识已有粒子开场，不重复编排主容器）；
+  // 演示入口错峰揭示，比表单晚 ~120ms（directed motion：错峰只在一屏之内）。once + reduced-motion 由 useReveal 兜底。
+  const { ref: formRevealRef, inView: formRevealed } = useReveal<HTMLFormElement>();
+  const { ref: demoRevealRef, inView: demoRevealed } = useReveal<HTMLDivElement>();
 
   /** 本地校验（行内提示用；服务端仍是最终裁判）。
       【P3 人设随身份】学生端文案是学长口吻，老师身份下改中性，不让老师被「记住你」。 */
@@ -259,7 +265,13 @@ export default function LoginPage() {
       {/* 表单：没有外壳、没有分隔线、没有嵌套面板。
           字段标签交给 placeholder 承担（读屏器靠 sr-only label 仍能拿到），
           省掉两行可见文字——这是把 13 个元素压到 7 个的关键一步。 */}
-      <form onSubmit={handleSubmit} noValidate className="mt-8 w-full max-w-[360px]">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        // 入场揭示（awwwards reveal）：fade-up 0.5s 内，reduced-motion 自动直出
+        ref={formRevealRef}
+        className={'reveal-section' + (formRevealed ? ' is-revealed' : '') + ' mt-8 w-full max-w-[360px]'}
+      >
         {/* 双端开场：身份常驻（登录 + 注册都在，且是表单第一件事）。
             注册 = 提交给 #1 的 role；登录 = 身份期望（不符时登录后温和纠正）。
             复用注册时的二选一样式：无卡片语汇，两个文字块就是全部。
@@ -284,7 +296,8 @@ export default function LoginPage() {
                   'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +
                   (active
                     ? 'border-accent bg-accent-veil text-ink'
-                    : 'border-line bg-surface text-ink-soft hover:text-ink')
+                    : // hover 背景轻微提亮（awwwards 反馈微交互）：非选中身份的悬停可发现性
+                      'border-line bg-surface text-ink-soft hover:bg-raised hover:text-ink')
                 }
               >
                 {option.label}
@@ -370,7 +383,12 @@ export default function LoginPage() {
 
       {/* 演示入口：双端各一个，压在页面最下方的两行低调文字。
           与双端开场同构——学生看学习链路、老师看工作台；首次使用自动按身份建号。 */}
-      <div className="mt-7 text-center">
+      <div
+        ref={demoRevealRef}
+        className={'reveal-section' + (demoRevealed ? ' is-revealed' : '') + ' mt-7 text-center'}
+        // 错峰 120ms：等表单落定后再浮出次级入口（awwwards directed motion）
+        style={demoRevealed ? { animationDelay: '120ms' } : undefined}
+      >
         <div className="flex flex-wrap items-center justify-center gap-x-5">
           <Button
             variant="link"
