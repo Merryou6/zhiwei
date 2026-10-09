@@ -105,8 +105,17 @@ export default function ChatPage() {
         {/* max-w-2xl 是**列宽**约束不是页面宽度：它与 PageContainer 的 prose 档同值（672），
             但语义不同 —— 它是「消息列不该长到难以阅读」，因此保留在这里而不是上提。 */}
         <div className="min-w-0 max-w-2xl">
-          <ChatMessageList messages={store.messages} streaming={store.streaming} />
-          <ChatComposer disabled={store.streaming} />
+          {/* 设计语言（包F）：消息流作用域壳。气泡入场动画与空态玻璃面锚定在共享组件
+              ChatMessageList 的 DOM 上（D11 共享组件不可改），经此容器类作用域化到
+              全屏页，右侧面板同款组件不受影响（配套样式见 index.css 底部）。 */}
+          <div className={cn('chat-stream', store.messages.length === 0 && 'chat-stream-empty')}>
+            <ChatMessageList messages={store.messages} streaming={store.streaming} />
+          </div>
+          {/* 设计语言（包F）：输入区包一层玻璃面（glass-card 是面材质，圆角内边距自备）。
+              密集的消息气泡本体保持实底不动——对话区可读性优先，只动输入区/空态/入场动画。 */}
+          <div className="glass-card mt-4 rounded-surface p-3">
+            <ChatComposer disabled={store.streaming} />
+          </div>
 
           <p className="mt-3 text-ui-sm text-ink-soft">
             {activeSpaceId ? '' : `还没有空间，`}

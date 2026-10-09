@@ -75,6 +75,7 @@ import {
   UI_TEXT,
 } from '../lib/phrases';
 import { SPACES_PATH, readPaperWrong } from '../router';
+import { useReveal } from '../lib/useReveal';
 import { useAttributionStore } from '../stores/attribution';
 import type { AttributionDraft } from '../stores/attribution';
 import { useSpaceStore } from '../stores/space';
@@ -109,6 +110,9 @@ export default function AttributionPage() {
   const [busy, setBusy] = useState(false);
   /** 带 ?attribution_id= 进入时的回显等待（批三：此前会先闪一屏空白起始页）。 */
   const [viewLoading, setViewLoading] = useState(false);
+
+  // 设计语言（包F）：向导态页头的滚动揭示（once 语义，reduced-motion 下 hook 直出可见）。
+  const headerReveal = useReveal<HTMLDivElement>();
 
   const loadedRef = useRef<string | null>(null);
 
@@ -332,7 +336,8 @@ export default function AttributionPage() {
         </section>
 
         {/* ── ② 为什么是这里 ─────────────────────────────────────────── */}
-        <Card className="mt-8">
+        {/* 设计语言（包F）：解释性散文卡用玻璃面；下方路径链/证据列表等密集区保持实底。 */}
+        <Card className="mt-8 glass-card">
           <CardHeader title="为什么是这里" />
           <CardContent className="space-y-2 text-sm leading-relaxed text-ink-soft">
             <p>
@@ -433,7 +438,8 @@ export default function AttributionPage() {
         ) : null}
 
         {/* ── ⑤ 验证一下 ─────────────────────────────────────────────── */}
-        <Card id={VERIFY_ANCHOR_ID} className="mt-4 scroll-mt-20">
+        {/* 设计语言（包F）：验证主操作区玻璃面；卡内 ItemCard 自带实底，可读性不受损。 */}
+        <Card id={VERIFY_ANCHOR_ID} className="mt-4 scroll-mt-20 glass-card">
           <CardHeader title="验证一下" />
           <CardContent>
             {item ? (
@@ -597,11 +603,17 @@ export default function AttributionPage() {
 
   return (
     <PageContainer width="prose">
-      <PageHeader
-        kicker={stepLabel}
-        title="看看这道题错在哪"
-        description="先告诉我一道错题。我会先复述你写的这一步，再说它大概属于哪一类——如果我拿不准，我会问你，而不是猜。"
-      />
+      {/* 设计语言（包F）：页头进入视口一次性揭示（once），滚动叙事与 LandingPage 同一机制。 */}
+      <div
+        ref={headerReveal.ref}
+        className={cn('reveal-section', headerReveal.inView && 'is-revealed')}
+      >
+        <PageHeader
+          kicker={stepLabel}
+          title="看看这道题错在哪"
+          description="先告诉我一道错题。我会先复述你写的这一步，再说它大概属于哪一类——如果我拿不准，我会问你，而不是猜。"
+        />
+      </div>
 
       {/* ── 第一步：选错题来源 ───────────────────────────────────── */}
       {draft === null ? (

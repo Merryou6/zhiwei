@@ -755,3 +755,46 @@ textarea::placeholder {
     background-color: rgb(var(--c-surface));
   }
 }
+
+/* ── 对话页作用域（2026-10-09 awwwards 适配包 F）────────────────────
+   ChatMessageList / ChatComposer 是全屏页与右侧面板的共享组件（D11），
+   包约束不允许改组件文件，因此气泡入场与空态玻璃面的锚点都经 ChatPage
+   挂的容器类（.chat-stream / .chat-stream-empty）作用域化到全屏页，
+   面板里的同款组件不受影响。keyframes 就地定义、不走 tailwind 动画令牌，
+   理由同 reveal-in（类名驱动的工具类扫描覆盖不了这种组合）；
+   减弱动效由文件底部全局 reduce 块兜底（duration 0.01ms → 立刻终态）。 */
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 气泡行入场（学生 justify-end / 学长 justify-start 的 flex 行）：
+   React 按 message.id 复用 DOM，动画只在节点插入时播一次，流式追加不重播；
+   notice（p）/ 空态 / 滚动锚点（空 div）不匹配选择器，保持静态。 */
+.chat-stream > div > div[class*='justify-'] {
+  animation: message-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 空态引导面：首次进入（无消息）时消息列表容器退为玻璃面。
+   取值与 .glass-card 逐字相同（共享组件的根容器够不到类名，只能在此复刻），
+   降级路径（reduced-transparency → 不透明 surface）也与 .glass-card 对齐。 */
+.chat-stream-empty > div:first-child {
+  background-color: rgb(var(--c-surface) / 0.72);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+  border-color: rgb(var(--c-line) / 0.7);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .chat-stream-empty > div:first-child {
+    background-color: rgb(var(--c-surface));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

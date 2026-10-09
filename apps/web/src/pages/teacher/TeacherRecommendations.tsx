@@ -15,6 +15,7 @@ import PageSkeleton from '../../components/PageSkeleton';
 import { Badge, Button, Card } from '../../components/ui';
 import { cn } from '../../lib/cn';
 import { deltaPercent, formatTime } from '../../lib/format';
+import { useReveal } from '../../lib/useReveal';
 
 const STATUS_BADGE: Record<string, { tone: 'neutral' | 'accent' | 'positive' | 'negative' | 'warning' | 'outline'; label: string }> = {
   assigned: { tone: 'neutral', label: '已下发' },
@@ -65,6 +66,10 @@ export default function TeacherRecommendations() {
   const nicknameOf = (studentId: string) =>
     students.find((card) => card.student_id === studentId)?.nickname ?? '学生';
 
+  // 设计语言（包F）：推荐列表容器级一次揭示（once 语义，reduced-motion 下 hook 直出可见），
+  // 行级信息密集，不做逐条 stagger。
+  const listReveal = useReveal<HTMLDivElement>();
+
   if (loadError) {
     return (
       <div className="space-y-6">
@@ -106,8 +111,14 @@ export default function TeacherRecommendations() {
           </p>
         </Card>
       ) : (
-        <Card>
-          <ul>
+        /* 设计语言（包F）：推荐卡玻璃面 + 容器级揭示。错误卡与空态卡（上方分支）保持原样，
+           失败态逻辑零改动。 */
+        <div
+          ref={listReveal.ref}
+          className={cn('reveal-section', listReveal.inView && 'is-revealed')}
+        >
+          <Card className="glass-card">
+            <ul>
             {rows.map((row) => {
               const badge = STATUS_BADGE[row.status] ?? STATUS_BADGE.assigned;
               return (
@@ -147,7 +158,8 @@ export default function TeacherRecommendations() {
               );
             })}
           </ul>
-        </Card>
+          </Card>
+        </div>
       )}
 
       <p className="pb-4 text-center text-ui-sm text-ink-soft/70">
