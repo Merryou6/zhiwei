@@ -105,12 +105,14 @@ export default function ItemCard({
         </ul>
       ) : (
         <>
+          {/* 无可见标签，用提示文案作可访问名（P2 无障碍） */}
           <textarea
             ref={textareaRef}
             className="mt-4 w-full resize-y rounded-control border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent"
             rows={3}
             value={value}
             placeholder={placeholder}
+            aria-label={placeholder}
             disabled={disabled}
             onChange={(event) => onChange(event.target.value)}
           />

@@ -61,11 +61,12 @@ export const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      // 纯文字/链接形态不参与盒模型：把尺寸给的 padding 与最小高度归零。
-      // 依赖 cn() 的「后者覆盖前者」—— compoundVariants 排在 size 之后，
-      // 因此这里的 min-h-0 / px-0 能压掉上面 size 给的 min-h-* / px-*。
-      { variant: 'quiet', class: 'min-h-0 px-2 py-0' },
-      { variant: 'link', class: 'min-h-0 px-0 py-0' },
+      // 纯文字/链接形态只归零 padding 与盒模型内边距，不再把 min-h 归零：
+      // 归零后经 cn()（tailwind-merge 后者覆盖前者）会压掉 size sm 的 min-h-8，
+      // 桌面端这类按钮实际高度约 18px 跌破 24px 触控下限；保留 min-h-8，
+      // 移动端 max-nav:min-h-9 媒体查询继续生效（P1 触控目标修复）。
+      { variant: 'quiet', class: 'px-2 py-0' },
+      { variant: 'link', class: 'px-0 py-0' },
     ],
     defaultVariants: {
       variant: 'primary',

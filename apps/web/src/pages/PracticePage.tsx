@@ -22,7 +22,8 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+// P3 路由修复：站内跳转改用 useNavigate，替换 window.location.hash 直改（避免整页 hash 跳变绕过路由）
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { concepts, gradeSteps, practiceLadder, practiceProgress } from '../api/endpoints';
@@ -33,6 +34,7 @@ import type {
   PracticeProgressData,
   StepVerdict,
 } from '../api/types';
+import ConfirmDialog from '../components/ConfirmDialog';
 import ItemCard from '../components/ItemCard';
 import PageSkeleton from '../components/PageSkeleton';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
@@ -49,7 +51,7 @@ const VERDICT_LABEL: Record<StepVerdict, { text: string; tone: 'positive' | 'war
   pass: { text: '✓ 这步对了', tone: 'positive' },
   slip: { text: '⚠ 运算失误', tone: 'warning' },
   concept_gap: { text: '✗ 思路断点', tone: 'negative' },
-  unclear: { text: '？ 没读懂', tone: 'neutral' },
+  unclear: { text: '？ 这步我没看懂，再写清楚点？', tone: 'neutral' }, // P3：把「没读懂」的责任说清楚，给出下一步动作
 };
 
 const MAX_STEPS = 8;
@@ -93,8 +95,11 @@ function ConceptCardView({ card }: { card: ConceptCard }): ReactNode {
           {error}
         </p>
       ))}
+      {/* P3：展开按钮与内容块补 id/aria-controls 关联，读屏可感知控制关系 */}
       <button
         type="button"
+        id={`example-toggle-${card.kp_id}`}
+        aria-controls={`example-panel-${card.kp_id}`}
         className="mt-2 min-h-8 text-ui-sm text-accent-ink underline-offset-2 hover:underline"
         aria-expanded={exampleOpen}
         onClick={() => setExampleOpen((open) => !open)}
@@ -102,7 +107,7 @@ function ConceptCardView({ card }: { card: ConceptCard }): ReactNode {
         {exampleOpen ? '收起典型例 ▲' : '看一道典型例（讲透）▼'}
       </button>
       {exampleOpen ? (
-        <div className="mt-2 rounded-control border border-line bg-surface p-3">
+        <div id={`example-panel-${card.kp_id}`} className="mt-2 rounded-control border border-line bg-surface p-3">
           <p className="text-sm text-ink">{card.classic_example.stem}</p>
           <ol className="mt-2 space-y-1">
             {card.classic_example.steps.map((step, index) => (
@@ -152,10 +157,22 @@ export default function PracticePage() {
   const [result, setResult] = useState<GradeStepsData | null>(null);
   /** 提示链层级：0 未开 · 1 方向(L1) · 2 思路(L2)；逐级解锁，重置于每题开始。 */
   const [hintLevel, setHintLevel] = useState(0);
+  /** 重批进行中（P1 判后重试回路）：与 busy 分开，避免把重批计入战报流程的按钮态混淆。 */
+  const [retrying, setRetrying] = useState(false);
+  /** 阶梯中途退出确认（P1）：存在未提交内容时先确认再清空。 */
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  /** 删步确认（P2）：记录待删除步下标，非空步先确认防丢。 */
+  const [removeStepIndex, setRemoveStepIndex] = useState<number | null>(null);
 
   const [conceptCards, setConceptCards] = useState<ConceptCard[] | null>(null);
   const [conceptOpen, setConceptOpen] = useState(false);
+  /** 概念卡失败态（P2 诚实失败）：不再静默降级为空集。 */
+  const [conceptError, setConceptError] = useState(false);
+  /** 概念卡重试计数：变化重新触发 fetch effect（P2）。 */
+  const [conceptRetry, setConceptRetry] = useState(0);
   const [progress, setProgress] = useState<PracticeProgressData | null>(null);
+  /** 进度失败态（P2 诚实失败）：区分「取不到」与「还没练过」。 */
+  const [progressError, setProgressError] = useState(false);
 
   /** 断点行 / 总评卡的 DOM 锚点：结果到达后自动滚到位（峰值时刻 = 先看到断的那步）。 */
   const stepRowRefs = useRef(new Map<number, HTMLDivElement>());
@@ -163,6 +180,8 @@ export default function PracticePage() {
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
+  // P3：站内跳转统一走 react-router
+  const navigate = useNavigate();
 
   const current = ladder?.items[ladderIndex] ?? null;
 
@@ -178,11 +197,15 @@ export default function PracticePage() {
   useEffect(() => {
     if (!activeSpaceId || (phase !== 'select' && phase !== 'summary')) return;
     let cancelled = false;
+    setProgressError(false);
     practiceProgress(activeSpaceId)
       .then((data) => {
         if (!cancelled) setProgress(data);
       })
-      .catch(() => undefined); // 进度是增强信息：失败静默降级
+      .catch(() => {
+        // 进度是增强信息，但静默降级会被误读成「还没练过」（P2 诚实失败）：标记失败态
+        if (!cancelled) setProgressError(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -193,17 +216,19 @@ export default function PracticePage() {
     if (!activeSpaceId || phase !== 'select') return;
     let cancelled = false;
     setConceptCards(null);
+    setConceptError(false);
     concepts(activeSpaceId, chapter)
       .then((data) => {
         if (!cancelled) setConceptCards(data.cards);
       })
       .catch(() => {
-        if (!cancelled) setConceptCards([]);
+        // 失败不再伪装成「本章暂无概念卡」（P2 诚实失败）：标记错误态，面板给重试按钮
+        if (!cancelled) setConceptError(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [activeSpaceId, chapter, phase]);
+  }, [activeSpaceId, chapter, phase, conceptRetry]);
 
   function guardSpace(): string | null {
     if (!activeSpaceId) {
@@ -224,6 +249,11 @@ export default function PracticePage() {
     setBusy(true);
     try {
       const data = await practiceLadder(spaceId, chapter);
+      // 空梯兜底（P2）：组不出题时留在选章屏，不切 phase、不给一个空阶梯
+      if (data.items.length === 0) {
+        toast('这一章的题暂时取不到，换一章试试', 'warn');
+        return;
+      }
       setLadder(data);
       setLadderIndex(0);
       setResults([]);
@@ -263,6 +293,31 @@ export default function PracticePage() {
     }
   }
 
+  /**
+   * 重批（P1 判后重试回路）：断点步按提示改完重新提交。
+   * 与 submitSteps 的区别：不把结果 push 进战报 results（战报对几题的口径以首次提交为准），
+   * 只整体替换 result；服务端同题一小时 evidence 不重复计，verdict 正常返回。
+   */
+  async function resubmitSteps(): Promise<void> {
+    const spaceId = guardSpace();
+    const item = ladder?.items[ladderIndex];
+    if (!spaceId || !item || busy || retrying) return;
+    const payload = steps.map((step) => step.trim());
+    if (payload.some((step) => step.length === 0)) {
+      toast('把每一步都写点什么（不会的那步写「不会」也行）', 'warn');
+      return;
+    }
+    setRetrying(true);
+    try {
+      const data = await gradeSteps({ space_id: spaceId, item_id: item.item_id, steps: payload });
+      setResult(data); // 整体替换：重批后断点可能变化，断点步编辑逻辑对新 result 依旧成立
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setRetrying(false);
+    }
+  }
+
   /** 下一题；最后一题完成后进战报（此时 #35 会自动刷新）。 */
   function nextItem(): void {
     if (!ladder) return;
@@ -278,7 +333,17 @@ export default function PracticePage() {
     setHintLevel(0);
   }
 
+  /** 阶梯中途退出（P1）：存在未提交内容时先确认，防误触丢掉已写的过程。 */
   function backToSelect(): void {
+    if (result === null && (steps.some((step) => step.trim()) || choice.trim())) {
+      setConfirmOpen(true);
+      return;
+    }
+    doBackToSelect();
+  }
+
+  function doBackToSelect(): void {
+    setConfirmOpen(false);
     setPhase('select');
     setLadder(null);
     setResults([]);
@@ -289,7 +354,17 @@ export default function PracticePage() {
     setSteps((prev) => prev.map((step, offset) => (offset === index ? value : step)));
   }
 
+  /** 删步（P2 防丢）：被删步内容非空时先确认；空步直接删。 */
   function removeStep(index: number): void {
+    if (steps[index]?.trim()) {
+      setRemoveStepIndex(index);
+      return;
+    }
+    doRemoveStep(index);
+  }
+
+  function doRemoveStep(index: number): void {
+    setRemoveStepIndex(null);
     setSteps((prev) => (prev.length <= 1 ? prev : prev.filter((_, offset) => offset !== index)));
   }
 
@@ -344,10 +419,14 @@ export default function PracticePage() {
           <Button variant="primary" disabled={busy} onClick={() => void startLadder()}>
             再来一组（自动避开刚练过的）
           </Button>
+          {/* P1 战报复测 CTA：练完引导立刻验证断点补上没有（?mode=retest 由测评页支持） */}
+          <Button variant="secondary" onClick={() => navigate('/assessment?mode=retest')}>
+            补完做 2 道复测，验证效果
+          </Button>
           <Button variant="secondary" onClick={backToSelect}>
             换一章
           </Button>
-          <Button variant="ghost" onClick={() => { window.location.hash = '#/graph'; }}>
+          <Button variant="ghost" onClick={() => navigate('/graph')}>
             看看技能树
           </Button>
         </div>
@@ -429,7 +508,8 @@ export default function PracticePage() {
               ) : null}
               {hintLevel >= 2 ? (
                 <span className="text-ui-sm text-accent-ink">
-                  还下不了手？把过程写出来提交，逐步批改带你走。
+                  {/* P3：选择题不存在「写过程」，第三级提示改成可执行的下一步 */}
+                  {current.options ? '选一个答案提交试试。' : '还下不了手？把过程写出来提交，逐步批改带你走。'}
                 </span>
               ) : null}
             </div>
@@ -517,11 +597,14 @@ export default function PracticePage() {
                       ) : null}
                     </div>
                   </div>
+                  {/* P2 无障碍：textarea 无可见标签，补 aria-label；
+                      P1 判后重试回路：判后仅断点步保持可编辑，学生能按提示补写；选择题不走分步，不受影响 */}
                   <textarea
                     className="mt-2 w-full resize-y rounded-control border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent disabled:opacity-70"
                     rows={2}
                     value={step}
-                    disabled={busy || result !== null}
+                    aria-label={`第 ${index + 1} 步`}
+                    disabled={busy || retrying || (result !== null && index + 1 !== result.overall.first_break_step)}
                     placeholder={index === 0 ? '第一步怎么下手？' : '这一步做了什么？'}
                     onChange={(event) => updateStep(index, event.target.value)}
                   />
@@ -529,6 +612,12 @@ export default function PracticePage() {
                     <div className="verdict-in mt-2 space-y-1" style={{ animationDelay: `${index * 90 + 60}ms` }}>
                       <p className="text-sm text-ink">{verdictRow.feedback}</p>
                       {verdictRow.hint ? <p className="text-ui-sm text-accent-ink">下一步往哪想：{verdictRow.hint}</p> : null}
+                      {/* P1 判后重试回路：断点步给重批入口，改完重新提交（不重复计战报） */}
+                      {isBreak ? (
+                        <Button variant="secondary" size="sm" disabled={busy || retrying} onClick={() => void resubmitSteps()}>
+                          {retrying ? '正在重新批改…' : '按提示改这一步，重新批改'}
+                        </Button>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
@@ -566,19 +655,35 @@ export default function PracticePage() {
               {busy ? '正在批改…' : '提交，逐步批改'}
             </Button>
           ) : (
-            <Button variant="primary" disabled={busy} onClick={nextItem}>
+            <Button variant="primary" disabled={busy || retrying} onClick={nextItem}>
               {ladderIndex + 1 >= ladder.items.length ? '做完这组，看战报' : '下一题'}
             </Button>
           )}
-          <Button variant="secondary" disabled={busy} onClick={backToSelect}>
+          <Button variant="secondary" disabled={busy || retrying} onClick={backToSelect}>
             换一章
           </Button>
-          <Button variant="ghost" onClick={() => { window.location.hash = '#/graph'; }}>
+          <Button variant="ghost" onClick={() => navigate('/graph')}>
             看看技能树
           </Button>
         </div>
 
-        {busy && result !== null ? <PageSkeleton label="正在准备下一题…" rows={1} className="mt-4" /> : null}
+        {/* P1/P3：中途退出与删步各用一枚确认框（用户主动操作才弹，符合「采集永不弹窗」纪律） */}
+        <ConfirmDialog
+          open={confirmOpen}
+          title="这一题还没提交"
+          description="换一章会丢掉已写的过程。要先留下来改完，还是确定离开？"
+          confirmLabel="丢掉，换一章"
+          onConfirm={doBackToSelect}
+          onCancel={() => setConfirmOpen(false)}
+        />
+        <ConfirmDialog
+          open={removeStepIndex !== null}
+          title={`删除第 ${(removeStepIndex ?? 0) + 1} 步？`}
+          description="这一步已经写了内容，删除后找不回来。"
+          confirmLabel="删除"
+          onConfirm={() => doRemoveStep(removeStepIndex ?? 0)}
+          onCancel={() => setRemoveStepIndex(null)}
+        />
       </PageContainer>
     );
   }
@@ -609,7 +714,8 @@ export default function PracticePage() {
           </Select>
         </label>
         <Button variant="primary" disabled={busy || chapter.length === 0} onClick={() => void startLadder()}>
-          {busy ? '正在组题…' : '开始专项阶梯（5 题）'}
+          {/* P3：删掉硬编码题数——梯子长度由服务端决定，文案不再承诺「5 题」 */}
+          {busy ? '正在组题…' : '开始专项阶梯'}
         </Button>
       </div>
 
@@ -619,7 +725,7 @@ export default function PracticePage() {
         </p>
       ) : null}
 
-      {/* 本章进度概览（#35） */}
+      {/* 本章进度概览（#35）：P2 诚实失败——取不到进度时不再误显示「还没练过」 */}
       {chapterProgress ? (
         <p className="mt-4 text-ui-sm text-ink-soft">
           本章已练 {chapterProgress.practiced_items} 题 · 提交 {chapterProgress.submissions} 次
@@ -630,6 +736,8 @@ export default function PracticePage() {
             </>
           ) : null}
         </p>
+      ) : progressError ? (
+        <p className="mt-4 text-ui-sm text-ink-soft">进度暂时取不到，稍后再回来看看。</p>
       ) : (
         <p className="mt-4 text-ui-sm text-ink-soft">这一章还没练过——第一组题会从最容易的开始。</p>
       )}
@@ -642,6 +750,8 @@ export default function PracticePage() {
       <div className="mt-6 rounded-surface border border-line bg-surface">
         <button
           type="button"
+          id="concept-toggle"
+          aria-controls="concept-panel"
           className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
           aria-expanded={conceptOpen}
           onClick={() => setConceptOpen((open) => !open)}
@@ -657,8 +767,17 @@ export default function PracticePage() {
           </span>
         </button>
         {conceptOpen ? (
-          <div className="space-y-3 border-t border-line px-4 pb-4 pt-3">
+          <div id="concept-panel" className="space-y-3 border-t border-line px-4 pb-4 pt-3">
             {conceptCards === null ? <PageSkeleton label="正在取本章概念卡…" rows={2} /> : null}
+            {/* P2 诚实失败：概念卡没取到时明说，并给重试入口（retry 计数重新触发 fetch） */}
+            {conceptError ? (
+              <div className="flex items-center gap-2">
+                <p className="text-ui-sm text-ink-soft">概念卡没取到，稍后再试。</p>
+                <Button variant="quiet" size="sm" onClick={() => setConceptRetry((count) => count + 1)}>
+                  重试
+                </Button>
+              </div>
+            ) : null}
             {conceptCards !== null && conceptCards.length === 0 ? (
               <p className="text-ui-sm text-ink-soft">本章暂无概念卡——直接开练，提示链会在卡住时给你方向。</p>
             ) : null}
