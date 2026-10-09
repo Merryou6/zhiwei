@@ -12,7 +12,7 @@
  *   - converged=true 或 item=null → 结束屏；冷启动立即收敛（INFO-1）时引导先自报。
  */
 
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
@@ -26,6 +26,7 @@ import { Button, PageContainer, PageHeader } from '../components/ui';
 import { GRAPH_CHAPTERS } from '../data/graphSnapshot';
 import { MODE_LABEL } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
+import { useReveal } from '../lib/useReveal';
 import { SPACES_PATH } from '../router';
 import { useAssessmentStore } from '../stores/assessment';
 import { useSpaceStore } from '../stores/space';
@@ -45,6 +46,21 @@ const MODE_CARDS: ModeCard[] = [
 ];
 
 type Phase = 'select' | 'question' | 'done';
+
+/** 包 E（设计语言统一）：模式卡逐条揭示容器——once 语义，进入视口才揭示；
+ *  同屏错峰走 style.animationDelay（reduced-motion 全局 reduce 块会归零 delay，安全）。 */
+function RevealModeCard({ delayMs = 0, children }: { delayMs?: number; children: ReactNode }) {
+  const { ref, inView } = useReveal<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className={inView ? 'reveal-section is-revealed' : 'reveal-section'}
+      style={delayMs > 0 ? { animationDelay: `${delayMs}ms` } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function AssessmentPage() {
   const [phase, setPhase] = useState<Phase>('select');
@@ -274,13 +290,16 @@ export default function AssessmentPage() {
         ) : null}
 
         <ul className="mt-6 space-y-3">
-          {MODE_CARDS.map((card) => (
+          {MODE_CARDS.map((card, index) => (
             <li key={card.value}>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void startMode(card.value)}
-                className={`w-full rounded-surface border bg-surface p-5 text-left shadow-card transition-colors hover:border-accent disabled:opacity-60 ${
+              {/* 包 E：模式卡升为 glass-card 玻璃面（替换 bg-surface）+ 逐条错峰揭示（80ms 步进）；
+                  ?mode=retest 的 border-accent 高亮逻辑零改动（glass-card 只管面，不管描边色）。 */}
+              <RevealModeCard delayMs={index * 80}>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void startMode(card.value)}
+                  className={`glass-card w-full rounded-surface border p-5 text-left shadow-card transition-colors hover:border-accent disabled:opacity-60 ${
                   // ?mode=retest 预选（包 C）：用主色描边 + 提示语把「选好了」说清楚，不自动开跑。
                   card.value === preselectedMode ? 'border-accent' : 'border-line'
                 }`}
@@ -295,7 +314,8 @@ export default function AssessmentPage() {
                 {card.value === preselectedMode ? (
                   <p className="mt-1 text-ui-sm text-accent-ink">已为你选好这个模式，点卡片就开始。</p>
                 ) : null}
-              </button>
+                </button>
+              </RevealModeCard>
             </li>
           ))}
         </ul>

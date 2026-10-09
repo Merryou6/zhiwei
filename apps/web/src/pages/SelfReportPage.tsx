@@ -17,6 +17,7 @@ import { Button, PageContainer, PageHeader } from '../components/ui';
 import { CHAPTER_SIZES, chapterNames } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
 import { UI_TEXT } from '../lib/phrases';
+import { useReveal } from '../lib/useReveal';
 import { SPACES_PATH, markSelfReportDone } from '../router';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
@@ -41,6 +42,9 @@ export default function SelfReportPage() {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
   const navigate = useNavigate();
+
+  // 包 E（设计语言统一）：页头滚动揭示（once 语义；reduced-motion 下 hook 直接置已揭示，安全）
+  const { ref: headerRef, inView: headerInView } = useReveal<HTMLDivElement>();
 
   const chosen = chapters.filter((chapter) => levels[chapter] !== undefined);
 
@@ -96,12 +100,16 @@ export default function SelfReportPage() {
 
   return (
     <PageContainer width="prose">
-      <PageHeader
-        title="先说说你大概在哪一档"
-        description="这不是考试，是让我别把时间浪费在你已经会的东西上。凭感觉选就行，30 秒够用。"
-      />
+      {/* 包 E：自报页页头滚动揭示（once，读到才出现；reduced-motion 由 hook 直接置已揭示） */}
+      <div ref={headerRef} className={headerInView ? 'reveal-section is-revealed' : 'reveal-section'}>
+        <PageHeader
+          title="先说说你大概在哪一档"
+          description="这不是考试，是让我别把时间浪费在你已经会的东西上。凭感觉选就行，30 秒够用。"
+        />
+      </div>
 
-      <div className="mt-4 flex items-center justify-between gap-4">
+      {/* 包 E：进度卡升为 glass-card 玻璃面（页首唯一面层锚点）；下方章节勾选列表是密集作答区，保持实底 */}
+      <div className="glass-card mt-4 flex items-center justify-between gap-4 rounded-surface px-4 py-3">
         <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
           已选 {chosen.length}/{chapters.length} 个章节
         </span>

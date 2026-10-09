@@ -33,6 +33,7 @@ import { cn } from '../lib/cn';
 import { GRAPH_CHAPTERS, kpName } from '../data/graphSnapshot';
 import { fileSize } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
+import { useReveal } from '../lib/useReveal';
 import {
   SPACES_PATH,
   readRecognitionId,
@@ -82,6 +83,9 @@ export default function PaperPage() {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
   const navigate = useNavigate();
+
+  // 包 E（设计语言统一）：页头滚动揭示（once 语义；reduced-motion 下 hook 直接置已揭示，安全）
+  const { ref: headerRef, inView: headerInView } = useReveal<HTMLDivElement>();
 
   const toRows = (data: PaperUploadData): RowState[] =>
     data.items.map((item) => ({ ...item, kpId: item.kp_guess, result: null, guess: item.kp_guess }));
@@ -249,14 +253,21 @@ export default function PaperPage() {
     const bootstrap = confirmed.bootstrap;
     return (
       <PageContainer width="prose">
-        <PageHeader title="这份卷子记下了" />
-        <p className="mt-3 text-reading leading-relaxed text-ink-soft">
-          新增了 <span className="font-mono tabular-nums text-ink">{confirmed.events_created}</span> 条证据，
-          更新了 <span className="font-mono tabular-nums text-ink">{confirmed.mastery_updates.length}</span> 个知识点。
-          {bootstrap
-            ? `你的初始图谱已生成：覆盖 ${bootstrap.covered_kps} 个知识点，${bootstrap.band_counts['待巩固'] ?? 0} 个待巩固。`
-            : '要不要挑一道错题，我们一起看看它是怎么错的？'}
-        </p>
+        {/* 包 E：页头滚动揭示（once，读到才出现） */}
+        <div ref={headerRef} className={headerInView ? 'reveal-section is-revealed' : 'reveal-section'}>
+          <PageHeader title="这份卷子记下了" />
+        </div>
+        {/* 包 E：冷启动摘要卡——bootstrap（covered_kps/band_counts）时升为 glass-card 玻璃面，与上传区同材质；
+            无 bootstrap 的普通确认结果保持原排版不动。 */}
+        <div className={bootstrap ? 'glass-card mt-3 rounded-surface p-5' : 'mt-3'}>
+          <p className="text-reading leading-relaxed text-ink-soft">
+            新增了 <span className="font-mono tabular-nums text-ink">{confirmed.events_created}</span> 条证据，
+            更新了 <span className="font-mono tabular-nums text-ink">{confirmed.mastery_updates.length}</span> 个知识点。
+            {bootstrap
+              ? `你的初始图谱已生成：覆盖 ${bootstrap.covered_kps} 个知识点，${bootstrap.band_counts['待巩固'] ?? 0} 个待巩固。`
+              : '要不要挑一道错题，我们一起看看它是怎么错的？'}
+          </p>
+        </div>
 
         <ul className="mt-4 space-y-2">
           {confirmed.mastery_updates.map((update) => (
@@ -473,10 +484,13 @@ export default function PaperPage() {
   // ------------------------------------------------------------ 选文件
   return (
     <PageContainer width="prose">
-      <PageHeader
-        title="传一份卷子"
-        description="演示态：从预置文件里挑（可多选，最多 5 页拼一份整卷）。识别结果只是草稿，对错由你最后确认，看清楚才记账。"
-      />
+      {/* 包 E：拍卷页页头滚动揭示（once；reduced-motion 由 hook 直接置已揭示，安全） */}
+      <div ref={headerRef} className={headerInView ? 'reveal-section is-revealed' : 'reveal-section'}>
+        <PageHeader
+          title="传一份卷子"
+          description="演示态：从预置文件里挑（可多选，最多 5 页拼一份整卷）。识别结果只是草稿，对错由你最后确认，看清楚才记账。"
+        />
+      </div>
 
       {files.length === 0 ? (
         <PageSkeleton label="正在取文件列表…" rows={2} className="mt-6" />
@@ -502,8 +516,9 @@ export default function PaperPage() {
                     type="button"
                     aria-pressed={active}
                     onClick={() => toggleFile(file.file_id)}
+                    // 包 E：上传/选文件框升为 glass-card 玻璃面（替换 bg-surface）；选中描边交互保留
                     className={cn(
-                      'w-full rounded-surface border bg-surface p-4 text-left transition-colors',
+                      'glass-card w-full rounded-surface border p-4 text-left transition-colors',
                       active ? 'border-accent' : 'border-line hover:border-accent/60',
                     )}
                   >
