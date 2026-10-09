@@ -43,7 +43,7 @@
  * 与渲染条件一字未动，mobileNav.test.ts 的跨组件 id 断言据此通过）。
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { listSpaces } from '../api/endpoints';
@@ -80,6 +80,10 @@ const NAV_ITEM_ACTIVE = [
 
 
 export default function TopNav() {
+  /** 空间下拉容器（含胶囊与弹层）：外点关闭的判定边界。 */
+  const spaceMenuRef = useRef<HTMLDivElement | null>(null);
+  /** 空间胶囊按钮：Escape 关闭后焦点归还给它。 */
+  const spaceToggleRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   /** 弹层内的新建表单是否展开（D2：原地展开，不跳页）。 */
   const [createOpen, setCreateOpen] = useState(false);
@@ -95,6 +99,32 @@ export default function TopNav() {
   /** 汉堡抽屉（B2/D5）：<720 唯一的导航入口。 */
   const navOpen = useMobileNavStore((state) => state.open);
   const toggleNav = useMobileNavStore((state) => state.toggle);
+
+  // 空间下拉收尾三件套（v2.1 评审 P1）：容器外 pointerdown 关闭 + Escape 关闭并归还焦点。
+  // 仅在打开期间挂监听；与 MobileNav 抽屉同一思路 —— 小弹层不做 Tab 焦点陷阱。
+  // 外点关闭时**不**抢焦点（用户点的目标自己接管），只有 Esc 才把焦点还给胶囊。
+  useEffect(() => {
+    if (!open) return;
+
+    function onPointerDown(event: PointerEvent): void {
+      const root = spaceMenuRef.current;
+      if (root && event.target instanceof Node && !root.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    function onKeyDown(event: KeyboardEvent): void {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      spaceToggleRef.current?.focus();
+    }
+
+    document.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!token || spaces.length > 0) return;
@@ -182,8 +212,9 @@ export default function TopNav() {
 
             {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头。
                 <720 整个胶囊收进抽屉（D5）。 */}
-            <div className="relative ml-auto flex flex-none items-center gap-2.5 max-nav:hidden">
+            <div ref={spaceMenuRef} className="relative ml-auto flex flex-none items-center gap-2.5 max-nav:hidden">
               <button
+                ref={spaceToggleRef}
                 type="button"
                 onClick={() => {
                   setOpen((value) => {

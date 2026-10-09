@@ -50,6 +50,11 @@ interface RowState extends Omit<RecognitionItemView, 'kp_guess'> {
 /** v2.1 多页整卷上限（与后端 PAPER_MAX_FILES 一致）。 */
 const MAX_UPLOAD_FILES = 5;
 
+/** 识别状态 → 用户可读文案（v2.1 评审：内部枚举不再直出给学生；未知值兜底原文）。 */
+const STATUS_LABEL: Record<string, string> = {
+  pending_confirm: '识别完成，等你逐题确认',
+};
+
 /** 知识点下拉选项（20 节点，章节分组显示）。 */
 const KP_OPTIONS = GRAPH_NODES.map((node) => ({
   id: node.id,
@@ -296,7 +301,7 @@ export default function PaperPage() {
       <PageContainer width="standard">
         <PageHeader
           title="对一下每题的对错"
-          description={`识别状态：${status}。看漏的题我不猜——你标了我才记账。`}
+          description={`识别状态：${STATUS_LABEL[status] ?? status}。看漏的题我不猜——你标了我才记账。`}
           actions={
             <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
               已标 {rows.filter((row) => row.result !== null).length}/{rows.length}

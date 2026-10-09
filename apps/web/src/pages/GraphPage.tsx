@@ -462,13 +462,17 @@ export default function GraphPage() {
                 : selectedNode.prerequisites.map((id) => byKp.get(id)?.name ?? id).join('、')}
             </p>
             <div className="mt-2 flex gap-2">
+              {/* v2.1 评审 P2：CTA 带 kp 参数，到测评/练习页不断上下文（两页均消费 ?kp=） */}
               <Link
-                to="/assessment"
+                to={`/assessment?kp=${selectedNode.id}`}
                 className={cn(buttonVariants({ variant: 'primary', size: 'sm' }))}
               >
                 去攻克
               </Link>
-              <Link to="/practice" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}>
+              <Link
+                to={`/practice?kp=${selectedNode.id}`}
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
+              >
                 分步练一道
               </Link>
             </div>

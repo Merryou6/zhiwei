@@ -13,7 +13,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { diagnoseNext, diagnoseSubmit } from '../api/endpoints';
@@ -23,6 +23,7 @@ import NextStepCard from '../components/NextStepCard';
 import PageSkeleton from '../components/PageSkeleton';
 import ProgressBar from '../components/ProgressBar';
 import { Button, PageContainer, PageHeader } from '../components/ui';
+import { GRAPH_CHAPTERS } from '../data/graphSnapshot';
 import { MODE_LABEL } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH } from '../router';
@@ -53,6 +54,14 @@ export default function AssessmentPage() {
   const toast = useUiStore((state) => state.toast);
   const navigate = useNavigate();
 
+  /** ?kp= 从技能树「去攻克」带来：只给「诊断测评」加 scope_chapter（契约 #7），
+   *  基线/复测池语义不动（v2.1 评审 P2：CTA 不断上下文）。 */
+  const [params] = useSearchParams();
+  const focusKp = params.get('kp');
+  const focusChapter = focusKp
+    ? (GRAPH_CHAPTERS.find((entry) => entry.kp_ids.includes(focusKp))?.name ?? null)
+    : null;
+
   const answered = store.submittedCount;
   /** 进度条总量 = 已答（含跳过）+ 剩余。 */
   const total = answered + store.remaining;
@@ -78,7 +87,11 @@ export default function AssessmentPage() {
     setAnswer('');
     setBusy(true);
     try {
-      const data = await diagnoseNext({ space_id: spaceId, mode });
+      const data = await diagnoseNext({
+        space_id: spaceId,
+        mode,
+        ...(mode === 'diagnose' && focusChapter ? { scope_chapter: focusChapter } : {}),
+      });
       store.setCurrent(data.item, data.remaining);
       setPhase(data.item === null || data.converged ? 'done' : 'question');
     } catch (error) {
@@ -129,6 +142,7 @@ export default function AssessmentPage() {
         space_id: spaceId,
         mode: store.mode,
         exclude_item_ids: store.doneIds,
+        ...(store.mode === 'diagnose' && focusChapter ? { scope_chapter: focusChapter } : {}),
       });
       store.setCurrent(data.item, data.remaining);
       setPhase(data.item === null || data.converged ? 'done' : 'question');
@@ -240,6 +254,11 @@ export default function AssessmentPage() {
           title="选一种测评"
           description="一次只做一件事：你要么让我找卡点（诊断），要么先量一个基准（基线/复测）。题目都只出现一次，做过的不再出。"
         />
+        {focusChapter && focusKp ? (
+          <p className="mt-2 text-ui-sm text-accent-ink">
+            已按你在技能树点的知识点定位到「{focusChapter}」——选「诊断测评」就只出这一章的题。
+          </p>
+        ) : null}
 
         <ul className="mt-6 space-y-3">
           {MODE_CARDS.map((card) => (

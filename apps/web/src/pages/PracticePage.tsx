@@ -12,6 +12,7 @@
  */
 
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { diagnoseNext, gradeSteps } from '../api/endpoints';
@@ -19,7 +20,7 @@ import type { GradeStepsData, StepVerdict } from '../api/types';
 import ItemCard from '../components/ItemCard';
 import PageSkeleton from '../components/PageSkeleton';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
-import { GRAPH_CHAPTERS } from '../data/graphSnapshot';
+import { GRAPH_CHAPTERS, snapshotNode } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
 import { UI_TEXT } from '../lib/phrases';
 import { useSpaceStore } from '../stores/space';
@@ -35,7 +36,13 @@ const VERDICT_LABEL: Record<StepVerdict, { text: string; tone: 'positive' | 'war
 const MAX_STEPS = 8;
 
 export default function PracticePage() {
-  const [chapter, setChapter] = useState<string>(GRAPH_CHAPTERS[0]?.name ?? '');
+  /** ?kp= 从技能树详情卡带来：预选其所在章节（v2.1 评审 P2：CTA 不断上下文）。 */
+  const [params] = useSearchParams();
+  const focusKp = params.get('kp');
+  const focusChapter = focusKp
+    ? (GRAPH_CHAPTERS.find((entry) => entry.kp_ids.includes(focusKp))?.name ?? null)
+    : null;
+  const [chapter, setChapter] = useState<string>(focusChapter ?? GRAPH_CHAPTERS[0]?.name ?? '');
   const [item, setItem] = useState<{ item_id: string; stem: string; options: string[] | null } | null>(null);
   const [choice, setChoice] = useState<string>('');
   const [steps, setSteps] = useState<string[]>(['']);
@@ -157,6 +164,11 @@ export default function PracticePage() {
             {busy ? '正在取题…' : '取一道题'}
           </Button>
         </div>
+        {focusChapter && focusKp ? (
+          <p className="mt-4 text-ui-sm text-accent-ink">
+            已按你在技能树点的「{snapshotNode(focusKp)?.name ?? focusKp}」选好章节，直接取题就行。
+          </p>
+        ) : null}
         <p className="mt-4 text-ui-sm text-ink-soft">
           每一步都会被认真对待：对的部分照实记账（答错但有进展，掌握度不会按全错拉低）。
         </p>
