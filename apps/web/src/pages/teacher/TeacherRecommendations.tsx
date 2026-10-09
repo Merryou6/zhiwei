@@ -12,10 +12,9 @@ import { ApiError } from '../../api/client';
 import { listTeacherRecommendations, listTeacherStudents } from '../../api/endpoints';
 import type { TeacherRecommendation, TeacherStudentCard } from '../../api/types';
 import PageSkeleton from '../../components/PageSkeleton';
-import { Badge, Card } from '../../components/ui';
+import { Badge, Button, Card } from '../../components/ui';
 import { cn } from '../../lib/cn';
 import { deltaPercent, formatTime } from '../../lib/format';
-import { useUiStore } from '../../stores/ui';
 
 const STATUS_BADGE: Record<string, { tone: 'neutral' | 'accent' | 'positive' | 'negative' | 'warning' | 'outline'; label: string }> = {
   assigned: { tone: 'neutral', label: '已下发' },
@@ -27,9 +26,11 @@ const STATUS_BADGE: Record<string, { tone: 'neutral' | 'accent' | 'positive' | '
 };
 
 export default function TeacherRecommendations() {
-  const toast = useUiStore((state) => state.toast);
   const [rows, setRows] = useState<TeacherRecommendation[] | null>(null);
   const [students, setStudents] = useState<TeacherStudentCard[]>([]);
+  // 【P2 失败与空态可区分】加载失败不再吞进「暂无推荐」空态：常驻错误 + 重试
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -39,11 +40,23 @@ export default function TeacherRecommendations() {
       ]);
       setRows(recRes.recommendations);
       setStudents(studentRes.students);
+      // 成功即清错误态（重试通过后要回到正常渲染）
+      setLoadError(null);
     } catch (error) {
-      toast(error instanceof ApiError ? error.message : '加载失败', 'warn');
-      setRows([]);
+      // 【P2】失败时保留 rows 原状（首载仍为 null），由错误卡接管渲染，不再 setRows([])
+      setLoadError(error instanceof ApiError ? error.message : '加载失败，请刷新重试');
     }
-  }, [toast]);
+  }, []);
+
+  /** 【P2】错误卡内的重试入口：期间禁用按钮。 */
+  async function handleRetry(): Promise<void> {
+    setRetrying(true);
+    try {
+      await load();
+    } finally {
+      setRetrying(false);
+    }
+  }
 
   useEffect(() => {
     void load();
@@ -51,6 +64,23 @@ export default function TeacherRecommendations() {
 
   const nicknameOf = (studentId: string) =>
     students.find((card) => card.student_id === studentId)?.nickname ?? '学生';
+
+  if (loadError) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-xl font-semibold text-ink">推荐管理</h1>
+        <Card>
+          {/* 【P2 失败与空态可区分】错误是错误，不是「暂无推荐」——常驻提示 + 重试 */}
+          <div className="flex flex-col items-center gap-3 py-6">
+            <p className="text-sm text-ink-soft">{loadError}</p>
+            <Button variant="secondary" disabled={retrying} onClick={() => void handleRetry()}>
+              {retrying ? '正在重试…' : '重试'}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (rows === null) {
     return <PageSkeleton label="正在整理推荐记录…" rows={3} />;

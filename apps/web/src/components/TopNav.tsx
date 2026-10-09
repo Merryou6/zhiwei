@@ -49,7 +49,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { listSpaces } from '../api/endpoints';
 import { cn } from '../lib/cn';
 import { MOBILE_NAV_DRAWER_ID, MOBILE_NAV_TOGGLE_ID } from '../lib/ids';
-import { SPACES_PATH, navRoutes } from '../router';
+import { SPACES_PATH, TEACHER_HOME, navRoutes } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
@@ -89,6 +89,8 @@ export default function TopNav() {
   const [createOpen, setCreateOpen] = useState(false);
 
   const token = useAuthStore((state) => state.token);
+  // 【P1 双端切换回路】老师账号没有学习空间，误入学生端时需要一个显式出口
+  const role = useAuthStore((state) => state.role);
   const spaces = useSpaceStore((state) => state.spaces);
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const setSpaces = useSpaceStore((state) => state.setSpaces);
@@ -219,6 +221,15 @@ export default function TopNav() {
             <span className="flex max-nav:hidden">
               <ThemeToggle />
             </span>
+
+            {/* 【P1 双端切换回路】teacher 角色才显示的回程入口：导航到老师工作台，
+                样式复用导航项的 idle 形态（学生端顶栏不应出现它，student 下零渲染）。
+                不加 ml-auto：<720 汉堡键已带 ml-auto，两个 auto 会平分剩余空间把本项挤到中间。 */}
+            {role === 'teacher' ? (
+              <Link to={TEACHER_HOME} className={cn(NAV_ITEM_BASE, NAV_ITEM_IDLE)}>
+                回老师端
+              </Link>
+            ) : null}
 
             {/* 原型 .space-chip：34px 胶囊 = 立方体图标块 + 空間名 + 下拉箭头。
                 <720 整个胶囊收进抽屉（D5）。 */}

@@ -89,6 +89,8 @@ export default function TeacherDashboard() {
   const [invites, setInvites] = useState<InviteListItem[]>([]);
   const [currentCode, setCurrentCode] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // 【P2 整页错误可重试】重试请求期间的按钮态（禁用 + 「正在重试…」）
+  const [retrying, setRetrying] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -99,10 +101,22 @@ export default function TeacherDashboard() {
         (row) => row.status === 'active' && row.used_count < row.max_uses,
       );
       setCurrentCode(active?.code ?? null);
+      // 【P2 整页错误可重试】成功即清错误态，否则重试通过也停在错误卡上
+      setLoadError(null);
     } catch (error) {
       setLoadError(error instanceof ApiError ? error.message : '加载失败，请刷新重试');
     }
   }, []);
+
+  /** 【P2 整页错误可重试】错误卡里的重试入口：留在错误卡上发请求，成功后由 load 清态。 */
+  async function handleRetry(): Promise<void> {
+    setRetrying(true);
+    try {
+      await load();
+    } finally {
+      setRetrying(false);
+    }
+  }
 
   useEffect(() => {
     void load();
@@ -120,12 +134,34 @@ export default function TeacherDashboard() {
     }
   }
 
+  /**
+   * 【P2 复制假成功】原实现不校验 clipboard 可用性就 toast「已复制」——
+   * 非安全上下文 / 权限被拒时是假成功，老师以为发出去了、学生根本收不到码。
+   * 改为 await 成功才报喜；失败明确告知手动抄写（邀请码始终大字号可见）。
+   */
+  async function handleCopyInviteCode(): Promise<void> {
+    try {
+      if (!navigator.clipboard) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(currentCode ?? '');
+      toast('邀请码已复制');
+    } catch {
+      toast('复制不可用，请手动抄写', 'warn');
+    }
+  }
+
   if (loadError) {
     return (
       <div className="space-y-4">
         <h1 className="text-xl font-semibold text-ink">工作台</h1>
         <Card>
-          <p className="py-6 text-center text-sm text-ink-soft">{loadError}</p>
+          {/* 【P2 整页错误可重试】原卡只有「请刷新重试」文案、没有任何动作，
+              现在卡内直接给重试按钮，请求期间禁用并显示进度 */}
+          <div className="flex flex-col items-center gap-3 py-6">
+            <p className="text-sm text-ink-soft">{loadError}</p>
+            <Button variant="secondary" disabled={retrying} onClick={() => void handleRetry()}>
+              {retrying ? '正在重试…' : '重试'}
+            </Button>
+          </div>
         </Card>
       </div>
     );
@@ -159,13 +195,7 @@ export default function TeacherDashboard() {
             <span className="rounded-lg bg-canvas px-4 py-2 font-mono text-xl tracking-[0.3em] text-ink">
               {currentCode}
             </span>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                void navigator.clipboard?.writeText(currentCode);
-                toast('邀请码已复制');
-              }}
-            >
+            <Button variant="secondary" onClick={() => void handleCopyInviteCode()}>
               复制
             </Button>
             <span className="text-ui-sm text-ink-soft">

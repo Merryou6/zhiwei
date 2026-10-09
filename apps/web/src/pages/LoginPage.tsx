@@ -95,10 +95,13 @@ export default function LoginPage() {
   const setSpaces = useSpaceStore((state) => state.setSpaces);
   const toast = useUiStore((state) => state.toast);
 
-  /** 本地校验（行内提示用；服务端仍是最终裁判）。 */
+  /** 本地校验（行内提示用；服务端仍是最终裁判）。
+      【P3 人设随身份】学生端文案是学长口吻，老师身份下改中性，不让老师被「记住你」。 */
   function validate(): FieldErrors {
     const errors: FieldErrors = {};
-    if (identifier.trim().length === 0) errors.identifier = '先填手机号或邮箱，我才能记住你';
+    if (identifier.trim().length === 0) {
+      errors.identifier = role === 'teacher' ? '先填手机号或邮箱' : '先填手机号或邮箱，我才能记住你';
+    }
     if (password.length === 0) errors.password = '密码还没填';
     else if (password.length < 6) errors.password = '密码至少 6 位';
     return errors;
@@ -180,6 +183,8 @@ export default function LoginPage() {
   async function handleDemoEnter(demoRole: keyof typeof DEMO_ACCOUNTS): Promise<void> {
     if (submitting) return;
     const demo = DEMO_ACCOUNTS[demoRole];
+    // 【P3 演示进入同步身份】一句话定位立即切到对应身份，不能还停在「我是学生」
+    setRole(demoRole);
     setSubmitting(true);
     setFieldErrors({});
     setIdentifier(demo.identifier);
@@ -257,8 +262,11 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} noValidate className="mt-8 w-full max-w-[360px]">
         {/* 双端开场：身份常驻（登录 + 注册都在，且是表单第一件事）。
             注册 = 提交给 #1 的 role；登录 = 身份期望（不符时登录后温和纠正）。
-            复用注册时的二选一样式：无卡片语汇，两个文字块就是全部。 */}
-        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="身份">
+            复用注册时的二选一样式：无卡片语汇，两个文字块就是全部。
+            【P2 键盘语义】降级为 role="group" + aria-pressed：原 radiogroup/radio
+            缺 roving tabindex，方向键不可用、两颗 radio 各自占一个 Tab 停靠点，
+            读屏语义是违规的；两个独立 toggle 按钮（aria-pressed）如实描述现有行为。 */}
+        <div className="grid grid-cols-2 gap-2" role="group" aria-label="身份">
           {(
             [
               { value: 'student', label: '我是学生', hint: '完整学习链路' },
@@ -270,8 +278,7 @@ export default function LoginPage() {
               <button
                 key={option.value}
                 type="button"
-                role="radio"
-                aria-checked={active}
+                aria-pressed={active}
                 onClick={() => setRole(option.value)}
                 className={
                   'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +

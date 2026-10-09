@@ -9,6 +9,9 @@
  * 新建表单抽到 components/SpaceCreateForm 完整态嵌入（顶栏弹层复用同一组件的紧凑态），
  * 故本文件不再持有 handleCreate / stage / ConfirmDialog 逻辑。
  * STAGES 与 stageLabel 迁至 lib/stages（SpacesPage / SpaceCreateForm / 一致性测试三处共用）。
+ *
+ * 【P1/P3 2026-10-09 双端切换轮】teacher 访问本页只给「回老师端」指引（老师没有学习空间）；
+ * 主按钮改并列双入口「进入学习 / 自报·拍卷建图」，不再依赖本机 isSelfReportDone 标记。
  */
 
 import { useEffect, useState } from 'react';
@@ -16,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { listSpaces } from '../api/endpoints';
-import type { SpaceView } from '../api/types';
 import EmptyState from '../components/EmptyState';
 import PageSkeleton from '../components/PageSkeleton';
 import SpaceCreateForm from '../components/SpaceCreateForm';
@@ -25,16 +27,20 @@ import { cn } from '../lib/cn';
 import { formatTime } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import { stageLabel } from '../lib/stages';
-import { SELF_REPORT_PATH, isSelfReportDone } from '../router';
+import { START_PATH, TEACHER_HOME } from '../router';
+import { useAuthStore } from '../stores/auth';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 
-/** 主按钮：按本机自报标记决定「开始自报」还是「进入测评」（第一屏就让用户开始）。 */
-function primaryAction(space: SpaceView): { label: string; path: string } {
-  return isSelfReportDone(space.space_id)
-    ? { label: '进入测评', path: '/assessment' }
-    : { label: '开始 30 秒自报', path: SELF_REPORT_PATH };
-}
+/**
+ * 【P3 主按钮口径】不再按本机 isSelfReportDone 标记分流：走「拍试卷建图」路径的学生
+ * 永远不会写这个标记，回到空间页仍被推「开始 30 秒自报」，口径是错的。
+ * 改为并列双入口：主按钮「进入学习」（测评链路），次按钮「自报 / 拍卷建图」落
+ * 冷启动分叉页 /start（那里本就提供拍试卷与做摸底题两种方式），两种建图路径
+ * 随时可补，谁也不挤谁。
+ */
+const PRIMARY_ENTRY = { label: '进入学习', path: '/assessment' } as const;
+const BUILD_ENTRY = { label: '自报 / 拍卷建图', path: START_PATH } as const;
 
 export default function SpacesPage() {
   const [loading, setLoading] = useState(true);
@@ -47,6 +53,8 @@ export default function SpacesPage() {
   const setActive = useSpaceStore((state) => state.setActive);
   const toast = useUiStore((state) => state.toast);
   const navigate = useNavigate();
+  // 【P1 双端切换回路】页面级判断：teacher 账号没有学习空间，本页对它只做指引不做建空间
+  const isTeacher = useAuthStore((state) => state.role) === 'teacher';
 
   async function load(): Promise<void> {
     try {
@@ -65,7 +73,8 @@ export default function SpacesPage() {
   }, []);
 
   const ordered = [...spaces].sort((a, b) => Number(b.is_default) - Number(a.is_default));
-  const showForm = loading ? false : ordered.length > 0 || formOpen;
+  // 【P1 双端切换回路】teacher 不渲染新建表单：老师账号建空间没有意义（见下方指引卡）
+  const showForm = isTeacher ? false : loading ? false : ordered.length > 0 || formOpen;
 
   return (
     <PageContainer width="standard">
@@ -74,7 +83,21 @@ export default function SpacesPage() {
         description="一个空间就是一个学科的知识地图。默认空间已经建好了，直接开始就好。"
       />
 
-      {loading ? (
+      {/* 【P1 双端切换回路】teacher 访问本页只给指引：不建空间、不引导学习链路，
+          一颗「回老师端」把唯一的正确去向放在眼前（原来只会看到「还没有学习空间」空态）。 */}
+      {isTeacher ? (
+        <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
+          <EmptyState
+            title="老师账号不用建学习空间"
+            hint="你的学生在绑定后自动出现——回老师端就能看到他们的学习地图。"
+            action={
+              <Button variant="primary" onClick={() => navigate(TEACHER_HOME)}>
+                回老师端
+              </Button>
+            }
+          />
+        </div>
+      ) : loading ? (
         <PageSkeleton label="正在取你的空间…" rows={2} className="mt-8" />
       ) : ordered.length === 0 ? (
         <div className="mt-6 rounded-surface border border-line bg-surface p-5 shadow-card">
@@ -92,7 +115,6 @@ export default function SpacesPage() {
         <ul className="mt-6 space-y-3">
           {ordered.map((space) => {
             const isActive = space.space_id === activeSpaceId;
-            const action = primaryAction(space);
             return (
               <li
                 key={space.space_id}
@@ -124,9 +146,16 @@ export default function SpacesPage() {
 
                   <div className="flex shrink-0 items-center gap-2">
                     {isActive ? (
-                      <Button variant="primary" onClick={() => navigate(action.path)}>
-                        {action.label}
-                      </Button>
+                      <>
+                        {/* 【P3 主按钮口径】并列双入口：进学习不再依赖本机自报标记，
+                            拍卷建图的学生也不会再被推去「开始 30 秒自报」 */}
+                        <Button variant="primary" onClick={() => navigate(PRIMARY_ENTRY.path)}>
+                          {PRIMARY_ENTRY.label}
+                        </Button>
+                        <Button variant="secondary" onClick={() => navigate(BUILD_ENTRY.path)}>
+                          {BUILD_ENTRY.label}
+                        </Button>
+                      </>
                     ) : (
                       <Button variant="secondary" onClick={() => setActive(space.space_id)}>
                         切到这个空间

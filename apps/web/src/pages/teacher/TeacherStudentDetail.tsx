@@ -227,8 +227,10 @@ export default function TeacherStudentDetail() {
           </div>
         )}
         <div className="mt-4 border-t border-line pt-3">
+          {/* 【P2 附言时点】注明随下一次「推给他」一起发出：老师不会误以为填了就立刻送达
+              （实现上 handleAssign 读当下 note 后清空，语义以此为准） */}
           <label htmlFor="teacher-note" className="text-ui-sm text-ink-soft">
-            附一句话说明（可选，学生会看到）
+            附一句话说明（可选，将随下一次「推给他」一起发出，学生会看到）
           </label>
           <input
             id="teacher-note"
