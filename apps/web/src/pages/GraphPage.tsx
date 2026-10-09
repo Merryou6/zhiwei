@@ -15,6 +15,9 @@
  *   ⑦ 冷启动横幅：?bootstrapped=1（拍卷建图完成跳转）→「初始图谱已生成」；
  *   ⑧ 节点错落点亮动画（echarts 逐点 delay；reduced-motion 降级为瞬时）——
  *      「本周点亮 +N」数字随点火爬升、最后一个节点落位时到达并跳一下（badge-pop 尾注）。
+ *   ⑨ 无障碍补全（2026-10-09）：canvas 挂 role=img + 并行语义清单（details 逐点按钮，
+ *      键盘/读屏可达，回车打开同一张详情卡）；主题切换重绘画布（theme 进 effect deps，
+ *      配色重取 CSS 变量），重绘不重播点火。
  *
  * 版式纪律继承：echarts 配色读 CSS 变量（themeColor）；图例常驻（BandLegend）；
  * 详情卡不透明底 + shadow-overlay；标签先换行再截断。
@@ -56,6 +59,7 @@ import { BAND_HEX, BAND_ORDER, PRIMARY_HEX, masteryBandOf, masteryHexOf } from '
 import type { MasteryBand } from '../theme/bands';
 import { useAttributionStore } from '../stores/attribution';
 import { useSpaceStore } from '../stores/space';
+import { useThemeStore } from '../stores/theme';
 import { useUiStore } from '../stores/ui';
 
 /** 非路径元素的不透明度（高亮时其余节点降透明）。 */
@@ -120,8 +124,12 @@ export default function GraphPage() {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
   const plan = useAttributionStore((state) => state.plan);
+  /** 主题切换 → 画布配色重取 CSS 变量（进图表 effect 的 deps）。 */
+  const theme = useThemeStore((state) => state.theme);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  /** 点火只随数据变化重放：byKp 是 report 的 useMemo 派生，主题/路径重绘时身份不变。 */
+  const lastIgnitionSourceRef = useRef<unknown>(null);
 
   const layout = useMemo(() => computeGraphLayout(), []);
   const byKp = useMemo(() => masteryByKpOf(report?.nodes ?? []), [report]);
@@ -163,6 +171,9 @@ export default function GraphPage() {
     const chart = echarts.init(container);
     // canvas 内动画不受 CSS reduce 块管辖，JS 侧自行降级（lib/motion.ts 的偏好读取）。
     const reduced = prefersReducedMotion();
+    // 点火重放判定：byKp 变了（新数据/新空间）才重播；主题切换或路径高亮的重绘不重播。
+    const replayIgnition = lastIgnitionSourceRef.current !== byKp;
+    lastIgnitionSourceRef.current = byKp;
     const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
     const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
     const accentColor = themeColor('--c-accent', PRIMARY_HEX);
@@ -192,9 +203,10 @@ export default function GraphPage() {
           },
         },
         // 节点错落点亮：先修链上游先亮，下游跟进（一次性的「点火」仪式感）
-        // 系统开了「减弱动态效果」→ 瞬时到位，不做约 1.7s 的逐点闪烁。
-        animationDuration: reduced ? 0 : IGNITE_BASE_MS,
-        animationDelay: reduced ? 0 : (rawIndex: number) => rawIndex * IGNITE_STAGGER_MS,
+        // 系统开了「减弱动态效果」→ 瞬时到位；主题/路径重绘 → 不重播（省 1.7s 的重复闪烁）。
+        animationDuration: reduced || !replayIgnition ? 0 : IGNITE_BASE_MS,
+        animationDelay:
+          reduced || !replayIgnition ? 0 : (rawIndex: number) => rawIndex * IGNITE_STAGGER_MS,
         animationEasing: 'cubicOut',
         series: [
           {
@@ -302,8 +314,10 @@ export default function GraphPage() {
       observer?.disconnect();
       chart.dispose();
     };
+    // theme 进 deps（2026-10-09）：配色在 effect 里读 CSS 变量，主题切换后必须重取重绘；
+    // 其余依赖不变（eslint 认不出 theme 的用途）。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report, highlightPath.join(','), layout, byKp]);
+  }, [report, highlightPath.join(','), layout, byKp, theme]);
 
   /** 「本周点亮」尾注：数字随点火爬升，最后一个节点落位时徽标跳一下（只此一次）。 */
   const nodeCount = layout.nodes.length;
@@ -452,6 +466,8 @@ export default function GraphPage() {
         <div className="overflow-x-auto">
           <div
             ref={containerRef}
+            role="img"
+            aria-label={`技能树图：${GRAPH_NODES.length} 个知识点的掌握度地图，颜色代表掌握程度，虚线空心代表先修未通。图形下方的文字清单可以逐个打开详情。`}
             style={{
               minWidth: Math.max(720, layout.width + 200),
               height: Math.max(420, layout.height + 200),
@@ -515,6 +531,40 @@ export default function GraphPage() {
           </div>
         ) : null}
       </div>
+
+      {/* 无障碍（2026-10-09）：canvas 对键盘/读屏不可达 —— 并行一份语义清单，
+          每个知识点一行真实按钮（可 Tab 聚焦、回车打开同一张详情卡）；
+          不用读屏的用户也能拿它当「文字版」，不想看图时同样有用。 */}
+      <details className="group mt-3 rounded-surface border border-line bg-surface">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-ui-sm text-ink-soft transition-colors hover:bg-raised [&::-webkit-details-marker]:hidden">
+          打不开图或不想看图？用文字看这棵树（{GRAPH_NODES.length} 个知识点，回车打开详情）
+          <span aria-hidden="true" className="shrink-0 text-ink-soft transition-transform group-open:rotate-45">
+            +
+          </span>
+        </summary>
+        <ul className="border-t border-line">
+          {layout.nodes.map((placed) => {
+            const snapshot = snapshotNode(placed.id);
+            const profile = byKp.get(placed.id);
+            const state = treeNodeState(snapshot ?? { ...GRAPH_NODES[0], id: placed.id }, byKp);
+            const mastery = profile?.mastery ?? 0;
+            return (
+              <li key={placed.id} className="border-b border-line last:border-b-0">
+                <button
+                  type="button"
+                  onClick={() => setSelected(placed.id)}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-ui-sm text-ink transition-colors hover:bg-raised"
+                >
+                  <span className="min-w-0 truncate">{kpNameOf(placed.id, profile?.name)}</span>
+                  <span className="shrink-0 font-mono tabular-nums text-ink-soft">
+                    {STATE_HINT[state] ?? state} · {percent(mastery)}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </details>
 
       <p className="mt-4 text-ui-sm text-ink-soft">
         共 <span className="font-mono tabular-nums text-ink">{GRAPH_NODES.length}</span> 个知识点 /{' '}

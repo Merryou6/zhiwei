@@ -10,6 +10,8 @@
  *   - **unclear 行强制无默认值**：所有行的「对/错」都不预选，suggested_result 只作参考样式；
  *     未标全则提交按钮禁用（服务端同样拒绝默认值，前端只是提前拦住）；
  *   - 识别不产生证据、不更新掌握度（确认才生效）——页面文案如实说明；
+ *   - 知识点减负（2026-10-09）：识别猜的点收成「识别猜的」徽标按钮（点开才是按章节
+ *     分组的 select，选完自动收起），多数行零操作；识别没猜才直接给 select —— 不装作有默认；
  *   - 本地无云存储直传（契约 §9 指向云环境）→ 演示态从预置文件里选，不伪造上传。
  */
 
@@ -28,7 +30,7 @@ import type {
 import PageSkeleton from '../components/PageSkeleton';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
 import { cn } from '../lib/cn';
-import { GRAPH_NODES } from '../data/graphSnapshot';
+import { GRAPH_CHAPTERS, kpName } from '../data/graphSnapshot';
 import { fileSize } from '../lib/format';
 import { UI_TEXT } from '../lib/phrases';
 import {
@@ -45,6 +47,8 @@ interface RowState extends Omit<RecognitionItemView, 'kp_guess'> {
   kpId: string;
   /** 学生对/错：**无默认值**，必须手标。 */
   result: ConfirmResult | null;
+  /** 识别猜的知识点快照（空串 = 识别没猜出来）：撑起「识别猜的」徽标按钮的对照。 */
+  guess: string;
 }
 
 /** v2.1 多页整卷上限（与后端 PAPER_MAX_FILES 一致）。 */
@@ -55,10 +59,10 @@ const STATUS_LABEL: Record<string, string> = {
   pending_confirm: '识别完成，等你逐题确认',
 };
 
-/** 知识点下拉选项（20 节点，章节分组显示）。 */
-const KP_OPTIONS = GRAPH_NODES.map((node) => ({
-  id: node.id,
-  label: `${node.chapter} / ${node.name}`,
+/** 知识点选项（v2.1 评审减负：按章节 optgroup 分组 —— 组头即章节，翻找不再靠 24 项平铺）。 */
+const KP_GROUPS = GRAPH_CHAPTERS.map((chapter) => ({
+  name: chapter.name,
+  ids: chapter.kp_ids,
 }));
 
 export default function PaperPage() {
@@ -69,6 +73,8 @@ export default function PaperPage() {
   const [status, setStatus] = useState<string>('');
   const [recognitionId, setRecognitionId] = useState<string | null>(null);
   const [rows, setRows] = useState<RowState[]>([]);
+  /** 知识点选择器展开中的行（seq）：收起时「识别猜的」徽标就是答案，不碰即确认（减负）。 */
+  const [openKpSeq, setOpenKpSeq] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState<PaperConfirmData | null>(null);
   const [wrongCount, setWrongCount] = useState(0);
@@ -78,7 +84,7 @@ export default function PaperPage() {
   const navigate = useNavigate();
 
   const toRows = (data: PaperUploadData): RowState[] =>
-    data.items.map((item) => ({ ...item, kpId: item.kp_guess, result: null }));
+    data.items.map((item) => ({ ...item, kpId: item.kp_guess, result: null, guess: item.kp_guess }));
 
   useEffect(() => {
     if (!activeSpaceId) return;
@@ -332,23 +338,57 @@ export default function PaperPage() {
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-3">
-                <label className="text-ui-sm text-ink-soft">
-                  知识点
-                  <Select
-                    fieldSize="sm"
-                    className="ml-2 w-auto min-h-9"
-                    value={row.kpId}
-                    onChange={(event) =>
-                      setRows(rows.map((item) => (item.seq === row.seq ? { ...item, kpId: event.target.value } : item)))
-                    }
+                {/* 知识点（v2.1 评审减负）：识别有猜 → 默认收成「识别猜的」徽标按钮，
+                    多数行零操作；点开才见按章节分组的原生 select（选完自动收起）。
+                    识别没猜（guess 空）→ 直接给分组 select，不装作有默认。 */}
+                {row.guess !== '' && openKpSeq !== row.seq ? (
+                  <button
+                    type="button"
+                    aria-expanded={false}
+                    onClick={() => setOpenKpSeq(row.seq)}
+                    className={cn(
+                      'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors',
+                      row.kpId === row.guess
+                        ? 'border-accent/40 bg-accent-veil text-accent-ink'
+                        : 'border-line bg-surface text-ink-soft hover:bg-raised',
+                    )}
                   >
-                    {KP_OPTIONS.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
-                </label>
+                    <span className={cn(row.kpId === row.guess && 'font-medium')}>
+                      {row.kpId === row.guess ? '识别猜的' : '已改选'}
+                    </span>
+                    <span className="text-ink">{kpName(row.kpId)}</span>
+                    <span aria-hidden="true" className="text-ink-soft">
+                      ▾
+                    </span>
+                  </button>
+                ) : (
+                  <label className="text-ui-sm text-ink-soft">
+                    知识点
+                    <Select
+                      fieldSize="sm"
+                      className="ml-2 w-auto min-h-9"
+                      value={row.kpId}
+                      onChange={(event) => {
+                        setRows(
+                          rows.map((item) =>
+                            item.seq === row.seq ? { ...item, kpId: event.target.value } : item,
+                          ),
+                        );
+                        setOpenKpSeq(null);
+                      }}
+                    >
+                      {KP_GROUPS.map((group) => (
+                        <optgroup key={group.name} label={group.name}>
+                          {group.ids.map((id) => (
+                            <option key={id} value={id}>
+                              {kpName(id)}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </Select>
+                  </label>
+                )}
 
                 <div className="flex items-center gap-2">
                   {(['correct', 'wrong'] as ConfirmResult[]).map((value) => {
