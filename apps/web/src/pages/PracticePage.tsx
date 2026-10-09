@@ -37,6 +37,8 @@ import type {
 import ConfirmDialog from '../components/ConfirmDialog';
 import ItemCard from '../components/ItemCard';
 import PageSkeleton from '../components/PageSkeleton';
+// 完成奖励（awwwards 适配包 2）：整组全对时刻的描边对勾，动效是奖励不是装饰
+import SuccessMark from '../components/SuccessMark';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
 import { GRAPH_CHAPTERS, snapshotNode } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
@@ -391,7 +393,15 @@ export default function PracticePage() {
           title="这组练完了"
           description={`${ladder?.chapter ?? chapter} · ${groupCount} 题由易到难走完，过程都记进了你的掌握度。`}
         />
-        <div className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
+        {/* 完成奖励（awwwards「reward attention」）：整组全对才出现的定格对勾 —— 最有价值的时刻值得一个 mark */}
+        {groupCount > 0 && groupCorrect === groupCount ? (
+          <div className="result-in mt-5 flex items-center gap-2">
+            <SuccessMark tone="positive" label="这一组全部走对了" />
+            <p className="text-sm font-medium text-ink">这一组全部走对了</p>
+          </div>
+        ) : null}
+        {/* glass-card（跨包契约，包 1 落地）：战报卡换半透玻璃面，与 result-in 入场共存 */}
+        <div className="result-in glass-card mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
           <p className="text-sm text-ink">
             {groupCount} 题里 {groupCorrect} 题走到正确答案。
             {groupAvg !== null ? (
@@ -630,7 +640,8 @@ export default function PracticePage() {
         {result ? (
           <div
             ref={summaryRef}
-            className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card"
+            /* glass-card（跨包契约）：单题总评卡同换玻璃面，批改结果到达时刻的材质统一 */
+            className="result-in glass-card mt-5 rounded-surface border border-line bg-surface p-4 shadow-card"
           >
             <p className="text-sm text-ink">
               {result.overall.correct ? '终点抵达了正确答案。' : '这次没能走到正确答案，但过程都记下了。'}

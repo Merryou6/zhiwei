@@ -499,6 +499,52 @@ textarea::placeholder {
   animation: badge-pop 480ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ── 完成奖励描边（2026-10-09 awwwards 适配包 2）────────────────────
+   SuccessMark 组件（components/SuccessMark.tsx）的圆环 + 对勾描边动画：
+   stroke-dashoffset 从满偏移描到 0 —— 圆环先画（600ms）、对勾后画（300ms，
+   延迟 450ms 错落启动），timing 与 verdict-in / result-in 同一条曲线。
+   「动效是奖励不是装饰」：只在整组全对 / 已掌握 / 复测提升的时刻出现。
+   长度变量（--success-*-length）由组件按 SVG 几何注入，此处只管节奏。
+   减弱动效由底部全局 reduce 块兜底（duration 0.01ms + delay 0s → 立刻终态），
+   与 verdict-in 的降级哲学一致。keyframes 就地定义、不走 tailwind 动画令牌，
+   理由同 reveal-in（见上）：类名驱动的工具类扫描不覆盖这种组件内组合。 */
+@keyframes success-ring {
+  from {
+    stroke-dashoffset: var(--success-ring-length);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.success-mark-ring {
+  stroke-dasharray: var(--success-ring-length);
+  animation: success-ring 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes success-check {
+  from {
+    stroke-dashoffset: var(--success-check-length);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.success-mark-check {
+  stroke-dasharray: var(--success-check-length);
+  animation: success-check 300ms cubic-bezier(0.16, 1, 0.3, 1) 450ms both;
+}
+
+/* 图谱聚光注意力（awwwards「directed motion」）：详情卡打开时画布轻微降饱和退后
+   （filter 只在 GraphPage 的画布包裹层使用，不动 echarts 配置），
+   当前查看的对象成为视觉中心；配合组件侧 transition-[filter,opacity] duration-300
+   开合都有过渡。全局 reduce 块会把它压成瞬时切换。 */
+.graph-dimmed {
+  filter: saturate(0.35);
+  opacity: 0.85;
+}
+
 /* ── 打印（2026-09-25 视觉重构 P1a）────────────────────────────────
    ReportPage 的「打印 / 存为 PDF」是纯客户端 window.print()，服务端没有导出端点。
 

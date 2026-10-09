@@ -26,6 +26,8 @@ import { ApiError } from '../api/client';
 import EmptyState from '../components/EmptyState';
 import NextStepCard from '../components/NextStepCard';
 import PageSkeleton from '../components/PageSkeleton';
+// 完成奖励（awwwards 适配包 2）：复测较基线提升时刻的小号描边对勾
+import SuccessMark from '../components/SuccessMark';
 import { Button, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { reportSummary } from '../api/endpoints';
 import type { ReportSummaryData } from '../api/types';
@@ -271,8 +273,9 @@ export default function ReportPage() {
         </div>
       </div>
 
-      {/* ③ 基线 vs 复测 */}
-      <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
+      {/* ③ 基线 vs 复测 —— 本页的「主结果卡」：提升发生在这里被看见。
+          glass-card（跨包契约，包 1 落地）：只此一张换玻璃面，保持克制 */}
+      <div className="glass-card mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
         <h2 className="text-base font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
         {accuracy.length === 0 ? (
           <EmptyState
@@ -315,6 +318,13 @@ export default function ReportPage() {
                     >
                       {deltaPercent(row.delta)}
                     </span>
+                    {/* 提升奖励（awwwards「reward attention」）：Δ>0 的行内右侧给一枚小对勾定格进步，
+                        视觉图形 aria-hidden，语义由 sr-only「较基线提升」承担 */}
+                    {row.delta !== null && row.delta > 0 ? (
+                      <span className="ml-1.5 inline-flex align-middle">
+                        <SuccessMark size={18} tone="positive" label="较基线提升" />
+                      </span>
+                    ) : null}
                   </td>
                 </tr>
               ))}

@@ -38,6 +38,8 @@ import { getGraphMastery } from '../api/endpoints';
 import type { GraphMasteryData } from '../api/types';
 import BandLegend from '../components/BandLegend';
 import PageSkeleton from '../components/PageSkeleton';
+// 完成奖励（awwwards 适配包 2）：节点「已掌握」时刻的小号描边对勾
+import SuccessMark from '../components/SuccessMark';
 import { Badge, Button, IconButton, PageContainer, PageHeader, buttonVariants } from '../components/ui';
 import { GRAPH_NODES, snapshotNode } from '../data/graphSnapshot';
 import { computeGraphLayout, isPathEdge, parsePathParam } from '../lib/graphLayout';
@@ -482,7 +484,15 @@ export default function GraphPage() {
           showPath={highlightPath.length > 0}
           className="mb-3 sm:absolute sm:right-3 sm:top-3 sm:z-10 sm:mb-0"
         />
-        <div className="overflow-x-auto">
+        {/* 聚光注意力（awwwards「directed motion」）：详情卡打开时画布轻微降饱和退后，
+            让当前查看的对象成为视觉中心；关闭后 300ms 过渡恢复。类挂在 echarts 容器的
+            外层包裹 div 上，不触碰 echarts 配置；.graph-dimmed 定义在 index.css。 */}
+        <div
+          className={cn(
+            'overflow-x-auto transition-[filter,opacity] duration-300',
+            selectedNode && 'graph-dimmed',
+          )}
+        >
           <div
             ref={containerRef}
             role="img"
@@ -501,7 +511,14 @@ export default function GraphPage() {
             className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay"
           >
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-ink">{selectedNode.name}</p>
+              {/* 掌握奖励（awwwards「reward attention」）：引擎口径 mastery ≥ 0.8（BAND_THRESHOLD_MASTERED）
+                  判为「已掌握」——卡片已有「（已掌握）」带文案，此处只补 mark 不重复文案 */}
+              <p className="flex items-center gap-1.5 text-sm text-ink">
+                {selectedNode.name}
+                {masteryBandOf(selectedMastery) === '已掌握' ? (
+                  <SuccessMark size={20} tone="positive" label="已掌握" />
+                ) : null}
+              </p>
               <IconButton size="md" variant="quiet" onClick={() => setSelected(null)} aria-label="关闭">
                 ×
               </IconButton>
