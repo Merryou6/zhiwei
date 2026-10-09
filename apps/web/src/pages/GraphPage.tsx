@@ -24,7 +24,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 // 按需引入（前端优化批一）：本页只用到 graph 系列 + tooltip + canvas 渲染器。
 import * as echarts from 'echarts/core';
 import { GraphChart } from 'echarts/charts';
@@ -131,6 +131,8 @@ export default function GraphPage() {
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
   const plan = useAttributionStore((state) => state.plan);
+  // 复测 CTA 用 react-router 导航（包 C）：不用 window.location.hash 直改，保住路由状态。
+  const navigate = useNavigate();
   /** 主题切换 → 画布配色重取 CSS 变量（进图表 effect 的 deps）。 */
   const theme = useThemeStore((state) => state.theme);
 
@@ -353,6 +355,10 @@ export default function GraphPage() {
   const selectedNode = selected ? snapshotNode(selected) : null;
   const selectedProfile = selected ? byKp.get(selected) : undefined;
   const selectedMastery = selectedProfile?.mastery ?? 0;
+  // 薄弱态判定（包 C）：mastery < 0.4 在 engine 里就是「待巩固」带（本图谱状态带没有
+  // 「未掌握」档，最弱即待巩固）；补完值得验证效果才推复测——没碰过的点（无 profile、
+  // 无基线可比）不给这个按钮，仍走「去攻克/分步练一道」。
+  const selectedIsWeak = selectedProfile != null && selectedMastery < 0.4;
 
   async function sharePoster(): Promise<void> {
     if (!summary || posting) return;
@@ -530,7 +536,9 @@ export default function GraphPage() {
                 ? '无（起点）'
                 : selectedNode.prerequisites.map((id) => byKp.get(id)?.name ?? id).join('、')}
             </p>
-            <div className="mt-2 flex gap-2">
+            {/* 薄弱节点给复测 CTA（包 C）：把「补完→验证效果」一步递到眼前，
+                navigate 去测评页并预选复测模式（消费 ?mode=retest）。 */}
+            <div className={`mt-2 flex gap-2${selectedIsWeak ? ' flex-wrap' : ''}`}>
               {/* v2.1 评审 P2：CTA 带 kp 参数，到测评/练习页不断上下文（两页均消费 ?kp=） */}
               <Link
                 to={`/assessment?kp=${selectedNode.id}`}
@@ -544,6 +552,15 @@ export default function GraphPage() {
               >
                 分步练一道
               </Link>
+              {selectedIsWeak ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => navigate('/assessment?mode=retest')}
+                >
+                  补完做 2 道复测，验证效果
+                </Button>
+              ) : null}
             </div>
           </div>
         ) : null}

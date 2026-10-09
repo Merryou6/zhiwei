@@ -36,10 +36,12 @@ interface ModeCard {
   desc: string;
 }
 
+// 模式卡文案学长化（2026-10-09 复测入口包 C）：对学生的可见文案去掉「复测池」「干预前水平」
+// 等研究术语，改成学长口吻、不施压不说教；mode 枚举值本身不动（只影响 payload 语义）。
 const MODE_CARDS: ModeCard[] = [
-  { value: 'diagnose', desc: '从训练题池里挑题，专门找你现在卡住的地方。' },
-  { value: 'baseline', desc: '干预前的基准 3 题（复测池），用来和之后再比一次。' },
-  { value: 'retest', desc: '干预后的复测 3 题（复测池的另外几道，与基线题不重复）。' },
+  { value: 'diagnose', desc: '挑几道练过的题，专门找你现在卡在哪儿。' },
+  { value: 'baseline', desc: '先做 3 道题，记下你现在的高度——之后补完了，回来再比一比。' },
+  { value: 'retest', desc: '补完之后，做几道没见过的新题，看看是不是真的补上了。' },
 ];
 
 type Phase = 'select' | 'question' | 'done';
@@ -60,6 +62,11 @@ export default function AssessmentPage() {
   const focusKp = params.get('kp');
   const focusChapter = focusKp
     ? (GRAPH_CHAPTERS.find((entry) => entry.kp_ids.includes(focusKp))?.name ?? null)
+    : null;
+  // ?mode=retest（图谱详情卡复测 CTA 带入，2026-10-09 包 C）：模式卡是「点了即开始」、
+  // 没有二段确认屏，所以「预选」= 高亮该卡并提示一句，仍由学生自己点下去，不自动开跑。
+  const preselectedMode = MODE_CARDS.some((card) => card.value === params.get('mode'))
+    ? params.get('mode')
     : null;
 
   const answered = store.submittedCount;
@@ -168,13 +175,15 @@ export default function AssessmentPage() {
       },
       baseline: {
         title: '基准记下了',
+        // 文案去研究术语（包 C）：不再对学生说「干预前水平」。
         description:
-          '这 3 题就是你的"干预前水平"。接下来去对话页让我带你补一补，或者去图谱挑个薄弱点——之后回来做一次复测，就能看到变化。',
+          '这 3 题先记下了你现在的水平。接下来去对话页让我带你补一补，或者去图谱挑个薄弱点——之后回来再做一次复测，就能看到变化。',
       },
       retest: {
         title: '复测完成',
+        // 文案去研究术语（包 C）：ΔAccuracy 这类词留到报告页用图形表达，这里只说人话。
         description:
-          '这两组题和基线零重叠，所以变化是真实的。去报告页看 ΔAccuracy——补没补上，数字说话。',
+          '这几道新题和上次那组不重复，所以变化是真实的。去报告页看两次的对比——补没补上，数字说话。',
       },
     };
     const guidance = doneGuidance[store.mode] ?? {
@@ -184,7 +193,8 @@ export default function AssessmentPage() {
     const doneActions =
       store.mode === 'retest'
         ? [
-            { label: '去看 ΔAccuracy', to: '/report', primary: true },
+            // 按钮文案学长化（包 C）：ΔAccuracy 是研究记号，对学生只说「看变化」。
+            { label: '去报告看变化', to: '/report', primary: true },
             { label: '换一种测评', to: '', primary: false },
           ]
         : store.mode === 'baseline'
@@ -203,15 +213,17 @@ export default function AssessmentPage() {
           <NextStepCard
             className="mt-6"
             status="复测 3 题记完了"
-            hint="同一批知识点的基线和复测现在可以并排比了。"
+            // 文案去研究术语（包 C）：不再对学生说「基线」。
+            hint="同一批知识点的两次成绩现在可以并排比了。"
             actions={[{ label: '打开学习报告', to: '/report', primary: true }]}
           />
         ) : null}
         {store.mode === 'baseline' ? (
           <NextStepCard
             className="mt-6"
-            status="基线 3 题记完了（复测池）"
-            hint="补完回来再做一次「复测测量」，两次对比就是干预效果。"
+            // 文案去研究术语（包 C）：去掉「（复测池）」这类研究口径词。
+            status="这 3 题记完了，你的起点有了"
+            hint="补完回来再点一次「复测测量」，两次一比就能看到变化。"
             actions={[
               { label: '去对话页补一补', to: '/chat', primary: true },
               { label: '看看我的地图', to: '/graph' },
@@ -252,7 +264,8 @@ export default function AssessmentPage() {
       <PageContainer width="standard">
         <PageHeader
           title="选一种测评"
-          description="一次只做一件事：你要么让我找卡点（诊断），要么先量一个基准（基线/复测）。题目都只出现一次，做过的不再出。"
+          // 文案去研究术语（包 C）：不再对学生说「基线/复测」的口径词，只说用途。
+          description="一次只做一件事：你要么让我找卡点（诊断），要么先量一量现在的水平、之后再来比一比。题目都只出现一次，做过的不再出。"
         />
         {focusChapter && focusKp ? (
           <p className="mt-2 text-ui-sm text-accent-ink">
@@ -267,14 +280,21 @@ export default function AssessmentPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void startMode(card.value)}
-                className="w-full rounded-surface border border-line bg-surface p-5 text-left shadow-card transition-colors hover:border-accent disabled:opacity-60"
+                className={`w-full rounded-surface border bg-surface p-5 text-left shadow-card transition-colors hover:border-accent disabled:opacity-60 ${
+                  // ?mode=retest 预选（包 C）：用主色描边 + 提示语把「选好了」说清楚，不自动开跑。
+                  card.value === preselectedMode ? 'border-accent' : 'border-line'
+                }`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-base font-medium text-ink">{MODE_LABEL[card.value]}</span>
-                  {/* mode 标识是技术性元信息（diagnose/baseline/retest），等宽处理 */}
-                  <span className="font-mono text-ui-sm text-ink-soft">{card.value}</span>
+                  {/* mode 枚举（diagnose/baseline/retest）不再直出给学生（包 C）：
+                      只保留一份 sr-only 给读屏/测试定位用。 */}
+                  <span className="sr-only font-mono text-ui-sm text-ink-soft">{card.value}</span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{card.desc}</p>
+                {card.value === preselectedMode ? (
+                  <p className="mt-1 text-ui-sm text-accent-ink">已为你选好这个模式，点卡片就开始。</p>
+                ) : null}
               </button>
             </li>
           ))}
