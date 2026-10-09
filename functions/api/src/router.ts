@@ -28,6 +28,8 @@ import { classifyError } from './services/classify';
 import { gradeSteps } from './services/grade';
 import { next as diagnoseNext, submit as diagnoseSubmit } from './services/diagnose';
 import { mastery as graphMastery } from './services/graph';
+import { concepts } from './services/concepts';
+import { practiceLadder, practiceProgress } from './services/practice';
 import { confirmPaper, getOne as getPaper, upload as uploadPaper } from './services/paper';
 import { generate as generatePlan } from './services/plan';
 import { profile as userProfile } from './services/profile';
@@ -91,7 +93,7 @@ export interface DispatchInput {
   headers?: Headers;
 }
 
-/** 33 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
+/** 36 个接口的路由表（按批挂载；每批只追加自己的路由，注册顺序即匹配优先级）。 */
 export function createRoutes(): RouteDefinition[] {
   return [
     // 步骤 2：认证 + 空间（#1–#5）
@@ -147,6 +149,10 @@ export function createRoutes(): RouteDefinition[] {
     // v2.1 技能树 + 逐步批改（#32–#33）——静态段，与既有路由无前缀冲突（追加式挂表尾）
     { method: 'GET', pattern: '/api/graph/mastery', handler: graphMastery },
     { method: 'POST', pattern: '/api/grade/steps', handler: gradeSteps },
+    // v2.2-m1：专项阶梯 + 练习进度 + 概念体系卡（#34–#36，追加式）
+    { method: 'GET', pattern: '/api/practice/ladder', handler: practiceLadder },
+    { method: 'GET', pattern: '/api/practice/progress', handler: practiceProgress },
+    { method: 'GET', pattern: '/api/concepts', handler: concepts },
   ];
 }
 

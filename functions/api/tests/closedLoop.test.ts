@@ -513,11 +513,11 @@ describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
     }
   });
 
-  it('E1 路由闭合：33 个接口全部挂载（契约 v2.1：#1–#20 + 双端 #21–#31 + 技能树/批改 #32–#33）', () => {
+  it('E1 路由闭合：36 个接口全部挂载（契约 v2.2-m1：#1–#20 + 双端 #21–#31 + 技能树/批改 #32–#33 + 专项阶梯/进度/概念卡 #34–#36）', () => {
     const routes = createRoutes().map((route) => `${route.method} ${route.pattern}`);
 
-    expect(routes).toHaveLength(33);
-    expect(new Set(routes).size).toBe(33);
+    expect(routes).toHaveLength(36);
+    expect(new Set(routes).size).toBe(36);
     expect(routes).toEqual([
       'POST /api/auth/register',
       'POST /api/auth/login',
@@ -555,6 +555,10 @@ describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
       // v2.1 技能树 + 逐步批改（#32–#33）：路由表计数 31 → 33
       'GET /api/graph/mastery',
       'POST /api/grade/steps',
+      // v2.2-m1 专项阶梯 + 练习进度 + 概念体系卡（#34–#36）：路由表计数 33 → 36
+      'GET /api/practice/ladder',
+      'GET /api/practice/progress',
+      'GET /api/concepts',
     ]);
   });
 });

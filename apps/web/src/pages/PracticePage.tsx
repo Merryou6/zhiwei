@@ -1,24 +1,38 @@
 /**
- * 页 14 · 专项练习（v2.1 三张牌之「逐步批改做专业感来源」）
+ * 页 14 · 专项练习（v2.2-m1：系统性刷题阶梯 + 概念知识体系 + 提示链）
  *
- * 契约：#7 POST /api/diagnose/next（mode=diagnose + scope_chapter —— 只取题，不落证据）
+ * 契约：#34 GET  /api/practice/ladder（按章组一梯子题：train 池由易到难，排除已练，练完回流）
+ *       #35 GET  /api/practice/progress（按章聚合练习进度：提交数/练过题数/平均通过率）
+ *       #36 GET  /api/concepts（概念卡：定义/体系要点/典型例/易错点/关联 —— 概念给体系）
  *       #33 POST /api/grade/steps（分步提交 → 逐步判定 + 断点定位 + practice 证据）
  *
- * 交互：选章节 → 取一题 → 分步写过程（≤8 步）→ 批改结果（逐步 verdict + 断点高亮 +
- *       处方话术）→「再来一题」（exclude 已练题）。
- * 结果揭示（2026-10-09 交互峰值包）：verdict 徽章错落入场 + 断点行一次性高亮并
- *       自动滚到位 + 总评卡入场与通过率数字爬升 —— reduced-motion 下全部瞬时。
- * 与测评的纪律差异：这里**明确反馈对错与断点**（逐步批改就是产品价值本身），
- * 与 D11「测评不即时展示对错」不冲突 —— 两条通路，两种目的。
- * 红线继承：题目对象只含白名单字段；feedback/hint 由服务端清洗，前端不自行拼接题库内容。
+ * 三段流程：
+ *   select  选章节 → 本章进度概览 +「先看看知识体系」概念卡折叠面板 → 开始专项阶梯
+ *   ladder  逐题作答（进度点 + 难度点）→ 提示链 L1「给个方向」/ L2「再给点思路」逐级解锁
+ *           → 分步写过程 → 逐步批改（verdict + 断点高亮）→ 下一题 → 做完看战报
+ *   summary 本组战报（对几题/平均通过率）+ 本章累计进度 → 再来一组 / 换一章 / 看技能树
+ *
+ * 提示链哲学：L1/L2 是「知识点级」提示（概念卡 method/hint），不含本题解答、不泄题；
+ * 第三级引导就是逐步批改本身——把过程写出来提交，断在哪一步、怎么补，批改带你走。
+ * 练完一轮的题会回流（refilled），阶梯可以反复刷；每轮都从当前还没练熟的部分继续。
+ *
+ * 与测评的纪律差异：这里明确反馈对错与断点（逐步批改就是产品价值本身），
+ * 与 D11「测评不即时展示对错」不冲突——两条通路，两种目的。
+ * 红线继承：题目对象只含白名单字段；前端不自行拼接题库内容。
  */
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
-import { diagnoseNext, gradeSteps } from '../api/endpoints';
-import type { GradeStepsData, StepVerdict } from '../api/types';
+import { concepts, gradeSteps, practiceLadder, practiceProgress } from '../api/endpoints';
+import type {
+  ConceptCard,
+  GradeStepsData,
+  PracticeLadderData,
+  PracticeProgressData,
+  StepVerdict,
+} from '../api/types';
 import ItemCard from '../components/ItemCard';
 import PageSkeleton from '../components/PageSkeleton';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
@@ -52,6 +66,71 @@ function PercentCount({ to }: { to: number }): ReactNode {
   );
 }
 
+/** 概念卡视图（select 屏「知识体系」面板）：定义 + 体系要点 + 易错点 + 典型例（默认折叠）+ 关联。 */
+function ConceptCardView({ card }: { card: ConceptCard }): ReactNode {
+  const [exampleOpen, setExampleOpen] = useState(false);
+  const relatedNames = card.related.map((id) => snapshotNode(id)?.name ?? id);
+  return (
+    <article className="rounded-surface border border-line bg-raised p-3">
+      <header className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-medium text-ink">{card.name}</h3>
+        <Badge tone="neutral" size="sm">
+          {card.chapter}
+        </Badge>
+      </header>
+      <p className="mt-1.5 text-sm leading-relaxed text-ink">{card.definition}</p>
+      <ul className="mt-2 space-y-1">
+        {card.key_points.map((point, index) => (
+          <li key={index} className="text-ui-sm leading-relaxed text-ink-soft">
+            <span className="mr-1.5 text-accent-ink">·</span>
+            {point}
+          </li>
+        ))}
+      </ul>
+      {card.common_errors.map((error, index) => (
+        <p key={index} className="mt-1.5 text-ui-sm text-ink">
+          <span className="text-ink-soft">易错：</span>
+          {error}
+        </p>
+      ))}
+      <button
+        type="button"
+        className="mt-2 min-h-8 text-ui-sm text-accent-ink underline-offset-2 hover:underline"
+        aria-expanded={exampleOpen}
+        onClick={() => setExampleOpen((open) => !open)}
+      >
+        {exampleOpen ? '收起典型例 ▲' : '看一道典型例（讲透）▼'}
+      </button>
+      {exampleOpen ? (
+        <div className="mt-2 rounded-control border border-line bg-surface p-3">
+          <p className="text-sm text-ink">{card.classic_example.stem}</p>
+          <ol className="mt-2 space-y-1">
+            {card.classic_example.steps.map((step, index) => (
+              <li key={index} className="text-ui-sm leading-relaxed text-ink-soft">
+                {index + 1}. {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+      {relatedNames.length > 0 ? (
+        <p className="mt-2 text-ui-sm text-ink-soft">
+          <span className="text-accent-ink">触类旁通：</span>
+          {relatedNames.join('、')}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+type Phase = 'select' | 'ladder' | 'summary';
+
+/** 本组战报的单题记录（来自每题 gradeSteps 的 overall）。 */
+interface GroupResult {
+  correct: boolean;
+  pass_ratio: number;
+}
+
 export default function PracticePage() {
   /** ?kp= 从技能树详情卡带来：预选其所在章节（v2.1 评审 P2：CTA 不断上下文）。 */
   const [params] = useSearchParams();
@@ -60,17 +139,32 @@ export default function PracticePage() {
     ? (GRAPH_CHAPTERS.find((entry) => entry.kp_ids.includes(focusKp))?.name ?? null)
     : null;
   const [chapter, setChapter] = useState<string>(focusChapter ?? GRAPH_CHAPTERS[0]?.name ?? '');
-  const [item, setItem] = useState<{ item_id: string; stem: string; options: string[] | null } | null>(null);
-  const [choice, setChoice] = useState<string>('');
-  const [steps, setSteps] = useState<string[]>(['']);
+
+  const [phase, setPhase] = useState<Phase>('select');
   const [busy, setBusy] = useState(false);
+
+  const [ladder, setLadder] = useState<PracticeLadderData | null>(null);
+  const [ladderIndex, setLadderIndex] = useState(0);
+  const [results, setResults] = useState<GroupResult[]>([]);
+
+  const [choice, setChoice] = useState('');
+  const [steps, setSteps] = useState<string[]>(['']);
   const [result, setResult] = useState<GradeStepsData | null>(null);
-  const [doneIds, setDoneIds] = useState<string[]>([]);
-  const [noMore, setNoMore] = useState(false);
+  /** 提示链层级：0 未开 · 1 方向(L1) · 2 思路(L2)；逐级解锁，重置于每题开始。 */
+  const [hintLevel, setHintLevel] = useState(0);
+
+  const [conceptCards, setConceptCards] = useState<ConceptCard[] | null>(null);
+  const [conceptOpen, setConceptOpen] = useState(false);
+  const [progress, setProgress] = useState<PracticeProgressData | null>(null);
 
   /** 断点行 / 总评卡的 DOM 锚点：结果到达后自动滚到位（峰值时刻 = 先看到断的那步）。 */
   const stepRowRefs = useRef(new Map<number, HTMLDivElement>());
   const summaryRef = useRef<HTMLDivElement | null>(null);
+
+  const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
+  const toast = useUiStore((state) => state.toast);
+
+  const current = ladder?.items[ladderIndex] ?? null;
 
   useEffect(() => {
     if (!result) return;
@@ -80,8 +174,36 @@ export default function PracticePage() {
     anchor?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
   }, [result]);
 
-  const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
-  const toast = useUiStore((state) => state.toast);
+  // 进度（#35）：select / summary 两个阶段展示；summary 进入时刷新，战报口径即时
+  useEffect(() => {
+    if (!activeSpaceId || (phase !== 'select' && phase !== 'summary')) return;
+    let cancelled = false;
+    practiceProgress(activeSpaceId)
+      .then((data) => {
+        if (!cancelled) setProgress(data);
+      })
+      .catch(() => undefined); // 进度是增强信息：失败静默降级
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSpaceId, phase]);
+
+  // 概念卡（#36）：跟随所选章节；无卡空间（如 gz）静默降级为空集，不弹错误
+  useEffect(() => {
+    if (!activeSpaceId || phase !== 'select') return;
+    let cancelled = false;
+    setConceptCards(null);
+    concepts(activeSpaceId, chapter)
+      .then((data) => {
+        if (!cancelled) setConceptCards(data.cards);
+      })
+      .catch(() => {
+        if (!cancelled) setConceptCards([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSpaceId, chapter, phase]);
 
   function guardSpace(): string | null {
     if (!activeSpaceId) {
@@ -95,27 +217,21 @@ export default function PracticePage() {
     toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
   }
 
-  async function fetchItem(exclude: string[] = []): Promise<void> {
+  /** #34：组一梯子题（由易到难；已练过的自动排除，练完回流）。 */
+  async function startLadder(): Promise<void> {
     const spaceId = guardSpace();
     if (!spaceId || busy) return;
     setBusy(true);
-    setResult(null);
-    setChoice('');
-    setSteps(['']);
     try {
-      const data = await diagnoseNext({
-        space_id: spaceId,
-        mode: 'diagnose',
-        scope_chapter: chapter,
-        exclude_item_ids: exclude,
-      });
-      if (data.item === null || data.converged) {
-        setItem(null);
-        setNoMore(true);
-      } else {
-        setItem(data.item);
-        setNoMore(false);
-      }
+      const data = await practiceLadder(spaceId, chapter);
+      setLadder(data);
+      setLadderIndex(0);
+      setResults([]);
+      setChoice('');
+      setSteps(['']);
+      setResult(null);
+      setHintLevel(0);
+      setPhase('ladder');
     } catch (error) {
       handleError(error);
     } finally {
@@ -125,11 +241,11 @@ export default function PracticePage() {
 
   async function submitSteps(): Promise<void> {
     const spaceId = guardSpace();
-    const current = item;
-    if (!spaceId || !current || busy) return;
+    const item = ladder?.items[ladderIndex];
+    if (!spaceId || !item || busy) return;
 
     // 选择题：把所选选项文本作为单步提交；其余题型走分步
-    const payload = current.options ? [choice] : steps.map((step) => step.trim());
+    const payload = item.options ? [choice] : steps.map((step) => step.trim());
     if (payload.some((step) => step.length === 0)) {
       toast('把每一步都写点什么（不会的那步写「不会」也行）', 'warn');
       return;
@@ -137,14 +253,36 @@ export default function PracticePage() {
 
     setBusy(true);
     try {
-      const data = await gradeSteps({ space_id: spaceId, item_id: current.item_id, steps: payload });
+      const data = await gradeSteps({ space_id: spaceId, item_id: item.item_id, steps: payload });
       setResult(data);
-      setDoneIds((prev) => [...new Set([...prev, current.item_id])]);
+      setResults((prev) => [...prev, { correct: data.overall.correct, pass_ratio: data.overall.pass_ratio }]);
     } catch (error) {
       handleError(error);
     } finally {
       setBusy(false);
     }
+  }
+
+  /** 下一题；最后一题完成后进战报（此时 #35 会自动刷新）。 */
+  function nextItem(): void {
+    if (!ladder) return;
+    const next = ladderIndex + 1;
+    if (next >= ladder.items.length) {
+      setPhase('summary');
+      return;
+    }
+    setLadderIndex(next);
+    setChoice('');
+    setSteps(['']);
+    setResult(null);
+    setHintLevel(0);
+  }
+
+  function backToSelect(): void {
+    setPhase('select');
+    setLadder(null);
+    setResults([]);
+    setResult(null);
   }
 
   function updateStep(index: number, value: string): void {
@@ -165,219 +303,371 @@ export default function PracticePage() {
     });
   }
 
-  // ------------------------------------------------------------ 章节选择
-  if (!item && !noMore) {
+  // ------------------------------------------------------------ 战报（summary）
+  if (phase === 'summary') {
+    const groupCount = results.length;
+    const groupCorrect = results.filter((entry) => entry.correct).length;
+    const groupAvg =
+      groupCount > 0 ? results.reduce((sum, entry) => sum + entry.pass_ratio, 0) / groupCount : null;
+    const chapterProgress = progress?.chapters.find((entry) => entry.chapter === ladder?.chapter) ?? null;
     return (
       <PageContainer width="prose">
         <PageHeader
-          title="专项练习"
-          description="挑一章，写你的解题过程——我不只判对错，会告诉你断在第几步、为什么断。"
+          title="这组练完了"
+          description={`${ladder?.chapter ?? chapter} · ${groupCount} 题由易到难走完，过程都记进了你的掌握度。`}
         />
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <label className="text-ui-sm text-ink-soft">
-            章节
-            <Select
-              fieldSize="sm"
-              className="ml-2 w-auto min-h-9"
-              value={chapter}
-              onChange={(event) => setChapter(event.target.value)}
-            >
-              {GRAPH_CHAPTERS.map((entry) => (
-                <option key={entry.name} value={entry.name}>
-                  {entry.name}（{entry.kp_ids.length} 个知识点）
-                </option>
-              ))}
-            </Select>
-          </label>
-          <Button variant="primary" disabled={busy || chapter.length === 0} onClick={() => void fetchItem(doneIds)}>
-            {busy ? '正在取题…' : '取一道题'}
-          </Button>
-        </div>
-        {focusChapter && focusKp ? (
-          <p className="mt-4 text-ui-sm text-accent-ink">
-            已按你在技能树点的「{snapshotNode(focusKp)?.name ?? focusKp}」选好章节，直接取题就行。
-          </p>
-        ) : null}
-        <p className="mt-4 text-ui-sm text-ink-soft">
-          每一步都会被认真对待：对的部分照实记账（答错但有进展，掌握度不会按全错拉低）。
-        </p>
-      </PageContainer>
-    );
-  }
-
-  if (noMore || !item) {
-    return (
-      <PageContainer width="prose">
-        <PageHeader
-          title="这一章练得差不多了"
-          description="本章的题这轮都见过了。换个章节，或者去技能树看看这些练习点亮了什么。"
-        />
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={() => { setNoMore(false); setDoneIds([]); }}>
-            换一章
-          </Button>
-          <Button variant="primary" onClick={() => { window.location.hash = '#/graph'; }}>
-            看看我的技能树
-          </Button>
-        </div>
-      </PageContainer>
-    );
-  }
-
-  // ------------------------------------------------------------ 作答 / 批改结果
-  return (
-    <PageContainer width="standard">
-      <PageHeader
-        title="分步写，我逐步批"
-        description="一步一步写过程；卡住的那步写「不会」也可以——我会告诉你断点在哪、怎么补。"
-        actions={
-          <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
-            {chapter} · 本轮已练 {doneIds.length} 题
-          </span>
-        }
-      />
-
-      <div className="mt-5">
-        <ItemCard
-          item={item}
-          value={choice}
-          onChange={setChoice}
-          disabled={busy || result !== null}
-          placeholder="第一步怎么下手？"
-        />
-      </div>
-
-      {!item.options ? (
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-ui-sm text-ink-soft">
-              解题过程（{steps.length}/{MAX_STEPS} 步）
-            </span>
-            {steps.length < MAX_STEPS ? (
-              <Button
-                variant="quiet"
-                size="sm"
-                disabled={busy || result !== null}
-                onClick={() => setSteps((prev) => [...prev, ''])}
-              >
-                + 加一步
-              </Button>
-            ) : null}
-          </div>
-          {steps.map((step, index) => {
-            const verdictRow = result?.step_results.find((row) => row.index === index + 1);
-            const isBreak = result?.overall.first_break_step === index + 1 && verdictRow?.verdict !== 'pass';
-            return (
-              <div
-                key={index}
-                ref={(el) => {
-                  if (el) stepRowRefs.current.set(index + 1, el);
-                  else stepRowRefs.current.delete(index + 1);
-                }}
-                className={cn(
-                  'rounded-surface border bg-surface p-3',
-                  isBreak ? 'border-band-weak break-flash' : 'border-line',
-                )}
-                style={
-                  isBreak ? ({ '--break-flash-from': bandVeilHex('待巩固', 0.2) } as CSSProperties) : undefined
-                }
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-ui-sm tabular-nums text-ink-soft">第 {index + 1} 步</span>
-                  <div className="flex items-center gap-1">
-                    {verdictRow ? (
-                      <Badge
-                        tone={VERDICT_LABEL[verdictRow.verdict].tone}
-                        size="sm"
-                        className="verdict-in"
-                        style={{ animationDelay: `${index * 90}ms` }}
-                      >
-                        {VERDICT_LABEL[verdictRow.verdict].text}
-                      </Badge>
-                    ) : null}
-                    {result === null && steps.length > 1 ? (
-                      <>
-                        <Button variant="quiet" size="sm" disabled={index === 0} onClick={() => moveStep(index, -1)} aria-label="上移">
-                          ↑
-                        </Button>
-                        <Button
-                          variant="quiet"
-                          size="sm"
-                          disabled={index === steps.length - 1}
-                          onClick={() => moveStep(index, 1)}
-                          aria-label="下移"
-                        >
-                          ↓
-                        </Button>
-                        <Button variant="quiet" size="sm" onClick={() => removeStep(index)} aria-label="删除该步">
-                          ×
-                        </Button>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-                <textarea
-                  className="mt-2 w-full resize-y rounded-control border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent disabled:opacity-70"
-                  rows={2}
-                  value={step}
-                  disabled={busy || result !== null}
-                  placeholder={index === 0 ? '第一步怎么下手？' : '这一步做了什么？'}
-                  onChange={(event) => updateStep(index, event.target.value)}
-                />
-                {verdictRow ? (
-                  <div className="verdict-in mt-2 space-y-1" style={{ animationDelay: `${index * 90 + 60}ms` }}>
-                    <p className="text-sm text-ink">{verdictRow.feedback}</p>
-                    {verdictRow.hint ? <p className="text-ui-sm text-accent-ink">下一步往哪想：{verdictRow.hint}</p> : null}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
-
-      {/* 总评（入场 + 通过率数字爬升；锚点供自动滚动） */}
-      {result ? (
-        <div
-          ref={summaryRef}
-          className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card"
-        >
+        <div className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
           <p className="text-sm text-ink">
-            {result.overall.correct ? '终点抵达了正确答案。' : '这次没能走到正确答案，但过程都记下了。'}
-            {result.overall.first_break_step !== null
-              ? `断点在第 ${result.overall.first_break_step} 步。`
-              : '每一步都过了。'}
+            {groupCount} 题里 {groupCorrect} 题走到正确答案。
+            {groupAvg !== null ? (
+              <>
+                平均通过 <PercentCount to={groupAvg} />% 的步骤。
+              </>
+            ) : null}
           </p>
-          <p className="mt-1 text-ui-sm text-ink-soft">
-            通过 {result.overall.pass_ratio === 1 ? '全部' : <><PercentCount to={result.overall.pass_ratio} />%</>} 步骤
-            · 知识点「{result.overall.kp_name}」
-            {result.evidence_written ? ' · 本次已记入掌握度' : ' · 这道题刚才批过（同一小时不重复计）'}
-          </p>
+          {chapterProgress ? (
+            <p className="mt-1 text-ui-sm text-ink-soft">
+              本章累计：练过 {chapterProgress.practiced_items} 题 · 提交 {chapterProgress.submissions} 次
+              {chapterProgress.avg_pass_ratio !== null ? (
+                <>
+                  {' '}
+                  · 平均通过率 <PercentCount to={chapterProgress.avg_pass_ratio} />%
+                </>
+              ) : null}
+            </p>
+          ) : null}
           <p className="mt-1 text-ui-sm text-ink-soft">
             断点已经记进你的图谱——复测和推荐会自动围着它转。
           </p>
         </div>
-      ) : null}
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button variant="primary" disabled={busy} onClick={() => void startLadder()}>
+            再来一组（自动避开刚练过的）
+          </Button>
+          <Button variant="secondary" onClick={backToSelect}>
+            换一章
+          </Button>
+          <Button variant="ghost" onClick={() => { window.location.hash = '#/graph'; }}>
+            看看技能树
+          </Button>
+        </div>
+      </PageContainer>
+    );
+  }
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
+  // ------------------------------------------------------------ 阶梯作答（ladder）
+  if (phase === 'ladder' && ladder && current) {
+    const difficulty = Math.max(0, Math.min(5, current.difficulty));
+    return (
+      <PageContainer width="standard">
+        <PageHeader
+          title="分步写，我逐步批"
+          description="一步一步写过程；卡住的那步写「不会」也可以——我会告诉你断点在哪、怎么补。"
+          actions={
+            <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
+              {current.chapter} · 第 {ladderIndex + 1}/{ladder.items.length} 题
+            </span>
+          }
+        />
+
+        {/* 阶梯元信息：难度点 + 知识点 + 回流提示 */}
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="text-ui-sm text-ink-soft">
+            难度{' '}
+            <span className="text-accent-ink" aria-hidden="true">
+              {'●'.repeat(difficulty)}
+            </span>
+            <span className="text-accent-ink opacity-30" aria-hidden="true">
+              {'●'.repeat(5 - difficulty)}
+            </span>
+            <span className="sr-only">{current.difficulty}（最高 5）</span>
+          </span>
+          <span className="text-ui-sm text-ink-soft">知识点「{current.kp_name}」</span>
+          {ladder.refilled ? <Badge tone="neutral" size="sm">第二轮：练过的题已回流</Badge> : null}
+        </div>
+
+        {/* 阶梯进度点：完成的亮、当前的呼吸、未到的暗 */}
+        <div className="mt-3 flex gap-1.5" aria-hidden="true">
+          {ladder.items.map((entry, index) => (
+            <span
+              key={entry.item_id}
+              className={cn(
+                'h-1.5 flex-1 rounded-full',
+                index < ladderIndex ? 'bg-accent' : index === ladderIndex ? 'bg-accent animate-pulse' : 'bg-ink/15',
+              )}
+            />
+          ))}
+        </div>
+        <p className="sr-only">
+          第 {ladderIndex + 1} 题，共 {ladder.items.length} 题，由易到难排列。
+        </p>
+
+        <div className="mt-5">
+          <ItemCard
+            item={current}
+            value={choice}
+            onChange={setChoice}
+            disabled={busy || result !== null}
+            placeholder="第一步怎么下手？"
+          />
+        </div>
+
+        {/* 提示链：L1 方向 → L2 思路（知识点级，不泄题）；第三级就是逐步批改本身 */}
         {result === null ? (
-          <Button variant="primary" disabled={busy} onClick={() => void submitSteps()}>
-            {busy ? '正在批改…' : '提交，逐步批改'}
+          <div className="mt-3 rounded-surface border border-line bg-raised p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-ui-sm text-ink-soft">卡住了？</span>
+              {hintLevel === 0 ? (
+                <Button variant="quiet" size="sm" onClick={() => setHintLevel(1)}>
+                  给个方向
+                </Button>
+              ) : null}
+              {hintLevel === 1 ? (
+                <Button variant="quiet" size="sm" onClick={() => setHintLevel(2)}>
+                  再给点思路
+                </Button>
+              ) : null}
+              {hintLevel >= 2 ? (
+                <span className="text-ui-sm text-accent-ink">
+                  还下不了手？把过程写出来提交，逐步批改带你走。
+                </span>
+              ) : null}
+            </div>
+            {hintLevel >= 1 ? (
+              <p className="mt-2 text-sm leading-relaxed text-ink">
+                <span className="text-ink-soft">方向：</span>
+                {current.approach}
+              </p>
+            ) : null}
+            {hintLevel >= 2 ? (
+              <p className="mt-1 text-sm leading-relaxed text-ink">
+                <span className="text-ink-soft">思路：</span>
+                {current.hint}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {!current.options ? (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-ui-sm text-ink-soft">
+                解题过程（{steps.length}/{MAX_STEPS} 步）
+              </span>
+              {steps.length < MAX_STEPS ? (
+                <Button
+                  variant="quiet"
+                  size="sm"
+                  disabled={busy || result !== null}
+                  onClick={() => setSteps((prev) => [...prev, ''])}
+                >
+                  + 加一步
+                </Button>
+              ) : null}
+            </div>
+            {steps.map((step, index) => {
+              const verdictRow = result?.step_results.find((row) => row.index === index + 1);
+              const isBreak = result?.overall.first_break_step === index + 1 && verdictRow?.verdict !== 'pass';
+              return (
+                <div
+                  key={index}
+                  ref={(el) => {
+                    if (el) stepRowRefs.current.set(index + 1, el);
+                    else stepRowRefs.current.delete(index + 1);
+                  }}
+                  className={cn(
+                    'rounded-surface border bg-surface p-3',
+                    isBreak ? 'border-band-weak break-flash' : 'border-line',
+                  )}
+                  style={
+                    isBreak ? ({ '--break-flash-from': bandVeilHex('待巩固', 0.2) } as CSSProperties) : undefined
+                  }
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-ui-sm tabular-nums text-ink-soft">第 {index + 1} 步</span>
+                    <div className="flex items-center gap-1">
+                      {verdictRow ? (
+                        <Badge
+                          tone={VERDICT_LABEL[verdictRow.verdict].tone}
+                          size="sm"
+                          className="verdict-in"
+                          style={{ animationDelay: `${index * 90}ms` }}
+                        >
+                          {VERDICT_LABEL[verdictRow.verdict].text}
+                        </Badge>
+                      ) : null}
+                      {result === null && steps.length > 1 ? (
+                        <>
+                          <Button variant="quiet" size="sm" disabled={index === 0} onClick={() => moveStep(index, -1)} aria-label="上移">
+                            ↑
+                          </Button>
+                          <Button
+                            variant="quiet"
+                            size="sm"
+                            disabled={index === steps.length - 1}
+                            onClick={() => moveStep(index, 1)}
+                            aria-label="下移"
+                          >
+                            ↓
+                          </Button>
+                          <Button variant="quiet" size="sm" onClick={() => removeStep(index)} aria-label="删除该步">
+                            ×
+                          </Button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                  <textarea
+                    className="mt-2 w-full resize-y rounded-control border border-line px-3 py-2 text-sm text-ink outline-none focus:border-accent disabled:opacity-70"
+                    rows={2}
+                    value={step}
+                    disabled={busy || result !== null}
+                    placeholder={index === 0 ? '第一步怎么下手？' : '这一步做了什么？'}
+                    onChange={(event) => updateStep(index, event.target.value)}
+                  />
+                  {verdictRow ? (
+                    <div className="verdict-in mt-2 space-y-1" style={{ animationDelay: `${index * 90 + 60}ms` }}>
+                      <p className="text-sm text-ink">{verdictRow.feedback}</p>
+                      {verdictRow.hint ? <p className="text-ui-sm text-accent-ink">下一步往哪想：{verdictRow.hint}</p> : null}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {/* 总评（入场 + 通过率数字爬升；锚点供自动滚动） */}
+        {result ? (
+          <div
+            ref={summaryRef}
+            className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card"
+          >
+            <p className="text-sm text-ink">
+              {result.overall.correct ? '终点抵达了正确答案。' : '这次没能走到正确答案，但过程都记下了。'}
+              {result.overall.first_break_step !== null
+                ? `断点在第 ${result.overall.first_break_step} 步。`
+                : '每一步都过了。'}
+            </p>
+            <p className="mt-1 text-ui-sm text-ink-soft">
+              通过 {result.overall.pass_ratio === 1 ? '全部' : <><PercentCount to={result.overall.pass_ratio} />%</>} 步骤
+              · 知识点「{result.overall.kp_name}」
+              {result.evidence_written ? ' · 本次已记入掌握度' : ' · 这道题刚才批过（同一小时不重复计）'}
+            </p>
+            <p className="mt-1 text-ui-sm text-ink-soft">
+              断点已经记进你的图谱——复测和推荐会自动围着它转。
+            </p>
+          </div>
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          {result === null ? (
+            <Button variant="primary" disabled={busy} onClick={() => void submitSteps()}>
+              {busy ? '正在批改…' : '提交，逐步批改'}
+            </Button>
+          ) : (
+            <Button variant="primary" disabled={busy} onClick={nextItem}>
+              {ladderIndex + 1 >= ladder.items.length ? '做完这组，看战报' : '下一题'}
+            </Button>
+          )}
+          <Button variant="secondary" disabled={busy} onClick={backToSelect}>
+            换一章
           </Button>
-        ) : (
-          <Button variant="primary" disabled={busy} onClick={() => void fetchItem(doneIds)}>
-            {busy ? '正在取题…' : '再来一题'}
+          <Button variant="ghost" onClick={() => { window.location.hash = '#/graph'; }}>
+            看看技能树
           </Button>
-        )}
-        <Button variant="secondary" disabled={busy} onClick={() => { setItem(null); setResult(null); setNoMore(false); }}>
-          换一章
-        </Button>
-        <Button variant="ghost" onClick={() => { window.location.hash = '#/graph'; }}>
-          看看技能树
+        </div>
+
+        {busy && result !== null ? <PageSkeleton label="正在准备下一题…" rows={1} className="mt-4" /> : null}
+      </PageContainer>
+    );
+  }
+
+  // ------------------------------------------------------------ 选章（select；也是异常态兜底）
+  const chapterProgress = progress?.chapters.find((entry) => entry.chapter === chapter) ?? null;
+  return (
+    <PageContainer width="prose">
+      <PageHeader
+        title="专项练习"
+        description="挑一个模块，系统性地刷：由易到难一组题，逐步批改陪你走完每一步。"
+      />
+
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <label className="text-ui-sm text-ink-soft">
+          章节
+          <Select
+            fieldSize="sm"
+            className="ml-2 w-auto min-h-9"
+            value={chapter}
+            onChange={(event) => setChapter(event.target.value)}
+          >
+            {GRAPH_CHAPTERS.map((entry) => (
+              <option key={entry.name} value={entry.name}>
+                {entry.name}（{entry.kp_ids.length} 个知识点）
+              </option>
+            ))}
+          </Select>
+        </label>
+        <Button variant="primary" disabled={busy || chapter.length === 0} onClick={() => void startLadder()}>
+          {busy ? '正在组题…' : '开始专项阶梯（5 题）'}
         </Button>
       </div>
 
-      {busy && result !== null ? <PageSkeleton label="正在准备下一题…" rows={1} className="mt-4" /> : null}
+      {focusChapter && focusKp ? (
+        <p className="mt-4 text-ui-sm text-accent-ink">
+          已按你在技能树点的「{snapshotNode(focusKp)?.name ?? focusKp}」选好章节，直接开始就行。
+        </p>
+      ) : null}
+
+      {/* 本章进度概览（#35） */}
+      {chapterProgress ? (
+        <p className="mt-4 text-ui-sm text-ink-soft">
+          本章已练 {chapterProgress.practiced_items} 题 · 提交 {chapterProgress.submissions} 次
+          {chapterProgress.avg_pass_ratio !== null ? (
+            <>
+              {' '}
+              · 平均通过率 <PercentCount to={chapterProgress.avg_pass_ratio} />%
+            </>
+          ) : null}
+        </p>
+      ) : (
+        <p className="mt-4 text-ui-sm text-ink-soft">这一章还没练过——第一组题会从最容易的开始。</p>
+      )}
+
+      <p className="mt-2 text-ui-sm text-ink-soft">
+        每一步都会被认真对待：对的部分照实记账（答错但有进展，掌握度不会按全错拉低）。
+      </p>
+
+      {/* 概念知识体系（#36）：概念不是不给答案，而是给体系——先看懂，再动笔 */}
+      <div className="mt-6 rounded-surface border border-line bg-surface">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+          aria-expanded={conceptOpen}
+          onClick={() => setConceptOpen((open) => !open)}
+        >
+          <span className="text-sm font-medium text-ink">
+            先看看「{chapter}」的知识体系
+            {conceptCards !== null ? (
+              <span className="ml-1 font-normal text-ink-soft">（{conceptCards.length} 张概念卡）</span>
+            ) : null}
+          </span>
+          <span className="text-ui-sm text-ink-soft" aria-hidden="true">
+            {conceptOpen ? '收起 ▲' : '展开 ▼'}
+          </span>
+        </button>
+        {conceptOpen ? (
+          <div className="space-y-3 border-t border-line px-4 pb-4 pt-3">
+            {conceptCards === null ? <PageSkeleton label="正在取本章概念卡…" rows={2} /> : null}
+            {conceptCards !== null && conceptCards.length === 0 ? (
+              <p className="text-ui-sm text-ink-soft">本章暂无概念卡——直接开练，提示链会在卡住时给你方向。</p>
+            ) : null}
+            {conceptCards?.map((card) => (
+              <ConceptCardView key={card.kp_id} card={card} />
+            ))}
+          </div>
+        ) : null}
+      </div>
     </PageContainer>
   );
 }

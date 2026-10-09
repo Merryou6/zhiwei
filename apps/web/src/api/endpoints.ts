@@ -7,6 +7,9 @@
 
 import { request } from './client';
 import type {
+  ConceptIndexData,
+  PracticeLadderData,
+  PracticeProgressData,
   AttributionAnalyzeData,
   AttributionAnalyzeRequest,
   AttributionRejectData,
@@ -255,4 +258,33 @@ export function recommendationFeedback(
     `/api/student/recommendations/${encodeURIComponent(recommendationId)}/feedback`,
     { method: 'POST', body: { action } },
   );
+}
+
+// ---------------------------------------------------------------- §15 专项阶梯 + 进度（#34/#35，v2.2-m1）
+
+/** #34 GET /api/practice/ladder?space_id=&chapter=&size= —— 专项阶梯（由易到难组一梯子题）。 */
+export function practiceLadder(
+  spaceId: string,
+  chapter: string,
+  size = 5,
+): Promise<PracticeLadderData> {
+  return request<PracticeLadderData>('/api/practice/ladder', {
+    query: { space_id: spaceId, chapter, size: String(size) },
+  });
+}
+
+/** #35 GET /api/practice/progress?space_id=[&chapter=] —— 练习进度（按章节聚合）。 */
+export function practiceProgress(spaceId: string, chapter?: string): Promise<PracticeProgressData> {
+  return request<PracticeProgressData>('/api/practice/progress', {
+    query: chapter ? { space_id: spaceId, chapter } : { space_id: spaceId },
+  });
+}
+
+// ---------------------------------------------------------------- §16 概念知识库（#36，v2.2-m1）
+
+/** #36 GET /api/concepts?space_id=[&chapter=] —— 概念体系卡（概念给体系 / 提示链数据源）。 */
+export function concepts(spaceId: string, chapter?: string): Promise<ConceptIndexData> {
+  return request<ConceptIndexData>('/api/concepts', {
+    query: chapter ? { space_id: spaceId, chapter } : { space_id: spaceId },
+  });
 }

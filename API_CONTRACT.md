@@ -1,7 +1,7 @@
 # 知微 · API 契约（冻结版）
 
 > 冻结于 2026-09-19。**字段名与接口签名以本文档为唯一依据。**
-> 任何修改必须两人同意，并在 §11 变更记录留痕。单方面改动 = 联调事故。
+> 任何修改必须两人同意，并在 §12 变更记录留痕。单方面改动 = 联调事故。
 
 ---
 
@@ -429,7 +429,64 @@ res:  data = {
 
 ---
 
-## 11. 变更记录
+## 11. 专项练习与概念知识库  【v2.2-m1 新增】
+
+> v2.2 支柱②「系统性刷题」+ 支柱⑤「概念给体系」+ 支柱⑥「推理给阶梯」的接口层。
+> 三个端点全部为只读 GET；practice 证据仍只由 #33 grade/steps 写入（本节端点不落证据）。
+
+### GET /api/practice/ladder?space_id=xxx&chapter=yyy[&size=n]  【#34 · v2.2-m1 新增】
+```
+res:  data = {
+  "space_id", "chapter",
+  "requested_size": 5,               // 缺省 5，服务端夹取 [1, 8]
+  "refilled": false,                 // 剩余新题不足时回流整章题库（第二轮起 true）
+  "items": [ { "item_id", "seq", "kp_id", "kp_name", "chapter", "difficulty",
+               "type", "stem", "options", "approach", "hint" } ] }
+规则: train 池按章过滤 → 排除该学生 practice 证据已练 item_id → 不足 requested_size 时
+      回流整章（refilled=true，阶梯可反复刷）→ 难度升序（同难度按 item_id 稳定排序）；
+      approach / hint 为提示链 L1/L2（概念卡核心方法与通俗思路，知识点级），
+      **不含本题解答、不泄题**；第三级引导就是 #33 逐步批改本身；
+      响应显式字面构造，无 answer / solution_steps / distractors（assertNoForbiddenKeys）。
+错误: 401 / 403 / 400（缺参、章节不存在、该章暂无练习题）
+```
+
+### GET /api/practice/progress?space_id=xxx[&chapter=yyy]  【#35 · v2.2-m1 新增】
+```
+res:  data = {
+  "space_id",
+  "chapters": [ { "chapter", "submissions", "practiced_items", "correct",
+                  "avg_pass_ratio": 0.75 | null, "last_practiced_at": "ISO8601" | null } ],
+  "overall": { 同单章结构，跨章求和口径 } }
+规则: 对 practice 证据（source="practice"）按章聚合——submissions 提交次数、
+      practiced_items 去重题数、correct 全对题次、avg_pass_ratio 为 raw.pass_ratio 均值
+      （无数据 null）；可按 chapter 过滤；纯只读聚合，不落任何证据。
+错误: 401 / 403 / 400（缺参）
+```
+
+### GET /api/concepts?space_id=xxx[&chapter=yyy]  【#36 · v2.2-m1 新增】
+```
+res:  data = {
+  "space_id", "count",
+  "cards": [ { "kp_id", "name", "chapter", "definition", "key_points": [],
+               "method", "hint",                    // method = 提示链 L1 · hint = 提示链 L2
+               "classic_example": { "stem", "steps": [] },  // 独立撰写的典型例（讲透，非题库题）
+               "common_errors": [], "related": [] } ] }     // related 为关联知识点完整 id
+规则: 数据源 data/knowledge/math/cz_concepts.json（24 卡，与 cz.json 节点一一对应，人工撰写）；
+      概念问答给体系（支柱⑤）：概念不是不给答案，而是给完整知识体系、做到触类旁通——
+      classic_example 是独立撰写的示例题，因此可以完整讲透；
+      题库题的 answer / solution_steps 红线不变；
+      kb 隔离：按 kp_id 是否属于该空间知识库过滤（gz 空间自然得空集 count=0）。
+错误: 401 / 403 / 400（缺参、知识库为空、章节无卡）
+```
+
+**数据资产（v2.2-m1）**：`data/knowledge/math/cz_concepts.json` —— 24 张概念卡，每卡
+definition / key_points / method(L1) / hint(L2) / classic_example{stem, steps} /
+common_errors / related；与 cz.json 的 24 节点一一对应；内容依据课标与教材人工撰写，
+扩充新学段 / 新知识点时同步追加（持续工程）。
+
+---
+
+## 12. 变更记录
 
 | 日期 | 变更内容 | 提议 | 同意 |
 | --- | --- | --- | --- |
@@ -443,3 +500,4 @@ res:  data = {
 | 2026-10-08 | **v1.5**：① #18 /api/agent/chat 新增可选 `image_data`（传图读题图片本体，data URL ≤400K 字符，服务端校验前缀与大小；纯图消息允许 message 为空并以「（发来一张题图）」占位入库；**图片不落库**，dialogs 仍只记 `image_file_id`；远程适配器升级 vision 多模态 content 块，本地适配器诚实告知看不了图，不再伪造读题）；② #7/#8 及全部题目下发接口的 `options` 字段启用「选项化合成」：`type=fill` 且 distractors≥2 的题由服务端把 [标准答案+至多 3 条干扰项答案] 以 item_id 为种确定性洗牌后作为 options 下发（**响应结构零变更**——options 本就是 `string[]\|null`；answer/solution_steps/distractors 对象仍绝不下发；判分仍按归一化文本判等，选错干扰项照常命中 typical_error_code）。两条均为向后兼容的可选增量，旧客户端不受影响 | 项目方 | 总控 |
 | 2026-10-08 | **v1.6 双端（老师端 + 学生端增量，#21–#31）**：① `users` 加可选 `role`（`student`（缺省，旧记录读取侧兜底）/`teacher`），register 请求可选 `role`、register/login 响应新增 `role`；② 三张新表 `invite_codes`（6 位码、7 天有效、限 30 人）/`links`（师生绑定，归属到 space）/`recommendations`（推荐闭环 assigned→viewed→in_progress→done/dismissed/expired，`delta_accuracy` 由复测闭环自动回写）；③ 老师端 6 端点（#21 生成邀请码【同师复用活跃码】/#22 码列表/#23 学生摘要列表【聚合层】/#24 学生详情快照【含答卷/答题/错题原文与归因，**对话原文永不下发**】/#25 下发推荐【同生活跃推荐幂等】/#26 推荐列表）；④ 学生端 5 端点（#27 邀请码预览/#28 确认绑定【双向确认：preview 只回老师昵称，confirm 才建立关系；码大小写归一】/#29 我的老师/#30 我的推荐【超窗 14 天未开始视图层标 expired】/#31 推荐反馈【终态不可逆】）；⑤ #8 diagnose/submit 在 mode=retest 落库后回写该 kp 未完结推荐的 ΔAccuracy（同 report 口径 baseline/retest 正确率差），首次回写置 done；⑥ 三条服务端守卫：requireTeacher / requireLinkedSpace / requireStudent。路由表 20 → 31（closedLoop E1 同步）。全部为追加式变更，旧客户端不受影响 | 项目方 | 总控 |
 | 2026-10-08 | **v2.1 三张牌（技能树 + 拍卷冷启动 + 逐步批改，#32–#33）**：① 新增 #32 GET /api/graph/mastery（技能树唯一数据源：nodes 全量 kp 掌握度 + band 同源 + confidence{normal,low} + summary{band_counts 补 0、evidence_total、newly_mastered_7d、weakest 前 3}，见 §10 注记）；② 新增 #33 POST /api/grade/steps（分步提交 → 两层匹配逐步判定 pass/slip/concept_gap/unclear + first_break_step 断点定位 + scrubFeedback 值级清洗 + practice 证据 `weight = correct ? W_PRACTICE : W_PRACTICE × (1 − pass_ratio/2)`，幂等同 #8，见 §4 注记）；③ #9 试卷上传扩展（上传可选 `file_ids[]` 多页整卷 1–5 张、file_ids 优先；confirm 响应追加 `bootstrap{covered_kps, band_counts}` 冷启动摘要，见 §5 注记）；④ `EvidenceSource` 枚举追加 `'practice'`（db/types.ts 与 packages/engine/src/dedup.ts 两处同步）；⑤ `config/params.json` 新增 `W_PRACTICE: 0.7`（PARAM_KEYS 17 → 18 项，完整性断言同步）。路由表 31 → 33（closedLoop E1 同步）。全部为追加式变更，旧客户端不受影响 | 项目方 | 总控 |
+| 2026-10-09 | **v2.2-m1（系统性刷题 + 概念给体系 + 提示链，#34–#36）**：① 新增 #34 GET /api/practice/ladder（专项阶梯：train 池按章过滤 → 排除已练 item_id → 不足回流整章 refilled=true → 难度升序组一梯子题 [1,8]，每题附提示链 approach(L1)/hint(L2)——概念卡知识点级提示，不含本题解答、不泄题，见 §11）；② 新增 #35 GET /api/practice/progress（练习进度：practice 证据按章聚合 submissions/practiced_items/correct/avg_pass_ratio/last_practiced_at，overall 求和口径，纯只读）；③ 新增 #36 GET /api/concepts（概念知识库：24 张概念卡 definition/key_points/method/hint/classic_example/common_errors/related，kb 隔离过滤，classic_example 为独立撰写示例可完整讲透——「概念不是不给答案，而是给体系」的落点）；④ 新增数据资产 data/knowledge/math/cz_concepts.json（24 卡与 cz.json 节点一一对应）。三个端点均只读、不落证据；practice 证据仍只由 #33 写入。路由表 33 → 36（closedLoop E1 同步）。全部为追加式变更，旧客户端不受影响 | 项目方 | 总控 |

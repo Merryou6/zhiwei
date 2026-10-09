@@ -673,3 +673,72 @@ export interface ProfileData {
   spaces: SpaceView[];
   model: ProfileModelView;
 }
+
+// ---------------------------------------------------------------- §15 专项阶梯 + 进度（#34/#35，v2.2-m1）
+
+/** #34 阶梯题视图（服务端白名单；无 answer / solution_steps / distractors）。 */
+export interface LadderItem {
+  item_id: string;
+  seq: number;
+  kp_id: string;
+  kp_name: string;
+  chapter: string;
+  difficulty: number;
+  type: string;
+  stem: string;
+  options: string[] | null;
+  /** 提示链 L1（方向）：概念卡核心方法。 */
+  approach: string;
+  /** 提示链 L2（思路）：概念卡通俗思路。 */
+  hint: string;
+}
+
+/** #34 GET /api/practice/ladder 的 data。 */
+export interface PracticeLadderData {
+  space_id: string;
+  chapter: string;
+  requested_size: number;
+  /** 剩余新题不足时回流整章（第二轮起为 true）。 */
+  refilled: boolean;
+  items: LadderItem[];
+}
+
+/** #35 单章练习进度。 */
+export interface ChapterPracticeProgress {
+  chapter: string;
+  submissions: number;
+  practiced_items: number;
+  correct: number;
+  avg_pass_ratio: number | null;
+  last_practiced_at: string | null;
+}
+
+/** #35 GET /api/practice/progress 的 data。 */
+export interface PracticeProgressData {
+  space_id: string;
+  chapters: ChapterPracticeProgress[];
+  overall: ChapterPracticeProgress;
+}
+
+// ---------------------------------------------------------------- §16 概念知识库（#36，v2.2-m1）
+
+/** 概念卡：定义 / 体系要点 / 核心方法(L1) / 通俗思路(L2) / 典型例 / 易错点 / 关联。 */
+export interface ConceptCard {
+  kp_id: string;
+  name: string;
+  chapter: string;
+  definition: string;
+  key_points: string[];
+  method: string;
+  hint: string;
+  classic_example: { stem: string; steps: string[] };
+  common_errors: string[];
+  related: string[];
+}
+
+/** #36 GET /api/concepts 的 data。 */
+export interface ConceptIndexData {
+  space_id: string;
+  count: number;
+  cards: ConceptCard[];
+}
