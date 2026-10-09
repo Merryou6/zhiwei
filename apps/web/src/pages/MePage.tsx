@@ -120,7 +120,9 @@ function OverviewCard({ spaceId }: { spaceId: string }) {
   }, [data]);
 
   return (
-    <Card>
+    // 玻璃面：空间层次（awwwards 2026 layered depth）。页首资料卡：KPI 数值自带 band 着色锚点，
+    // 半透明面下仍清晰；卡内 Stat 小卡 / 分布条的 bg-canvas 实底刻意保留，作为玻璃上的信息锚。
+    <Card className="glass-card">
       <div className="flex items-baseline justify-between gap-3">
         <CardTitle>学习概览</CardTitle>
         <span className="text-caption text-ink-soft">实时取自当前空间</span>
@@ -243,8 +245,10 @@ export default function MePage() {
         <PageSkeleton label="正在取你的账号信息…" rows={2} className="mt-6" />
       ) : (
         <div className={activeSpace ? 'mt-4 space-y-4' : 'mt-6 space-y-4'}>
-          {/* 1) 账号 */}
-          <Card>
+          {/* 1) 账号 —— 玻璃面：页首第二张资料卡（awwwards 2026 layered depth）；
+              信息行均为 ink 令牌短文本，玻璃面下不失读。
+              其余卡（空间/主题/模型/退出）刻意保持实底：操作区与确认流程需要稳定的底色对比。 */}
+          <Card className="glass-card">
             <CardTitle>账号</CardTitle>
             {profile ? (
               <div className="divide-y divide-line">

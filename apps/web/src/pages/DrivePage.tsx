@@ -105,7 +105,9 @@ export default function DrivePage() {
     return (
       <PageContainer width="prose">
         <PageHeader title="云盘" />
-        <div className="mt-5 rounded-surface border border-line bg-surface p-5 shadow-card">
+        {/* 玻璃面：空间层次（awwwards 2026 layered depth）。未选空间的引导卡属页首浮层卡，
+            EmptyState 自带文案与动作钮，玻璃外层面不影响其可读性。 */}
+        <div className="mt-5 glass-card rounded-surface border border-line p-5 shadow-card">
           <EmptyState
             title="还没有选中的学习空间"
             hint="先选一个学习空间，我再告诉你这个学科有哪些资料。"
@@ -149,7 +151,9 @@ export default function DrivePage() {
         <>
           {/* 和你正在补的内容（有缺口数据时才出现，不硬凑推荐） */}
           {relevance.length > 0 ? (
-            <div className="mt-6 rounded-surface border border-line bg-surface p-4 shadow-card">
+            // 玻璃面：空间层次（awwwards 2026 layered depth）。文件列表的头部统计卡；
+            // 行内资料条保持 bg-canvas 实底、下方文件列表行刻意不动——列表行是密集信息区，可读性优先。
+            <div className="mt-6 glass-card rounded-surface border border-line p-4 shadow-card">
               <h2 className="text-base font-medium text-ink">和你正在补的内容</h2>
               <p className="mt-1 text-ui-sm text-ink-soft">
                 按你报告里的缺口挑的——先看这些，别整本翻。

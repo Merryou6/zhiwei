@@ -34,7 +34,9 @@ function StudentCard({ card }: { card: TeacherStudentCard }) {
   const topBand = masteryBandOf(card.avg_mastery);
   return (
     <Link to={`/t/student/${card.student_id}?space_id=${card.space_id}`} className="block">
-      <Card className="h-full transition-shadow hover:shadow-card">
+      {/* 玻璃面：空间层次（awwwards 2026 layered depth）。学生卡数量多但卡内文字均为 ink 令牌，
+          且带分布条与 band 色块作为锚点，半透明面下仍清晰；border/bg 由 glass-card 与 Card 原语面在合并时统一。 */}
+      <Card className="glass-card h-full transition-shadow hover:shadow-card">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-base font-medium text-ink">{card.nickname ?? '未署名学生'}</p>
@@ -189,7 +191,9 @@ export default function TeacherDashboard() {
 
       {/* 邀请码面板 */}
       {currentCode ? (
-        <Card>
+        // 玻璃面：空间层次（awwwards 2026 layered depth）；邀请码本体保持 bg-canvas 大字号实底chip，
+        // 玻璃只做外层面，码的辨识度不依赖面板底色。
+        <Card className="glass-card">
           <CardTitle>绑定邀请码</CardTitle>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="rounded-lg bg-canvas px-4 py-2 font-mono text-xl tracking-[0.3em] text-ink">

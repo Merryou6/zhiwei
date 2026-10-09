@@ -162,9 +162,14 @@ export default function TeacherStudentDetail() {
         </div>
       </div>
 
-      {/* ① 概览 */}
+      {/* ① 概览 —— 两张摘要卡做玻璃面：空间层次（awwwards 2026 layered depth）。
+          它们是页顶「浮层感」卡：内容是带 band 色块/柱状图的摘要型信息，不是密集原文，
+          半透明叠加噪点后仍有色彩锚点可读。
+          ②缺口与推荐 / ③答题原文表格 / ④归因记录刻意保持实底：
+          密集行级信息（表格、列表、行内按钮）对文字-底色对比度敏感，玻璃半透明面
+          会在深浅主题切换与内容滚动叠加时引入不可控的底色波动，可读性优先（本包核心纪律）。 */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="glass-card">
           <SectionTitle hint={`掌握度日志 ${summary.mastery_log_count} 条`}>掌握度分布</SectionTitle>
           <div className="mt-3 flex flex-wrap gap-2">
             {BAND_ORDER.map((band: MasteryBand) => (
@@ -191,7 +196,8 @@ export default function TeacherStudentDetail() {
           </div>
         </Card>
 
-        <Card>
+        {/* 玻璃面：与左侧「掌握度分布」成对的概览卡，保持 ① 区两张卡面层一致 */}
+        <Card className="glass-card">
           <SectionTitle hint="最近 7 天">学习活跃</SectionTitle>
           <div className="mt-4 flex h-24 items-end gap-1.5">
             {activity.map((row) => (
