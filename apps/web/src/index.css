@@ -429,6 +429,76 @@ textarea::placeholder {
   animation: reveal-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ── 状态触发的入场（2026-10-09 交互峰值包）────────────────────────
+   与滚动揭示（data-reveal）的分工：这里的触发条件是「元素挂载」
+   （批改结果到达、计数器落位），不是「进入视口」，所以不蹭 data-reveal 机制 ——
+   蹭了反而要在结果态手工管理 revealed 标记。keyframes 就地定义的理由同 reveal-in（见上）。
+   减弱动效由全局 reduce 块兜底（duration 0.01ms + delay 0s）：
+   「立刻到达终态」，错落的 delay 也一并归零 —— 与揭示安全网同一哲学。 */
+@keyframes verdict-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.verdict-in {
+  animation: verdict-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.result-in {
+  animation: result-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 断点行一次性高亮：从带色面纱退回底色，只闪一次（常驻闪烁是噪音，不闪第二次）。
+   面纱色由组件经 --break-flash-from 注入（theme/bands.ts 的 bandVeilHex，
+   低透明实色 → 双主题自适应）；终态 rgb(var(--c-surface)) 与 bg-surface 静态值
+   完全一致，所以 fill: both 停在终态没有视觉接缝。 */
+@keyframes break-flash {
+  from {
+    background-color: var(--break-flash-from, rgb(var(--c-accent-veil)));
+  }
+  to {
+    background-color: rgb(var(--c-surface));
+  }
+}
+
+.break-flash {
+  animation: break-flash 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 「本周点亮 +N」落位尾注：数字随节点点火爬到 N 后，徽标跳一下（0.4s 一次）。 */
+@keyframes badge-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge-pop {
+  animation: badge-pop 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ── 打印（2026-09-25 视觉重构 P1a）────────────────────────────────
    ReportPage 的「打印 / 存为 PDF」是纯客户端 window.print()，服务端没有导出端点。
 

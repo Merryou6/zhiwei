@@ -6,12 +6,14 @@
  *
  * 交互：选章节 → 取一题 → 分步写过程（≤8 步）→ 批改结果（逐步 verdict + 断点高亮 +
  *       处方话术）→「再来一题」（exclude 已练题）。
+ * 结果揭示（2026-10-09 交互峰值包）：verdict 徽章错落入场 + 断点行一次性高亮并
+ *       自动滚到位 + 总评卡入场与通过率数字爬升 —— reduced-motion 下全部瞬时。
  * 与测评的纪律差异：这里**明确反馈对错与断点**（逐步批改就是产品价值本身），
  * 与 D11「测评不即时展示对错」不冲突 —— 两条通路，两种目的。
  * 红线继承：题目对象只含白名单字段；feedback/hint 由服务端清洗，前端不自行拼接题库内容。
  */
 
-import { useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
@@ -22,7 +24,10 @@ import PageSkeleton from '../components/PageSkeleton';
 import { Badge, Button, PageContainer, PageHeader, Select } from '../components/ui';
 import { GRAPH_CHAPTERS, snapshotNode } from '../data/graphSnapshot';
 import { cn } from '../lib/cn';
+import { scrollBehavior } from '../lib/motion';
 import { UI_TEXT } from '../lib/phrases';
+import { useCountUp } from '../lib/useCountUp';
+import { bandVeilHex } from '../theme/bands';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 
@@ -34,6 +39,12 @@ const VERDICT_LABEL: Record<StepVerdict, { text: string; tone: 'positive' | 'war
 };
 
 const MAX_STEPS = 8;
+
+/** 总评通过率的滚动数字：结果卡入场时从 0 爬到实际值（reduced-motion 直接终值）。 */
+function PercentCount({ to }: { to: number }): ReactNode {
+  const value = useCountUp(to, { duration: 700 });
+  return <>{Math.round(value * 100)}</>;
+}
 
 export default function PracticePage() {
   /** ?kp= 从技能树详情卡带来：预选其所在章节（v2.1 评审 P2：CTA 不断上下文）。 */
@@ -50,6 +61,18 @@ export default function PracticePage() {
   const [result, setResult] = useState<GradeStepsData | null>(null);
   const [doneIds, setDoneIds] = useState<string[]>([]);
   const [noMore, setNoMore] = useState(false);
+
+  /** 断点行 / 总评卡的 DOM 锚点：结果到达后自动滚到位（峰值时刻 = 先看到断的那步）。 */
+  const stepRowRefs = useRef(new Map<number, HTMLDivElement>());
+  const summaryRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!result) return;
+    const breakStep = result.overall.first_break_step;
+    const anchor =
+      (breakStep !== null ? stepRowRefs.current.get(breakStep) : undefined) ?? summaryRef.current;
+    anchor?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
+  }, [result]);
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
@@ -241,16 +264,28 @@ export default function PracticePage() {
             return (
               <div
                 key={index}
+                ref={(el) => {
+                  if (el) stepRowRefs.current.set(index + 1, el);
+                  else stepRowRefs.current.delete(index + 1);
+                }}
                 className={cn(
                   'rounded-surface border bg-surface p-3',
-                  isBreak ? 'border-band-weak' : 'border-line',
+                  isBreak ? 'border-band-weak break-flash' : 'border-line',
                 )}
+                style={
+                  isBreak ? ({ '--break-flash-from': bandVeilHex('待巩固', 0.2) } as CSSProperties) : undefined
+                }
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-ui-sm tabular-nums text-ink-soft">第 {index + 1} 步</span>
                   <div className="flex items-center gap-1">
                     {verdictRow ? (
-                      <Badge tone={VERDICT_LABEL[verdictRow.verdict].tone} size="sm">
+                      <Badge
+                        tone={VERDICT_LABEL[verdictRow.verdict].tone}
+                        size="sm"
+                        className="verdict-in"
+                        style={{ animationDelay: `${index * 90}ms` }}
+                      >
                         {VERDICT_LABEL[verdictRow.verdict].text}
                       </Badge>
                     ) : null}
@@ -284,7 +319,7 @@ export default function PracticePage() {
                   onChange={(event) => updateStep(index, event.target.value)}
                 />
                 {verdictRow ? (
-                  <div className="mt-2 space-y-1">
+                  <div className="verdict-in mt-2 space-y-1" style={{ animationDelay: `${index * 90 + 60}ms` }}>
                     <p className="text-sm text-ink">{verdictRow.feedback}</p>
                     {verdictRow.hint ? <p className="text-ui-sm text-accent-ink">下一步往哪想：{verdictRow.hint}</p> : null}
                   </div>
@@ -295,9 +330,12 @@ export default function PracticePage() {
         </div>
       ) : null}
 
-      {/* 总评 */}
+      {/* 总评（入场 + 通过率数字爬升；锚点供自动滚动） */}
       {result ? (
-        <div className="mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
+        <div
+          ref={summaryRef}
+          className="result-in mt-5 rounded-surface border border-line bg-surface p-4 shadow-card"
+        >
           <p className="text-sm text-ink">
             {result.overall.correct ? '终点抵达了正确答案。' : '这次没能走到正确答案，但过程都记下了。'}
             {result.overall.first_break_step !== null
@@ -305,7 +343,7 @@ export default function PracticePage() {
               : '每一步都过了。'}
           </p>
           <p className="mt-1 text-ui-sm text-ink-soft">
-            通过 {result.overall.pass_ratio === 1 ? '全部' : `${Math.round(result.overall.pass_ratio * 100)}%`} 步骤
+            通过 {result.overall.pass_ratio === 1 ? '全部' : <><PercentCount to={result.overall.pass_ratio} />%</>} 步骤
             · 知识点「{result.overall.kp_name}」
             {result.evidence_written ? ' · 本次已记入掌握度' : ' · 这道题刚才批过（同一小时不重复计）'}
           </p>

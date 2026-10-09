@@ -31,7 +31,7 @@
  */
 
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
 import type { MasteryBand } from '../../theme/bands';
@@ -84,10 +84,12 @@ export interface BadgeProps extends Omit<VariantProps<typeof badgeVariants>, 'to
   /** 给掌握度状态带时按四色语义着色，**优先于 tone**（会压掉 tone 的底色与文字色）。 */
   band?: MasteryBand;
   className?: string;
+  /** 状态触发动画用：如 verdict 徽章错落入场的 animationDelay（交互峰值包 2026-10-09）。 */
+  style?: CSSProperties;
   children?: ReactNode;
 }
 
-export function Badge({ tone, size, band, className, children }: BadgeProps) {
+export function Badge({ tone, size, band, className, style, children }: BadgeProps) {
   return (
     <span
       className={cn(
@@ -95,6 +97,7 @@ export function Badge({ tone, size, band, className, children }: BadgeProps) {
         band ? BAND_BADGE[band] : undefined,
         className,
       )}
+      style={style}
     >
       {children}
     </span>

@@ -13,13 +13,14 @@
  *   ⑤ 低置信角标：confidence=low（仅旧试卷/自报触达）→ 节点带 ？，提示做复测校准；
  *   ⑥ 成长海报：客户端 canvas 生成 PNG 分享（lib/poster.ts，零后端）；
  *   ⑦ 冷启动横幅：?bootstrapped=1（拍卷建图完成跳转）→「初始图谱已生成」；
- *   ⑧ 节点错落点亮动画（echarts 逐点 delay，非用力导向的既有纪律不变）。
+ *   ⑧ 节点错落点亮动画（echarts 逐点 delay；reduced-motion 降级为瞬时）——
+ *      「本周点亮 +N」数字随点火爬升、最后一个节点落位时到达并跳一下（badge-pop 尾注）。
  *
  * 版式纪律继承：echarts 配色读 CSS 变量（themeColor）；图例常驻（BandLegend）；
  * 详情卡不透明底 + shadow-overlay；标签先换行再截断。
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 // 按需引入（前端优化批一）：本页只用到 graph 系列 + tooltip + canvas 渲染器。
 import * as echarts from 'echarts/core';
@@ -47,7 +48,9 @@ import type { ChapterBadge } from '../lib/graphMastery';
 import { buildGrowthPoster, downloadPoster } from '../lib/poster';
 import { cn } from '../lib/cn';
 import { kpLabel, percent } from '../lib/format';
+import { prefersReducedMotion } from '../lib/motion';
 import { UI_TEXT } from '../lib/phrases';
+import { useCountUp } from '../lib/useCountUp';
 import { SPACES_PATH } from '../router';
 import { BAND_HEX, BAND_ORDER, PRIMARY_HEX, masteryBandOf, masteryHexOf } from '../theme/bands';
 import type { MasteryBand } from '../theme/bands';
@@ -62,6 +65,21 @@ const EDGE_COLOR_FALLBACK = '#C9D3D8';
 const TEXT_COLOR_FALLBACK = '#22303A';
 /** 未点亮 / 锁定的描边色（跟随主题 line 变量，兜底深色值）。 */
 const LOCKED_COLOR_FALLBACK = '#4A5560';
+
+/** 节点点火动画时刻表：setOption 与「本周点亮」尾注共用一份（改一处两处同步）。 */
+const IGNITE_BASE_MS = 900;
+const IGNITE_STAGGER_MS = 36;
+
+/** 最后一个节点落位的时刻（24 节点 → 约 1.7s）。 */
+function ignitionLandingMs(nodeCount: number): number {
+  return IGNITE_BASE_MS + Math.max(0, nodeCount - 1) * IGNITE_STAGGER_MS;
+}
+
+/** 「本周点亮 +N」的滚动数字：随节点点火爬升，最后一个节点落位时正好到达 N。 */
+function WeekCount({ to, duration }: { to: number; duration: number }): ReactNode {
+  const value = useCountUp(to, { duration });
+  return <>{Math.round(value)}</>;
+}
 
 /** 六态在图表里的视觉（颜色/描边在 setOption 处组装，这里只管语义标签）。 */
 const STATE_HINT: Record<string, string> = {
@@ -96,6 +114,8 @@ export default function GraphPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
+  /** 点火是否已落位（最后一个节点到达）：控制「本周点亮」徽标的 badge-pop 尾注。 */
+  const [ignited, setIgnited] = useState(false);
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
@@ -141,6 +161,8 @@ export default function GraphPage() {
     if (!container || !report) return;
 
     const chart = echarts.init(container);
+    // canvas 内动画不受 CSS reduce 块管辖，JS 侧自行降级（lib/motion.ts 的偏好读取）。
+    const reduced = prefersReducedMotion();
     const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
     const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
     const accentColor = themeColor('--c-accent', PRIMARY_HEX);
@@ -170,8 +192,9 @@ export default function GraphPage() {
           },
         },
         // 节点错落点亮：先修链上游先亮，下游跟进（一次性的「点火」仪式感）
-        animationDuration: 900,
-        animationDelay: (rawIndex: number) => rawIndex * 36,
+        // 系统开了「减弱动态效果」→ 瞬时到位，不做约 1.7s 的逐点闪烁。
+        animationDuration: reduced ? 0 : IGNITE_BASE_MS,
+        animationDelay: reduced ? 0 : (rawIndex: number) => rawIndex * IGNITE_STAGGER_MS,
         animationEasing: 'cubicOut',
         series: [
           {
@@ -282,6 +305,19 @@ export default function GraphPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [report, highlightPath.join(','), layout, byKp]);
 
+  /** 「本周点亮」尾注：数字随点火爬升，最后一个节点落位时徽标跳一下（只此一次）。 */
+  const nodeCount = layout.nodes.length;
+  const weekGain = summary?.newly_mastered_7d ?? 0;
+  useEffect(() => {
+    if (weekGain <= 0) return;
+    if (prefersReducedMotion()) {
+      setIgnited(true);
+      return;
+    }
+    const timer = window.setTimeout(() => setIgnited(true), ignitionLandingMs(nodeCount));
+    return () => window.clearTimeout(timer);
+  }, [weekGain, nodeCount]);
+
   const counts = BAND_ORDER.reduce<Partial<Record<MasteryBand, number>>>((accumulator, band) => {
     accumulator[band] = summary?.band_counts[band] ?? 0;
     return accumulator;
@@ -368,8 +404,8 @@ export default function GraphPage() {
             这张图谱记录了你 {summary.evidence_total} 条学习证据
           </Badge>
           {summary.newly_mastered_7d > 0 ? (
-            <Badge tone="positive" size="md">
-              本周点亮 +{summary.newly_mastered_7d}
+            <Badge tone="positive" size="md" className={cn(ignited && 'badge-pop')}>
+              本周点亮 +<WeekCount to={summary.newly_mastered_7d} duration={ignitionLandingMs(nodeCount)} />
             </Badge>
           ) : null}
           <Badge tone="neutral" size="md">
