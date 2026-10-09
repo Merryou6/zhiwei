@@ -68,9 +68,12 @@ import { useUiStore } from '../stores/ui';
 
 type Tab = 'login' | 'register';
 
-/** 演示账号（与后端无耦合：本机/演示环境首次使用会自动创建）。 */
-const DEMO_IDENTIFIER = 'demo_student';
+/** 演示账号（与后端无耦合：本机/演示环境首次使用会自动创建；双端开场后各一个）。 */
 const DEMO_PASSWORD = 'demo123456';
+const DEMO_ACCOUNTS = {
+  student: { identifier: 'demo_student', nickname: '演示同学', role: 'student' },
+  teacher: { identifier: 'demo_teacher', nickname: '演示老师', role: 'teacher' },
+} as const;
 
 interface FieldErrors {
   identifier?: string;
@@ -173,29 +176,31 @@ export default function LoginPage() {
     }
   }
 
-  /** 演示账号一键进入：登录失败（多半是这台服务上还没建过）则自动注册一个。 */
-  async function handleDemoEnter(): Promise<void> {
+  /** 演示账号一键进入：登录失败（多半是这台服务上还没建过）则按对应身份自动注册一个。 */
+  async function handleDemoEnter(demoRole: keyof typeof DEMO_ACCOUNTS): Promise<void> {
     if (submitting) return;
+    const demo = DEMO_ACCOUNTS[demoRole];
     setSubmitting(true);
     setFieldErrors({});
-    setIdentifier(DEMO_IDENTIFIER);
+    setIdentifier(demo.identifier);
     setPassword(DEMO_PASSWORD);
 
     try {
       let data: AuthData;
       let created = false;
       try {
-        data = await login({ identifier: DEMO_IDENTIFIER, password: DEMO_PASSWORD });
+        data = await login({ identifier: demo.identifier, password: DEMO_PASSWORD });
       } catch (error) {
         if (!(error instanceof ApiError)) throw error;
         data = await register({
-          identifier: DEMO_IDENTIFIER,
+          identifier: demo.identifier,
           password: DEMO_PASSWORD,
-          nickname: '演示同学',
+          nickname: demo.nickname,
+          role: demo.role,
         });
         created = true;
       }
-      if (created) toast('已为这次演示创建示例账号');
+      if (created) toast(`已为这次演示创建${demoRole === 'teacher' ? '老师' : '学生'}示例账号`);
       await finishAuth(data, created);
     } catch (error) {
       toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'warn');
@@ -356,21 +361,30 @@ export default function LoginPage() {
         </p>
       </form>
 
-      {/* 演示入口：压在页面最下方的一行低调文字。
-          上一版把它做成了一个带边框的区域（说明段 + 账号 chip + 次级按钮 + 备注），
-          体量与主表单相当，主次就反了。 */}
+      {/* 演示入口：双端各一个，压在页面最下方的两行低调文字。
+          与双端开场同构——学生看学习链路、老师看工作台；首次使用自动按身份建号。 */}
       <div className="mt-7 text-center">
-        <Button
-          variant="link"
-          loading={submitting}
-          onClick={handleDemoEnter}
-          className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
-        >
-          只想先看看效果？用演示账号直接进入
-        </Button>
+        <div className="flex flex-wrap items-center justify-center gap-x-5">
+          <Button
+            variant="link"
+            loading={submitting}
+            onClick={() => void handleDemoEnter('student')}
+            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
+          >
+            用演示账号看看学生端
+          </Button>
+          <Button
+            variant="link"
+            loading={submitting}
+            onClick={() => void handleDemoEnter('teacher')}
+            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
+          >
+            用演示账号看看老师端
+          </Button>
+        </div>
         {/* 等宽 + 表格数字：字符数一眼可数，抄的时候不容易错 */}
         <p className="mt-1.5 font-mono text-caption tabular-nums text-dusk-muted">
-          {DEMO_IDENTIFIER} · {DEMO_PASSWORD}
+          demo_student · demo_teacher / {DEMO_PASSWORD}
         </p>
       </div>
     </section>
