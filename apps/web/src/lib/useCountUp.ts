@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { prefersReducedMotion } from './motion';
+import { prefersReducedMotion, subscribePrefersReducedMotion } from './motion';
 
 /**
  * easeOutCubic —— 全站入场动画缓动曲线 cubic-bezier(0.16, 1, 0.3, 1) 的 JS 近似：
@@ -54,7 +54,15 @@ export function useCountUp(target: number, options?: CountUpOptions): number {
 
     let cancelled = false;
     let raf = 0;
-    const timer = window.setTimeout(() => {
+    let timer = 0;
+    /** 运行中系统切到「减弱动态」：立即终止动画并直达终值（结果已结算，不留半截动画）。 */
+    const finishNow = (): void => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      cancelAnimationFrame(raf);
+      setDisplay(target);
+    };
+    timer = window.setTimeout(() => {
       if (cancelled) return;
       const startedAt = performance.now();
       const tick = (now: number): void => {
@@ -65,11 +73,15 @@ export function useCountUp(target: number, options?: CountUpOptions): number {
       };
       raf = requestAnimationFrame(tick);
     }, delay);
+    const unsubscribe = subscribePrefersReducedMotion((reduced) => {
+      if (reduced) finishNow();
+    });
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
       cancelAnimationFrame(raf);
+      unsubscribe();
     };
   }, [target, duration, delay]);
 

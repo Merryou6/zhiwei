@@ -43,7 +43,13 @@ const MAX_STEPS = 8;
 /** 总评通过率的滚动数字：结果卡入场时从 0 爬到实际值（reduced-motion 直接终值）。 */
 function PercentCount({ to }: { to: number }): ReactNode {
   const value = useCountUp(to, { duration: 700 });
-  return <>{Math.round(value * 100)}</>;
+  return (
+    <>
+      {/* 中间值对读屏是噪音：视觉值 aria-hidden，终值给 sr-only 静态文本（复评 P3）。 */}
+      <span aria-hidden="true">{Math.round(value * 100)}</span>
+      <span className="sr-only">{Math.round(to * 100)}</span>
+    </>
+  );
 }
 
 export default function PracticePage() {

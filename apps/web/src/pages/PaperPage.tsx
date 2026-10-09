@@ -197,6 +197,13 @@ export default function PaperPage() {
       toast(`第 ${unmarked[0].seq} 题还没标对错`, 'warn');
       return;
     }
+    // 复评 P1（2026-10-09）：识别没猜的知识点行 kpId 为空串 —— 不拦会把 kp_id:''
+    // 交给 confirm，「学习证据」指向不存在的知识点。按钮 disabled 是第一道，这里是兜底。
+    const unselected = rows.find((row) => row.kpId === '');
+    if (unselected) {
+      toast(`第 ${unselected.seq} 题还没选知识点`, 'warn');
+      return;
+    }
     if (!recognitionId) {
       toast('这份卷子的识别记录不在了，重新传一次就好', 'warn');
       setStage('pick');
@@ -303,6 +310,8 @@ export default function PaperPage() {
   // ------------------------------------------------------------ 逐题确认
   if (stage === 'confirm') {
     const allMarked = rows.every((row) => row.result !== null);
+    /** 复评 P1：空 guess 行的知识点必须显式选过，与「对错必标」同一纪律。 */
+    const allKpSelected = rows.every((row) => row.kpId !== '');
     return (
       <PageContainer width="standard">
         <PageHeader
@@ -343,6 +352,7 @@ export default function PaperPage() {
                     识别没猜（guess 空）→ 直接给分组 select，不装作有默认。 */}
                 {row.guess !== '' && openKpSeq !== row.seq ? (
                   <button
+                    id={`kp-badge-${row.seq}`}
                     type="button"
                     aria-expanded={false}
                     onClick={() => setOpenKpSeq(row.seq)}
@@ -374,9 +384,23 @@ export default function PaperPage() {
                             item.seq === row.seq ? { ...item, kpId: event.target.value } : item,
                           ),
                         );
+                        // 收起时焦点还给徽标按钮：select 卸载焦点会掉到 body，
+                        // 键盘用户得从头 Tab（复评 P2）。空 guess 行不收起，无此问题。
+                        if (row.guess !== '') {
+                          requestAnimationFrame(() =>
+                            document.getElementById(`kp-badge-${row.seq}`)?.focus(),
+                          );
+                        }
                         setOpenKpSeq(null);
                       }}
                     >
+                      {/* 复评 P1：value='' 且无空值 option 时 select 显示空白/错位 ——
+                          显式占位让「还没选」可见可选中状态正确。 */}
+                      {row.kpId === '' ? (
+                        <option value="" disabled>
+                          请选知识点
+                        </option>
+                      ) : null}
                       {KP_GROUPS.map((group) => (
                         <optgroup key={group.name} label={group.name}>
                           {group.ids.map((id) => (
@@ -421,7 +445,7 @@ export default function PaperPage() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button
             variant="primary"
-            disabled={!allMarked || busy}
+            disabled={!allMarked || !allKpSelected || busy}
             onClick={() => void submitConfirm()}
           >
             {busy ? '正在记账…' : '确认，更新掌握度'}
@@ -433,6 +457,10 @@ export default function PaperPage() {
           {!allMarked ? (
             <span className="font-mono text-ui-sm tabular-nums text-ink-soft">
               还有 {rows.filter((r) => r.result === null).length} 题没标
+            </span>
+          ) : !allKpSelected ? (
+            <span className="text-ui-sm text-ink-soft">
+              还有 {rows.filter((r) => r.kpId === '').length} 题没选知识点
             </span>
           ) : (
             <span className="text-ui-sm text-ink-soft">标完了，过一眼再确认</span>

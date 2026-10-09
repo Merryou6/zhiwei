@@ -103,6 +103,8 @@ export default function TopNav() {
   // 空间下拉收尾三件套（v2.1 评审 P1）：容器外 pointerdown 关闭 + Escape 关闭并归还焦点。
   // 仅在打开期间挂监听；与 MobileNav 抽屉同一思路 —— 小弹层不做 Tab 焦点陷阱。
   // 外点关闭时**不**抢焦点（用户点的目标自己接管），只有 Esc 才把焦点还给胶囊。
+  // 复评 P3（2026-10-09）：任何关闭路径统一重置 createOpen —— 否则重开弹层会停在
+  // 表单展开态；Esc 落在新建表单里时只收表单（输入内容在表单卸载即丢，不能连弹层一起关）。
   useEffect(() => {
     if (!open) return;
 
@@ -110,11 +112,19 @@ export default function TopNav() {
       const root = spaceMenuRef.current;
       if (root && event.target instanceof Node && !root.contains(event.target)) {
         setOpen(false);
+        setCreateOpen(false);
       }
     }
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key !== 'Escape') return;
+      const form = spaceMenuRef.current?.querySelector('[data-create-form]');
+      if (form && event.target instanceof Node && form.contains(event.target)) {
+        setCreateOpen(false);
+        requestAnimationFrame(() => document.getElementById('topnav-create-toggle')?.focus());
+        return;
+      }
       setOpen(false);
+      setCreateOpen(false);
       spaceToggleRef.current?.focus();
     }
 
@@ -252,6 +262,7 @@ export default function TopNav() {
                           onClick={() => {
                             setActive(space.space_id);
                             setOpen(false);
+                            setCreateOpen(false);
                           }}
                           className={[
                             'w-full rounded-control px-2 py-1.5 text-left text-sm',
@@ -268,8 +279,9 @@ export default function TopNav() {
                     ) : null}
                   </ul>
                   {createOpen ? (
-                    <div className="mt-1 border-t border-line pt-2">
-                      {/* 紧凑态共享表单（D2c）：成功后收起弹层，任意页面都有反馈 */}
+                    <div data-create-form className="mt-1 border-t border-line pt-2">
+                      {/* 紧凑态共享表单（D2c）：成功后收起弹层，任意页面都有反馈。
+                          表单内 Esc 由窗口级处理器接管（见上方 effect）：只收表单不关弹层。 */}
                       <SpaceCreateForm
                         compact
                         onCreated={() => {
@@ -280,6 +292,7 @@ export default function TopNav() {
                     </div>
                   ) : (
                     <button
+                      id="topnav-create-toggle"
                       type="button"
                       onClick={() => setCreateOpen(true)}
                       className="mt-1 block w-full rounded-control px-2 py-1.5 text-left text-sm text-accent-ink hover:bg-raised"

@@ -17,6 +17,23 @@ export function prefersReducedMotion(): boolean {
   }
 }
 
+/**
+ * 订阅偏好变化（2026-10-09 复评 P3）：运行中切换「减弱动态效果」时收到通知。
+ * 此前的偏好只在挂载时读一次 —— 用户开着页面切系统设置，正在爬的数字 / 下次重绘
+ * 都感知不到。返回退订函数；环境不支持 matchMedia 时返回空退订。
+ */
+export function subscribePrefersReducedMotion(callback: (reduced: boolean) => void): () => void {
+  try {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return () => {};
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (event: MediaQueryListEvent): void => callback(event.matches);
+    query.addEventListener('change', handler);
+    return () => query.removeEventListener('change', handler);
+  } catch {
+    return () => {};
+  }
+}
+
 /** 平滑滚动的 behavior：尊重系统偏好。 */
 export function scrollBehavior(): ScrollBehavior {
   return prefersReducedMotion() ? 'auto' : 'smooth';

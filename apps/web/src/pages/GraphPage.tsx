@@ -51,7 +51,7 @@ import type { ChapterBadge } from '../lib/graphMastery';
 import { buildGrowthPoster, downloadPoster } from '../lib/poster';
 import { cn } from '../lib/cn';
 import { kpLabel, percent } from '../lib/format';
-import { prefersReducedMotion } from '../lib/motion';
+import { prefersReducedMotion, scrollBehavior, subscribePrefersReducedMotion } from '../lib/motion';
 import { UI_TEXT } from '../lib/phrases';
 import { useCountUp } from '../lib/useCountUp';
 import { SPACES_PATH } from '../router';
@@ -82,7 +82,14 @@ function ignitionLandingMs(nodeCount: number): number {
 /** 「本周点亮 +N」的滚动数字：随节点点火爬升，最后一个节点落位时正好到达 N。 */
 function WeekCount({ to, duration }: { to: number; duration: number }): ReactNode {
   const value = useCountUp(to, { duration });
-  return <>{Math.round(value)}</>;
+  return (
+    <>
+      {/* 爬升中的中间值对读屏是噪音（恰好导航到这会听到 37% 当真值）：
+          视觉值 aria-hidden，终值用 sr-only 提供一份静态可读文本（复评 P3）。 */}
+      <span aria-hidden="true">{Math.round(value)}</span>
+      <span className="sr-only">+{to}</span>
+    </>
+  );
 }
 
 /** 六态在图表里的视觉（颜色/描边在 setOption 处组装，这里只管语义标签）。 */
@@ -128,8 +135,13 @@ export default function GraphPage() {
   const theme = useThemeStore((state) => state.theme);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  /** 详情卡锚点：从文字清单开卡时滚过去并把焦点交给卡片（卡片在上方图容器内，视口外）。 */
+  const detailCardRef = useRef<HTMLDivElement | null>(null);
   /** 点火只随数据变化重放：byKp 是 report 的 useMemo 派生，主题/路径重绘时身份不变。 */
   const lastIgnitionSourceRef = useRef<unknown>(null);
+  /** 动效偏好做成响应式（复评 P3）：运行中切换「减弱动态」→ 下次重绘瞬时到位，不用刷新页面。 */
+  const [reducedMotion, setReducedMotion] = useState(() => prefersReducedMotion());
+  useEffect(() => subscribePrefersReducedMotion(setReducedMotion), []);
 
   const layout = useMemo(() => computeGraphLayout(), []);
   const byKp = useMemo(() => masteryByKpOf(report?.nodes ?? []), [report]);
@@ -169,8 +181,8 @@ export default function GraphPage() {
     if (!container || !report) return;
 
     const chart = echarts.init(container);
-    // canvas 内动画不受 CSS reduce 块管辖，JS 侧自行降级（lib/motion.ts 的偏好读取）。
-    const reduced = prefersReducedMotion();
+    // canvas 内动画不受 CSS reduce 块管辖，JS 侧自行降级（偏好是响应式 state，切设置即生效）。
+    const reduced = reducedMotion;
     // 点火重放判定：byKp 变了（新数据/新空间）才重播；主题切换或路径高亮的重绘不重播。
     const replayIgnition = lastIgnitionSourceRef.current !== byKp;
     lastIgnitionSourceRef.current = byKp;
@@ -316,21 +328,22 @@ export default function GraphPage() {
     };
     // theme 进 deps（2026-10-09）：配色在 effect 里读 CSS 变量，主题切换后必须重取重绘；
     // 其余依赖不变（eslint 认不出 theme 的用途）。
+    // reducedMotion 进 deps（2026-10-09 复评）：偏好切换 → 重绘瞬时到位。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report, highlightPath.join(','), layout, byKp, theme]);
+  }, [report, highlightPath.join(','), layout, byKp, theme, reducedMotion]);
 
   /** 「本周点亮」尾注：数字随点火爬升，最后一个节点落位时徽标跳一下（只此一次）。 */
   const nodeCount = layout.nodes.length;
   const weekGain = summary?.newly_mastered_7d ?? 0;
   useEffect(() => {
     if (weekGain <= 0) return;
-    if (prefersReducedMotion()) {
+    if (reducedMotion) {
       setIgnited(true);
       return;
     }
     const timer = window.setTimeout(() => setIgnited(true), ignitionLandingMs(nodeCount));
     return () => window.clearTimeout(timer);
-  }, [weekGain, nodeCount]);
+  }, [weekGain, nodeCount, reducedMotion]);
 
   const counts = BAND_ORDER.reduce<Partial<Record<MasteryBand, number>>>((accumulator, band) => {
     accumulator[band] = summary?.band_counts[band] ?? 0;
@@ -476,7 +489,11 @@ export default function GraphPage() {
         </div>
 
         {selectedNode ? (
-          <div className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay">
+          <div
+            ref={detailCardRef}
+            tabIndex={-1}
+            className="absolute bottom-3 left-3 w-[min(16rem,calc(100%-1.5rem))] rounded-surface border border-line bg-surface p-3 text-xs shadow-overlay"
+          >
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm text-ink">{selectedNode.name}</p>
               <IconButton size="md" variant="quiet" onClick={() => setSelected(null)} aria-label="关闭">
@@ -552,7 +569,15 @@ export default function GraphPage() {
               <li key={placed.id} className="border-b border-line last:border-b-0">
                 <button
                   type="button"
-                  onClick={() => setSelected(placed.id)}
+                  onClick={() => {
+                    setSelected(placed.id);
+                    // 从文字清单开卡：卡片在上方图容器内，多半在视口外 —— 滚过去并把焦点
+                    // 交给卡片，键盘/读屏用户的回车才有「按下去有反应」的反馈（复评 P2）。
+                    requestAnimationFrame(() => {
+                      detailCardRef.current?.scrollIntoView({ block: 'nearest', behavior: scrollBehavior() });
+                      detailCardRef.current?.focus({ preventScroll: true });
+                    });
+                  }}
                   className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-ui-sm text-ink transition-colors hover:bg-raised"
                 >
                   <span className="min-w-0 truncate">{kpNameOf(placed.id, profile?.name)}</span>
