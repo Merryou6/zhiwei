@@ -732,3 +732,26 @@ textarea::placeholder {
     transition: none !important;
   }
 }
+
+/* ── glass-card 面层优先级补钉（awwwards 适配合并收口）────────────────
+   .glass-card 本体声明在上方 @layer utilities 内，而 Card 原语默认 variant
+   自带 bg-surface（同为 utilities 类）。Tailwind v3 会把 @layer utilities
+   的自定义类输出在核心 utilities **之前**，于是「Card 传 glass-card」时
+   bg-surface 按源序后赢，玻璃面退化为不透明底——包 3（老师端/MePage）
+   走 Card 原语的卡片全部受影响。
+
+   这里用**未分层规则**补钉：本项目未分层 CSS 全部位于 @tailwind utilities
+   输出之后（与上方 html.dusk「刻意不放进 @layer」同一哲学——未分层样式
+   优先级最高，不必靠提高选择器权重打补丁），传入 glass-card 即生效。
+
+   只补 background-color：border / backdrop-filter 与 bg-surface 无冲突。
+   reduced-transparency 降级同步补钉，保证两条路径行为一致。 */
+.glass-card {
+  background-color: rgb(var(--c-surface) / 0.72);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card {
+    background-color: rgb(var(--c-surface));
+  }
+}
