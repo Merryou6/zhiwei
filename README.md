@@ -4,13 +4,13 @@
 
 # 知微 · ZhiWei
 
-**基于知识图谱归因的 AI 学习伴侣 —— 学生端 × 老师端**
+**基于知识图谱归因的 AI 学习伴侣 —— 概念讲透 · 推理引导 · 逐步批改 · 老师回路（学生端 × 老师端）**
 
 证据多源采集 → 诊断掌握度 → 定位根因 → 干预（对话辅导 / 专项练习）→ 新题验证 → 效果回流
 
-![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v2.0%20%E5%8F%8C%E7%AB%AF%E8%A7%84%E5%88%92%E7%89%88-blue)
+![status](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-v2.2%20%E8%A7%84%E5%88%92%E7%89%88%EF%BC%88v2.1%20%E5%B7%B2%E4%BA%A4%E4%BB%98%EF%BC%89-blue)
 ![stack](https://img.shields.io/badge/stack-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite%20%C2%B7%20Node.js-2F9C7C)
-![tests](https://img.shields.io/badge/tests-34%20%E6%96%87%E4%BB%B6%20%C2%B7%20389%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
+![tests](https://img.shields.io/badge/tests-39%20%E6%96%87%E4%BB%B6%20%C2%B7%20422%20%E7%94%A8%E4%BE%8B%20%E5%85%A8%E7%BB%BF-success)
 ![responsive](https://img.shields.io/badge/%E5%93%8D%E5%BA%94%E5%BC%8F-%E6%A1%8C%E9%9D%A2%20%2F%20%E5%B9%B3%E6%9D%BF%20%2F%20%E6%89%8B%E6%9C%BA-4E8FB0)
 ![license](https://img.shields.io/badge/license-GPL--3.0-lightgrey)
 
@@ -30,7 +30,7 @@ The student portal runs a five-step closed loop: **collect evidence → diagnose
 
 The teacher portal is a lightweight workbench: bind students via invite codes, read a **mastery snapshot of the whole class** (aggregated profiles, answer originals, error originals), **push targeted recommendations**, and watch the **measured effect (ΔAccuracy) flow back** to each recommendation.
 
-Monorepo: React 18 + TypeScript + Vite, a Node.js API surface, and a **pure-functional, zero-IO BKT engine** with all 17 parameters externalized. Data assets: knowledge graphs (36 nodes), **149 typical errors**, **404 calibrated items** plus a curated module-wise practice bank, and dual data gates (static validation + per-item answer recomputation). Built by two students from Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
+Monorepo: React 18 + TypeScript + Vite, a Node.js API surface, and a **pure-functional, zero-IO BKT engine** with all 18 parameters externalized. Data assets: knowledge graphs (36 nodes), **149 typical errors**, **404 calibrated items** plus a curated module-wise practice bank, and dual data gates (static validation + per-item answer recomputation). Built by two students from Shenzhen University. Live demo: **[https://zhiwei.imerryou.com](https://zhiwei.imerryou.com)**.
 
 ---
 
@@ -44,11 +44,11 @@ Monorepo: React 18 + TypeScript + Vite, a Node.js API surface, and a **pure-func
 
 **老师**面对的则是更大的杠杆落空：一个班四五十份卷子，批改只能给分，**没有精力逐人归因**；讲评课只能讲共性问题，**谁在哪个节点上晃、该给谁推哪一环，全凭印象**。诊断的粒度，决定了干预的精度——这句话对学生成立，对整个班级更成立。
 
-知微 v2.0 要做的，就是把「感觉不行」变成「精确制导」，并同时给到两端：
+知微 v2.1 已经把这条链跑通（技能树可视化 / 拍卷冷启动 / 逐步批改三张牌全部交付）；**v2.2 要做的，是把「学伴教练」的四条承诺做实**：
 
-> **学生端**：每一分丢在哪里 → 归因到哪个知识点 → 属于哪类错误 → 对话引导 / 专项练习 → 用没见过的新题验证是否真的补上了。
+> **学生端**：不刷题也能开始——以往的试卷、答题卡、平时作业拍上来就建图 → 想提升就进专项，按模块系统性刷题 → 每一步都被批改：断在哪一步、为什么断，明明白白 → 概念问题不是不给答案，而是给完整的知识概念体系，触类旁通；推理题用最通俗的话一步一步引导你自己走完 → 用没见过的新题验证是否真的补上了。
 >
-> **老师端**：一眼看清全班每个人的掌握地图 → 看得到答卷与错题原文 → 给具体学生推具体知识点 → 每一条推荐都能看到实测效果。
+> **老师端**：一眼看清全班每个人的掌握地图 → 看得到答卷原文、答题原文、错题原文 → 给具体学生推具体知识点 → 每一条推荐都能看到实测效果。
 
 ---
 
@@ -77,6 +77,21 @@ Monorepo: React 18 + TypeScript + Vite, a Node.js API surface, and a **pure-func
 
 - **第五步**：多数产品在「辅导完成」就结束了，知微坚持用不重复的新题做干预后复测——效果不靠感觉，靠 ΔAccuracy。
 - **第一步的新自由**：诊断不必以做题为门槛。学生把过往的试卷、答题卡、作业上传，系统识别出每道题的作答与对错，**用「已经发生过的真实作答」推断掌握情况**——第一次打开产品就能拿到一张像样的地图；之后再做题，只是让地图越来越准。
+
+### v2.2 总描述：从「不给答案」到「概念讲透 · 推理引导 · 教师式批改」
+
+v2.2 的产品主张一句话：**概念性的问题，不是不提供答案，而是给完整的知识概念体系，让学生触类旁通；需要推理的问题，用最简单、最通俗的话一步一步讲解思路，引导学生自己走完**。围绕这条主张，六条支柱：
+
+| # | 支柱 | 学生 / 老师的体验 | 现状 → v2.2 动作 |
+| --- | --- | --- | --- |
+| ① | **题型库扩展** | 各类知识点的题型 + 做题思路 + 参考答案，成体系可检索 | 已有 404 题校准题库 + 专项练习题库 → v2.2 系统性扩充：按「知识点 × 题型 × 难度」网格补齐，每题带解题思路与标准步骤（solution_steps），过双数据闸门（静态校验 + 逐题答案重算） |
+| ② | **系统性刷题** | 想提升哪个模块就专项刷哪个：由易到难成阶梯、连续组题、进度可见 | v2.1 已交付按章节取题（页 14 专项练习）→ v2.2 升级为组卷式连续练习、题型阶梯、正确率 / 用时追踪 |
+| ③ | **教师式逐步批改** | 每一步的流程都被批改：对错、失分点、思路断点，按得分点给部分分 | v2.1 已交付 #33（solution_steps 互含匹配 / first_break 断点定位 / 部分正证据折算）→ v2.2 加**思路级评语**（为什么不建议这样想、下一步该想什么）与教师式评分细目 |
+| ④ | **冷启动不强求做题** | 以往试卷 / 答题卡 / 作业拍上来，系统推断掌握情况；再做题只是让地图更准 | **已交付**（v2.1：#9 多页整卷 + confirm.bootstrap 建图摘要 + 复测精化） |
+| ⑤ | **概念问答给体系** | 问一个概念，得到的不止定义：性质、典型例、易错点、与前后知识的关联——触类旁通 | 对话辅导已有泄漏防护骨架 → v2.2 概念知识库 + 体系化讲解模板，**答案给全、给透** |
+| ⑥ | **推理引导给阶梯** | 推理题用最通俗的话一步一步引导，卡在哪一步就引导到哪一步 | 对话已支持步骤引导（v1.5）→ v2.2 通俗化话术引擎 + 分步提示链（先指方向、再给思路、后落步骤） |
+
+**老师回路贯穿全部六条**：答卷原文、答题原文、错题原文老师端全可见（v1.6 已交付，#23/#24），逐步批改产出的思路断点同步成为老师下推荐的依据，每条推荐的效果以 ΔAccuracy 实测回流（#30/#31）。
 
 ---
 
@@ -172,7 +187,7 @@ AI 学长把问题分成两类，分别对待——
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  apps/web         React 18 · TypeScript · Vite · Tailwind     │
-│                   学生端 11 路由 + 老师端 /t/* 双壳路由          │
+│                   学生端 13 路由 + 老师端 /t/* 双壳路由          │
 │                   HashRouter · Zustand · ECharts · 响应式三档   │
 ├──────────────────────────────────────────────────────────────┤
 │  functions/api    Node.js · REST / SSE 接口                    │
@@ -296,7 +311,7 @@ docker compose up -d --build
 
 | 维度 | 现状 |
 | --- | --- |
-| 测试 | **34 个测试文件 · 389 个用例全部通过**（引擎 43 + 后端 169 + 前端 177）；v2.0 新增模块沿用同一纪律，交付即全绿 |
+| 测试 | **39 个测试文件 · 422 个用例全部通过**（引擎 43 + 后端 192 + 前端 187）；v2.1 新增模块沿用同一纪律，交付即全绿 |
 | 类型 | TypeScript 严格模式，三段工程各自 `tsc --noEmit` 全绿 |
 | 数据闸门 | 静态校验 + 题库复算全部通过；专项练习库入库走同一闸门 |
 | 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕**（v1.5 传图读题与选项化、v1.6 双端增量、v2.1 技能树与逐步批改均已留痕） |
@@ -309,7 +324,7 @@ docker compose up -d --build
 
 **v1.0（已交付，功能冻结）**：五步闭环全链路（自报 / 测评 / 试卷 / 归因 / 处方 / 对话 / 复测）、知识图谱与报告、多知识库（初中 + 高中）、多学生空间、响应式三档、Docker 部署、389 用例全绿。
 
-**v2.0（本版规划，设计定稿 → 实施中）**：
+**v2.0（已交付：双端于 v1.6 落地、拍卷冷启动与逐步批改核心于 v2.1 落地）**：
 
 | 模块 | 内容 | 状态 |
 | --- | --- | --- |
@@ -320,6 +335,8 @@ docker compose up -d --build
 | **v2.1 三张牌** | ① 技能树 2.0（#32 六态视觉机 + 点火动画 + 章节徽章 + 证据计数器 + 低置信角标 + canvas 成长海报）；② 拍卷冷启动（#9 file_ids 多页整卷 + confirm.bootstrap 建图摘要 + 注册后分叉卡页 13）；③ 逐步批改（#33 两层匹配判定 + first_break 断点定位 + practice 部分正证据折算 W_PRACTICE=0.7） | 已交付（[`V21_FEATURES_PLAN.md`](V21_FEATURES_PLAN.md)） |
 | 传图读题 / 选项化作答 / 步骤引导 / 报告首屏 / 云盘关联 | v1.5 体验升级 | 已交付 |
 | 班级共性分析 / 班级模型 / 周报导出 / SSE 实时 | P2 展望 | 规划 |
+
+**v2.2（下一版规划，见上文「v2.2 总描述」）**：题型库系统性扩展（「知识点 × 题型 × 难度」网格 + 解题思路 + 标准步骤）· 组卷式连续刷题与进度追踪 · 思路级批改评语与教师式评分细目 · 概念知识库与体系化讲解（答案给全给透）· 通俗化分步引导提示链。冷启动（支柱④）与老师回路（原文可见 + ΔAccuracy 闭环）v2.1 / v1.6 已交付，v2.2 不再重复建设。
 
 ---
 
@@ -362,7 +379,7 @@ zhiwei/
 
 | 文档 | 内容 |
 | --- | --- |
-| [`API_CONTRACT.md`](API_CONTRACT.md) | 接口冻结契约：路由、字段、错误码、认证、变更记录（含 v1.5 / v1.6 增量） |
+| [`API_CONTRACT.md`](API_CONTRACT.md) | 接口冻结契约：路由、字段、错误码、认证、变更记录（含 v1.5 / v1.6 / v2.1 增量） |
 | [`TEACHER_PORTAL_DESIGN.md`](TEACHER_PORTAL_DESIGN.md) | 双端架构设计方案：老师端数据模型、API、前端页面、推荐闭环、排期 |
 | [`ALGORITHM.md`](ALGORITHM.md) | 算法规格：参数总表、BKT 三段式、自适应选题、错误诊断、归因定位、退出通道、状态带、复测指标 |
 | [`DATA_SCHEMA.md`](DATA_SCHEMA.md) | 数据结构：图谱与题库静态字段规格 + 运行时数据表 + 校验脚本要求 |
