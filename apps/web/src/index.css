@@ -160,6 +160,31 @@ body {
   @apply bg-canvas font-sans text-ink antialiased;
 }
 
+/* ── 全局噪点层（2026-10-09 awwwards 适配包 1）──────────────────────
+   深色主题的大面积平涂（navy-950 满屏底）在发光屏上读起来有「塑料感」——
+   获奖作品（awwwards 2026 趋势里的 editorial art direction 一脉）几乎都用
+   一层几乎不可见的颗粒把底面「做旧」，让纯色看起来像材质而不是色块。
+   取 0.035 的不透明度：存在感刚好越过知觉阈值，不构成可读性干扰。
+
+   实现要点：
+   · 纹理是内联 SVG feTurbulence 的 data-uri，零网络请求、零资源文件；
+   · position: fixed + pointer-events: none——只盖一层「膜」，不参与布局、
+     不拦截任何交互；
+   · z-index 取 30：落在内容之上、四层刻度（nav 40 / overlay 50 / toast 60）
+     之下，弹层与导航永远在噪点之上；
+   · 静态无动画——reduced-motion 天然安全，无需任何降级分支；
+   · 打印时在 @media print 里整体摘除（纸面上噪点是脏点，见打印块）。 */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 @layer base {
   html {
     /* 中文标点挤压（palt）：让全角标点按半角宽度排，句读不再撑出空洞。
@@ -310,6 +335,40 @@ body {
   @media (prefers-reduced-transparency: reduce) {
     .scrim {
       background-color: rgb(var(--c-canvas));
+    }
+  }
+
+  /* ── 玻璃卡片（2026-10-09 awwwards 适配包 1 · 跨包契约）────────────
+     磨砂面 = backdrop-blur + 半透明令牌面 + 细边。本章页面（LandingPage）
+     与后续适配包的页面共用这一个类，契约点名它必须「深浅主题都成立」。
+
+     为什么用 rgb(var(--c-surface) / 0.72) 而不是任务书里提到的
+     color-mix(in srgb, var(--c-surface) 72%, transparent)：
+     本项目的主题变量是「R G B」三元组（不带 rgb() 外壳，见文件头说明，
+     这是为 tailwind <alpha-value> 机制让路的既定决策），所以 var(--c-surface)
+     本身不是合法颜色值，color-mix 解析不了它；而 rgb(var(--c-surface) / 0.72)
+     正是同一机制（bg-surface/70 也是编译成这个形式），可靠且行为一致。
+
+     · 0.72 的透度：深色下 glass ≈ navy-900 叠在 navy-950 上，ink(16.8:1) /
+       ink-soft(8.9:1) 的对比度几乎不受损；浅色下 ≈ 白叠在 slate-50 上同理。
+     · 文字对比度与玻璃解耦：卡片内文字一律用既有 text-ink / text-ink-soft
+       令牌，玻璃只是「面」，不是文字色。
+     · 不含圆角与内边距：这是面材质，圆角由使用方按形状刻度给
+       （rounded-surface 16px 等），保持可组合。
+     · prefers-reduced-transparency 开启时退化为不透明 surface——与 .scrim
+       同一哲学：半透明面的降级必须有落点。 */
+  .glass-card {
+    background-color: rgb(var(--c-surface) / 0.72);
+    -webkit-backdrop-filter: blur(12px) saturate(1.15);
+    backdrop-filter: blur(12px) saturate(1.15);
+    border: 1px solid rgb(var(--c-line) / 0.7);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-card {
+      background-color: rgb(var(--c-surface));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
   }
 }
@@ -499,6 +558,69 @@ textarea::placeholder {
   animation: badge-pop 480ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ── kinetic 标题基建（2026-10-09 awwwards 适配包 1 · 跨包契约）──────
+   逐字入场的超display标题（awwwards 2026 的 directed motion 趋势：
+   动效要有导演感，但只服务阅读动线）。keyframes 就地定义而不进
+   tailwind.config.js 的动画令牌 —— 理由与 reveal-in 完全相同（见上）：
+   逐字延迟由组件 inline animationDelay 编排，animate-* 工具类表达不了这件事，
+   放进令牌表只会复刻「keyframes 不进产物」的静默失效。
+
+   · .kinetic-char 基态是**可见**的（不写 opacity: 0）：动画缺席（老浏览器 /
+     打印 / 动画未播放）时文字照常显示，入场只是增强 —— 与 reveal 的
+     「隐藏是被授予的权限」同一哲学。
+   · 位移用 em（0.4em）：字级随 clamp 缩放时起跳距离等比，不脱节。
+   · 轻微 blur(4px→0)：字「聚焦」的读感，幅度压在知觉阈值附近，克制。
+   · reduced-motion 由文件底部的全局 reduce 块自动接管
+     （duration 0.01ms + delay 0s → 立刻到达终态），本块不写降级分支，
+     也**不改那个块**。 */
+@keyframes kinetic-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+.kinetic-char {
+  display: inline-block;
+  animation: kinetic-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── 章节滚动揭示（lib/useReveal.ts 的配套样式）────────────────────
+   与 data-reveal 体系的分工：data-reveal 是全站通用的渐进增强机制
+   （属性开关挂在 <html> 上）；这里是 LandingPage 四章滚动叙事的局部实现 ——
+   useReveal() 返回 inView，组件据此切换类名。语义一致：once、进入阅读区
+   才揭示。
+
+   基态隐藏（opacity: 0）是安全的：这是纯客户端 SPA，钩子内含三层兜底
+   （reduced-motion 直接 true / 无 IntersectionObserver 直接 true /
+   try-catch 异常直接 true），不存在「JS 没跑导致内容永久隐形」的路径；
+   运行中开启减弱动效由 subscribePrefersReducedMotion 补揭示。 */
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal-section {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal-section.is-revealed {
+  animation: section-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* ── 完成奖励描边（2026-10-09 awwwards 适配包 2）────────────────────
    SuccessMark 组件（components/SuccessMark.tsx）的圆环 + 对勾描边动画：
    stroke-dashoffset 从满偏移描到 0 —— 圆环先画（600ms）、对勾后画（300ms，
@@ -577,6 +699,12 @@ textarea::placeholder {
 
   [data-print='hide'] {
     display: none !important;
+  }
+
+  /* 噪点是屏幕上对抗「大面积平涂塑料感」的材质（见 body::after），
+     纸面上它只是墨点——整体摘除，打印保持干净。 */
+  body::after {
+    content: none;
   }
 
   /* 打印时不要让内容被视口宽度切掉：屏幕上靠内部横滚的宽表/图谱，
