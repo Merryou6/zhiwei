@@ -39,6 +39,17 @@
  *   ② 行内错误色改 text-danger 令牌（深色下与硬编码的 #FFB088 逐位相同）；
  *   ③ 三处按钮走 Button 原语（primary / link），去掉三串手写样式 ——
  *      并借 size="lg" 的 44px 最小高度把主按钮压到触控目标下限上。
+ *
+ * ── 双端开场（2026-10-09）────────────────────────────────────────
+ * v1.6 落了双端（role 决定去向），但身份选择只在**注册**时出现——登录时整个
+ * 页面是学生视角，老师回来登录看不到「这是给我准备的入口」。本次把身份提为
+ * 第一层（TEACHER_PORTAL_DESIGN §1.1 的登录去向分流的入口端表达）：
+ *   ① 「我是学生 / 我是老师」从注册专属提升为**常驻**，且放表单首位——
+ *      进门先说我是谁，再填账号（注册时它就是提交的 role；登录时它是身份期望）；
+ *   ② 一句话定位随身份切换：学生「先弄清你卡在哪个知识点」/ 老师「看清每个学生卡在哪」；
+ *   ③ 登录后以**服务端 role 为唯一真相**导航（不变），若与所选身份不符，
+ *      温和纠正（toast）而非打断——老师拿学生账号登录也能顺利进入正确的一端。
+ * 版式纪律不破：元素 7 → 8，仍是「一屏一件事」，无卡片无分隔线。
  */
 
 import { useState } from 'react';
@@ -68,11 +79,11 @@ interface FieldErrors {
 
 export default function LoginPage() {
   const [tab, setTab] = useState<Tab>('login');
+  /** v1.6 双端 + 2026-10-09 双端开场：身份常驻（注册 = 提交的 role；登录 = 身份期望）。 */
+  const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  /** v1.6 双端：注册角色（默认学生；老师注册后进老师端工作台）。 */
-  const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
@@ -143,6 +154,16 @@ export default function LoginPage() {
               role,
             })
           : await login({ identifier: identifier.trim(), password });
+
+      // 双端开场：服务端 role 是唯一真相（导航按它走）；若与所选身份不符，温和纠正不打断
+      if (tab === 'login' && role !== data.role) {
+        toast(
+          data.role === 'teacher'
+            ? '这个账号是老师身份——已按老师端进入'
+            : '这个账号是学生身份——已按学生端进入',
+          'info',
+        );
+      }
 
       await finishAuth(data, tab === 'register');
     } catch (error) {
@@ -218,14 +239,49 @@ export default function LoginPage() {
       <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-dusk-title sm:text-display-lg">
         知微
       </h1>
+      {/* 一句话定位随身份切换：进门先说我是谁，这一屏在为谁准备就清楚了 */}
       <p className="mt-3 text-center text-ui-sm leading-relaxed text-dusk-muted">
-        先弄清你卡在哪个知识点，再陪你把它补上
+        {role === 'teacher'
+          ? '看清每个学生卡在哪，把该补的一环送到他手上'
+          : '先弄清你卡在哪个知识点，再陪你把它补上'}
       </p>
 
       {/* 表单：没有外壳、没有分隔线、没有嵌套面板。
           字段标签交给 placeholder 承担（读屏器靠 sr-only label 仍能拿到），
           省掉两行可见文字——这是把 13 个元素压到 7 个的关键一步。 */}
       <form onSubmit={handleSubmit} noValidate className="mt-8 w-full max-w-[360px]">
+        {/* 双端开场：身份常驻（登录 + 注册都在，且是表单第一件事）。
+            注册 = 提交给 #1 的 role；登录 = 身份期望（不符时登录后温和纠正）。
+            复用注册时的二选一样式：无卡片语汇，两个文字块就是全部。 */}
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="身份">
+          {(
+            [
+              { value: 'student', label: '我是学生', hint: '完整学习链路' },
+              { value: 'teacher', label: '我是老师', hint: '带学生看学情' },
+            ] as const
+          ).map((option) => {
+            const active = role === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => setRole(option.value)}
+                className={
+                  'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +
+                  (active
+                    ? 'border-accent bg-accent-veil text-ink'
+                    : 'border-line bg-surface text-ink-soft hover:text-ink')
+                }
+              >
+                {option.label}
+                <span className="mt-0.5 block text-ui-sm text-ink-soft">{option.hint}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* 字段标签交给 placeholder 承担（读屏器靠 FormField 的 labelHidden 仍拿得到
             关联的 label），省掉两行可见文字 —— 这是把 13 个元素压到 7 个的关键一步。
             字段间距由 FormField 的外层 className 给；错误态与 ARIA 关联由 error
@@ -269,38 +325,6 @@ export default function LoginPage() {
               onChange={(event) => setNickname(event.target.value)}
             />
           </FormField>
-        ) : null}
-
-        {/* v1.6 双端：注册角色二选一（学生 = 现在的完整学习链路；老师 = 工作台）。 */}
-        {tab === 'register' ? (
-          <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="注册身份">
-            {(
-              [
-                { value: 'student', label: '我是学生', hint: '完整学习链路' },
-                { value: 'teacher', label: '我是老师', hint: '带学生看学情' },
-              ] as const
-            ).map((option) => {
-              const active = role === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => setRole(option.value)}
-                  className={
-                    'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +
-                    (active
-                      ? 'border-accent bg-accent-veil text-ink'
-                      : 'border-line bg-surface text-ink-soft hover:text-ink')
-                  }
-                >
-                  {option.label}
-                  <span className="mt-0.5 block text-ui-sm text-ink-soft">{option.hint}</span>
-                </button>
-              );
-            })}
-          </div>
         ) : null}
 
         {/* 主按钮：单色实底。深色下 bg-accent = #6FB3D4、text-on-accent = #070C14，
