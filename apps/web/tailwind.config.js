@@ -328,7 +328,9 @@ export default {
         // ── style-10 蓝图三栈（2026-10-10 迁移 P3；规范第 3 章）──────────
         // 拉丁与数字交给 Chivo（标题）/ IBM Plex Mono（批注与数值），
         // 汉字交给 Noto Sans SC；三族全部 @fontsource 自托管（**禁 CDN** ——
-        // 原型里的 fonts.googleapis 链接是单文件原型的零构建例外，不是产品例外）。
+        // 原型里那条 Google Fonts CDN 外链是单文件原型的零构建例外，不是产品例外。
+        // ⚠ 这里刻意不写字面 host 名：计划 6.3 的禁 CDN 复查是一条 grep，
+        //   注释里出现字面量会让复查产生假命中（2026-10-10 P5 复核实测 1 处后改）。
         //
         // 一个 Tailwind 键对应一组栈；下面的 body 与 sans 同值是有意的：
         //   sans → 全站默认（body / p / li 等）

@@ -52,12 +52,18 @@ export function SheetHead({
         {section ? <span>需求 {section}</span> : null}
         {chips}
       </div>
-      <h1 className="mb-1.5 font-disp text-num-lg leading-tight tracking-tight text-ink">{title}</h1>
+      {/* h1：`sm` 档（≤420）降到 20px 并允许断词 —— 原型
+          `#board[data-tier="sm"] h1{font-size:20px}` / `#board[data-tier="sm"] .sheet-head h1{word-break:break-word}`
+          （prototypes/style-10/index.html L696-697）。落法按 D1 走具名断点 `max-narrow:`
+          （≤419.98，与原型「≤420」在恰好 420px 处差 1px，与既有 nav:720 的端点留痕同性质）。 */}
+      <h1 className="mb-1.5 font-disp text-num-lg leading-tight tracking-tight text-ink max-narrow:break-words max-narrow:text-title">
+        {title}
+      </h1>
       {sub ? <p className="max-w-[74ch] text-body-sm text-ink-soft">{sub}</p> : null}
       {dim ? (
         <div
           aria-hidden="true"
-          className="num-mono absolute right-0 top-0 text-right text-mono-xs leading-relaxed tracking-wide text-ink-soft"
+          className="num-mono absolute right-0 top-0 text-right text-mono-xs leading-relaxed tracking-wide text-ink-soft max-narrow:static max-narrow:mt-2.5 max-narrow:text-left"
         >
           {dim}
         </div>

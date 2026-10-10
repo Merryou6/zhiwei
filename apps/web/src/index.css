@@ -851,7 +851,20 @@ textarea::placeholder {
 }
 
 .route-view {
-  animation: route-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* ⚠ 填充模式是 `backwards` 而不是 `both`（2026-10-10 style-10 迁移 P5 清尾）。
+     原因（实测，非推断）：`both` 会让动画结束后仍保留 to 帧的值，而 to 帧写的是
+     `transform: none` —— 动画里的 none 会被浏览器折算成 identity matrix
+     `matrix(1,0,0,1,0,0)`，**计算值不是 none**，于是 `.route-view` 一直建立
+     「fixed 定位的包含块」：其内部任何 position:fixed 的元素都以这块 1317px 高的
+     容器为基准，而不是视口。
+     症状（375×812 实测）：P5 新增的底部 tabbar（bottom:0）落在
+     y=1251.6 / bottom=1316.6（= 文档底），视口内根本看不到，滚到页面最底才出现
+     —— 而它的职责是「≤900 常驻主导航」（Layout 的 max-sheet:pb-[76px] 就是为它
+     预留的空间）。BackToTop（bottom-6）同因。
+     `backwards` 只保留起播前的 0% 状态、结束后交还基础样式（transform 回到 none），
+     动画本身（180ms fade + rise 6px）与终态观感一字未变；只有「动画播放中的
+     180ms」里仍存在包含块，属转瞬即逝的中间帧，且此时页面正在整页位移。 */
+  animation: route-in 180ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 /* ── aurora 氛围色斑（包 G · 登录页背景）──────────────────────────
