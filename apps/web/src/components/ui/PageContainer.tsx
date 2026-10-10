@@ -21,6 +21,15 @@
  * 那个失效的 1180 的成因（页面自己写宽度，与外壳不一致，且不一致时没有任何提示）。
  *
  * 注意：`wide` 不设上限 ≠ 无限宽。外壳仍兜住 1152px，且顶栏与之共用同一条左基线。
+ *
+ * 【2026-10-10 style-10 蓝图迁移 P4】两条留痕：
+ *   ① `PageContainer` 的职责**收窄为「宽度意图」**，不再承担页边距。
+ *      规范 4.1 的 `--pad-frame`（桌面 48px / ≤900 22px 18px / ≤420 16px 12px）
+ *      由新外壳的 `Sheet`（blueprint/Sheet.tsx）单一承担 —— 若这里再写一遍内边距，
+ *      两处相加会在迁移页上出现 96px 的双倍留白。单一来源优先。
+ *   ② `PageHeader` 补两件可选 props（`sheetNo` / `dim`）并换四件式视觉
+ *      （eyebrow 等宽大写 / h1 标题栈 / sub 正文 / dim 右对齐等宽）。
+ *      两件都可选 —— 未迁移页面不传即与改造前**逐字相同**的渲染结果（共存策略）。
  */
 
 import type { ReactNode } from 'react';
@@ -47,7 +56,7 @@ export function PageContainer({ width = 'standard', className, children }: PageC
 }
 
 export interface PageHeaderProps {
-  /** 标题上方的小字（步骤眉标、页面归属）。用品牌色，承担「这是哪一类信息」的定位。 */
+  /** 标题上方的小字（步骤眉标、页面归属）。承担「这是哪一类信息」的定位。 */
   kicker?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
@@ -55,6 +64,16 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   /** md = 24px（默认）；lg = 30px（页面本身就是全站焦点时才用）。 */
   size?: 'md' | 'lg';
+  /**
+   * 眉标旁的图号（style-10 P4 新增，规范 4.3 的 `SHEET 10-12`）。
+   * 可选：未迁移页面不传，渲染结果与改造前逐字相同。
+   */
+  sheetNo?: string;
+  /**
+   * 右上角 dim 行（规范 4.3 的「图幅 <档> · <宽度>px」）。
+   * 未迁移页面不传 → 不渲染，保持旧观感（共存策略）。
+   */
+  dim?: string;
   className?: string;
   /** 标题下方的补充内容（徽标行、状态行）。 */
   children?: ReactNode;
@@ -71,28 +90,43 @@ export function PageHeader({
   description,
   actions,
   size = 'md',
+  sheetNo,
+  dim,
   className,
   children,
 }: PageHeaderProps) {
   return (
-    <header className={cn('flex flex-wrap items-end justify-between gap-4', className)}>
+    <header className={cn('relative flex flex-wrap items-end justify-between gap-4', className)}>
       <div className="min-w-0">
+        {/* 眉标走批注制式（规范 4.3 的 eyebrow：等宽大写 + 图标 + SHEET 图号）。 */}
         {kicker ? (
-          <p className="mb-1.5 text-ui-sm font-medium tracking-wide text-accent-ink">{kicker}</p>
+          <p className="mb-1.5 flex flex-wrap items-center gap-2 font-mono text-tok uppercase tracking-widest text-accent-ink">
+            <span>{kicker}</span>
+            {sheetNo ? <span className="num-mono">SHEET {sheetNo}</span> : null}
+          </p>
         ) : null}
         <h1
           className={cn(
-            'font-medium text-ink',
+            'font-disp font-medium tracking-tight text-ink',
             size === 'lg' ? 'text-3xl leading-tight' : 'text-2xl leading-snug',
           )}
         >
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-prose text-sm leading-relaxed text-ink-soft">{description}</p>
+          <p className="mt-2 max-w-prose text-body-sm leading-relaxed text-ink-soft">{description}</p>
         ) : null}
         {children}
       </div>
+      {/* dim 行（规范 4.3）：右对齐等宽元信息，装饰性（图幅/基准），故 aria-hidden。 */}
+      {dim ? (
+        <div
+          aria-hidden="true"
+          className="num-mono absolute right-0 top-0 text-right text-mono-xs leading-relaxed tracking-wide text-ink-soft"
+        >
+          {dim}
+        </div>
+      ) : null}
       {actions ? (
         <div className="flex flex-none flex-wrap items-center gap-2">{actions}</div>
       ) : null}

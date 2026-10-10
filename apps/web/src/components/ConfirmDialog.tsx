@@ -32,21 +32,31 @@ export default function ConfirmDialog({
 
   return (
     // z-index 走令牌（D12：原为裸 z-50，数值相同 → 像素零变化）
-    <div className="fixed inset-0 z-overlay flex items-center justify-center bg-ink/30 px-4">
-      {/* shadow-overlay：对话框是浮起层，与静态卡的 shadow-card 分档（P3 走查补齐，
-          此前误用裸 shadow-lg，绕过了阴影档位体系） */}
+    // 幕布改用 .scrim（style-10 P4，规范 5.14）：它是全站唯一「隔着半透明层还要读前景」
+    // 的位置，抽成类之后「系统减少透明度」偏好才有落点；且底色取自主题变量，
+    // 蓝图/白图两套自动成立（原来写死的 bg-ink/30 在蓝图下偏亮）。
+    <div className="fixed inset-0 z-overlay flex items-center justify-center scrim px-4">
+      {/* 图纸模态（规范 5.14）：`.bp-panel` 给「外框 1px + inset 3px 内框线」的双线制图感，
+          浮起层保留一层投影（静态面一律无阴影）。 */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-sm rounded-surface border border-line bg-surface p-5 shadow-overlay"
+        className="bp-panel w-full max-w-[520px] p-5 shadow-overlay"
       >
-        <h2 className="text-base font-medium text-ink">{title}</h2>
-        {description ? <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p> : null}
+        <p className="font-mono text-tok uppercase tracking-widest text-ink-soft">CONFIRM</p>
+        <h2 className="mt-1 font-disp text-title-sm tracking-tight text-ink">{title}</h2>
+        {description ? (
+          <p className="mt-2 max-w-[64ch] text-body-sm leading-relaxed text-ink-soft">{description}</p>
+        ) : null}
 
         <div className="mt-5 flex items-center justify-end gap-2">
           {/* 按钮收编原语（P3 走查）：原来两串手写 class 与 Button 是同视觉第二套真相；
-              autoFocus 透传保留——焦点默认落在契约要求的「切换过去」上 */}
+              autoFocus 透传保留——焦点默认落在契约要求的「切换过去」上。
+              ⚠ 确认键**不用** danger variant（规范 5.14 的 danger 只给破坏性操作）：
+                 本组件当前唯一使用者是 409「同学科空间已存在」，契约 §2 明文要求默认按钮
+                 是「切换过去」——那是可逆的切换，不是破坏性动作，涂红会给出错误的风险信号。
+                 danger variant 已在 ui/Button 备好，供页面批的「退出登录 / 解除绑定」使用。 */}
           <Button variant="ghost" onClick={onCancel}>
             {cancelLabel}
           </Button>

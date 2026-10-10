@@ -1,16 +1,24 @@
 /**
- * 骨架屏（前端优化批三 · 2026-09-22）
+ * 骨架屏（前端优化批三 · 2026-09-22；2026-10-10 style-10 蓝图迁移 P4 换形态）
  *
  * 背景：原先 10 个页面的数据加载态都是一行文字（「正在取你的掌握度…」），
  * 首屏看起来像卡住；换成与真实版式同构的骨架能明显降低「等待感」。
  *
- * 纪律（沿用既有约定）：
- *   - 骨架是纯灰块，**不伪造数据**（D12：不与真实掌握度/题目混淆，不用彩色状态带）；
- *   - 原状态文字保留为视觉隐藏文本（role="status" + aria-live），屏幕阅读器仍能听到进度；
- *   - 动效只做浅脉冲；系统开启「减弱动态效果」时由 index.css 统一压平为静态灰块。
+ * 【P4 换的是什么】把「脉冲灰块卡」换成 blueprint/SkeletonLines 的
+ * **静态发丝斜线**（规范 5.10）。原实现每一块都挂 `animate-pulse`，
+ * 那是全站唯一一处循环动效 —— 规范第 8 章明令「无循环动效：不用呼吸、
+ * 不用 shimmer、不用旋转 loading（骨架是静态的）」。理由不是审美偏好：
+ * 一块持续呼吸的空白会在整个取数期间抢注意力，而这界面讲的是
+ * 「工程可核查感」——批注说清「在取数」，比让空白喘气更有信息量。
+ *
+ * 【契约零改动】props 仍是 `label` / `rows` / `className`，调用点（App.tsx 的
+ * Suspense fallback 与各页面的加载态）一行不用改。`label` 保留为**视觉隐藏**文案：
+ * 可见的那行由 SkeletonLines 的「取数中 · 不伪造内容」承担，读屏两者都能听到。
  */
 
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+
+import SkeletonLines from './blueprint/SkeletonLines';
 
 interface PageSkeletonProps {
   /** 视觉隐藏的状态文案（原先那行「正在取…」）。 */
@@ -21,48 +29,29 @@ interface PageSkeletonProps {
   className?: string;
 }
 
-function Bar({ tone, height }: { tone: string; height: string }): ReactElement {
-  return <div className={`${height} ${tone} rounded-md`} aria-hidden="true" />;
-}
-
 export default function PageSkeleton({ label, rows = 3, className }: PageSkeletonProps): ReactElement {
-  const blocks = Array.from({ length: rows }, (_, index) => index);
-
-  return (
-    <div className={className} role="status" aria-live="polite">
+  // 注：note 里同时给出「读屏专用 label」与「可见的取数批注」。
+  // 可见文案属状态提示（不是产品话术），不落在 phrases 的锁定范围内。
+  const note: ReactNode = (
+    <>
       <span className="sr-only">{label}</span>
-
-      <div className="animate-pulse space-y-3" aria-hidden="true">
-        <div className="rounded-surface border border-line bg-surface p-5 shadow-card">
-          {/* D11 修正：原先把 tone / height 两个 prop 传反了（tone 收了尺寸、height 收了空串）。
-              渲染出的类集合与修正后完全一致（只是拼接顺序与首个空格不同）→ 视觉零变化。 */}
-          <Bar tone="bg-line" height="h-5 w-40" />
-          <div className="mt-3 space-y-2">
-            <Bar tone="w-full max-w-md bg-line/70" height="h-3.5" />
-            <Bar tone="w-2/3 bg-line/70" height="h-3.5" />
-          </div>
-        </div>
-
-        {blocks.map((index) => (
-          <div key={index} className="rounded-surface border border-line bg-surface p-5 shadow-card">
-            <Bar tone="bg-line/80" height="h-4 w-32" />
-            <div className="mt-3 space-y-2">
-              <Bar tone="w-full bg-line/60" height="h-3.5" />
-              <Bar tone="w-1/2 bg-line/60" height="h-3.5" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      取数中 · 不伪造内容
+    </>
   );
+
+  return <SkeletonLines rows={rows} block className={className} note={note} />;
 }
 
-/** 行内小骨架（列表项内部等待，如对话页的预置文件列表）。 */
+/** 行内小骨架（列表项内部等待，如对话页的预置文件列表）。同样是静态斜线。 */
 export function InlineSkeletonRows({ rows = 2 }: { rows?: number }): ReactElement {
   return (
-    <div className="animate-pulse space-y-2 py-1" aria-hidden="true">
+    <div className="flex flex-col gap-2 py-1" aria-hidden="true">
       {Array.from({ length: rows }, (_, index) => (
-        <div key={index} className="h-4 w-3/4 rounded-md bg-line/70" />
+        <span
+          key={index}
+          className="bp-hatch h-3.5 border border-dashed border-line"
+          style={{ width: `${Math.max(40, 100 - index * 9)}%` }}
+        />
       ))}
     </div>
   );

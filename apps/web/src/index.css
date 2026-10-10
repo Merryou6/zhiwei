@@ -1203,3 +1203,194 @@ textarea::placeholder {
 .bp-band-4-t {
   color: rgb(var(--c-band-4-t));
 }
+/* b0（未接触 / 未解锁 / 低置信）的文本色与实色同值：它是中性档，没有「浅一档」。 */
+.bp-band-0-t {
+  color: rgb(var(--c-band-0));
+}
+
+/* ── 图标基线（规范 5 / 原型「图标基线」一节）──────────────────────────
+   无尺寸的内联 SVG 会按父容器撑开，把版面撑破。原型为此单开一节把尺寸定死；
+   这里同样：`.ic` 是通用图标（16px），`.sh` 是四档形状（18px）。
+   `flex:none` 防止在 flex 行里被压扁（顶栏与按钮里最常见）。 */
+.ic {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  display: inline-block;
+  vertical-align: -0.18em;
+}
+
+.sh {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: inline-block;
+  vertical-align: -0.22em;
+}
+
+/* ── 控件制式（规范 5.1/5.3/5.5）────────────────────────────────────
+   ui/Button、ui/Input、ui/Badge 三个原语共同消费这一层。放在 CSS 而不是
+   Tailwind 工具类里，有两个必须的理由：
+
+     1) 「inset 3px 的内框线」是伪元素造的双线制图感（规范 5.1/5.4），
+        Tailwind 写得出但会在每个调用点重复一遍，且 cn() 合并时极易被覆盖；
+     2) 「禁用 = 虚线 + 斜纹 + [停用] 前缀」是**属性选择器**语义，
+        Tailwind 变体（disabled:bg-[…]）表达不了背景图案，只能进 CSS。
+
+   与 .bp-panel 同一条纪律：这些类**不进 @layer utilities**（会被内容扫描裁掉），
+   只按「文件里写了」生效，且优先级高于工具类。 */
+
+/* 按钮：等宽大写 + 字距 + 内框线（规范 5.1）。
+   字距取 .14em —— 原型原值；中文落在等宽栈的 Noto Sans SC 上，同样受益于字距。 */
+.bp-btn {
+  position: relative;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  transition:
+    color var(--t-ui) var(--ease-ui),
+    background-color var(--t-ui) var(--ease-ui),
+    border-color var(--t-ui) var(--ease-ui);
+}
+
+.bp-btn::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgb(var(--c-line-faint));
+  border-radius: var(--r0);
+  pointer-events: none;
+}
+
+/* 禁用态（规范 5.11）：虚线边 + 135° 斜纹 + 前置 [停用]。
+   ⚠ 用 ::before 输出 [停用] 而不是改 children —— 按钮文案被 phrases 类断言
+   「逐字锁定」「采集永不弹窗」等纪律保护，不能因为禁用态就改变可见文案的内容。 */
+.bp-btn:disabled,
+.bp-btn[aria-disabled='true'] {
+  cursor: not-allowed;
+  border-style: dashed;
+  color: rgb(var(--c-ink-faint));
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    rgb(var(--c-hatch) / 0.14) 5px 6px
+  );
+}
+
+.bp-btn:disabled::before,
+.bp-btn[aria-disabled='true']::before {
+  content: '[停用] ';
+  letter-spacing: 0.1em;
+}
+
+.bp-btn:disabled::after,
+.bp-btn[aria-disabled='true']::after {
+  opacity: 0.35;
+}
+
+/* 输入控件：下划线刻度制式（规范 5.3）。
+   控件本身只留 1px 下边框；两端 7px 的「刻度脚」挂在 FormField 的
+   .bp-ctl 容器上 —— `<input>` / `<select>` 是替换元素，伪元素不生效。 */
+.bp-field {
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-radius: var(--r0);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-field:focus {
+  background-color: rgb(var(--c-surface));
+}
+
+/* 刻度脚容器：左右下角各一段 7×7 的折线（原型 .ctl::before/::after）。 */
+.bp-ctl {
+  position: relative;
+}
+
+.bp-ctl::before,
+.bp-ctl::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+  border-color: rgb(var(--c-accent));
+  border-style: solid;
+}
+
+.bp-ctl::before {
+  left: 0;
+  border-width: 0 0 1px 1px;
+}
+
+.bp-ctl::after {
+  right: 0;
+  border-width: 0 1px 1px 0;
+}
+
+/* 错误态：刻度脚与下边框一起转红（规范 5.3 的 invalid）。
+   用 :has() 让容器跟随控件上的 aria-invalid 走 —— 一处真相（aria 属性），
+   而不是让调用方同时记得传两处。 */
+.bp-ctl:has([aria-invalid='true'])::before,
+.bp-ctl:has([aria-invalid='true'])::after {
+  border-color: rgb(var(--c-danger));
+}
+
+/* 虚线空盒（空态，规范 5.9）：外层 1px 虚线 + inset 5px 更浅的虚线 = 双层虚框。
+   双层是「图纸上的空集合框」与「一张普通空卡片」的分界：单层虚线读起来像
+   加载中的占位，双层虚框读起来像「这里被明确地标记为没有东西」。 */
+.bp-empty {
+  position: relative;
+  border: 1px dashed rgb(var(--c-line));
+  border-radius: var(--r);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-empty::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed rgb(var(--c-line-faint));
+  border-radius: var(--r0);
+  pointer-events: none;
+}
+
+/* 红章（错误态，规范 5.8）：外框 1px 红实线 + inset 4px 红虚线（55% 透明）。 */
+.bp-stamp {
+  position: relative;
+  border: 1px solid rgb(var(--c-danger));
+  border-radius: var(--r);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-stamp::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed rgb(var(--c-danger) / 0.55);
+  border-radius: var(--r0);
+  pointer-events: none;
+}
+
+/* 徽标 chip（规范 5.5）：等宽 10.5px 大写、22px 高、0 圆角、1px 边。 */
+.bp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 2px 9px;
+  border: 1px solid rgb(var(--c-line-soft));
+  border-radius: var(--r0);
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

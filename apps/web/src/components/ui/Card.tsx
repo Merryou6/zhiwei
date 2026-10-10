@@ -40,9 +40,15 @@ import { cn } from '../../lib/cn';
 export const cardVariants = cva('rounded-surface space-y-3', {
   variants: {
     variant: {
-      plain: 'border border-line bg-surface shadow-card',
-      raised: 'border border-line bg-surface shadow-overlay',
-      quiet: 'bg-surface',
+      // ── 2026-10-10 style-10 蓝图迁移 P4：换双线面板（规范 5.4）────────
+      // `.bp-panel` 给的正是「外框 1px + inset 3px 内框线」这对双线；
+      // 静态面一律无阴影（规范 2.5：图纸感来自线与面，不来自投影），
+      // 只有 raised 保留一层浮起投影（它是浮层）。
+      plain: 'bp-panel',
+      raised: 'bp-panel shadow-overlay',
+      // quiet 的职责没变（「让嵌套内容不再是卡片」）：只换表面档 ——
+      // 从 surface（与 BP 面板同底）改到 raised，与页面底/BP 面形成可见差。
+      quiet: 'bg-raised',
       bare: '',
     },
     padding: {
@@ -60,7 +66,7 @@ export const cardVariants = cva('rounded-surface space-y-3', {
   compoundVariants: [
     // 描边式可以靠边框加深表达 hover；quiet 没有边框，只能靠底色。
     { variant: 'plain', interactive: true, class: 'hover:border-accent' },
-    { variant: 'quiet', interactive: true, class: 'hover:bg-raised' },
+    { variant: 'quiet', interactive: true, class: 'hover:bg-surface' },
   ],
   defaultVariants: {
     variant: 'plain',

@@ -37,7 +37,13 @@ import { cn } from '../../lib/cn';
 import type { MasteryBand } from '../../theme/bands';
 
 export const badgeVariants = cva(
-  'inline-flex items-center gap-1 whitespace-nowrap rounded-md font-medium',
+  // ── 2026-10-10 style-10 蓝图迁移 P4：换 chip 规格（规范 5.5）──────────
+  // 等宽 10.5px 大写 + 22px 最小高 + **0 圆角**。`.bp-chip` 给制式（边框档、
+  // 内边距、字距、大小写），tone 只负责颜色 —— 与「颜色令牌不暴露 hex」同一条纪律。
+  // ⚠ 圆角原本是 `rounded-md`（Tailwind 内置 6px），那是圆角刻度的第三档，
+  //   与规范 2.5「只有 0 与 2px」冲突；chip 属注记件，取 r0。
+  //   size 两档在 chip 制式下只差内边距：字号恒为 10.5px（规范 3.2 的极小档）。
+  'bp-chip rounded-none',
   {
     variants: {
       tone: {
@@ -46,19 +52,19 @@ export const badgeVariants = cva(
         /** 中性元信息：ID、编号、计数。 */
         neutral: 'bg-canvas text-ink-soft',
         /** 品牌强调：当前空间、路径高亮、模型标识。 */
-        accent: 'bg-accent-veil text-accent-ink',
+        accent: 'border-accent text-accent-ink',
         /** 正向：已验证、掌握度上升。 */
         positive: 'bg-band-mastered/10 text-band-mastered',
-        /** 负向（低饱和暖橙，不是刺眼大红）：待巩固、掌握度下降。 */
+        /** 负向（不是刺眼大红）：待巩固、掌握度下降。 */
         negative: 'bg-band-weak/10 text-band-weak',
         /** 待确认：不稳定、识别存疑。 */
         warning: 'bg-band-unstable/15 text-band-unstable',
         /** 描边式：需要克制、不想引入色块时（如角色标识）。 */
-        outline: 'border border-line bg-surface text-ink-soft',
+        outline: 'bg-surface text-ink-soft',
       },
       size: {
-        sm: 'px-1.5 py-0.5 text-caption',
-        md: 'px-2 py-0.5 text-xs',
+        sm: 'px-1.5',
+        md: 'px-2',
       },
     },
     defaultVariants: {

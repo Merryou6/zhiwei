@@ -22,6 +22,15 @@
  * 因此 `onDark` tone 显式指定 `placeholder:text-dusk-muted` 并把 opacity 拉回 1，
  * 实测 4.8:1，达 AA。（Tailwind 的 placeholder: 工具类特异性高于全局
  * `input::placeholder` 规则，能稳定覆盖。）
+ *
+ * 【2026-10-10 style-10 蓝图迁移 P4：换视觉规格，契约一行不动】
+ * value/onChange/error/hint/label/required/id 生成规则/autoComplete 透传全部保留；
+ * 视觉换成「下划线刻度制式」（规范 5.3）：1px 下边框 + 两端 7px 刻度脚（挂在
+ * FormField 的 .bp-ctl 上）+ 聚焦转 accent + 错误走 role="alert"。
+ * 新增 props 仅 `required`（可选，缺省 false —— 旧调用零改动）。
+ * ⚠ 未做：select 的原生 caret 定制（规范 5.3 的右侧 12px caret）。原因是它只能用
+ *   data-URI SVG，而 data-URI 里无法消费 CSS 变量，必然写死一个 hex ——
+ *   与「组件内禁止裸 hex」的纪律冲突，故本轮保留原生 caret，已写进执行报告。
  */
 
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -40,13 +49,22 @@ import {
 import { cn } from '../../lib/cn';
 
 export const fieldVariants = cva(
-  'w-full rounded-control border outline-none transition-colors duration-150 ease-out ' +
+  // 蓝图下划线刻度制式（规范 5.3）：控件**只留 1px 下边框**（其余三边走
+  // `.bp-field` 的 zero 宽度），聚焦时下边框转 accent。上方圆角归零 ——
+  // 圆角刻度只有 0 与 2px 两档（规范 2.5），输入框属「承载内容的件」，
+  // 但下划线制式本身要求直角，故这里取 r0。
+  //
+  // ⚠ 两端的 7px「刻度脚」挂在 FormField 的 `.bp-ctl` 容器上而不是控件自己：
+  //   `<input>` / `<select>` 是替换元素，伪元素不生效（textarea 可以，但三件套
+  //   必须同形，否则同一张表单里两种表达）。裸控件（不套 FormField）因此没有刻度脚，
+  //   这是规范 5.3 结构（field-label → .ctl → 控件 → .hint）的应有退化。
+  'bp-field w-full outline-none transition-colors duration-150 ease-out ' +
     'disabled:cursor-not-allowed disabled:opacity-60',
   {
     variants: {
       tone: {
         /** 内页：跟随主题变量。placeholder 交给 index.css 的全局规则统一处理。 */
-        default: 'border-line bg-surface text-ink focus:border-accent',
+        default: 'border-line text-ink focus:border-accent',
         /** 登录页：恒深色表面（dusk-* 一族），自带可读的占位符与品牌色聚焦环。 */
         onDark:
           'border-dusk-line bg-dusk-surface text-dusk-title placeholder:text-dusk-muted ' +
@@ -58,12 +76,14 @@ export const fieldVariants = cva(
        * TS2320（接口无法同时扩展两个同名不同型的属性）。改名后原生属性仍可用。
        */
       fieldSize: {
-        sm: 'min-h-8 px-2.5 py-1.5 text-ui-sm',
-        md: 'min-h-9 px-3 py-2 text-sm',
+        sm: 'min-h-9 px-2 py-1.5 text-ui-sm',
+        // 主控件触控底线 44px（规范 2.5）。
+        md: 'min-h-11 px-3 py-2 text-sm',
         lg: 'min-h-12 px-4 py-3 text-reading',
       },
       invalid: {
-        true: 'border-danger focus:border-danger',
+        // 只改下边框：上/左/右本来就是 0 宽度，写 border-danger 会凭空长出三边。
+        true: 'border-danger',
         false: '',
       },
     },
@@ -74,6 +94,7 @@ export const fieldVariants = cva(
     },
   },
 );
+
 
 type FieldBase = VariantProps<typeof fieldVariants>;
 
@@ -135,6 +156,8 @@ export interface FormFieldProps {
   error?: string;
   /** 视觉上隐藏标签（登录页用 placeholder 承担标签的场景），但**不**删除关联。 */
   labelHidden?: boolean;
+  /** 必填（规范 5.3 的 `.req`）：只加视觉星号与读屏「必填」，不做第二套校验。 */
+  required?: boolean;
   className?: string;
   /**
    * 单个表单控件。FormField 会把 id / aria-describedby / aria-invalid 注入到它上面，
@@ -156,6 +179,7 @@ export function FormField({
   hint,
   error,
   labelHidden = false,
+  required = false,
   className,
   children,
 }: FormFieldProps) {
@@ -185,23 +209,33 @@ export function FormField({
 
   return (
     <div className={className}>
+      {/* 字段名走批注制式（规范 5.3）：等宽大写 + 字距。它是元信息不是正文。 */}
       <label
         htmlFor={controlId}
         className={cn(
-          'block text-ui-sm text-ink-soft',
+          'block font-mono text-tok uppercase tracking-widest text-ink-soft',
           labelHidden && 'sr-only',
           error && 'text-danger',
         )}
       >
         {label}
+        {required ? <span aria-hidden="true" className="ml-1 text-danger">*</span> : null}
       </label>
-      <div className={cn(!labelHidden && 'mt-1.5')}>{control}</div>
+      {/* .bp-ctl：两端 7px 刻度脚的定位容器（规范 5.3）。控件自身的下划线
+          由 fieldVariants 的 .bp-field 给。 */}
+      <div className={cn('bp-ctl', !labelHidden && 'mt-1.5')}>
+        {control}
+        {/* 必填星的读屏版：视觉上的 * 是装饰，语义由这里给（不新增可见文案）。 */}
+        {required ? <span className="sr-only">必填</span> : null}
+      </div>
       {error ? (
-        <p id={errorId} className="mt-1.5 text-ui-sm text-danger">
+        // role="alert"（规范 5.3）：错误文案要在出现时被读屏立即念出，
+        // 而不是等用户再次 Tab 到它。
+        <p id={errorId} role="alert" className="mt-1.5 text-ui-sm text-danger">
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="mt-1.5 text-ui-sm text-ink-soft">
+        <p id={hintId} className="mt-1.5 font-mono text-mono-xs tracking-wide text-ink-soft">
           {hint}
         </p>
       ) : null}

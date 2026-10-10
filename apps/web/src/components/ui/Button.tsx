@@ -19,6 +19,16 @@
  * 触屏上 32px 高的按钮很难点准。移动端把最小高度抬到 36px（≥ 推荐值的下限），
  * 桌面（≥720）完全不受影响 —— 与项目既有 `max-nav:min-h-9` 的手写做法同源，
  * 现在收进原语，不用再逐处记得写。
+ *
+ * 【2026-10-10 style-10 蓝图迁移 P4：换视觉规格，API 一行不动】
+ * 契约（variant 取值集合、size 档名、full、loading、as/href 用法、className 合并行为）
+ * 全部保留，只换视觉：等宽大写制式 + inset 3px 内框线 + hover 走 accent-veil +
+ * 禁用态走「虚线 + 斜纹 + [停用]」。
+ * ⚠ 与「规范 5.1 写 12px 字号」的一处差异：本工程的字号必须走令牌
+ *   （tokens.test.ts ① 禁止任意值字号），而刻度里没有 12px ——
+ *   故取最近的 `ui-sm`(13px) 与 `tok`(11px)，差 1px，已写进执行报告。
+ * ⚠ 触控底线从「<720 抬到 36px」改为「主控件一律 ≥44px」（规范 2.5/9）：
+ *   md/lg 桌面即 44px，sm 桌面 36px、≤900 档抬到 44px。
  */
 
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -27,33 +37,36 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cn } from '../../lib/cn';
 
 export const buttonVariants = cva(
-  // base：只放「所有按钮都成立」的事。过渡曲线按变体给（见下），
-  // 因为主按钮要过渡 opacity、次级按钮过渡颜色，两者的 transition-property 不同，
-  // 写在 base 里会互相覆盖。
-  'inline-flex select-none items-center justify-center rounded-control font-medium ' +
-    'disabled:cursor-not-allowed disabled:opacity-60',
+  // base：`bp-btn` 承担蓝图制式（等宽大写 + .14em 字距 + inset 3px 内框线 +
+  // 禁用态的虚线/斜纹/[停用] 前缀，见 index.css 的「控件制式」一节）。
+  // ⚠ 禁用态不再用 opacity 压暗：规范 5.11 的禁用表达是「虚线 + 斜纹 + [停用]」，
+  //   压暗会把斜纹与文字一起减淡，反而看不清「这里为什么不能点」。
+  'bp-btn inline-flex select-none items-center justify-center rounded-control disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        primary:
-          'bg-accent text-on-accent transition-opacity duration-150 ease-out hover:opacity-90 active:opacity-80',
-        secondary:
-          'border border-line bg-surface text-ink transition-colors duration-150 ease-out hover:border-accent/60 hover:bg-raised',
+        primary: 'border border-accent bg-accent text-on-accent hover:border-accent-ink',
+        secondary: 'border border-line bg-surface text-ink hover:border-accent hover:bg-accent-veil',
         ghost:
-          'text-ink-soft transition-colors duration-150 ease-out hover:bg-raised hover:text-ink',
+          'border border-transparent text-ink-soft hover:bg-accent-veil hover:text-ink',
         /** 纯文字操作（「换一道」「回到上一步」）。不占盒模型，不用在行内加方块。 */
-        quiet: 'px-2 text-ink-soft transition-colors duration-150 ease-out hover:text-ink',
+        quiet: 'border border-transparent px-2 text-ink-soft hover:text-ink',
         /**
          * 视觉上等同链接。用于「管理空间」这类附着在正文里的跳转。
          * hover 只用下划线，不用「文字变淡」：把 accent-ink 再乘 0.8 的透明度后
-         * 对比度会从 5.95:1 掉到约 3.8:1，重新跌破 AA —— 悬停态不该变得难读。
+         * 对比度会从 7.35:1 掉到约 4.2:1，重新跌破 AA —— 悬停态不该变得难读。
+         * ⚠ 链接形态不是「制图按钮」：回到正文栈与小写字形（normal-case），
+         *   否则一句嵌入正文的「管理空间」会变成等宽大写的元信息，读起来像图号。
          */
-        link: 'p-0 text-accent-ink transition-colors duration-150 ease-out hover:underline',
+        link: 'border border-transparent px-0 font-body normal-case tracking-normal text-accent-ink hover:underline',
+        /** 破坏性操作（规范 5.1 的 danger）：红边 + 红字，不做实底红块。 */
+        danger: 'border border-danger text-danger hover:bg-raised',
       },
       size: {
-        sm: 'min-h-8 gap-1.5 px-3 text-ui-sm max-nav:min-h-9',
-        md: 'min-h-9 gap-2 px-4 text-sm',
-        lg: 'min-h-11 gap-2 px-4 text-reading',
+        // 主控件触控底线 44px（规范 2.5 / 9）；sm 在桌面 36px，≤900 档抬到 44。
+        sm: 'min-h-9 gap-1.5 px-3 text-tok tracking-widest max-sheet:min-h-11',
+        md: 'min-h-11 gap-2 px-4 text-ui-sm',
+        lg: 'min-h-12 gap-2 px-5 text-ui-sm',
       },
       full: {
         true: 'w-full',
@@ -61,12 +74,11 @@ export const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      // 纯文字/链接形态只归零 padding 与盒模型内边距，不再把 min-h 归零：
-      // 归零后经 cn()（tailwind-merge 后者覆盖前者）会压掉 size sm 的 min-h-8，
-      // 桌面端这类按钮实际高度约 18px 跌破 24px 触控下限；保留 min-h-8，
-      // 移动端 max-nav:min-h-9 媒体查询继续生效（P1 触控目标修复）。
-      { variant: 'quiet', class: 'px-2 py-0' },
-      { variant: 'link', class: 'px-0 py-0' },
+      // 纯文字/链接形态只归零 padding，不再把 min-h 归零：
+      // 归零后经 cn()（tailwind-merge 后者覆盖前者）会压掉 size 的 min-h，
+      // 这类按钮实际高度会跌到 20px 上下，跌破触控下限。
+      { variant: 'quiet', class: 'py-0' },
+      { variant: 'link', class: 'py-0 min-h-9' },
     ],
     defaultVariants: {
       variant: 'primary',

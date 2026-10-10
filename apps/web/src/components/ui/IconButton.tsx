@@ -20,26 +20,29 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cn } from '../../lib/cn';
 
 export const iconButtonVariants = cva(
+  // ── 2026-10-10 style-10 蓝图迁移 P4：规范 5.2 ─────────────────────────
+  // 44×44 保底、1px 线、透明底、hover 转 accent 边 + accent 图标 + accent-veil 底。
+  // ⚠ 不再挂 opacity 压暗表达禁用：与 Button 同一理由（禁用走虚线/斜纹语义）。
   'grid flex-none place-items-center rounded-control transition-colors duration-150 ease-out ' +
-    'disabled:cursor-not-allowed disabled:opacity-60',
+    'disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        /** 描边式：浮在内容上、需要自己划出边界（顶栏汉堡键、抽屉关闭键）。 */
+        /** 描边式：浮在内容上、需要自己划出边界（图签条的开关按钮、抽屉关闭键）。 */
         outline:
-          'border border-line bg-surface text-ink-soft hover:border-accent hover:text-accent-ink',
+          'border border-line bg-transparent text-ink-soft hover:border-accent hover:bg-accent-veil hover:text-accent-ink',
         /** 有影浮起（返回顶部）。比 outline 多一层「离开了页面平面」的表达。 */
         raised:
-          'border border-line bg-surface text-ink-soft shadow-card hover:border-accent hover:text-accent-ink',
+          'border border-line bg-surface text-ink-soft shadow-overlay hover:border-accent hover:bg-accent-veil hover:text-accent-ink',
         /** 无边界：贴在卡片内部，靠 hover 底色表达可点（图谱节点明细卡关闭键）。 */
-        quiet: 'text-ink-soft hover:bg-raised hover:text-ink',
+        quiet: 'text-ink-soft hover:bg-accent-veil hover:text-ink',
         /** 实心主色。 */
-        solid: 'bg-accent text-on-accent hover:opacity-90',
+        solid: 'bg-accent text-on-accent hover:bg-accent-ink',
       },
       size: {
-        /** 36px —— 紧凑排布区（卡片角、列表行）的下限。 */
-        sm: 'h-9 w-9',
-        /** 44px —— 独立浮起的主触控目标（返回顶部）。 */
+        /** 36px（桌面）；md/sm 视口档与粗指针环境由 CSS 抬到 44（规范 5.2）。 */
+        sm: 'h-9 w-9 max-sheet:h-11 max-sheet:w-11',
+        /** 44px —— 独立浮起的主触控目标（返回顶部）与触控档保底。 */
         md: 'h-11 w-11',
       },
     },

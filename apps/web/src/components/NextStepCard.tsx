@@ -29,19 +29,31 @@ export interface NextStepCardProps {
   /** 建议一句话（学长语气）。 */
   hint: string;
   actions: NextStepAction[];
+  /**
+   * 分节编号（规范 4.3 的 `01`）。可选：不传则不渲染编号行，
+   * 未迁移页面保持与改造前相同的版式（共存策略）。
+   */
+  no?: string;
   className?: string;
 }
 
-export default function NextStepCard({ status, hint, actions, className }: NextStepCardProps) {
+export default function NextStepCard({ status, hint, actions, no, className }: NextStepCardProps) {
   return (
     <aside
       data-print="hide"
       className={cn(
-        'rounded-surface border border-dashed border-accent/40 bg-accent-veil/40 p-4',
+        // 蓝图纸质制式（规范 5.12 的「出路行」）：虚线边 + 同色面纱 + 0 圆角。
+        // 虚线（而不是实线）是刻意的：这张卡不是图纸的结构件，是**临时路标** ——
+        // 走完就该消失，而实线框读起来像一个常驻区块。
+        'rounded-none border border-dashed border-accent bg-accent-veil/40 p-4',
         className,
       )}
     >
-      <p className="text-ui-sm text-ink-soft">{status}</p>
+      <p className="flex flex-wrap items-center gap-2 font-mono text-mono-xs uppercase tracking-widest text-ink-soft">
+        {no ? <span className="num-mono text-accent-ink">{no}</span> : null}
+        <span>NEXT STEP · 下一步</span>
+      </p>
+      <p className="mt-1.5 text-body-sm text-ink-soft">{status}</p>
       <p className="mt-1 text-sm leading-relaxed text-ink">{hint}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {actions.map((action) => (

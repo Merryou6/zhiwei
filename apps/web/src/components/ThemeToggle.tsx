@@ -20,7 +20,11 @@ export default function ThemeToggle() {
       aria-label="切换深浅主题"
       aria-pressed={isDark}
       title={isDark ? '切到浅色' : '切到深色'}
-      className="grid h-9 w-9 flex-none place-items-center rounded-control border border-line text-ink-soft transition-colors duration-150 ease-out hover:bg-raised"
+      // style-10 P4（规范 5.2）：44×44 触控底线 + hover 转 accent 边与 accent-veil 底。
+      // ⚠ 仍是**两态**开关（蓝图 / 白图）：草案里写的「三态（跟随系统/浅色/深色）」需要
+      //   在 zhiwei_theme 里新增 'system' 取值，那是主题 store 的行为变更，超出
+      //   D2 授权的「仅改初始判定」，故本轮不做（拍板①的「跟随系统」已由初始判定实现）。
+      className="grid h-11 w-11 flex-none place-items-center rounded-control border border-line text-ink-soft transition-colors duration-150 ease-out hover:border-accent hover:bg-accent-veil hover:text-accent-ink"
     >
       {isDark ? (
         <svg
