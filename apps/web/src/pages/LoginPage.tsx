@@ -61,6 +61,7 @@ import type { AuthData } from '../api/types';
 import ParticleLogo from '../components/ParticleLogo';
 import { Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
+import { useMagnetic } from '../lib/useMagnetic';
 import { useReveal } from '../lib/useReveal';
 import { SPACES_PATH, START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
@@ -100,6 +101,10 @@ export default function LoginPage() {
   // 演示入口错峰揭示，比表单晚 ~120ms（directed motion：错峰只在一屏之内）。once + reduced-motion 由 useReveal 兜底。
   const { ref: formRevealRef, inView: formRevealed } = useReveal<HTMLFormElement>();
   const { ref: demoRevealRef, inView: demoRevealed } = useReveal<HTMLDivElement>();
+
+  // 磁性 CTA（awwwards 包 G · micro-interactions）：主提交按钮悬停时向光标轻微吸引，
+  // 幅度 0.2 保守取值（max 6px）；reduced-motion 由 hook 内部 no-op，触屏无 mousemove 天然无效。
+  const magneticCta = useMagnetic(0.2);
 
   /** 本地校验（行内提示用；服务端仍是最终裁判）。
       【P3 人设随身份】学生端文案是学长口吻，老师身份下改中性，不让老师被「记住你」。 */
@@ -242,6 +247,12 @@ export default function LoginPage() {
           内页没有的第二套强调色。 */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 [background-image:radial-gradient(122%_86%_at_50%_-12%,rgba(78,143,176,0.26),transparent_64%)]" />
+        {/* aurora 氛围色斑（awwwards 包 G）：叠在静态径向光之上的两团缓慢漂移光晕
+            （40s/55s 错峰，见 index.css .aurora-*）。主次关系：粒子标识仍是这一屏的
+            绝对主角，aurora 只在它背后提供「画面在呼吸」的低频氛围——透明度压在
+            0.5 且 blur(80px) 羽化，绝不与标识争夺视线。 */}
+        <div aria-hidden className="aurora-blob aurora-1" />
+        <div aria-hidden className="aurora-blob aurora-2" />
       </div>
 
       {/* 粒子开场：全页唯一一处「被编排过的动效」，也是这一屏的主角。
@@ -311,7 +322,13 @@ export default function LoginPage() {
             关联的 label），省掉两行可见文字 —— 这是把 13 个元素压到 7 个的关键一步。
             字段间距由 FormField 的外层 className 给；错误态与 ARIA 关联由 error
             一个入参同时决定（见 Input.tsx 的 FormField 说明）。 */}
-        <FormField label="手机号或邮箱" labelHidden className="mt-3" error={fieldErrors.identifier}>
+        <FormField
+          label="手机号或邮箱"
+          labelHidden
+          // focus-glow（awwwards 包 G）：容器级 :focus-within 辉光，聚焦时整组泛光
+          className="mt-3 rounded-control focus-glow"
+          error={fieldErrors.identifier}
+        >
           <Input
             tone="onDark"
             fieldSize="lg"
@@ -325,7 +342,13 @@ export default function LoginPage() {
           />
         </FormField>
 
-        <FormField label="密码" labelHidden className="mt-3" error={fieldErrors.password}>
+        <FormField
+          label="密码"
+          labelHidden
+          // focus-glow（awwwards 包 G）：同上，两个输入区统一聚焦辉光表达
+          className="mt-3 rounded-control focus-glow"
+          error={fieldErrors.password}
+        >
           <Input
             tone="onDark"
             fieldSize="lg"
@@ -358,7 +381,16 @@ export default function LoginPage() {
             不表示任何层级关系。
             size="lg" 的最小高度是 44px，正好压在触控目标下限上（Accessible & Ethical 的
             44×44 要求），这也是不再写死 min-h-12 的理由：档位化的值可被统一校验。 */}
-        <Button type="submit" variant="primary" size="lg" full loading={submitting} className="mt-4">
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          full
+          loading={submitting}
+          // btn-sheen（awwwards 包 G）：悬停扫光点亮实底按钮；磁性吸引见上方 useMagnetic 注释
+          className="mt-4 btn-sheen"
+          {...magneticCta}
+        >
           {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
         </Button>
 

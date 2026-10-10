@@ -110,7 +110,11 @@ export default function App() {
   return (
     // 顶层边界：Layout / 守卫自身异常也不白屏（此时无导航，兜底卡片自带出口）
     <ErrorBoundary key={`root:${location.pathname}`}>
-      <Routes>
+      {/* 路线级转场（2026-10-10 awwwards 包 G）：key 取 pathname，换页即整树重挂，
+          每次切换整页 180ms fade+rise 进场（.route-view，见 index.css）。转场是获奖站
+          「无缝体验」的基础盘；180ms 克制不打断学习动线，reduced-motion 自动瞬时化。 */}
+      <div key={location.pathname} className="route-view">
+        <Routes>
         {/* 公开入口门户（2026-09-25 收尾轮）：站外访客的第一脚，无守卫、无顶栏外壳，
             不进 router.ROUTES 的 11 页口径。「立即体验」→ /login，未登录进登录页、
             已登录被守卫直接送进 #/spaces，一条路径自动分状态。 */}
@@ -181,7 +185,8 @@ export default function App() {
           );
         })}
         <Route path="*" element={<Navigate to={LOGIN_PATH} replace />} />
-      </Routes>
+        </Routes>
+      </div>
     </ErrorBoundary>
   );
 }

@@ -35,6 +35,7 @@ import { Button } from '../components/ui';
 import { buttonVariants } from '../components/ui/Button';
 import { cn } from '../lib/cn';
 import { LOGIN_PATH } from '../router';
+import { useMagnetic } from '../lib/useMagnetic';
 import { useReveal } from '../lib/useReveal';
 
 const GITHUB_URL = 'https://github.com/Merryou6/zhiwei';
@@ -144,6 +145,11 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const enter = () => navigate(LOGIN_PATH);
 
+  // 磁性 CTA（awwwards 包 G · micro-interactions）：主 CTA 悬停向光标轻微吸引（max 6px，
+  // 幅度 0.2 保守）。handler 读 event.currentTarget，同一实例可 spread 到多个按钮；
+  // reduced-motion 由 hook 内 no-op，触屏无 mousemove 天然无效。
+  const magneticCta = useMagnetic(0.2);
+
   return (
     <div className="min-h-dvh bg-canvas text-ink">
       {/* ---------------------------------- 顶栏（门户自己的，不进应用） */}
@@ -181,7 +187,8 @@ export default function LandingPage() {
               再用一个不抛答案的 AI 学长陪他走回正轨——最后用三道没见过的新题，证明这条路真的走对了。
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Button size="lg" className="px-8 text-reading shadow-overlay" onClick={enter}>
+              {/* 章 1 主 CTA：btn-sheen 扫光 + 磁性吸引（awwwards 包 G）——实底按钮才加扫光 */}
+              <Button size="lg" className="px-8 text-reading shadow-overlay btn-sheen" onClick={enter} {...magneticCta}>
                 立即体验
               </Button>
               <a
@@ -279,10 +286,12 @@ export default function LandingPage() {
             注册即用，走通「自报 → 测评 → 归因 → 辅导 → 复测」完整链路；登录后可选身份，学长相伴，不施压。
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Button size="lg" className="px-8 text-reading shadow-overlay" onClick={enter}>
+            {/* 章 4 双端 CTA（awwwards 包 G）：实底的学生按钮加扫光 + 磁性；
+                次级（描边）老师按钮只加磁性——扫光是「实底被点亮」的语汇，描边面不加 */}
+            <Button size="lg" className="px-8 text-reading shadow-overlay btn-sheen" onClick={enter} {...magneticCta}>
               我是学生，开始学
             </Button>
-            <Button size="lg" variant="secondary" className="px-8 text-reading" onClick={enter}>
+            <Button size="lg" variant="secondary" className="px-8 text-reading" onClick={enter} {...magneticCta}>
               我是老师，看学情
             </Button>
           </div>
