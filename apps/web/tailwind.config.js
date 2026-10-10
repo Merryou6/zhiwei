@@ -26,6 +26,14 @@ export default {
       //   恰在 720px 处的差异已实测并在执行报告中留痕。
       // ───────────────────────────────────────────────────────────────
       screens: {
+        // 单列极窄档：标注列降级为上标+列表、表格行转卡片的下界（原型 sm: ≤420）
+        narrow: '420px',
+        // 图纸档：≤900 底部 tabbar 出现、侧栏进「全部图纸」抽屉、ChatPanel 全屏覆盖
+        sheet: '900px',
+        // 标注档：≥1180 才画 SVG 虚线引线、ChatPanel 才挤压图纸（原型 xl: ≥1180）
+        annos: '1180px',
+        // nav 保留不删（D1）：语义收窄为「触控目标作用域」（max-nav:min-h-9 等既有用法），
+        // 布局行为一律挂上面新三档；未迁移页面的 nav:* 类零破坏，收尾批再评估清退。
         nav: '720px',
       },
 
@@ -49,6 +57,17 @@ export default {
       //   caption              — 极小元信息与密集标签
       // ───────────────────────────────────────────────────────────────
       fontSize: {
+        // ── style-10 蓝图刻度（2026-10-10 迁移 P3 增补，规范第 3 章）──────
+        // 批注制式 .tok（元信息唯一书写方式）与它的极小档
+        tok: '11px',
+        'mono-xs': '10.5px',
+        // 正文小档（图例、注记、表格正文）
+        'body-sm': '13.5px',
+        // 三级标题（原型 h3 17px / h2 20px）
+        'title-sm': '17px',
+        title: '20px',
+        // 尺寸块主数字（.big-num）
+        'num-lg': '26px',
         caption: '11px',
         'ui-sm': '13px',
         reading: '15px',
@@ -106,12 +125,23 @@ export default {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        // 引线描边入场（规范第 8 章：唯一大动效，800ms）。
+        // stroke-dasharray/dashoffset 由使用方按几何长度注入（LeaderLayer）；
+        // 这里只定义「从满偏移描到 0」的节奏。
+        draw: {
+          '0%': { strokeDashoffset: '1200' },
+          '100%': { strokeDashoffset: '0' },
+        },
       },
       animation: {
-        rise: 'rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both',
-        fade: 'fade 160ms cubic-bezier(0.22, 1, 0.36, 1) both',
-        'slide-in-panel': 'slide-in-panel 240ms cubic-bezier(0.16, 1, 0.3, 1) both',
-        'route-in': 'route-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        // ── 动效三 token（规范第 8 章，2026-10-10 迁移 P3 换值）──────────
+        // UI 过渡一律 160ms；微交互 110ms；唯一大动效 800ms（引线 / 图谱边）；
+        // 缓动全站唯一 cubic-bezier(.2,.7,.3,1)，不再出现第二种节奏。
+        rise: 'rise 160ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+        fade: 'fade 160ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+        'slide-in-panel': 'slide-in-panel 160ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+        'route-in': 'route-in 160ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+        draw: 'draw 800ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards',
       },
 
       // ───────────────────────────────────────────────────────────────
@@ -121,15 +151,20 @@ export default {
       // ───────────────────────────────────────────────────────────────
       colors: {
         // ─── 守恒区：字面 hex，禁止改成变量 ───────────────────────────
-        // tests/bands.test.ts 逐键断言 `tailwindColors['primary'] === '#4E8FB0'`
+        // tests/bands.test.ts 逐键断言 `tailwindColors['primary'] === '#1A5FB4'`
         // 等六项。改成 rgb(var(--x)) 会让断言直接失败，也会切断
         // src/theme/bands.ts 与 tailwind 配置之间的唯一真相。
-        primary: '#4E8FB0',
-        'primary-soft': '#EAF2F6',
-        'band-weak': '#E8894A',
-        'band-unstable': '#D9B23F',
-        'band-basic': '#79B8A6',
-        'band-mastered': '#2F9C7C',
+        //
+        // 2026-10-10 style-10 蓝图迁移 P3：六项换成「白图」那套新色系
+        // （守恒区只能容纳一套字面 hex，取默认主题即白图那套；蓝图那套走
+        // index.css 的 --c-band-* 变量，见 tokens.test.ts ③ 的成对断言）。
+        // 四档同时是「色 + 形状 + 文字」三重编码里的色（规范 2.2）。
+        primary: '#1A5FB4',
+        'primary-soft': '#E8F0F8',
+        'band-weak': '#B3261E',
+        'band-unstable': '#7A4F00',
+        'band-basic': '#1A5FB4',
+        'band-mastered': '#00567A',
 
         // ─── 主题变量区（2026-09-22 视觉批四：全站深色化）──────────────
         // 上一轮只把登录页做成深色，内页仍是浅色。用户登录后会话落在
@@ -233,23 +268,20 @@ export default {
       },
 
       // ── 圆角刻度（SHAPE CONSISTENCY LOCK）─────────────────────────
-      // 一个页面只允许一套圆角规则，且必须有依据。旧的 rounded-[22px]/[26px]
-      // 是随手写的，已删除。
+      // 一个页面只允许一套圆角规则，且必须有依据。
       //
-      // 2026-09-25 重构 P2 收口：把残留的 78 处内置圆角类收敛到令牌后，核了一遍实际用量 ——
-      // 在用的是两档令牌 + 一种微标签规格，所以圆角的真实刻度是**三档**：
-      //   micro   — 6px，状态 chip / 徽标 / 骨架条 / 图标块。走内置 rounded-md，
-      //             不为它单开令牌：它是「形状的最小单位」，不是一层层级。
-      //   control — 10px，按钮、输入框、下拉项、列表项（用户直接操作的件）
-      //   surface — 16px，面板、卡片、信息块、抽屉（承载内容的件）
-      //
-      // shell(20px) 已删除：它自建立起**零使用点**（登录表单容器实际用的是 rounded-2xl
-      // 的 16px，已收敛到 surface）。留着一个没人用的令牌比没有更危险 —— 后来人会以为
-      // 存在第四档层级，照着它写新值，刻度就散了。（同 index.css 里那对零使用的
-      // .pt-safe / .pb-safe 的处置方式：删掉并把语义交给更具体的类。）
+      // 2026-10-10 style-10 蓝图迁移 P3：刻度从「6 / 10 / 16px」三档收敛到
+      // **0 与 2px 两档**（规范 2.5 / 5.1）—— 图纸感来自线与面，圆角只用来
+      // 「不让直角割手」，不是一层层级：
+      //   r0 0px  状态 chip / 方块章 / 条形 / 注记（走内置 rounded-none）
+      //   r  2px  面板、按钮、输入框、卡片（走下面两档令牌）
+      // 两档令牌同值是有意的：它们表达的是**职责**（可操作的件 / 承载内容的件），
+      // 未来若其中一类要单独变化，改一处即可，不必去搜类名。
+      // 上一轮的 micro 6px（rounded-md）随之退场：迁移页内一律改用 0/2px 两档，
+      // 由 tokens.test.ts ⑩ 静态拦下任意值圆角。
       borderRadius: {
-        control: '10px',
-        surface: '16px',
+        control: '2px',
+        surface: '2px',
       },
 
       boxShadow: {
@@ -293,14 +325,19 @@ export default {
       },
 
       fontFamily: {
-        // 拉丁字母与数字交给 Geist（自托管，不依赖外网，无 FOUT 抖动）；
-        // 汉字不在 Geist 字形集内，自然回落到系统中文栈。
+        // ── style-10 蓝图三栈（2026-10-10 迁移 P3；规范第 3 章）──────────
+        // 拉丁与数字交给 Chivo（标题）/ IBM Plex Mono（批注与数值），
+        // 汉字交给 Noto Sans SC；三族全部 @fontsource 自托管（**禁 CDN** ——
+        // 原型里的 fonts.googleapis 链接是单文件原型的零构建例外，不是产品例外）。
         //
-        // 中文为什么不引外部字体：思源/霞鹜一类全量中文字体动辄数 MB，
-        // 为一个登录页拖垮首屏不划算。中文的质感来自排版工艺
-        // （标点挤压 palt、字重阶梯、字距控制），这些在 index.css 里做。
+        // 一个 Tailwind 键对应一组栈；下面的 body 与 sans 同值是有意的：
+        //   sans → 全站默认（body / p / li 等）
+        //   body → 需要显式表达「这里是正文而不是标题」的位置
+        //   disp → 标题与品牌字（h1~h4、大数字标签）
+        //   mono → 全部批注制式 .tok / 数值 / 图号 / 状态
+        // 改名会让既有 bg-canvas font-sans 这类写法失配，故原名保留、只换栈。
         sans: [
-          'Geist Variable',
+          '"Noto Sans SC"',
           '-apple-system',
           'BlinkMacSystemFont',
           '"PingFang SC"',
@@ -308,7 +345,33 @@ export default {
           '"Microsoft YaHei"',
           'sans-serif',
         ],
-        mono: ['Geist Mono Variable', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        body: [
+          '"Noto Sans SC"',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"PingFang SC"',
+          '"Hiragino Sans GB"',
+          '"Microsoft YaHei"',
+          'sans-serif',
+        ],
+        disp: [
+          'Chivo',
+          '"Noto Sans SC"',
+          '"PingFang SC"',
+          '"Hiragino Sans GB"',
+          '"Microsoft YaHei"',
+          'system-ui',
+          'sans-serif',
+        ],
+        mono: [
+          '"IBM Plex Mono"',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'Consolas',
+          '"Noto Sans SC"',
+          'monospace',
+        ],
       },
     },
   },

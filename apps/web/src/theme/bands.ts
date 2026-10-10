@@ -5,8 +5,10 @@
  *   1) 阈值与状态带判定：**直接复用 engine**（packages/engine/src/statusBand.ts），
  *      前端不得另写阈值或另立区间；守恒测试断言导出常量 === engine 导出值。
  *   2) hex 令牌：PRD §6 只给语义色名（暖橙/黄/浅青绿/青绿）+「低饱和、不刺眼、禁大红」约束，
- *      hex 具体取值由迭代 3 计划 D6 裁决；与 apps/web/tailwind.config.js 的 extend.colors
- *      逐字相等（守恒测试断言）。
+ *      具体取值经 2026-10-10 style-10「青蓝蓝图」迁移换为蓝图新系（红/黄/蓝/青）——
+ *      **与 PRD §6 的色名冲突按「以原型为准」裁决并留痕**
+ *      （tempui/STYLE-10-设计系统规范.md 第 12.2 章）；
+ *      与 apps/web/tailwind.config.js 的 extend.colors 逐字相等（守恒测试断言）。
  *   3) tailwind class 名与图例文案：组件只允许经本模块取色，禁止硬编码 hex。
  *
  * 导入纪律（执行报告偏差 D-3）：从 statusBand **源模块**导入，而非 engine barrel ——
@@ -34,28 +36,50 @@ export {
 };
 export type { MasteryBand, MasteryColor };
 
-/** 主色：低饱和青蓝（PRD §6「主色低饱和青蓝」）。 */
-export const PRIMARY_HEX = '#4E8FB0';
-/** 主色浅底（图例/链接 hover 底、路径高亮底色）。 */
-export const PRIMARY_SOFT_HEX = '#EAF2F6';
+/**
+ * 主色：青蓝蓝图的白图强调色（规范 2.1 的 `--c-accent` 白图值，
+ * 与 tailwind 的 primary 逐字同源、被守恒测试锁定）。
+ */
+export const PRIMARY_HEX = '#1A5FB4';
+/** 主色浅底（图例/链接 hover 底、路径高亮底色 = 白图的同色面纱）。 */
+export const PRIMARY_SOFT_HEX = '#E8F0F8';
 
 /**
- * 四状态带 hex（D6 裁决；全部低饱和，无大红）。
- * 语义色名与 engine.BAND_COLORS 一一对应（守恒测试锁定）。
+ * 四状态带 hex（style-10「青蓝蓝图」白图那套，2026-10-10 迁移 P3 换值）。
+ *
+ * 守恒区只能容纳**一套**字面 hex：取白图那套（默认主题是白图，拍板①）。
+ * 蓝图那套（`#F16A6A` / `#F2B441` / `#4E86D6` / `#5AC8E8`）走 index.css 的
+ * `--c-band-*` 变量，供外壳族组件消费，不进守恒区。
+ *
+ * ⚠ 语义色名与 engine.BAND_COLORS（暖橙/黄/浅青绿/青绿）的差异是**已登记的冲突**：
+ * engine 属冻结区不改，新色相实际是红/黄/蓝/青，逐条留痕见
+ * tempui/STYLE-10-设计系统规范.md 第 12.2 章（以原型为准）。
  */
 export const BAND_HEX: Record<MasteryBand, string> = {
-  待巩固: '#E8894A',
-  不稳定: '#D9B23F',
-  基本掌握: '#79B8A6',
-  已掌握: '#2F9C7C',
+  待巩固: '#B3261E',
+  不稳定: '#7A4F00',
+  基本掌握: '#1A5FB4',
+  已掌握: '#00567A',
+};
+
+/**
+ * 四档**文本**色（`-t` 系列，规范 2.3）：小字必须用这一套。
+ * 白图下与实色同值（原型定义如此），蓝图下比实色浅一档（`--c-band-*-t`）。
+ * 全部经守恒测试实测：在 canvas（#F4F7FA）上 ≥ 4.5:1。
+ */
+export const BAND_TEXT_HEX: Record<MasteryBand, string> = {
+  待巩固: '#B3261E',
+  不稳定: '#7A4F00',
+  基本掌握: '#14509C',
+  已掌握: '#00567A',
 };
 
 /** 四状态带浅底（chip / 条形底；同色相提亮，仅作背景，不参与语义判断）。 */
 export const BAND_SOFT_HEX: Record<MasteryBand, string> = {
-  待巩固: '#FBEDE2',
-  不稳定: '#F8F1DC',
-  基本掌握: '#E7F2EF',
-  已掌握: '#E2F1EC',
+  待巩固: '#F7E3E1',
+  不稳定: '#F3EAD6',
+  基本掌握: '#E3ECF9',
+  已掌握: '#DDEBF3',
 };
 
 /** 状态带固定展示序（低 → 高；图例、报告分布条形图、图例项顺序）。 */
