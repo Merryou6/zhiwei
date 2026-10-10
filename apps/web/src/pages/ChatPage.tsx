@@ -112,10 +112,25 @@ export default function ChatPage() {
             <ChatMessageList messages={store.messages} streaming={store.streaming} />
           </div>
           {/* 设计语言（包F）：输入区包一层玻璃面（glass-card 是面材质，圆角内边距自备）。
-              密集的消息气泡本体保持实底不动——对话区可读性优先，只动输入区/空态/入场动画。 */}
-          <div className="glass-card mt-4 rounded-surface p-3">
+              密集的消息气泡本体保持实底不动——对话区可读性优先，只动输入区/空态/入场动画。
+              focus-glow（内页强调时刻）：聚焦输入时容器亮起辉光——「学长在听」的状态外化 */}
+          <div className="glass-card focus-glow mt-4 rounded-surface p-3">
             <ChatComposer disabled={store.streaming} />
           </div>
+
+          {/* 思考指示（内页强调时刻）：流式期间消息流尾部三点呼吸，替代静态文字的过程感；
+              共享组件 ChatMessageList（D11）不可改，故在页壳层补这个 busy 指示，
+              aria-hidden 的圆点只给视觉，读屏走 sr-only 文本，发送流程零改动 */}
+          {store.streaming ? (
+            <p className="mt-2 flex items-center gap-1.5 text-ui-sm text-ink-soft">
+              <span className="typing-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              <span className="sr-only">学长正在思考</span>
+            </p>
+          ) : null}
 
           <p className="mt-3 text-ui-sm text-ink-soft">
             {activeSpaceId ? '' : `还没有空间，`}

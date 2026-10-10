@@ -402,14 +402,26 @@ export default function PracticePage() {
         ) : null}
         {/* glass-card（跨包契约，包 1 落地）：战报卡换半透玻璃面，与 result-in 入场共存 */}
         <div className="result-in glass-card mt-5 rounded-surface border border-line bg-surface p-4 shadow-card">
-          <p className="text-sm text-ink">
-            {groupCount} 题里 {groupCorrect} 题走到正确答案。
+          {/* 编辑式大数字（awwwards SOTD 超大字排版传统）：战报是练习闭环的收尾记忆点，
+              主数字（本组正确数 / 平均通过率）升显示级 text-4xl + font-light + tabular-nums，
+              标签保持小号；min-w-0 防窄屏溢出，PercentCount 的 sr-only 终值口径不变 */}
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+            <div className="min-w-0">
+              <p className="text-4xl font-light tabular-nums text-ink">
+                {groupCorrect}
+                <span className="ml-1.5 text-base text-ink-soft">/ {groupCount} 题</span>
+              </p>
+              <p className="mt-1 text-ui-sm text-ink-soft">走到正确答案</p>
+            </div>
             {groupAvg !== null ? (
-              <>
-                平均通过 <PercentCount to={groupAvg} />% 的步骤。
-              </>
+              <div className="min-w-0">
+                <p className="text-4xl font-light tabular-nums text-ink">
+                  <PercentCount to={groupAvg} />%
+                </p>
+                <p className="mt-1 text-ui-sm text-ink-soft">平均通过步骤</p>
+              </div>
             ) : null}
-          </p>
+          </div>
           {chapterProgress ? (
             <p className="mt-1 text-ui-sm text-ink-soft">
               本章累计：练过 {chapterProgress.practiced_items} 题 · 提交 {chapterProgress.submissions} 次

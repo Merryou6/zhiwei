@@ -125,9 +125,11 @@ export default function SpacesPage() {
               <li
                 key={space.space_id}
                 // 玻璃面：空间层次（awwwards layered depth）——直接拼类名，补钉自动盖过 Card 底色
+                // conic-ring（内页强调时刻）：「当前使用」是学生每次进来的定位锚，
+                // 旋转强调边框给这块卡一个呼吸的「现在在这里」信号；其余空间卡保持安静
                 className={cn(
                   'glass-card rounded-surface border p-5',
-                  isActive ? 'border-accent' : 'border-line',
+                  isActive ? 'conic-ring border-accent' : 'border-line',
                 )}
               >
                 {/* flex-wrap（R7）：窄屏「标题 + 徽标」与右侧按钮组换行堆叠，不再互相挤压 */}
