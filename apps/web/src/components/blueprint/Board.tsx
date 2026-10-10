@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
 
@@ -75,6 +75,12 @@ export interface BoardProps {
   railOpen?: boolean;
   annosOpen?: boolean;
   className?: string;
+  /**
+   * 内联样式（P5 新增）：外壳把面板让位量 `--panel-dock-offset` 写在板根节点上，
+   * 图签条右区与图纸列都读同一个自定义属性（单一来源，见 components/panelDock.ts）。
+   * 挂在板根而不是再包一层 div —— 多一层包裹会改变走查脚本的几何锚点取法。
+   */
+  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -84,6 +90,7 @@ export default function Board({
   railOpen = true,
   annosOpen = false,
   className,
+  style,
   children,
 }: BoardProps) {
   const detected = useBlueprintTier();
@@ -100,6 +107,7 @@ export default function Board({
         'relative min-h-dvh bg-canvas text-ink',
         className,
       )}
+      style={style}
     >
       {/* skip link：默认推到视口外，聚焦时落到图签条下方。
           top 用 `top-safe-16`（= env(safe-area-inset-top,0px) + 4rem）而不是一个裸值：

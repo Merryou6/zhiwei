@@ -624,7 +624,11 @@ const DRAWER_JS = `(() => {
   const t = document.getElementById('mobile-nav-toggle');
   const drawer = document.getElementById('mobile-nav-drawer');
   const panel = document.querySelector('aside[aria-label="对话辅导面板"]');
+  // style-10 P5：顶栏主导航退役 → 图签条里不再有 nav>ul；≤900 档主导航由
+  // 「底部 tabbar」承担，≥901 由左侧「分层索引」承担。两个指标都给出来，
+  // 让断言能表达「导航换到了哪里」，而不是只断言旧结构消失。
   const navUl = document.querySelector('header nav ul');
+  const tabbar = document.querySelector('nav[aria-label="主导航"]');
   const active = document.activeElement;
   return JSON.stringify({
     toggleExists: !!t,
@@ -636,6 +640,8 @@ const DRAWER_JS = `(() => {
     drawerWidth: drawer ? +drawer.getBoundingClientRect().width.toFixed(1) : null,
     drawerRight: drawer ? +drawer.getBoundingClientRect().right.toFixed(1) : null,
     navUlHidden: navUl ? getComputedStyle(navUl).display === 'none' : null,
+    tabbarVisible: !!tabbar && getComputedStyle(tabbar).display !== 'none',
+    tabbarItems: tabbar ? tabbar.querySelectorAll('a').length : 0,
     focusInsideDrawer: !!(drawer && active && drawer.contains(active)),
     focusId: active ? (active.id || active.tagName.toLowerCase()) : null,
     panelOpen: !!panel,
@@ -681,7 +687,14 @@ async function runProbeNav(cdp, opts) {
 
   const closed = JSON.parse(await cdp.ev(DRAWER_JS));
   check('未登录态无关：已登录、汉堡键存在且可见', closed.toggleExists && closed.toggleVisible, closed);
-  check('顶栏导航 ul 在 <720 被收纳（display:none）', closed.navUlHidden === true, closed);
+  // P5 换值留痕：旧断言是「顶栏导航 ul 在 <720 被收纳」；顶栏已退役（导航改由
+  // 底部 tabbar 与左侧分层索引承担），故新断言表达同一件事的新形态：
+  // ≤900 图签条里不再有导航 ul，且底部 tabbar 真的可见、项数 ≤5（规范 5.15）。
+  check(
+    '≤900 主导航改由底部 tabbar 承担（图签条无导航 ul + tabbar 可见且 ≤5 项）',
+    closed.navUlHidden !== false && closed.tabbarVisible === true && closed.tabbarItems > 0 && closed.tabbarItems <= 5,
+    closed,
+  );
   check('初始抽屉不存在', closed.drawer === false, closed);
 
   // 打开
@@ -736,9 +749,12 @@ async function runProbeNav(cdp, opts) {
   // 互斥（D4）：抽屉内「对话辅导」→ 关抽屉、开面板
   await cdp.ev(`document.getElementById('mobile-nav-toggle').click(); 1`);
   await sleep(250);
+  // ⚠ 按**文案**取按钮，不按 button[aria-pressed]：P5 起抽屉里有两个带 aria-pressed
+  //    的开关（图纸底色 ThemeToggle 与对话辅导入口），而 DOM 顺序上 ThemeToggle 在前 ——
+  //    旧选择器会点到主题开关，抽屉与面板都不动（首跑实测：drawer=true / panelOpen=false）。
   await cdp.ev(`(() => {
     const d = document.getElementById('mobile-nav-drawer');
-    const btn = d && d.querySelector('button[aria-pressed]');
+    const btn = d && [...d.querySelectorAll('button')].find((b) => (b.textContent || '').includes('对话辅导'));
     if (btn) btn.click();
     return !!btn;
   })()`);

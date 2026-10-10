@@ -1,68 +1,131 @@
 /**
- * 页面外壳：顶栏 + 主内容区 + 右侧常驻对话面板 + 非阻断 Toast 出口（stores/ui.ts 驱动）。
+ * 页面外壳（style-10「青蓝蓝图」迁移 P5：制图板四层骨架一次切换）
  *
- * 内容宽度由外壳统一给出（一屏一件事：页面自己决定单栏/两栏，外壳只负责留白与底色）。
- * P2（2026-09-25）把外壳从 max-w-5xl(1024) 放宽到 **max-w-6xl(1152)**：数据型页面
- * （图谱、控制台、对话双栏）在 1024 下偏挤，且 ConsoleHomePage 曾自己写 max-w-[1180px]
- * 想突破外壳 —— 结果被外壳截断成死代码，没有任何提示。宽度只能有一个真相。
- * ⚠ TopNav 的 nav 容器必须与此同值，否则「内容列与顶栏共用同一条左基线」立刻破。
+ * 【它现在是什么】一张制图板：
  *
- * 视觉改版（2026-09-22）：Toast 出口抽到 ToastHost，与「无外壳」的登录页共用一份队列。
+ *   Board（板：底色 + 四角标记 + 图幅档）
+ *   ├─ Masthead（图签条：品牌 ⊕ 四项图签 ⊕ 身份芯片 ⊕ 索引/标注/面板开关 ⊕ 右区操作簇）
+ *   ├─ workbench（grid）
+ *   │  ├─ Rail（分层索引；≥901 才渲染，窄档收进「全部图纸」抽屉）
+ *   │  └─ Sheet（图纸：页头 + 页面内容 + 右下标题栏）
+ *   ├─ MobileNav（≤900 底部 5 项 tabbar + 「全部图纸」抽屉 + 空间切换/新建/管理）
+ *   ├─ ChatPanelDock（对话面板三个形态，见下）
+ *   ├─ BackToTop（回到图纸顶部）
+ *   └─ ToastHost（非阻断批注条）
  *
- * v1.3（D1）：挂 <ChatPanelDock />。面板开合状态在 stores/chatPanel.ts（会话级）——
- * Layout 随路由切换会重挂载，放组件态会丢；对话上下文本就在全局 dialog store。
- * 形态按视口分两档（D1b）：
- *   · ≥1280：常驻挤压 —— 正文外层让出与面板等宽的 padding-right
- *     （transition-[padding] 平滑过渡），无背景幕；
- *   · <1280：覆盖式 —— 半透明背景幕 + 右侧抽屉，正文不动（此宽度下正文列本就贴边，
- *     再挤压必不可读）。
- * z-index 走令牌 z-overlay（50）档：单一 fixed 容器（内部先背景幕后面板本体），
- * 面板 top 自顶栏下缘（56px）起不遮 TopNav；Toast（z-toast=60）仍在最上层。
+ * 【三处必须说清的设计决定】
  *
- * 登录页走 bare 外壳（App.tsx），不进本组件 ⇒ 面板天然只在登录后出现。
+ * 1) Rail 在窄档**根本不渲染**，而不是渲染后 CSS 隐藏。
+ *    抽屉与正文靠 aria-hidden 互斥；多一个「渲染了但看不见」的可聚焦子树，
+ *    焦点陷阱与 Tab 序都会踩到死区（该子树在 display:none 下 focus() 无效，
+ *    会让 Tab 键彻底失效 —— 移动端适配轮已经踩过一次）。
  *
- * ⚠ 让位的 padding 放在**外层包装**而不是 main 自己（F4 走查实测修正，D24）：
- * 若把 padding-right 加在 main 上，padding 落在 main 的盒内，正文实际可用宽度会被
- * 白白吃掉一块、且与面板之间空出一条死区；放在外层后 main 的 max-width 作用在
- * 「面板左边的可用宽度」上，正文列始终紧贴面板左侧、无死区。
- * （D24 当时的具体像素值是在 max-w-5xl 下测的，P2 放宽到 6xl 后按同一机制推算，
- *   实测值见 P2 的走查截图。）
+ * 2) 面板三形态（D3）挂 annos(1180) / sheet(900) 两档，不再是 1280/720：
+ *      ≥1180 常驻挤压：正文与顶栏一起让出 400px（--panel-dock-offset 单一来源），无幕布；
+ *      901–1179 覆盖抽屉：半透明幕布 + 右侧同宽抽屉，正文不动；
+ *      ≤900   全屏覆盖：填满视口（含图签条），因为这一档图纸本身已是单列窄幅，
+ *             留一条 400px 的右侧空隙会把正文压到不可读。
+ *    「落位图纸右侧栏位」= 常驻态下它占的正是原型 `.annos` 标注列的视觉位置（图纸右缘），
+ *    只是宽度仍取面板自身的 400px（对话需要的最小舒适宽），标注列本身在页面批才出现。
  *
- * ⚠ 让位量必须同时作用于**顶栏**（清尾轮 L11 修正，2026-09-24）：F3 只改了正文列，
- * 面板一展开顶栏仍按整宽居中 ⇒ 1440 实测顶栏内容左缘 232px vs 正文列左缘 32px（错位 200px），
- * 破坏了「内容列与顶栏共用同一条左基线」这条设计不变量。
- * 现在让位量写成 CSS 自定义属性（单一来源，见 ./panelDock.ts），顶栏 nav 与正文列外层
- * 读同一个变量 ⇒ 左基线恒等（实测开合两态差 0px），且不存在第二份 400px 常量。
+ * 3) 未迁移页面（P6 起才逐页换）进新外壳的**简化形态**：它们没有 sheet-head，
+ *    也没有标注，但会正常落在 Sheet 的内边距与标题栏之间。这是拍板的共存过渡态。
+ *
+ * 【让位量仍是单一来源】`--panel-dock-offset` 由本文件写入，workbench 与右区操作簇
+ * 都读同一个变量 ⇒「内容列与顶栏共用同一条左基线」这条不变量在两态下都成立
+ * （机制见 ./panelDock.ts，清尾轮 L11）。
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { LOGIN_PATH, ROUTES, routeOf } from '../router';
+import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
+import { useSpaceStore } from '../stores/space';
+import Board, { useBlueprintTier, type BlueprintTier } from './blueprint/Board';
+import Masthead from './blueprint/Masthead';
+import Rail, { type RailItem } from './blueprint/Rail';
+import Sheet from './blueprint/Sheet';
+import TitleBlock, { type TitleCell } from './blueprint/TitleBlock';
 import ChatPanel from './chat/ChatPanel';
 import MobileNav from './MobileNav';
 import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
+import BackToTop from './BackToTop';
 import ToastHost from './ToastHost';
 import TopNav from './TopNav';
 
-/** 面板宽度（px）：常驻态正文外层让出等宽 padding-right，覆盖态抽屉同宽（窄屏再受 92vw 约束）。 */
+/** 面板宽度（px）：常驻态正文外层让出等宽，覆盖态抽屉同宽（窄档再受 92vw 约束）。 */
 const PANEL_WIDTH_PX = 400;
 
 /**
- * 常驻（挤压正文列）与覆盖（抽屉 + 背景幕）的分界。
+ * 常驻（挤压图纸）与覆盖（抽屉 + 幕布）的分界。
  *
- * ⚠ 它与外壳宽度**不是**同一个数（旧注释写成「与正文列 max-w-5xl 同值」，是错的：
- * 1024 ≠ 1280）。真正的判据是「挤出面板之后，正文列还剩多少可读宽度」：
- *   1280 − 400 = 880，再扣两侧页边距 48 ⇒ 832px，仍是舒服的阅读宽度；
- *   再窄下去正文就要被压到 700 以下，那时挤压比覆盖更伤阅读，故改用覆盖式。
- * 所以外壳放宽到 1152 也不改这个分界 —— 它由「正文可读下限」决定，不由外壳决定。
+ * ⚠ 从 1280 改挂 annos 档（1180，D3）：原判据是「挤出面板之后正文还剩多少可读宽度」，
+ *   而新外壳的图纸自身有 48px 外框内边距与左侧 236px 索引列，同一份宽度的可读量
+ *   比旧外壳少 —— 故分界必须提前到标注档，与原型「标注开启时 .sheet-grid 转两栏」
+ *   的档位一致（≥1180 才允许图纸被切出一列）。
+ * 值必须来自 tailwind.config.js 的 screens.annos，不能是第三个数。
  */
-const DOCK_MIN_WIDTH_PX = 1280;
+const DOCK_MIN_WIDTH_PX = 1180;
 
-/** 顶栏高度（px）：面板从顶栏下缘起，不遮导航。 */
-const TOPNAV_HEIGHT_PX = 56;
+/**
+ * 覆盖式与全屏覆盖的分界 = sheet 档（900）。
+ *
+ * ⚠ 必须与 CSS 的 `max-sheet:`（= `not all and (min-width:900px)`，即 ≤899.98）
+ *   **同边界**：JS 侧写 900 → 「≥900 不铺满」，CSS 侧 ≥900 不铺满 —— 恰好 900 时两处一致。
+ *   反例（首跑实测）：JS 侧曾写 901，于是恰好 900px 时 JS 判「铺满」而 CSS 的
+ *   `max-sheet:left-0` 不生效，aside 掉进「只有 right 无 width」的自动宽度态，
+ *   实测渲成 471px 宽的窄条（既不是覆盖抽屉也不是全屏）。
+ */
+const PANEL_FULLSCREEN_MAX_WIDTH_PX = 900;
 
+/** 图签条高度（px）：覆盖态面板从它的下缘起，不遮图签条。 */
+const MASTHEAD_HEIGHT_PX = 56;
+
+/** 图号（规范 10 章：学生图纸 10-01…10-14、教师图纸 10-15…10-17）。 */
+const SHEET_NO: Record<string, string> = {
+  '/': '10-01',
+  '/login': '10-02',
+  '/start': '10-03',
+  '/self-report': '10-04',
+  '/spaces': '10-05',
+  '/assessment': '10-06',
+  '/paper': '10-07',
+  '/practice': '10-08',
+  '/chat': '10-09',
+  '/attribution': '10-10',
+  '/graph': '10-11',
+  '/report': '10-12',
+  '/drive': '10-13',
+  '/me': '10-14',
+  '/t': '10-15',
+  '/t/student': '10-16',
+  '/t/recommendations': '10-17',
+};
+
+/** 图纸优先级（Rail 右列）：T0 = 学习闭环主链，T1 = 质量定型页，T2 = 辅助页。 */
+const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
+  '/assessment': 'T0',
+  '/practice': 'T0',
+  '/paper': 'T0',
+  '/attribution': 'T0',
+  '/graph': 'T1',
+  '/chat': 'T1',
+  '/report': 'T1',
+};
+
+/** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
+const TIER_SCALE: Record<BlueprintTier, string> = {
+  xl: '1:1',
+  lg: '1:2',
+  md: '1:5',
+  sm: '1:10',
+};
+
+/** 一个批次内写死的日期：图纸签署日期是「本图纸的签发日」，不是实时时钟。 */
+const ISSUE_DATE = '2026-10-10';
 
 function readMatch(query: string): boolean {
   try {
@@ -74,7 +137,7 @@ function readMatch(query: string): boolean {
   }
 }
 
-/** 视口是否 ≥ minWidth（matchMedia 订阅；不支持 matchMedia 的环境按窄屏处理 = 覆盖式，不挤压正文）。 */
+/** 视口是否 ≥ minWidth（matchMedia 订阅；不支持 matchMedia 的环境按窄屏处理 = 覆盖式）。 */
 function useViewportAtLeast(minWidth: number): boolean {
   const query = `(min-width: ${minWidth}px)`;
   const [matches, setMatches] = useState<boolean>(() => readMatch(query));
@@ -93,10 +156,12 @@ function useViewportAtLeast(minWidth: number): boolean {
 
 /**
  * 面板 dock：单一 fixed 容器（z-overlay）+ 面板本体。
- * docked = 常驻态（≥1280 且展开）→ 无背景幕；否则为覆盖态 → 半透明背景幕（点击关闭）。
+ *
+ * docked（≥1180 且展开）→ 无幕布（正文自己让位，见 --panel-dock-offset）；
+ * 否则为覆盖态 → 半透明幕布（点击关闭）；≤900 时面板铺满视口。
  * 关闭时不渲染任何 DOM（不给隐藏的可交互节点留后门）。
  */
-function ChatPanelDock({ docked }: { docked: boolean }) {
+function ChatPanelDock({ docked, fullScreen }: { docked: boolean; fullScreen: boolean }) {
   const open = useChatPanelStore((state) => state.open);
   const setOpen = useChatPanelStore((state) => state.setOpen);
 
@@ -104,12 +169,16 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
 
   return (
     // ⚠ 这一层 fixed inset-x-0 铺满整宽：它只是面板与幕布的定位上下文，
-    // **不是可交互表面**。必须 pointer-events-none，否则常驻态（≥1280 无幕布）下
-    // 这一整层会替面板挡住全页的点击——面板旁边的正文看起来没被遮，实际一次都点不到
-    // （2026-09-25 用户实测 bug）。幕布与面板本体各自恢复 pointer-events-auto。
+    // **不是可交互表面**。必须 pointer-events-none，否则常驻态（无幕布）下
+    // 这一整层会替面板挡住全页的点击——面板旁边的正文看起来没被遮，实际一次都点不到。
+    // overflow-hidden：入场动画的起始帧是 `translateX(100%)`，那一帧里面板整个
+    // 落在视口右侧之外。**fixed 容器的可滚动溢出会被算进文档宽度**（真浏览器实测：
+    // 面板打开时 documentElement.scrollWidth 从 470 涨到 750 = 视口 + 面板宽），
+    // 于是桌面会闪一条横向滚动条。给定位层剪掉溢出即消除该副作用 ——
+    // 这一层是纯定位层（pointer-events-none），剪掉不会影响任何可见内容。
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-overlay"
-      style={{ top: TOPNAV_HEIGHT_PX }}
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-overlay overflow-hidden"
+      style={{ top: fullScreen ? 0 : MASTHEAD_HEIGHT_PX }}
     >
       {docked ? null : (
         <button
@@ -124,9 +193,9 @@ function ChatPanelDock({ docked }: { docked: boolean }) {
         // data-print='hide'：打印时隐藏面板，否则右侧会切掉一栏内容。
         data-print="hide"
         aria-label="对话辅导面板"
-        // animate-slide-in-panel：与移动端抽屉同一条入场曲线（面板在 <1280 就是右侧抽屉）。
-        className="pointer-events-auto absolute bottom-0 right-0 top-0 max-w-[92vw] animate-slide-in-panel border-l border-line bg-surface shadow-card"
-        style={{ width: PANEL_WIDTH_PX }}
+        // animate-slide-in-panel：与「全部图纸」抽屉同一条入场曲线（160ms，规范第 8 章）。
+        className="pointer-events-auto absolute bottom-0 right-0 top-0 animate-slide-in-panel border-l border-line bg-surface max-sheet:left-0 max-sheet:border-l-0"
+        style={fullScreen ? undefined : { width: PANEL_WIDTH_PX, maxWidth: '92vw' }}
       >
         <ChatPanel />
       </aside>
@@ -142,45 +211,135 @@ export default function Layout({ children }: LayoutProps) {
   const { pathname } = useLocation();
   const open = useChatPanelStore((state) => state.open);
   const wideEnough = useViewportAtLeast(DOCK_MIN_WIDTH_PX);
-  /** 常驻态才挤压正文列；覆盖态（窄屏）正文一律不动（D1b）。 */
+  const notFullScreen = useViewportAtLeast(PANEL_FULLSCREEN_MAX_WIDTH_PX);
+  /** 常驻态才挤压图纸；覆盖态（窄档）正文一律不动（D3）。 */
   const docked = open && wideEnough;
-  /** 汉堡抽屉（B2）：打开期间正文对读屏隐藏（D17 三条路径里的第三条）。 */
+  const fullScreen = !notFullScreen;
+
+  /** 「全部图纸」抽屉（原汉堡抽屉）：store 零改动，行为语义完全复用。 */
   const navOpen = useMobileNavStore((state) => state.open);
 
+  const token = useAuthStore((state) => state.token);
+  const role = useAuthStore((state) => state.role);
+  const spaces = useSpaceStore((state) => state.spaces);
+  const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
+
+  const tier = useBlueprintTier();
+
+  /** 两个图层开关（索引 / 标注）。会话级组件态：刷新回到缺省（索引开、标注关）。 */
+  const [railOpen, setRailOpen] = useState(true);
+  const [annosOpen, setAnnosOpen] = useState(false);
+
+  const route = routeOf(pathname);
+  const sheetNo = SHEET_NO[pathname] ?? '10-00';
+  const pr = SHEET_PR[pathname] ?? 'T2';
+  const activeSpace = spaces.find((space) => space.space_id === activeSpaceId) ?? null;
+
+  /** 分层索引项：路由表派生（router.ROUTES 是冻结区，只读不改）。 */
+  const railItems: RailItem[] = ROUTES.filter((item) => item.path !== LOGIN_PATH).map((item) => ({
+    path: item.path,
+    dwg: SHEET_NO[item.path] ?? '10-00',
+    label: item.label,
+    pr: SHEET_PR[item.path] ?? 'T2',
+  }));
+
+  const meta = [
+    { label: '项目 / PROJECT', value: '初中数学' },
+    { label: '图号 / SHEET', value: sheetNo },
+    { label: '比例 / SCALE', value: TIER_SCALE[tier] },
+    { label: '日期 / DATE', value: ISSUE_DATE },
+  ];
+
+  /** 右下标题栏 8 格（规范 4.3）。 */
+  const titleCells: TitleCell[] = [
+    { label: '项目 / PROJECT', value: '知微·初中数学' },
+    { label: '图号 / SHEET', value: sheetNo },
+    { label: '比例 / SCALE', value: TIER_SCALE[tier] },
+    { label: '日期 / DATE', value: ISSUE_DATE },
+    { label: '视图 / VIEW', value: route?.label ?? '未登记' },
+    { label: '制图 / DRAWN', value: '知微前端' },
+    { label: '状态 / STATUS', value: token ? '已签发' : '草稿' },
+    { label: '签发 / ISSUED', value: role === 'teacher' ? '教师端' : '学生端' },
+  ];
+
   return (
-    // 让位量写一次（单一来源）：顶栏 nav 与正文列外层都读这个自定义属性（L11）。
-    // 外壳最小高：100vh 档（sticky 视口高）→ 动态视口高 min-h-dvh（移动端适配轮 R4）。
-    // 手机上地址栏伸缩时 vh 不变而可视区变高，外壳会矮一截导致跳动；dvh 跟随动态视口。
-    // 与 LoginPage:182 统一。桌面 dvh === vh（无动态工具栏）→ 数值不变。
-    <div className="min-h-dvh bg-canvas text-ink" style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}>
-      <TopNav />
-      {/* 常驻态：给面板让位的 padding 在外层（见文件头 D24 说明），main 的 max-w-6xl
-          仍作用在「面板左边的可用宽度」上；覆盖态该变量为 0，正文一律不动。
-          顶栏读同一个变量，故两者左基线始终一致（L11）。
-          aria-hidden：抽屉打开期间正文对读屏隐藏（关闭时不渲染该属性 → DOM 与改造前一致）。
-          px-4 nav:px-6（D9）：窄档页边距 48→32px，必须与 TopNav 的 nav padding 同步，
-          否则破坏「内容列与顶栏共用同一条左基线」这条不变量。 */}
+    // 让位量写一次（单一来源）：workbench 与右区操作簇都读这个自定义属性。
+    // 外壳最小高：动态视口高 min-h-dvh（移动端适配轮 R4）—— 见 Board 的 min-h-dvh。
+    <Board
+      tier={tier}
+      railOpen={railOpen}
+      annosOpen={annosOpen}
+      style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}
+    >
+      <Masthead
+        meta={meta}
+        // 身份芯片：未登录 / 学生 / 教师。昵称不取（auth store 只落 user_id，
+        // 没有昵称字段 —— 不为了填一格而编一个名字）。
+        identity={{ role: token ? role : 'guest' }}
+        railOpen={railOpen}
+        annosOpen={annosOpen}
+        onRailToggle={() => setRailOpen((value) => !value)}
+        onAnnosToggle={() => setAnnosOpen((value) => !value)}
+        panelOpen={open}
+        onTogglePanel={() => useChatPanelStore.getState().toggle()}
+        trailing={<TopNav />}
+        // 常驻态让位：读与 workbench 同一个自定义属性 —— 否则面板会盖住右区操作簇
+        //（需求文档 §5 风险表「面板与标题栏打架」的处置）。
+        className="transition-[padding] duration-200 ease-out [padding-right:var(--panel-dock-offset,0px)]"
+      />
+
+      {/* workbench：常驻态给面板让位的 padding 落在外层（D24），
+          让 Sheet 的可用宽度仍是「面板左边的宽」；顶栏右区读同一个变量 ⇒ 左基线一致。
+          aria-hidden：抽屉 / 覆盖式面板打开期间正文对读屏隐藏（关闭时不渲染该属性 →
+          DOM 与默认态一致）。 */}
       <div
-        className="transition-[padding] duration-200 ease-out"
+        className="mx-auto w-full transition-[padding] duration-200 ease-out"
         style={DOCK_OFFSET_STYLE}
-        aria-hidden={navOpen || undefined}
+        aria-hidden={navOpen || (open && !docked) || undefined}
       >
-        {/* 路由入场（P1）：key 换成 pathname，每次换页重新挂载 main，动画才会重播。
-            换页本来就会换掉页面组件（12 条路由与 12 个页面文件 1:1 对应），所以这个 key
-            不引入额外的状态丢失；同一路径只变 query 的导航 key 不变，页面状态保留。
-            动画刻意挂在 main 自身而不是再包一层 div —— 多一层包装会改变取证脚本
-            mainChild 锚点的取法（它是 main 的第一个子元素），而锚点几何是基线的一部分。
-            动画本身只做透明度（见 tailwind.config.js 的 route-in）：带位移的入场会让
-            锚点 y 在动画期间取到中间值。 */}
-        <main key={pathname} className="mx-auto w-full max-w-6xl animate-route-in px-4 py-8 nav:px-6">
-          {children}
-        </main>
+        <div
+          className={[
+            'grid items-start',
+            railOpen && tier !== 'md' && tier !== 'sm' ? 'sheet:grid-cols-[236px_minmax(0,1fr)]' : 'grid-cols-1',
+          ].join(' ')}
+        >
+          {railOpen && tier !== 'md' && tier !== 'sm' ? (
+            <Rail
+              items={railItems}
+              note={
+                <>
+                  <span className="block">图层：图纸 / 索引 / 标注</span>
+                  <span className="block">
+                    当前空间：{activeSpace ? activeSpace.name : '未选择'}
+                  </span>
+                </>
+              }
+            />
+          ) : null}
+
+          <Sheet
+            // max-sheet:pb-[76px]：≤900 档底部 tabbar 固定在视口底，图纸要给
+            // 它让出 76px（tabbar 52px + 安全区 + 呼吸），否则页尾内容被压住。
+            className="min-w-0 max-sheet:pb-[76px]"
+            head={{
+              eyebrow: `${route?.label ?? '未登记'} / ${pr} 图纸`,
+              sheetNo,
+              title: route?.label ?? '这一页还没有登记图号',
+              dim: `图幅 ${tier.toUpperCase()} · 基准 15px / IBM Plex Mono 批注`,
+            }}
+          >
+            {children}
+            <TitleBlock cells={titleCells} />
+          </Sheet>
+        </div>
       </div>
-      {/* 汉堡抽屉：挂在 TopNav 之后、面板之前（同 z-overlay，但二者互斥不同屏，D4）。
-          自身在 ≥720 不渲染（nav:hidden）+ 未登录不渲染（D15）。 */}
+
+      {/* 回到图纸顶部：放在浮层之前，保证抽屉 / 面板 / 批注条都在它之上。 */}
+      <BackToTop />
+      {/* 「全部图纸」抽屉 + ≤900 底部 tabbar：自身在 ≥900 不渲染（sheet:hidden）。 */}
       <MobileNav />
-      <ChatPanelDock docked={docked} />
+      <ChatPanelDock docked={docked} fullScreen={fullScreen} />
       <ToastHost />
-    </div>
+    </Board>
   );
 }

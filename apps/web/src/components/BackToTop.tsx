@@ -41,7 +41,9 @@ export default function BackToTop() {
       // z-index 走令牌（原为裸 z-40）；bottom/right 走安全区工具类 ——
       // 桌面非刘海设备 env(safe-area-inset-*) 恒为 0，计算值与 1.5rem 逐字相同。
       // 两个安全区工具类必须保留：tests/breakpoints.test.ts 要求每个类都有真实使用点。
-      className="animate-rise fixed bottom-safe-6 right-safe-6 z-nav"
+      // P5：≤900 档底部有 5 项 tabbar（固定、52px+安全区），回到顶部按钮抬到 76px
+      // 让开它 —— 否则两个浮动件会在右下角叠在一起，谁都点不准。
+      className="animate-rise fixed bottom-safe-6 right-safe-6 z-nav max-sheet:bottom-[76px]"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path

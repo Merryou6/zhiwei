@@ -73,10 +73,16 @@ export interface MastheadProps {
   annosOpen: boolean;
   onRailToggle: () => void;
   onAnnosToggle: () => void;
-  onOpenIndex: () => void;
+  /**
+   * 「全部图纸」抽屉入口（P5 修正）。按钮本体由 `trailing` 槽里的右区操作簇渲染
+   * （它需要持 MOBILE_NAV_TOGGLE_ID / MOBILE_NAV_DRAWER_ID 这对跨组件 id，见 TopNav.tsx）；
+   * 这里保留回调是为了让 Masthead 仍可单独用于截图走查时传一个假实现。
+   * 该 prop 目前不被渲染 —— 留痕见执行报告 P5 偏差。
+   */
+  onOpenIndex?: () => void;
   panelOpen: boolean;
   onTogglePanel: () => void;
-  /** 空间胶囊 / 主题钮等注入槽位（外壳给，避免这里依赖 store）。 */
+  /** 空间胶囊 / 主题钮 / 全部图纸入口等注入槽位（外壳给，避免这里依赖 store）。 */
   trailing?: ReactNode;
   className?: string;
 }
@@ -94,7 +100,6 @@ export default function Masthead({
   annosOpen,
   onRailToggle,
   onAnnosToggle,
-  onOpenIndex,
   panelOpen,
   onTogglePanel,
   trailing,
@@ -173,11 +178,6 @@ export default function Masthead({
           {annosOpen ? '标注开' : '标注'}
         </BpButton>
 
-        <BpButton variant="secondary" onClick={onOpenIndex} aria-haspopup="dialog">
-          <Icon name="layers" className="h-4 w-4" />
-          全部图纸
-        </BpButton>
-
         <BpButton
           variant="primary"
           onClick={onTogglePanel}
@@ -185,7 +185,11 @@ export default function Masthead({
           aria-label={panelOpen ? '关闭对话面板' : '打开对话面板'}
         >
           <Icon name="chat" className="h-4 w-4" />
-          <span className="hidden sheet:inline">学长</span>
+          {/* 文案用产品的固定名「对话辅导」（= router.ROUTES 里 /chat 的 label），
+              不用昵称「学长」：这一处是**开合面板的开关**，它的可访问名与可见文案
+              应当与「面板里是什么」一致；工具链（tools/probe-dock-click.cjs）也按
+              这个名字找按钮。窄档只留图标（≤900 面板是全屏覆盖，入口在抽屉底部）。 */}
+          <span className="hidden sheet:inline">对话辅导</span>
         </BpButton>
 
         {trailing}
