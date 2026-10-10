@@ -72,10 +72,11 @@ function Stat({ label, value, band }: { label: string; value: number; band?: Mas
   return (
     <div className="rounded-surface border border-line bg-canvas p-3">
       <p className="text-caption text-ink-soft">{label}</p>
-      {/* 数值等宽 + 表格数字：这些数随数据变化，比例字体下每刷新宽度就跳一次 */}
+      {/* 编辑式大数字（awwwards SOTD 超大字排版）：数字当主角——超大、细字重，
+          保留 tabular-nums 纪律（数据变化时宽度稳定）；truncate 防四列窄屏挤压溢出 */}
       <p
         className={cn(
-          'mt-1 font-mono text-xl font-medium tabular-nums',
+          'mt-1 truncate text-4xl font-light tabular-nums',
           band ? BAND_CLASS[band].text : 'text-ink',
         )}
       >

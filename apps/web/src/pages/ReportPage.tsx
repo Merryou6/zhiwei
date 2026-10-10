@@ -150,6 +150,13 @@ export default function ReportPage() {
   }));
   const maxBandCount = Math.max(1, ...byBand.map((entry) => entry.rows.length));
 
+  // 编辑式大数字头版（awwwards SOTD 超大字排版）：取 Δ 最大的一条作「主结果」上头版，
+  // 展示层取舍，不改数据请求；无 accuracy 时不出头版。
+  const heroRow =
+    accuracy.length > 0
+      ? accuracy.reduce((best, row) => ((row.delta ?? -Infinity) > (best.delta ?? -Infinity) ? row : best))
+      : null;
+
   return (
     <PageContainer width="standard">
       <PageHeader
@@ -277,6 +284,37 @@ export default function ReportPage() {
           glass-card（跨包契约，包 1 落地）：只此一张换玻璃面，保持克制 */}
       <div className="glass-card mt-5 rounded-surface border border-line bg-surface p-4 shadow-card" {...revealItem}>
         <h2 className="text-base font-medium text-ink">基线 vs 复测（ΔAccuracy）</h2>
+        {heroRow ? (
+          // 编辑式大数字（awwwards SOTD）：数字当主角——超大、细字重、tabular-nums，
+          // 标签保持小号令牌色；min-w-0/truncate 防窄屏挤压溢出。
+          <div className="mt-3 flex flex-wrap items-end gap-x-8 gap-y-3">
+            <div className="min-w-0">
+              <p className="text-ui-sm text-ink-soft">复测正确率 · {kpName(heroRow.kp_id)}</p>
+              <p className="truncate text-4xl font-light tabular-nums text-ink sm:text-5xl">
+                {percent(heroRow.retest)}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-ui-sm text-ink-soft">ΔAccuracy（基线 {percent(heroRow.baseline)}）</p>
+              {heroRow.delta === null ? (
+                <p className="truncate text-2xl font-light tabular-nums text-ink-soft sm:text-3xl">—</p>
+              ) : (
+                <p
+                  className={cn(
+                    'truncate text-2xl font-light tabular-nums sm:text-3xl',
+                    heroRow.delta > 0
+                      ? // 正 Δ：accent 渐变文字（bg-clip-text），色值走 band 令牌——令牌闸门禁止 accent 直接做文字色
+                        'bg-gradient-to-r from-band-mastered to-band-basic bg-clip-text text-transparent'
+                      : // 负 Δ：保持 danger 语义令牌（band-weak），不加动效
+                        'text-band-weak',
+                  )}
+                >
+                  {deltaPercent(heroRow.delta)}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : null}
         {accuracy.length === 0 ? (
           <EmptyState
             compact

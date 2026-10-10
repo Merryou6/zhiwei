@@ -173,6 +173,11 @@ export default function TeacherDashboard() {
     return <PageSkeleton label="正在看班级这一周…" rows={3} />;
   }
 
+  // 编辑式大数字（awwwards SOTD 超大字排版）：总览数字当主角。
+  // 三项均由**已加载**的学生摘要派生（展示层统计），不发任何新请求、不改业务逻辑。
+  const activeCount = students.filter((card) => card.last_active_at).length;
+  const recommendationCount = students.reduce((sum, card) => sum + card.active_recommendations, 0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -189,11 +194,32 @@ export default function TeacherDashboard() {
         </Button>
       </div>
 
+      {/* 编辑式大数字总览条：超大、细字重、tabular-nums，标签保持小号令牌色；
+          min-w-0/truncate 防窄屏挤压溢出。仅展示层，不改数据请求。 */}
+      {students.length > 0 ? (
+        <div className="flex flex-wrap gap-x-10 gap-y-4">
+          <div className="min-w-0">
+            <p className="truncate text-4xl font-light tabular-nums text-ink sm:text-5xl">{students.length}</p>
+            <p className="mt-1 text-ui-sm text-ink-soft">绑定学生</p>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-4xl font-light tabular-nums text-ink sm:text-5xl">{activeCount}</p>
+            <p className="mt-1 text-ui-sm text-ink-soft">有学习记录</p>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-4xl font-light tabular-nums text-ink sm:text-5xl">{recommendationCount}</p>
+            <p className="mt-1 text-ui-sm text-ink-soft">进行中的推荐</p>
+          </div>
+        </div>
+      ) : null}
+
       {/* 邀请码面板 */}
       {currentCode ? (
         // 玻璃面：空间层次（awwwards 2026 layered depth）；邀请码本体保持 bg-canvas 大字号实底chip，
         // 玻璃只做外层面，码的辨识度不依赖面板底色。
-        <Card className="glass-card">
+        // conic-ring（旋转强调边框，由并行包 G 在 index.css 落地，此处只消费类名）：
+        // 邀请码是老师端最重要的强调时刻，用旋转描边强调；可与 glass-card 共存。
+        <Card className="glass-card conic-ring">
           <CardTitle>绑定邀请码</CardTitle>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="rounded-lg bg-canvas px-4 py-2 font-mono text-xl tracking-[0.3em] text-ink">
