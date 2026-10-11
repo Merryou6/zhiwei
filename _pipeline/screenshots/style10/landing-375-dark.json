@@ -1,0 +1,72 @@
+{
+ "page": "/",
+ "width": 375,
+ "height": 812,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:29:48.997Z",
+ "states": [
+  {
+   "hash": "#/",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "scrollHeight": 4530,
+   "h1Count": 1,
+   "h1Text": [
+    "每一分丢在哪里，都有名字。"
+   ],
+   "publicSheet": true,
+   "sheet1001": true,
+   "kineticChars": 13,
+   "measures": 6,
+   "claims": 3,
+   "loopItems": 5,
+   "catalogRows": 13,
+   "sections": [
+    "三条主张",
+    "五步闭环",
+    "两个入口",
+    "证据",
+    "图纸目录"
+   ],
+   "textLen": 1268,
+   "state": "normal",
+   "note": "默认动效：hero + 三条主张 + 五步闭环 + 两个入口 + 图纸目录",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "scrollHeight": 4530,
+   "h1Count": 1,
+   "h1Text": [
+    "每一分丢在哪里，都有名字。"
+   ],
+   "publicSheet": true,
+   "sheet1001": true,
+   "kineticChars": 13,
+   "measures": 6,
+   "claims": 3,
+   "loopItems": 5,
+   "catalogRows": 13,
+   "sections": [
+    "三条主张",
+    "五步闭环",
+    "两个入口",
+    "证据",
+    "图纸目录"
+   ],
+   "textLen": 1268,
+   "state": "reduced",
+   "note": "prefers-reduced-motion: reduce（kinetic-char 静态可见、无动画）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  }
+ ]
+}
