@@ -173,6 +173,10 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  * 【2026-10-11 迁移 P10.5（D24 逐页扩表）】/me 页头归页面自有：原型 PAGES.profile
  *   L3054 自渲染 sheetHead（「个人中心」的分节结构与概览口径只有页面拿得到）。
  *   迁移前该页同样在外壳里同时有通用页头与自己的 PageHeader ⇒ 双 h1。
+ *
+ * 【2026-10-11 迁移 P10.6（D24 逐页扩表）】/drive 页头归页面自有：原型 PAGES.library
+ *   L3005 自渲染 sheetHead（「只读资料」「与当前缺口挂钩」的口径只有页面拿得到）。
+ *   迁移前该页同样在外壳里同时有通用页头与自己的 PageHeader ⇒ 双 h1。
  */
 const PAGE_OWNED_HEAD = new Set<string>([
   '/report',
@@ -187,6 +191,7 @@ const PAGE_OWNED_HEAD = new Set<string>([
   '/self-report',
   '/login',
   '/me',
+  '/drive',
 ]);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
