@@ -184,6 +184,19 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  *   ⚠ 门户当前由 App.tsx 直接渲染（<Route path="/"> 不经 Layout 外壳），故此登记对 '/'
  *   **暂无实际效果**；登记是为保持 D24 登记表完整、并与「若将来门户纳入壳渲染」一致。
  *   门户自渲染 hero，本页无外壳通用页头可被替换，故不存在双 h1 风险。
+ *
+ * 【2026-10-11 迁移 P11.2（D24 逐页扩表）】/t 页头归页面自有：原型 PAGES.teacher
+ *   L3143 自渲染 sheetHead（「邀请码与学情总览」的绑定/活跃/推荐口径只有页面拿得到）。
+ * 【2026-10-11 迁移 P11.4（D24 逐页扩表）】/t/recommendations 页头归页面自有：原型
+ *   PAGES['teacher/recommendations'] L3266 自渲染 sheetHead（台账总数与已验证口径只有页面拿得到）。
+ * 【2026-10-11 迁移 P11.3（D24 动态路由特例）】/t/student/:studentId 页头归页面自有：
+ *   原型 PAGES['teacher/student'] L3200 自渲染 sheetHead（h1 含学生昵称，只有页面拿得到）。
+ *   ⚠ 该路由的 pathname 是**运行时值**（/t/student/u_xxxx），Set.has 的精确匹配不命中 ——
+ *     故判定按「精确匹配 || 以 '/t/student/' 前缀匹配」的最小幅扩展（见 ownsHead），
+ *     不做通配机制（R18 / D24 的最小改法口径）。
+ * ⚠ 教师端三条路由当前**不经** Layout（App.tsx 用 `Guarded bare` + components/teacher/
+ *   TeacherShell），故此三条登记对当前渲染路径**暂无实际效果**，登记只为 D24 登记表完整
+ *   （同 '/' 门户的处置）；TeacherShell 已按蓝图制式重写（P11.2），教师端无双 h1 风险。
  */
 const PAGE_OWNED_HEAD = new Set<string>([
   '/report',
@@ -200,7 +213,19 @@ const PAGE_OWNED_HEAD = new Set<string>([
   '/me',
   '/drive',
   '/',
+  '/t',
+  '/t/recommendations',
 ]);
+
+/**
+ * 本页是否自持页头（D24）。
+ *
+ * 精确匹配登记表；`/t/student/:studentId` 的路径是运行时值，另按前缀并入
+ * （一处判定、不做通配机制 —— 见上方 P11.3 注释）。
+ */
+function ownsHead(pathname: string): boolean {
+  return PAGE_OWNED_HEAD.has(pathname) || pathname.startsWith('/t/student/');
+}
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {
@@ -409,7 +434,7 @@ export default function Layout({ children }: LayoutProps) {
             className="min-w-0 max-sheet:pb-[76px]"
             // 已迁移页自持页头（见 PAGE_OWNED_HEAD）：head 传 undefined，由页面渲染。
             head={
-              PAGE_OWNED_HEAD.has(pathname)
+              ownsHead(pathname)
                 ? undefined
                 : {
                     eyebrow: `${route?.label ?? '未登记'} / ${pr} 图纸`,
