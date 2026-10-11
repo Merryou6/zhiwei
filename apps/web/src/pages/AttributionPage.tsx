@@ -477,7 +477,7 @@ export default function AttributionPage() {
                     className="bp-bar"
                     data-share={score >= 0.5 ? 'high' : score >= 0.2 ? 'mid' : 'low'}
                     role="img"
-                    aria-label={`贡献度 ${score.toFixed(2)}`}
+                    aria-label={`嫌疑分 ${score.toFixed(2)}`}
                   >
                     <i style={{ width: `${Math.round(score * 100)}%` }} />
                   </span>
@@ -485,7 +485,12 @@ export default function AttributionPage() {
                 </li>
               ))}
             </ul>
-            <p className="bp-note">{`贡献度合计为 1；主根因取最高项（本次 ${percent(suspects[0][1])}）。`}</p>
+            {/* ⚠ 口径按本工程真实字段写：suspect_scores 是**嫌疑分**（先修距离越近越高，
+                上界 d=1 0.60 / d=2 0.36 / d=3 0.216，不归一、合计不为 1）——原型那句
+                「贡献度合计为 1」是原型 mock 的口径，照抄会变成一句与数据不符的话。 */}
+            <p className="bp-note">
+              {`嫌疑分按「离那道错题的先修距离」排（越近越高），不归一；排第一的就是这次认定的根因，其余是也在起作用的候选（本次最高 ${percent(suspects[0][1])}）。`}
+            </p>
           </SheetBlock>
         ) : null}
 
