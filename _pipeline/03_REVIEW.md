@@ -1,208 +1,228 @@
-知微 · style-10 迁移 —— 第 3 轮审查报告（P7 /graph ECharts 改造 + 认领清偿 L-1/L-2/INFO-1）
-================================================================================
-审查角色：reviewer（只读审查；除本文件与归档件外未改任何文件）
-审查日期：2026-10-11 14:47（本机时间）
-审查输入：tempui/STYLE-10-迁移计划.md（+分析 +原型 prototypes/style-10/index.html）、
-  _pipeline/01_PLAN.md（第 9 版）、_pipeline/02_EXEC_REPORT.md（第 3 轮版）、
-  实际代码差异 fa20d8e → HEAD bf3c7fe（git log/diff 独立取证）
-提交序列核对：32aaec1（P7.0 记账）→ 22d5628（P7.1 清偿）→ fd1b2bb（P7.3 主体）
-  → 12acf95（走查修复）→ 5069782（走查产物）→ bf3c7fe（报告）——与执行报告「二、」一致。
-归档：第 2 轮审查报告已先复制为 _pipeline/archive/03_REVIEW_20261011_1447.md
-  （两侧 md5 = 43f896a7c01094cf21faefc8d4b4a7c1，一致；归档只增不删），然后覆写本文件。
+知微 · style-10 迁移 第 4 轮审查报告（P8.0–P12.4 全量交付把关）
+==============================================================
+审查角色：reviewer（只读审查；本文件为唯一写入产物）
+审查日期：2026-10-11 20:39（本机时间）
+审查输入：tempui/STYLE-10-迁移计划.md（需求定稿）、_pipeline/01_PLAN.md（第 10 版，
+  D21–D26 裁决）、_pipeline/02_EXEC_REPORT.md（第 4 轮终版 964 行）、
+  代码差异 bf3c7fe..HEAD（HEAD = 338ef49，实测 46 个提交，与报告计数一致）。
+审查方法：全部结论基于本机独立取证（git --no-pager log/diff、独立复跑测试与类型检查、
+  自行解析 8 份审计 JSON / 6 类探针 JSON / 8 份 h1check JSON / 汇总矩阵产物），
+  不采信报告中未经验证的数字。审查前旧版报告已归档
+  _pipeline/archive/03_REVIEW_20261011_2039.md（md5 两侧一致，只增不删）。
 
---------------------------------------------------------------------------------
-零、结论
---------------------------------------------------------------------------------
+--------------------------------------------------------------
+一、总体结论
+--------------------------------------------------------------
+第 4 轮 21 个主步骤（P8.0 记账 / P8.1 清偿 / P8.2 /chat / P9.1–P9.4 / P10.1–P10.6 /
+P11.1–P11.4 / P12.1–P12.4）全部完成且证据链可核查；P0–P7 已 PASS 结案的 9+6+6 个
+提交未受波及。总验收清单（01_PLAN「一、」第 12–18 项）逐条核过：17 页
+（学生端 13 路由 + 门户 / + 教师端 3 页，页面文件实测 14+3）全部迁移完成，
+PAGE_OWNED_HEAD 登记表 17 条 + /t/student/ 前缀特例与 D24 预判登记表逐条一致；
+冻结区一行未动（独立复核空输出）；462 用例只增不减（独立复跑全绿）；
+单页单提交红线全程成立（46 提交逐条核对，每页代码/走查/报告各自独立提交）。
+发现 2 项 L 级、5 项 INFO 级问题（见「四、」），无 H/M 级，均不构成本轮 FAIL 依据。
+
 VERDICT: PASS
 
-P7 交付物与四项认领清偿把关通过。计划红线（冻结区/测试口径/留痕纪律）全程成立，
-硬判据（L-1 产物 CSS、375 档 /graph overflowPx=0、462 用例只增不减、四冻结测试零改动）
-全部独立复跑达成，D8 六项留痕经复核如实、无伪造、无静默缩水。
-唯一 M 级问题（1440 档画布标签叠压、报告未留痕）按本轮既定惯例（第 2 轮 L-1/L-2/L-3
-同口径）转为「下轮认领清偿」项，不构成 FAIL，但 P8 计划必须列入清偿步骤（见 M-1）。
+--------------------------------------------------------------
+二、逐项审查结论（对照审查要点 1–7）
+--------------------------------------------------------------
 
---------------------------------------------------------------------------------
-一、逐项审查结论
---------------------------------------------------------------------------------
-1. 输入完备性 —— 通过
-   01_PLAN.md（第 9 版）与 02_EXEC_REPORT.md（第 3 轮版）均存在且可读。
-   本轮两次 implementer 调用（前次中断 + 续完）有留痕（报告「一、」DEV-1~DEV-3），
-   属流程留痕非偏差。
+【要点 1：冻结区终检独立复核】—— 通过
+独立执行（区间口径 bf3c7fe..HEAD）：
+  a) router.tsx + api/ + packages/engine + functions/ + data/（四份冻结契约在 data/ 下）
+     → 空输出；
+  b) stores/ + graphLayout/graphMastery/graphSnapshot/poster → 空输出；
+  c) apps/web/tests + packages/engine + functions/api/tests（覆盖
+     routerGuard/sse/client/chatPanel/mobileNav/dialogStore/reveal/phrases/stages/
+     authStore/graphMastery/graphSnapshot/graphLayout/poster 等全部冻结测试文件）
+     → 空输出，即本轮 0 个既有测试文件被改动，「只增不减 = 起点 462 = 终态 462」
+     由 diff 直接成立，不依赖报告转述。
+工作区口径复核同样空输出（工作区现存未提交项仅他人产物 tempui/、.workbuddy/、
+package-lock.json 与已删除的 tempui/纯前端需求文档.md，均未被本轮触碰，符合计划约定）。
 
-2. 范围口径 —— 通过
-   fa20d8e..HEAD 全部 96 个变更文件逐一核对 diff --stat：代码改动仅
-   GraphPage.tsx / Layout.tsx / index.css / Sheet.tsx / breakpoints.test.ts /
-   graphSymbol.ts(新增) / graphSymbol.test.ts(新增) / probe-graph-states.cjs(新增,基建)
-   —— 恰为计划「九、」涉及文件清单（BandLegend.tsx 计划标注「视评估」，实际未改，
-   符合 D20①「已达标则不动」分支，报告「七、」留痕成立）。其余全部为 _pipeline
-   记账/归档/走查产物。无范围扩大，无 P8 内容提前。工作区他人未提交变更
-   （tempui/ 增删、.workbuddy/、package-lock.json、PR-tempdeploy.md）未碰、未入库
-   （git status 独立复核，仅剩既存项）。
+【要点 2：17 页逐页抽查】—— 通过（深查 9 页 + 其余轻查）
+深查页与结论：
+  · P8.2 /chat（代码 e5ee88f）：ChatPage 现文件逐行读完并与 bf3c7fe 版对照——
+    store 消费（useDialogStore/useChatPanelStore/useSpaceStore）、exitNotice 派生
+    （next_action=exit_channel + exitChannelText）、收进侧栏 setPanelOpen(true)+
+    navigate(ME_PATH)、ChatComposer disabled=store.streaming 全部原样；七件套为共享
+    import 零改动；双栏档位由 nav: 换 annos:1180（D4）。逻辑零改动确认。
+  · P9.3 /paper（代码 39b3ea1）：取数 effect 与迁移前逐字符对照——drive()/getPaper()
+    回显链、cancelled 清理、依赖数组 [activeSpaceId] 原样；仅新增 D-P9.3-1 声明的
+    三个表现层状态位（filesLoading/loadFailed/recognizeFailed，均在既有 catch/finally
+    内置位）+ retryLoad（重发同一个 drive()，D15c 真重试口径）。无业务语义改动。
+  · P9.4 /attribution（代码 b9ca011 + 修复 a11e7e5）：回显 effect 对照确认仅加
+    viewFailed（D-P9.4-1）；a11e7e5 仅改嫌疑分文案与 aria-label（D-P9.4-2 留痕，
+    原型「合计为 1」确与本工程不归一的 suspect_scores 语义冲突，以真实为准正确）。
+  · P10.4 /login（代码 7653b2b）：LoginPage 的 finishAuth/handleSubmit/handleDemoEnter/
+    DEMO_ACCOUNTS/两处 navigate 逐行未动（diff 中无相关 +/- 行）；App.tsx 去掉
+    /login 的 bare 为计划外必要改动（D-P10.4-1，一处 + 注释，Guarded bare 形参保留
+    供 /t 用），ToastHost 仅注释三行——两处均如实披露且可单条 revert。
+  · P10.5 /me（代码 1b3f41d，半页收口）：MePage 的 reportSummary effect（cancelled/
+    依赖 [spaceId]）、handleLogout 链路原样；StudentTeacherSection 的 5 个接口调用、
+    load useCallback、两 effect 依赖、toast 文案、navigate 目标逐行未动；新增
+    recommendationsOnly 为纯渲染开关，REC_ORDER 为展示排序（详见 INFO-3）。
+  · P11.2–P11.4 教师三页（efa18e8/f8b74c8/152800f）：diff 中无任何前端角色拦截新增；
+    403 由服务端 requireTeacher 兜底（functions/ 区间 diff 空输出 = 零改动）；
+    下发/撤回 activeKpIds 三态集合与详情链接逐字一致。
+  · P8.1 GraphPage（087da5d）：见要点 3。
+  · P10.2 /start（52212c6）：SHEET 10-03 / COLD START 页头与原型锚点一致，
+    四路径 CTA 去向（PAPER/ASSESSMENT/SELF_REPORT/GRAPH）与迁移前逐一对应。
+  · Layout.tsx：PAGE_OWNED_HEAD 17 条登记 + ownsHead 前缀匹配一处（/t/student/），
+    与 D24 登记表逐条一致；'/' 登记暂无实效已留痕（D-P11.1-4，门户不经 Layout）。
+轻查页（/assessment /practice /spaces /self-report /drive / 门户 /）：提交范围核对
+（每页 = 页面文件 + Layout 登记 + 视需 index.css，走查产物独立提交）+ 静态纪律抽查
+无一次性样式 + h1check 全绿，未见业务逻辑夹带。
 
-3. P7.0 记账 —— 通过
-   git show --stat 32aaec1：恰 4 个 _pipeline 白名单文件，无代码混入。
+【要点 3：P8.1 清偿质量】—— 通过
+M-1（D21）：完整读取 087da5d diff——选型为第二层（series 级 labelLayout:
+{hideOverlap:true} + shortLabel 8 字截断 + 省略号），选型依据（列距×缩放的屏间距
+vs 16 字渲染宽）写入注释；emphasis 态保留、点火/DIM_OPACITY/重绘/文字清单键盘语义
+未动。OBS-2 前后对照产物 9 件在库（before/after 整页 4 张 + 1440 双主题放大 crop
+4 张 + 1024 形状地图留痕 1 张），本审查抽查 obs2-m1-1440-light-before/after-crop.png
+存在且成对。L-1（D22）：ZOOM_MIN 0.12→0.3 一处常量 + 注释「防节点成点」，
+与 fitZoom 地板同口径，无第二口径并存。375 档 overflowPx 全 0 未回退（见要点 5）。
 
-4. P7.1 认领清偿 —— 通过
-   a) L-1：Sheet.tsx 逐行 diff 确认仅 SHEET_PADDING base 档 pb-2.5 → pb-pad-frame-sm-b
-      （10px 同值）+ 注释块说明；SHEET_PADDING 中 pad-frame 四 token（sm-b/md-y/md-x/md-b）
-      全部有类名消费，漂移藏身处清零。build 产物判据独立复跑命中：
-      /tmp/zhiwei-web-build-review/assets/index-Q67eXV_O.css 含
-      pb-pad-frame-sm-b{padding-bottom:10px}（grep exit 0）。
-   b) L-2：breakpoints.test.ts 逐行 diff 确认改动全部落在文件头 /** */ 注释块内，
-      断言与扫描逻辑零改（9 用例在 apps/web 批内全绿）。
+【要点 4：P12 收尾核验】—— 通过
+  · overflowPx 矩阵真实性（不读汇总文件、自行解析原始 JSON）：
+    - 8 份 audit-style10-*.json：11 路由 × 8 组合 = 88 单元 overflowPx 全 0，
+      每份 width/theme 字段与文件名一致（无「深色数据冒充满色」）；
+    - 6 类专项探针（practice 5 态 / start 1 态 / landing 2 态 / teacher-t 4 态 /
+      teacher-student 4 态 / teacher-recommendations 4 态）× 8 组合 = 48 份 JSON
+      全部存在且 overflowPx 全 0；
+    - 8 份 h1check-*.json：14 路由 × 8 组合 = 112 单元 overflowPx 全 0、
+      h1AllCount 全 1、h1MainCount 全 1；
+    - 合计 17 路由 × 8 组合 = 136 单元与 overflow-matrix-17x8.md 汇总一致，
+      非 0 / 缺失单元实测 0。
+  · nav 零清退结论（自行 grep 盘点）：真实类名用法确为 3 处 max-nav:min-h-9
+    （ChatPanel L58/L67、Toast L75），与报告 A 类清单逐字一致；B/C 类 0 处
+    （ChatPage 的 nav: 已换 annos:、MobileNav 的 nav:hidden 已在 P5 换档，两文件
+    本轮区间 diff 实测为空）；tailwind.config.js nav:720 定义与 breakpoints.test
+    断言逐字保留。Toast/ChatPanel/MobileNav 三文件本轮零改动，触控目标不可能回退。
+  · README/LOOKATME：diff 逐行核对——仅数字与状态描述更新（462/43 文件/四档/
+    17 路由口径/产物指引），结构未动，历史段按期留痕未改。LOOKATME「累计 242
+    次提交」为写行时点口径（终态实测 243 = bf3c7fe 的 197 + 本轮 46），行内自带
+    「以命令实测为准」说明，非虚报。
+  · D-P12.2-1（两条 audit 重采未跑，以 diff 空 + 终态数据替代）：成立。理由成立
+    三要素均复核过——本步零代码改动、audit 工具采样字段确不含触控目标高度、
+    A 类三文件区间 diff 确为空。重采不产生新信息，替代证据反而更强。
 
-5. P7.3 复现质量（对照原型 PAGES.graph L2793-2908 逐段）—— 通过
-   ① 页头双分支：有证据态（eyebrow/SHEET 10-11/需求 2.11/h1「知识图谱 · 也是学习路径页」/
-      chip「T0 · 三重编码」）与空态（h1「知识图谱：现在是空的」）两处 SheetHead 均在；
-      sub 按现有文案口径（D5：原型 mock welcome 不采纳）；Layout.tsx PAGE_OWNED_HEAD
-      = Set(['/report','/graph'])（D19 落地，diff 确认仅 1 行 + 注释）。
-   ② 证据统计四格：总证据/本周新点亮(WeekCount+badge-pop 冻结)/覆盖进度/章节通关，
-      数据全来自既有 summary/badges，无新增请求。
-   ③ 画布：bp-gcanvas 制式容器 + 工具条四钮(zoomin/zoomout/target/download) + roam 保留
-      + 窄屏降级 note（sm/md 档）+ BandLegend 底条 + 底部 row（缩放 tok/平移 chip/
-      路径高亮 chip/导出海报）；原型「模拟从报告带入路径」演示按钮按 D5 不复现（留痕）。
-   ④ 节点/边：四档形状 symbol（见 6）+ 单行名称标签 + 低置信虚线边框补偿（D20 预裁决
-      口径留痕）+ 边 done「已打通」label + edgeSymbol 箭头 + DIM_OPACITY 降透明（冻结）。
-   ⑤ 详情 + aside：kv 清单（章节/难度/掌握度与档位/证据条数/低置信来源/先修链）+ bar
-      + 三 CTA（navigate 语义冻结）+ hint + SuccessMark + tick-list 四条，annos 档双栏。
-   ⑥ 文字版清单：bp-tbl 全档常在（替换旧 details 折叠，D8 拍板项）；六列齐备；行内
-      真实 <button>（aria-current）+ data-current inset 选中线（CSS 对照原型
-      box-shadow:inset 2px）；「尚无可用的数」tok 口径保留；键盘回车语义经 openNode
-      旧新比对一致（setSelected + scrollIntoView + focus 移交）。
-   ⑦ 空态分支：空态页头 + emptyBox 三条冷启动出路 + 02 口径图例；不放示例节点。
-   四态：loading→SkeletonLines；error→Stamp 红章+真重试（D15c 最小新增，插 loading 后
-      数据态前，守卫顺序红线遵守）；无空间→EmptyState；无数据→⑦。
-   零一次性样式抽查：grep 四条独立复跑均无匹配（含 GraphPage 专条）。
+【要点 5：测试与构建独立复跑】—— 通过
+  · vitest apps/web/tests → 22 文件 217 用例全绿（独立复跑）；
+  · vitest packages → 2 文件 43 用例全绿（独立复跑）；
+  · vitest functions/api/tests → 19 文件 202 用例全绿（独立复跑）；
+    合计 462 与第 3 轮基准逐项一致，无删减、无新增（3.3 预计 0 文件改动，实测 0）。
+  · tsc 三段（packages/engine / functions/api / apps/web）独立复跑全部 exit 0。
+  · 6.3 静态纪律四条独立复跑：任意值断点变体 / 裸 z-[ / CDN 字体均无匹配；
+    页面文件裸 hex className 与 min-w-[ 无匹配；index.css 新增 623 行全部
+    .bp-* 制式类命名（blueprint 纪律）。
+  · 报告真实性抽查共 11 项（462 用例 / tsc 三段 / 冻结区空 / nav 3 处 / 矩阵
+    136 单元 / h1check 112 单元 / paper-attribution 七态探针含 injected 标注 /
+    OBS-2 产物 9 件 / 46 提交计数 / A 类文件 diff 空 / 静态纪律），未发现虚报；
+    快照表 27 个 hash 与 git log 逐条对上（含 7396743/68e7828/338ef49 收尾三提交）。
+  · 探针工具安全抽查：PROFILE 均为 tmpdir 浏览器档案（rmSync 自清理）；POST 调用
+    仅 auth/login、auth/register（演示流程，报告披露）、evidence/self-report、试卷
+    确认链（D23 记账）与 409 专项的真 create 判定（409 即失败、不落库，注入脚本
+    只拦 list 并透传 create）——无删除类端点、无伪造业务数据写入路径；
+    /tmp/fix-demo-teacher.cjs 修复 local_db 的事件已如实留痕（「十四、」）且
+    data/local_db 为 gitignore 运行时数据，非冻结区。
 
-6. graphSymbol 转写正确性 —— 通过
-   与原型 bandShapePath（L2784-2792）逐公式对照：菱形=四点 90° 步进（顶点 ±r 落上下左右）、
-   五边形 72°、六边形 60°、圆=两段弧 0.01 闭合、方形=0.8r——顶点角度公式 (-90+i*step)
-   逐字一致；坐标口径差异（r=15→10）有文件头说明且经 symbolSize 缩放无影响。
-   graphSymbol.test.ts 9 用例（顶点数/圆含 arc 无 L/方形 4 角/path:// 前缀/六态映射/
-   六形状两两不同）审阅通过、全绿。
+【要点 6：报告自曝缺口评估】—— 均可放行（详见四、L-1/INFO-2）
+  · /chat 三项缺口（SSE 流式实拍 / 面板全屏同构对照 / probe-chat-states 未建）：
+    放行依据——①发送链路全部位于冻结区（sse.ts/client.ts/useChatSend.ts/dialog
+    store），区间 diff 空输出即「行为与第 3 轮 PASS 时完全相同」；②sse(20)+
+    client(13)+chatPanel(5)+dialogStore(7) 全绿；③本审查逐行确认 ChatPage 复用
+    同一套七件套（非重实现），同构性由代码结构保证；④01_PLAN「二、」对检查点⑦
+    的把关口径原文即「P8 单页提交三件套 + sse/client/chatPanel/dialogStore 全绿」，
+    该口径已满足；走查专项 a/b 属 P8.2 步骤内要求，未做已如实自曝（未隐藏），
+    且 8 组合常态走查覆盖了页面壳对消息流渲染的干扰面。残留风险低，记 L-1 留档。
+  · D-P12.2-1：见要点 4，成立。
 
-7. D8 六项留痕真实性 —— 通过（逐项复核，无伪造）
-   ①形状【执行项·做了】：见 6；画布截图形状差异可见。
-   ②天蓝不做小字【执行项·做了】：textColor = themeColor('--c-ink')，天蓝 #4E86D6 不在
-      画布文字路径；tokens.test 23 用例绿。
-   ③重绘不重播【执行项·做了】：旧新比对机制逐字符保留（lastIgnitionSourceRef/animation
-      条件）；探针四组墨量 350ms==稳态、缩放 tok 不回退，证据链成立。
-   ④键盘【尽力项·做了】：候选 A 画布级（role=group + tabIndex + onKeyDown 四向平移/
-      加减缩放/setOption 合并更新）+ 候选 B 文字清单按钮；探针 {ok:true,focused:true}、
-      缩放读数 0.30×→0.43×（375）/0.55×→0.79×（1440）。可选增强（Enter 选中中心最近
-      节点）未做已留痕，属计划标注「可选」项，不构成缩水。
-   ⑤描边入场【尽力项·没做·候选 A】：复核「ECharts graph edge 无 stroke-dashoffset/
-      描边生长能力」的技术判断——属实（ECharts 无 path 描边进度 API，仅 opacity/width
-      渐变近似；自绘 SVG 已被 D8 排除）。「做不到」成立，非借留痕偷懒；reduced-motion
-      由点火动画 JS 侧降级覆盖（代码证据：animationDuration reduced→0）。
-   ⑥焦点环【尽力项·部分做】：canvas 无 DOM 焦点属实；近似表达（emphasis borderWidth 3
-      + .bp-gcanvas__viewport:focus-visible + 清单焦点环）与留痕一致。
-   三项执行项全落地、三项尽力项评估/取舍全部成文（报告「五、」+ 代码注释），符合
-   D20「评估先行、做不到留痕不静默砍」口径。
+【要点 7：执行偏差抽查（续完与半页收口）】—— 通过
+  · 快照表与 git log 对齐抽查（21 条全部核对）无出入；
+  · P10.3 /self-report 与 P10.5 /me 两处半页收口：Layout 改动均为 D24 同款登记，
+    页面改动经逐行对照判定后收口，本审查独立复核 MePage/SelfReportPage 未发现
+    业务逻辑夹带；D-P10.5-1/2/3、D-P10.3-1~4 留痕与实际 diff 相符；
+  · 计划外文件四处（SpaceCreateForm / StudentTeacherSection / App.tsx / ToastHost）
+    均在报告特此标明、给出理由（不迁移则视觉不完整 / 另写会复制业务逻辑，违反
+    「业务逻辑一行不改」与单一来源）且可单条 revert——本审查核对四处 diff 确为
+    仅视觉 + 注释 + 纯渲染开关，判定属「最小必要扩围 + 完整留痕」，可接受。
 
-8. 冻结区 —— 通过（双口径独立复跑均空输出）
-   · git diff --name-only fa20d8e..HEAD -- router.tsx api/ packages/engine functions data
-     → 空；stores/ + graphLayout.ts + graphMastery.ts + graphSnapshot.ts + poster.ts → 空。
-   · graphMastery.test / graphSnapshot.test / graphLayout / poster 四冻结件零改动。
-   · GraphPage 冻结语义旧新逐块比对一致：取数 useEffect（getGraphMastery/cancelled/
-     deps [activeSpaceId]）逐字符相同；守卫顺序未变（error 为派生态插入，未改分支顺序
-     语义）；byKp/summary/badges/counts 派生、STATE_HINT/EVIDENCE_LABEL/IGNITE_*、
-     ignitionLandingMs/WeekCount、themeColor、sharePoster、tooltip formatter、selectedIsWeak
-     均原样保留。graphMastery.test 不动且全绿即布局纯函数与数据流未动的行为证据成立。
-   · 3.3 测试口径：唯一改动的既有测试 = breakpoints.test.ts（许可的注释项）；唯一新增 =
-     graphSymbol.test.ts；其余 18 个不动清单测试文件零改动（diff --stat 核对）。
+--------------------------------------------------------------
+三、总验收清单把关（01_PLAN「一、」第 12–18 项）
+--------------------------------------------------------------
+  · 第 12 项 认领清偿：M-1 / L-1 / INFO-1(D23 基数) / INFO-2(D24 登记) 全部落地，
+    OBS-2 取证在库 —— 通过。
+  · 第 13 项 检查点⑦ /chat：三件套 + 四测试全绿（计划§二口径），视觉迁移完成 ——
+    通过（L-1 取证缺口留档）。
+  · 第 14 项 检查点⑧~⑪ T0 四页：逐页单提交 + 4 档双主题走查 + 勾稽 #3 全链
+    真浏览器取证（刷新回显 / 错题缓存写入 → /attribution 联动，含幂等键口径的
+    如实说明）—— 通过。
+  · 第 15 项 检查点⑫~⑰ T1 六页：含 /login 真实链路七状态取证（token 落盘 / 刷新
+    不掉线 / 401 回清 / 演示账号双分支）—— 通过（D-P10.4-1 计划外扩围见要点 7）。
+  · 第 16 项 检查点⑱~㉑ 门户+教师四提交：403 兜底零改动取证、R17 无降级 —— 通过。
+  · 第 17 项 P12 收尾：D26 零清退（结论成立）、冻结区终检、矩阵 136 单元、
+    LOOKATME/README 实测数字 —— 通过。
+  · 第 18 项 全程红线：单页单提交 46 个核对无混批；冻结区零改动；462 只增不减；
+    PAGE_OWNED_HEAD 逐页落地、h1check 112 单元全 1（无双 h1）—— 通过。
+  结论：总控拍板的「一轮完成全部剩余任务」范围内，17 页全量迁移完成度达标，
+  验收清单可勾。
 
-9. 12acf95（前次中断遗留改动入库）—— 通过
-   逐行 diff 确认仅：label rich 双行 → 单行名称（labelText=name）、新增 showLabels=cw>=700
-   开关、fitZoom 地板 0.12→0.3、文件头与行内注释同步。无取数/守卫/派生/点火/poster/
-   键盘语义/文案常量改动，纯表现层，独立可 revert，未 amend 历史。处置合规（DEV-1）。
+--------------------------------------------------------------
+四、问题分级（无 H / 无 M；L×2、INFO×5）
+--------------------------------------------------------------
+L-1【/chat 计划内走查专项三项未做，且已无后续轮次兜底】
+  文件：apps/web/src/pages/ChatPage.tsx（影响面）；计划 01_PLAN「五、P8.2 走查口径
+    a/b/c」。
+  问题：SSE 登录态流式实拍、面板/全屏同构对照截图、tools/probe-chat-states.cjs
+    三项计划明确列出的取证未做，P12.3 亦未回补（报告「二十一、」如实自曝）。
+  影响：检查点⑦的行为证据完全依赖冻结区 diff + 四个测试文件全绿 + 代码结构复核
+    （本审查已做），属「推断充分、实证缺位」；若未来改动 /chat 页壳或七件套，
+    缺一组同口径的基线实拍可对照。
+  建议：如项目继续迭代，优先补做这三项（探针模式可复用 probe-login-states 的
+    登录链路）；至少补 a) 一张流式过程截图与 b) 一组面板/全屏同会话对照。
 
-10. 测试与构建（独立复跑）—— 通过
-    · vitest：apps/web 22 文件 217 用例 / packages 2 文件 43 / functions/api 19 文件 202
-      —— 462 全绿（基线 42/453 → 只增不减，增量恰为 graphSymbol.test 9 用例）。
-    · tsc：apps/web exit 0（本轮变更面）；packages/functions 两段报告记 0，本轮以
-      冻结区空输出 + 两批测试全绿旁证。
-    · build 等价口径（--outDir /tmp/zhiwei-web-build-review）：成功；echarts 434.35 kB
-      仍为独立懒加载 chunk，GraphPage 24.07 kB，与报告一致，无异常包体增长。
-    · 静态纪律四条：无匹配。
+L-2【组件库 Button size="sm" 的 text-tok 类未进 cn.ts 合并组，primary sm 按钮对比度
+    不达 AA（既有缺陷，非本轮引入）】
+  文件：apps/web/src/components/ui/Button.tsx L67（sm 档含 text-tok）+
+    apps/web/src/lib/cn.ts（font-size 组缺 tok / mono-xs / body-sm / title-sm /
+    title / num-lg 六个字号令牌登记）。
+  问题：tailwind-merge 把 text-tok 当颜色类，在 cva 合并中顶掉 text-on-accent；
+    执行方已取证：/login 两颗「一键进入」计算样式 ≈2.3:1（不到 AA）。全站
+    size="sm" 实测 29 处（其中非 secondary/quiet/link 变体 22 处受影响）。系
+    P3/P4 落令牌时的漏登记（第 1 轮引入），本轮 D-P10.4-4 已完整举证 + /login
+    单页改 md 档规避 + 明确建议下一轮认领修根因。
+  影响：已交付站点上 sm primary 按钮存在可访问性缺陷（多为次要操作键，视觉上
+    「蓝底深蓝字」仍可辨读，但低于 AA 标准）。
+  建议：下一轮认领（与第 3 轮 M-1/L-1 同性质）：向 cn.ts 的 font-size 组补登
+    6 个字号令牌，一处修全站；修完对含 sm primary 按钮的页面（/chat 收进侧栏、
+    ChatPanel 全屏打开等）补一次走查快照，并复核 22 处非 sm-variant 位的视觉
+    无回归。
 
-11. 走查证据 —— 通过
-    · 8 份审计 JSON 独立解析：每份 11 路由 overflowPx 全 0；/graph 各档
-      1440/1024/768/375（双主题）overflowPx=0、scrollWidth==clientWidth —— 375 硬判据达成。
-    · 主走查截图 capturedAt 14:09（晚于 14:00 表现层改动）新鲜；375 双主题专项
-      9 图 + 日志 14:19 新采（DEV-2 stale 处置属实、得当）；1440 专项 14:11–12。
-    · 键盘/主题切换/reduced-motion 专项取证见 7③④；无空间态采不到的原因
-      （guardPath 冻结重定向）属实，R12 留痕口径与 P6 一致。
-    · D18：探针脚本只读取证（fetch 仅 login/space/list/graph/mastery，无 create/写接口）；
-      日志记录复用既有空空间 sp_muf82zhx02br0，本轮新建空间 0。
-    · OBS-1（375 档画布近空白）处置恰当：实测属实（375-light-normal 画布 349×340、
-      0.30× 地板、近空白观感确认），已定取舍口径（形状地图 + 05 文字清单承担 + 降级
-      note），硬判据仍达成，报告如实留痕未改设计 —— 接受该取舍，不另立问题项。
+INFO-1【breakpoints.test 的 nav: min 侧「真实使用点」断言已空转】
+  说明：B 类清退后 src 内 min 侧 nav: CSS 类用法归零（本轮 ChatPage 换 annos: 是
+    最后一处），该测试的 hits(/[^\w-]nav:/) 断言现仅由注释行与 router.tsx 的
+    nav 布尔属性命中满足。「防拼写静默失效」保护对 min 侧不再有实际约束力。
+    测试文件按红线不可改，D26 亦未要求处理；建议后续修订断言口径（剔除注释）
+    或留痕接受现状。max-nav: 侧（3 处真实用法）不受影响。
 
---------------------------------------------------------------------------------
-二、问题分级（只建议不代改；FAIL 不适用，以下为认领/留痕事项）
---------------------------------------------------------------------------------
-M-1（下轮必清偿）1440 档画布节点标签相互叠压、成片不可读
-  文件：apps/web/src/pages/GraphPage.tsx（label 配置：width:96 + overflow:'truncate'）
-  问题：本次审查裁剪放大 graph-1440-light-normal.png 画布中部确证：多列节点的名称标签
-        相互叠压成片、不可读；且可见文本宽度明显超过 96px，width/truncate 疑似对 graph
-        节点 label 未生效（或被 formatter 路径绕过），与代码注释「width:96 截断控密度」
-        的意图不符。1024 档同结构可推。执行报告未留痕此现象（其自采 1440 截图已可见；
-        报告 ② 项仅记颜色达标，OBS-1 只覆盖 375）——按 D20「禁静默缩水」口径，
-        该取舍后果须补留痕并修复。
-  影响：主桌面档「三重编码」的文字编码（名称）不可读，观感明显低于原型（原型节点名
-        清晰分列）；但数据信息由 05 文字清单/tooltip/详情卡完整承担，硬判据不破。
-  建议：P8 计划列入独立走查修复提交（不动冻结语义）：①先核实 width/truncate 失效原因；
-        ②若确不可用，用 series 级 labelLayout:{hideOverlap:true}（ECharts 内建避让）
-        或缩短标签/增大可视列距；③执行报告补 OBS-2 留痕（1440/1024 修复前后对照图）。
-  不判 FAIL 的依据：不触红线、不破本轮任何硬判据；标签密度本属 D20④ 明示「ECharts
-        label 能力边界在实现中取舍并留痕」的许可取舍区，缺的是对该取舍后果的留痕，
-        按本轮 L 级认领惯例转下轮清偿。
+INFO-2【D-P12.2-1 替代取证口径成立】见要点 4，无需行动。
 
-L-1（下轮顺手）两处缩放下限口径不一致
-  文件：apps/web/src/pages/GraphPage.tsx（ZOOM_MIN=0.12 与 fitZoom 地板 0.3）
-  问题：fit 地板取 0.3 的理由是「防节点成点」，但键盘/工具条缩放下限仍为 0.12，
-        键盘缩到 0.12 时同样会「节点成点」，与取舍口径不自洽。
-  建议：统一为 0.3（或留痕说明保留 0.12 的理由），随 M-1 同一提交处理。
+INFO-3【StudentTeacherSection 展示层新逻辑】REC_ORDER 排序（原 active/settled 两组
+    分列 → 单表按状态序，??9 兜底）与 recommendationsOnly 渲染开关为展示层新增，
+    数据流/接口/导航逐行未动（已独立核对）；已留痕 D-P10.5-1。可接受。
 
-INFO-1 D18 计数基线更新
-  探针日志显示账号现有 3 个空空间（初中数学 + 两个 P6 四态遗留），非计划 D18a
-  所记 2 个。本轮新建 0 成立（命名与时间戳均指向 P6 遗留），但 P8 计划的 D18
-  基线应更新为 3，避免下轮误判膨胀。
+INFO-4【PaperPage retryLoad / AttributionPage viewFailed 等真重试实现】属 D15c
+    同口径的表现层状态位 + 重发同一请求（非新开取数路径）；既有 effect 的接口
+    参数 / cancelled / 依赖数组逐字符未动（已逐字符对照）。已留痕，可接受。
 
-INFO-2 专项图命名易误读
-  graph-1440-dark-theme-after-settled.png 实为切主题后的 light 态（探针切换主题的
-  自然结果，theme-before-dark 提供了 dark 对照），证据有效，但文件名不含「切后」语义，
-  建议下轮探针日志或报告注明读法（本轮报告「五、」③ 已有读法说明，仅提示存档口径）。
+INFO-5【LOOKATME 242/243 口径】见要点 4，行内自带口径说明，非虚报。
 
---------------------------------------------------------------------------------
-三、独立复跑证据汇总（reviewer 本机实测，非转录报告）
---------------------------------------------------------------------------------
-1. git log/diff：fa20d8e..HEAD 6 提交 96 文件；冻结区两口径空输出（exit 0）。
-2. vitest：apps/web 22/217 全绿（6.41s）；packages 2/43 全绿（1.78s）；
-   functions/api 19/202 全绿（7.54s）。
-3. tsc --noEmit -p apps/web/tsconfig.json → exit 0。
-4. vite build --outDir /tmp/zhiwei-web-build-review → ✓ built in 3.87s；
-   grep 'pb-pad-frame-sm-b{padding-bottom:10px}' assets/*.css → 命中（L-1 判据）。
-5. 审计 JSON 解析（node 脚本）：8 份 × 11 路由 overflowPx 全 0，/graph 各档 0。
-6. 静态纪律四条 grep → 均无匹配。
-7. 探针日志 375-light：键盘 {ok,focused} + 缩放 0.30→0.43；主题墨量 350ms=1897==稳态；
-   reduced-motion matchMedia=true；空空间复用记录在案。
-8. 截图目验：graph-1440-light-normal / graph-1440-dark-theme-after-settled /
-   graph-375-light-normal（含 sips 裁剪放大取证 M-1）。
-9. 工作区 git status：仅他人既存未提交项，无新增未入库代码。
-10. 归档 md5 校验：43f896a7c01094cf21faefc8d4b4a7c1 两侧一致。
+--------------------------------------------------------------
+五、审查声明
+--------------------------------------------------------------
+本报告全部结论有独立取证支撑（命令与输出要点已内嵌各节）；无「信息不足无法判断」
+的阻塞项。除本文件与归档件外未修改任何文件。
 
---------------------------------------------------------------------------------
-四、对 P7 交付物与认领清偿的把关结论
---------------------------------------------------------------------------------
-· 检查点⑥（/graph ECharts 改造）：产物三件套齐备，原型 ①–⑦ 逐段复现成立，
-  四态落位合规，D8 六项分派按 D20 落地且留痕真实 —— 把关通过。
-· L-1（token 消费）：清偿成立，产物 CSS 判据独立命中。
-· L-2（注释清偿）：清偿成立，断言零改。
-· L-3/INFO-1（D18 空间约定 / D19 页头登记）：遵守/落地成立。
-· 遗留：M-1（1440 标签叠压）+ L-1（缩放下限口径）转下轮认领，P8 计划（第 10 版）
-  必须列入清偿步骤并回写本报告问题编号的处置结果。
-
-—— 第 3 轮审查完（2026-10-11 14:47）——
 VERDICT: PASS
