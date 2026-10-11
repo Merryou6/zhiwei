@@ -1,0 +1,229 @@
+{
+ "tag": "me",
+ "width": 1440,
+ "height": 900,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:12:41.543Z",
+ "spaces": [
+  {
+   "space_id": "sp_muf82zhx02br0",
+   "name": "初中数学",
+   "rows": 24,
+   "maxMastery": 0.85,
+   "sumMastery": 11.7
+  },
+  {
+   "space_id": "sp_mugfdmcl01qe6",
+   "name": "UI 验收·先修薄弱",
+   "rows": 24,
+   "maxMastery": 0.5,
+   "sumMastery": 7.467
+  },
+  {
+   "space_id": "sp_mv3d1i2g01js2",
+   "name": "P6 四态取证空间",
+   "rows": 24,
+   "maxMastery": 0.19089981353115054,
+   "sumMastery": 0.649
+  },
+  {
+   "space_id": "sp_mv3d53em02iv2",
+   "name": "P6四态1791695333756",
+   "rows": 24,
+   "maxMastery": 0.15255750315258512,
+   "sumMastery": 0.458
+  },
+  {
+   "space_id": "sp_mv3lwj4814sy8",
+   "name": "P10-1-409-1791710050756",
+   "rows": 24,
+   "maxMastery": 0,
+   "sumMastery": 0
+  }
+ ],
+ "dataSpace": "sp_muf82zhx02br0",
+ "emptySpace": "sp_mv3lwj4814sy8",
+ "states": [
+  {
+   "hash": "#/me",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "我的页"
+   ],
+   "eyebrow": true,
+   "sheetNo": true,
+   "measureCount": 4,
+   "distRows": 4,
+   "kvRows": 8,
+   "recTableRows": -1,
+   "recTableCaption": null,
+   "sections": [
+    "学习概览",
+    "我的老师",
+    "当前空间",
+    "账号信息",
+    "外观与模型",
+    "退出"
+   ],
+   "emptyBoxes": 0,
+   "themeToggle": true,
+   "themePressed": "true",
+   "dusk": true,
+   "storedTheme": "dark",
+   "activeSpace": "sp_muf82zhx02br0",
+   "textLen": 767,
+   "state": "logged-in",
+   "note": "登录态 /me：SHEET 10-14 + 单 h1 + 四格 measure + 四档分布 + 推荐台账",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/me",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "我的页"
+   ],
+   "eyebrow": true,
+   "sheetNo": true,
+   "measureCount": 4,
+   "distRows": 4,
+   "kvRows": 8,
+   "recTableRows": -1,
+   "recTableCaption": null,
+   "sections": [
+    "学习概览",
+    "我的老师",
+    "当前空间",
+    "账号信息",
+    "外观与模型",
+    "退出"
+   ],
+   "emptyBoxes": 0,
+   "themeToggle": true,
+   "themePressed": "true",
+   "dusk": true,
+   "storedTheme": "dark",
+   "activeSpace": "sp_mv3lwj4814sy8",
+   "textLen": 785,
+   "state": "overview-empty",
+   "note": "零数据空间：概览虚线空盒 + 两条出路（做一次测评 / 去云盘传试卷）",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "eyebrow": false,
+   "sheetNo": false,
+   "measureCount": 0,
+   "distRows": 0,
+   "kvRows": 10,
+   "recTableRows": -1,
+   "recTableCaption": null,
+   "sections": [
+    "空间列表",
+    "新建"
+   ],
+   "emptyBoxes": 0,
+   "themeToggle": false,
+   "themePressed": null,
+   "dusk": true,
+   "storedTheme": "dark",
+   "activeSpace": "sp_muf82zhx02br0",
+   "textLen": 790,
+   "state": "no-space",
+   "note": "无当前空间：守卫 guardPath 重定向到 /spaces（R19；非 MePage 空盒）",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/me",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "我的页"
+   ],
+   "eyebrow": true,
+   "sheetNo": true,
+   "measureCount": 4,
+   "distRows": 4,
+   "kvRows": 8,
+   "recTableRows": -1,
+   "recTableCaption": null,
+   "sections": [
+    "学习概览",
+    "我的老师",
+    "当前空间",
+    "账号信息",
+    "外观与模型",
+    "退出"
+   ],
+   "emptyBoxes": 0,
+   "themeToggle": true,
+   "themePressed": "false",
+   "dusk": false,
+   "storedTheme": "light",
+   "activeSpace": "sp_muf82zhx02br0",
+   "textLen": 767,
+   "state": "toggle-light",
+   "note": "me 页切换主题后（期望 storedTheme=light、dusk=false）",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/report",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "学习报告 · 按空间汇总"
+   ],
+   "eyebrow": false,
+   "sheetNo": false,
+   "measureCount": 0,
+   "distRows": 4,
+   "kvRows": 0,
+   "recTableRows": 4,
+   "recTableCaption": "分档明细",
+   "sections": [
+    "一句话总评",
+    "掌握度四档分布",
+    "缺口清单",
+    "基线与复测对比",
+    "从缺口出发"
+   ],
+   "emptyBoxes": 1,
+   "themeToggle": false,
+   "themePressed": null,
+   "dusk": false,
+   "storedTheme": "light",
+   "activeSpace": "sp_muf82zhx02br0",
+   "textLen": 1644,
+   "state": "global-light",
+   "note": "承上跳 /report：主题已在全站生效（dusk 与 storedTheme 同源）",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  }
+ ]
+}
