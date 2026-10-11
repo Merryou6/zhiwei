@@ -21,35 +21,44 @@
  *   4. **留白与字号对比拉开**。标题 38/44px，正文 13px，两者差 3 倍以上；
  *      标识与表单之间留 40px 空档，而不是贴着。
  *
- * 交互与纪律完全保留（本次只改版式，未动任何行为）：
- *   · 一屏一件事：一次只做登录或注册；
- *   · 错误一律走非阻断 toast（不弹窗），并附带字段级行内提示；
- *   · 演示账号一键进入：登录失败（该服务上还没建过）则自动注册；
- *   · 刷新不掉线：登录成功先落会话、再取空间、后导航。
- *
  * ── 重构 P3（2026-09-25 · 归队）──────────────────────────────────
  * 本页此前是全站**唯一未迁移的孤岛**：自己手写 fieldClass / fieldTone 两段样式字符串，
- * 行内错误色硬编码 hex，三处按钮各写各的，完全不用 ui/ 原语。后果不是「难看」，
- * 而是**同一件事在这里有第二套真相** —— 改全站输入框的聚焦表达时，这一页不会跟着变；
- * 而它恰好是 Demo 的开场镜头，也是最不该漂移的一页。
- *
- * 本次归队不含版式改动（上一轮版式批五的四条纪律全部保留），只做三件事：
- *   ① 控件走 FormField + Input tone="onDark"：标签关联、错误态、ARIA 关联、
- *      触控高度一次定死，本页不再维护任何控件样式；
- *   ② 行内错误色改 text-danger 令牌（深色下与硬编码的 #FFB088 逐位相同）；
- *   ③ 三处按钮走 Button 原语（primary / link），去掉三串手写样式 ——
- *      并借 size="lg" 的 44px 最小高度把主按钮压到触控目标下限上。
+ * 行内错误色硬编码 hex，三处按钮各写各的，完全不用 ui/ 原语。本次归队改为
+ * FormField + Input tone="onDark"、行内错误色走 text-danger 令牌、三处按钮走 Button 原语。
  *
  * ── 双端开场（2026-10-09）────────────────────────────────────────
  * v1.6 落了双端（role 决定去向），但身份选择只在**注册**时出现——登录时整个
- * 页面是学生视角，老师回来登录看不到「这是给我准备的入口」。本次把身份提为
- * 第一层（TEACHER_PORTAL_DESIGN §1.1 的登录去向分流的入口端表达）：
- *   ① 「我是学生 / 我是老师」从注册专属提升为**常驻**，且放表单首位——
- *      进门先说我是谁，再填账号（注册时它就是提交的 role；登录时它是身份期望）；
- *   ② 一句话定位随身份切换：学生「先弄清你卡在哪个知识点」/ 老师「看清每个学生卡在哪」；
- *   ③ 登录后以**服务端 role 为唯一真相**导航（不变），若与所选身份不符，
- *      温和纠正（toast）而非打断——老师拿学生账号登录也能顺利进入正确的一端。
- * 版式纪律不破：元素 7 → 8，仍是「一屏一件事」，无卡片无分隔线。
+ * 页面是学生视角。本次把身份提为**常驻**，且放表单首位：进门先说我是谁，再填账号。
+ *
+ * ─────────────────────────────────────────────────────────────────────
+ * style-10「青蓝蓝图」迁移 P10.4（2026-10-11 第 4 轮）：视觉层按原型 PAGES.login
+ * （tempui/prototypes/style-10/index.html L1912-1974）逐段复现，**业务逻辑一行不改**
+ * （tab/role/identifier/password/nickname/submitting/fieldErrors 七个状态位、validate、
+ * finishAuth 的落会话→取空间→按角色导航、handleSubmit 的三道分支与温和纠正 toast、
+ * handleDemoEnter 的「先登录后自动注册」、两条 navigate 目标与 replace 语义、全部
+ * 既有文案常量）：
+ *   ① 页头 SheetHead（L1951）：eyebrow「AUTH / 最小摩擦入口」+ SHEET 10-02 +
+ *      需求 2.2 + 标题随 tab 切换「登录知微 / 注册知微」+ chip「T1」；页头归页面自有
+ *      （D24：Layout 的 PAGE_OWNED_HEAD 登记 '/login'）。
+ *   ② 左栏（原型 `.split` 的 1fr 列）：登录/注册分段（`.bp-seg` + 真 radio，即原型
+ *      `div.seg[role=tablist]` 的两个选项）+ 表单（期望身份分段 = 原型 roleSeg →
+ *      既有「我是学生 / 我是老师」两项与说明；字段 = 手机号或邮箱 / 密码 /（注册时）
+ *      昵称，走 FormField + Input 原语，标签可见 + 必填星 + 提示行；提交行 = 主键 +
+ *      「先看看门户图」次键 + 提交反馈行）。
+ *   ③ 右栏（原型 `aside.panel.flat` = `.split` 的 220px 列）：02 演示账号 ——
+ *      两张演示卡（学生端 / 教师端 chip + 一键进入 + 账号/密码 kv）+ 注册后冷启动说明。
+ *
+ * 【外壳形态的变化（本次唯一的计划外文件改动，见执行报告 D-P10.4-1）】原型 PAGES.login
+ * 是**画在外壳里**的图纸（sheetHead + 左右分栏 + 左栏分层索引可见），而本工程 /login
+ * 自 2026-09-22 起走 `Guarded bare`（全屏深色开场、不套 Layout）。按「原型为视觉唯一依据」
+ * （D9）与 D24 登记表的说明（「登录页在外壳内渲染图纸制式」），本次改为**在壳内渲染**：
+ * App.tsx 里 /login 的 `bare` 由 true 改 false（一处 + 注释），Layout.tsx 登记 '/login'。
+ * 随之退场的是旧开场的三件动效资产（ParticleLogo 粒子标识 / aurora 氛围斑 / 表单入场
+ * 揭示与磁性 CTA）—— 它们只服务于「全屏开场」这一种形态，原型 login 页里没有；
+ * ParticleLogo 仍在门户 /（P11.1）与 ZhiweiLogo 里使用，未被删除。
+ *
+ * 【四态】表单不整页四态（规范 §7 login 行）：错误落在**字段级**（FormField 的 error
+ * 行 = 规范 5.3 的 `.hint.bad` 位，role="alert" 即时念出），另有既有非阻断 toast 兜底。
  */
 
 import { useState } from 'react';
@@ -58,11 +67,11 @@ import { useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { listSpaces, login, register } from '../api/endpoints';
 import type { AuthData } from '../api/types';
-import ParticleLogo from '../components/ParticleLogo';
-import { Button, FormField, Input } from '../components/ui';
+import { Icon } from '../components/blueprint/icons';
+import { useBlueprintTier } from '../components/blueprint/Board';
+import { SheetBlock, SheetHead, sheetDimText } from '../components/blueprint/Sheet';
+import { Badge, Button, FormField, Input } from '../components/ui';
 import { UI_TEXT } from '../lib/phrases';
-import { useMagnetic } from '../lib/useMagnetic';
-import { useReveal } from '../lib/useReveal';
 import { SPACES_PATH, START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { pickDefaultSpace, useSpaceStore } from '../stores/space';
@@ -76,6 +85,13 @@ const DEMO_ACCOUNTS = {
   student: { identifier: 'demo_student', nickname: '演示同学', role: 'student' },
   teacher: { identifier: 'demo_teacher', nickname: '演示老师', role: 'teacher' },
 } as const;
+
+/** 图号与需求号（原型 sheetHead L1951 的 SHEET 10-02 / 需求 2.2）。 */
+const SHEET_NO = '10-02';
+const SECTION_NO = '2.2';
+
+/** 演示账号提示行（原型 f('account', …) 的 hint 位；此处给本工程真实账号，不照抄 mock）。 */
+const DEMO_HINT = `演示账号：${DEMO_ACCOUNTS.student.identifier} · ${DEMO_ACCOUNTS.teacher.identifier}（密码 ${DEMO_PASSWORD}）`;
 
 interface FieldErrors {
   identifier?: string;
@@ -93,18 +109,10 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const navigate = useNavigate();
+  const tier = useBlueprintTier();
   const setSession = useAuthStore((state) => state.setSession);
   const setSpaces = useSpaceStore((state) => state.setSpaces);
   const toast = useUiStore((state) => state.toast);
-
-  // 章节揭示（awwwards 入场）：表单区 fade-up（标识已有粒子开场，不重复编排主容器）；
-  // 演示入口错峰揭示，比表单晚 ~120ms（directed motion：错峰只在一屏之内）。once + reduced-motion 由 useReveal 兜底。
-  const { ref: formRevealRef, inView: formRevealed } = useReveal<HTMLFormElement>();
-  const { ref: demoRevealRef, inView: demoRevealed } = useReveal<HTMLDivElement>();
-
-  // 磁性 CTA（awwwards 包 G · micro-interactions）：主提交按钮悬停时向光标轻微吸引，
-  // 幅度 0.2 保守取值（max 6px）；reduced-motion 由 hook 内部 no-op，触屏无 mousemove 天然无效。
-  const magneticCta = useMagnetic(0.2);
 
   /** 本地校验（行内提示用；服务端仍是最终裁判）。
       【P3 人设随身份】学生端文案是学长口吻，老师身份下改中性，不让老师被「记住你」。 */
@@ -225,225 +233,228 @@ export default function LoginPage() {
     }
   }
 
-  /* ── 控件样式：已交给 ui/ 原语（2026-09-25 重构 P3）─────────────────
-     收敛前这里有 fieldClass / fieldTone 两段手写字符串，是本页作为「未迁移孤岛」的
-     最后两处痕迹；行内错误色还硬编码着 hex。
+  /** 通道切换（原型 `.seg` 的两个选项）：与迁移前的文字切换**同一套状态变更**（换 tab +
+   *  清字段错误），只是控件从「一行文字按钮」变成分段选择制式。 */
+  function switchTab(next: Tab): void {
+    setTab(next);
+    setFieldErrors({});
+  }
 
-     现在走 `FormField + Input tone="onDark"`：
-       · 表面与占位符的取值依据完整保留在 Input.tsx 的文件头（placeholder 用
-         dusk-muted 落在 dusk-surface 上 4.79:1 过 AA；落在更亮的 raised 上只有
-         4.13:1，所以输入框一律用 surface 档，不「再亮一层」）。
-       · 边框策略：原版默认透明、聚焦才出现主色边；原语改为一律带 dusk-line 细边。
-         这是有意的 —— 无边框输入框只在「用户已经知道这里是个框」时成立，
-         对新用户而言少了一层可发现的边界。
-       · 行内错误色改走 text-danger 令牌：深色下 = #FFB088，与原硬编码逐位相同；
-         浅色下会自动换成 #C96A3A —— 硬编码做不到这件事。
-     ⚠ 本页此后不再维护任何色值。 */
+  /** 页头（原型 sheetHead L1951）。**由页面自己渲染**：外壳对此页不再补通用页头
+   *  （Layout 的 PAGE_OWNED_HEAD，D24）—— 否则一页会出现两个 h1。
+   *  title 随 tab 切换（原型同一行的三元：`tab === 'register' ? '注册知微' : '登录知微'`）。 */
+  const pageHead = (
+    <SheetHead
+      eyebrow="AUTH / 最小摩擦入口"
+      sheetNo={SHEET_NO}
+      section={SECTION_NO}
+      title={tab === 'register' ? '注册知微' : '登录知微'}
+      sub="两种身份共用一张图：注册时决定账号角色，登录时表达期望身份。"
+      chips={<Badge>T1</Badge>}
+      dim={sheetDimText(tier)}
+    />
+  );
+
+  /** 身份两项（原型 roleSeg 的 [['student','学生',…],['teacher','教师',…]]；本工程沿用
+   *  既有的措辞「我是学生 / 我是老师」与两条定位说明）。 */
+  const ROLE_OPTIONS = [
+    { value: 'student', label: '我是学生', hint: '完整学习链路' },
+    { value: 'teacher', label: '我是老师', hint: '带学生看学情' },
+  ] as const;
 
   return (
-    <section className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-dusk-base px-6 py-10 text-dusk-body">
-      {/* 背景氛围：单一品牌色相的极淡径向光，模拟夜里桌面上的一盏光。
-          刻意只用一个色相——多色光晕是生成式页面的固定配色，也会让登录页冒出
-          内页没有的第二套强调色。 */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 [background-image:radial-gradient(122%_86%_at_50%_-12%,rgba(78,143,176,0.26),transparent_64%)]" />
-        {/* aurora 氛围色斑（awwwards 包 G）：叠在静态径向光之上的两团缓慢漂移光晕
-            （40s/55s 错峰，见 index.css .aurora-*）。主次关系：粒子标识仍是这一屏的
-            绝对主角，aurora 只在它背后提供「画面在呼吸」的低频氛围——透明度压在
-            0.5 且 blur(80px) 羽化，绝不与标识争夺视线。 */}
-        <div aria-hidden className="aurora-blob aurora-1" />
-        <div aria-hidden className="aurora-blob aurora-2" />
-      </div>
+    <>
+      {pageHead}
 
-      {/* 粒子开场：全页唯一一处「被编排过的动效」，也是这一屏的主角。
-          尺寸用 min(px, vw, vh) 三向夹取——只按宽度定尺寸的话，笔记本那种
-          宽而矮的视口会把表单挤到折线以下，「一屏一件事」就断了。
-          vh 这一项让标识随视口高度让位，屏矮时自动收小。 */}
-      <ParticleLogo className="w-[min(264px,56vw,27vh)]" repulseRadius={88} />
+      {/* 原型 `<section class="block">` 无分节号（左侧表单列直接落进 .split 的 1fr，
+          右侧 aside 自带分节号 02）—— 故这里用无编号的 section 容器，不写 01。 */}
+      <section className="mb-8">
+        <div className="grid grid-cols-1 gap-6 annos:grid-cols-[minmax(0,1fr)_220px]">
+          {/* ── 左栏：登录 / 注册（原型 .split 的 1fr 列）──────────────────── */}
+          <div className="min-w-0">
+            {/* 通道切换：分段选择制式（原型 div.seg[role=tablist] 的两个 radio 选项）。
+                ⚠ 原型把它标成 role="tablist" 而控件是 radio —— 这里按控件如实标
+                role="radiogroup"（与本轮 /self-report /paper 的分段同一条口径：
+                真控件 + 真语义，不自绘、不重造键盘行为）。 */}
+            <div className="bp-seg mb-4" role="radiogroup" aria-label="登录或注册">
+              {(
+                [
+                  { value: 'login', label: '登录' },
+                  { value: 'register', label: '注册' },
+                ] as const
+              ).map((option) => (
+                <label key={option.value}>
+                  <input
+                    type="radio"
+                    name="auth-tab"
+                    value={option.value}
+                    checked={tab === option.value}
+                    onChange={() => switchTab(option.value)}
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
 
-      {/* 品牌字与一句话定位。标题的力度全部来自字号、字重与中文特有的宽字距，
-          不用渐变填充——强调应当由字体本身承担。 */}
-      <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-dusk-title sm:text-display-lg">
-        知微
-      </h1>
-      {/* 一句话定位随身份切换：进门先说我是谁，这一屏在为谁准备就清楚了 */}
-      <p className="mt-3 text-center text-ui-sm leading-relaxed text-dusk-muted">
-        {role === 'teacher'
-          ? '看清每个学生卡在哪，把该补的一环送到他手上'
-          : '先弄清你卡在哪个知识点，再陪你把它补上'}
-      </p>
+            <form onSubmit={handleSubmit} noValidate>
+              {/* 期望身份（原型 roleSeg）：真 radio 的 `.bp-seg`，选中态与焦点环由
+                  :has() 表达；说明行取原型 MOCK.auth.identityNote 的正文 + anno① 的
+                  「不符不拦人」口径（本工程 handleSubmit 里本来就是这个行为）。 */}
+              <div className="bp-seg" role="radiogroup" aria-label="期望身份">
+                {ROLE_OPTIONS.map((option) => (
+                  <label key={option.value}>
+                    <input
+                      type="radio"
+                      name="auth-role"
+                      value={option.value}
+                      checked={role === option.value}
+                      onChange={() => setRole(option.value)}
+                    />
+                    <Icon
+                      name={role === option.value ? 'tick' : 'user'}
+                      className="h-4 w-4 shrink-0"
+                    />
+                    <span>
+                      <span className="font-medium">{option.label}</span>
+                      <span className="tok block">{option.hint}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <p className="bp-note">
+                注册时决定账号角色；登录时选择的身份只是期望，与实际不符会按实际身份进入并温和说明，不拦人。
+              </p>
 
-      {/* 表单：没有外壳、没有分隔线、没有嵌套面板。
-          字段标签交给 placeholder 承担（读屏器靠 sr-only label 仍能拿到），
-          省掉两行可见文字——这是把 13 个元素压到 7 个的关键一步。 */}
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        // 入场揭示（awwwards reveal）：fade-up 0.5s 内，reduced-motion 自动直出
-        ref={formRevealRef}
-        className={'reveal-section' + (formRevealed ? ' is-revealed' : '') + ' mt-8 w-full max-w-[360px]'}
-      >
-        {/* 双端开场：身份常驻（登录 + 注册都在，且是表单第一件事）。
-            注册 = 提交给 #1 的 role；登录 = 身份期望（不符时登录后温和纠正）。
-            复用注册时的二选一样式：无卡片语汇，两个文字块就是全部。
-            【P2 键盘语义】降级为 role="group" + aria-pressed：原 radiogroup/radio
-            缺 roving tabindex，方向键不可用、两颗 radio 各自占一个 Tab 停靠点，
-            读屏语义是违规的；两个独立 toggle 按钮（aria-pressed）如实描述现有行为。 */}
-        <div className="grid grid-cols-2 gap-2" role="group" aria-label="身份">
-          {(
-            [
-              { value: 'student', label: '我是学生', hint: '完整学习链路' },
-              { value: 'teacher', label: '我是老师', hint: '带学生看学情' },
-            ] as const
-          ).map((option) => {
-            const active = role === option.value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setRole(option.value)}
-                className={
-                  'rounded-control border px-3 py-2 text-left text-sm transition-colors ' +
-                  (active
-                    ? 'border-accent bg-accent-veil text-ink'
-                    : // hover 背景轻微提亮（awwwards 反馈微交互）：非选中身份的悬停可发现性
-                      'border-line bg-surface text-ink-soft hover:bg-raised hover:text-ink')
-                }
+              {/* 字段：FormField 负责标签关联 / 必填 / 错误态与 ARIA（规范 5.3），
+                  错误落点是字段级（四态不整页）。placeholder 仍保留，方便快速辨认。 */}
+              <FormField
+                label="手机号或邮箱 / ACCOUNT"
+                required
+                hint={DEMO_HINT}
+                error={fieldErrors.identifier}
+                className="mt-4"
               >
-                {option.label}
-                <span className="mt-0.5 block text-ui-sm text-ink-soft">{option.hint}</span>
-              </button>
-            );
-          })}
+                <Input
+                  fieldSize="lg"
+                  placeholder="手机号或邮箱"
+                  value={identifier}
+                  autoComplete="username"
+                  onChange={(event) => {
+                    setIdentifier(event.target.value);
+                    if (fieldErrors.identifier) {
+                      setFieldErrors((prev) => ({ ...prev, identifier: undefined }));
+                    }
+                  }}
+                />
+              </FormField>
+
+              <FormField
+                label="密码 / PASSWORD"
+                required
+                hint="至少 6 位"
+                error={fieldErrors.password}
+                className="mt-4"
+              >
+                <Input
+                  fieldSize="lg"
+                  placeholder={tab === 'register' ? '设个密码，至少 6 位' : '密码'}
+                  type="password"
+                  value={password}
+                  autoComplete={tab === 'register' ? 'new-password' : 'current-password'}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (fieldErrors.password) {
+                      setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                    }
+                  }}
+                />
+              </FormField>
+
+              {tab === 'register' ? (
+                <FormField label="昵称 / NICKNAME" hint="可以留空" className="mt-4">
+                  <Input
+                    fieldSize="lg"
+                    placeholder="怎么称呼你（可留空）"
+                    value={nickname}
+                    onChange={(event) => setNickname(event.target.value)}
+                  />
+                </FormField>
+              ) : null}
+
+              {/* 提交行（原型 `.row`：主键 + 门户次键 + 反馈行）。按钮文案沿用既有
+                  「进去看看 / 注册并开始」与 loading 文案「正在处理…」（这批只在原型
+                  明确要求处换文案，其余保持既有说法，见执行报告 D-P10.4-3）。 */}
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Button type="submit" variant="primary" size="lg" loading={submitting}>
+                  <Icon name="key" />
+                  {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
+                </Button>
+                {/* 门户次键（原型 `a.btn.text` → #/portal）：本工程门户就是 '/'（P11.1
+                    迁移对象），故指到真实存在的路由，不造 /portal 这个不存在的路径。 */}
+                <Button variant="secondary" onClick={() => navigate('/')}>
+                  <Icon name="arrow" />
+                  先看看门户图
+                </Button>
+              </div>
+              <p className="tok mt-3" aria-live="polite">
+                提交中有进行中反馈；失败不会白屏。
+              </p>
+            </form>
+          </div>
+
+          {/* ── 右栏：演示账号（原型 aside.panel.flat + blockTitle('02','演示账号')）── */}
+          <aside className="bp-panel p-3">
+            <SheetBlock no="02" title="演示账号" className="mb-0">
+              <div className="flex flex-col gap-3">
+                {(
+                  [
+                    { demoRole: 'student', tone: 'accent' as const, label: '学生端' },
+                    { demoRole: 'teacher', tone: 'warning' as const, label: '教师端' },
+                  ] as const
+                ).map((item) => {
+                  const account = DEMO_ACCOUNTS[item.demoRole];
+                  return (
+                    <div key={item.demoRole} className="bp-panel p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2.5">
+                        <Badge tone={item.tone}>
+                          {item.label} {account.nickname}
+                        </Badge>
+                        {/* ⚠ 档位说明（偏差留痕 D-P10.4-4）：原型这里用 `.btn.sm`，本工程改用
+                            **默认 md 档**——Button 的 sm 档带 `text-tok`，而 cn.ts 的字号
+                            登记表里没有 tok（只有 caption/ui-sm/reading/display/display-lg），
+                            tailwind-merge 会把 `text-tok` 当成颜色类，吃掉 primary 的
+                            `text-on-accent`，实测得到「蓝底 + 深蓝字」（rgb(18,57,90) on
+                            rgb(26,95,180) ≈ 2.3:1，不到 AA）。md 档带 `text-ui-sm`（已登记）
+                            不受影响，顺带把触控目标抬到 44px。根因属组件库层，见执行报告。 */}
+                        <Button
+                          loading={submitting}
+                          onClick={() => void handleDemoEnter(item.demoRole)}
+                        >
+                          <Icon name="arrow" />
+                          一键进入
+                        </Button>
+                      </div>
+                      <dl className="mt-2">
+                        <div className="bp-kv">
+                          <dt>账号</dt>
+                          <dd className="num-mono">{account.identifier}</dd>
+                        </div>
+                        <div className="bp-kv">
+                          <dt>密码</dt>
+                          <dd className="num-mono">{DEMO_PASSWORD}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="tok mt-3">
+                注册成功后自动创建默认空间，并经过一次冷启动引导
+              </p>
+            </SheetBlock>
+          </aside>
         </div>
-
-        {/* 字段标签交给 placeholder 承担（读屏器靠 FormField 的 labelHidden 仍拿得到
-            关联的 label），省掉两行可见文字 —— 这是把 13 个元素压到 7 个的关键一步。
-            字段间距由 FormField 的外层 className 给；错误态与 ARIA 关联由 error
-            一个入参同时决定（见 Input.tsx 的 FormField 说明）。 */}
-        <FormField
-          label="手机号或邮箱"
-          labelHidden
-          // focus-glow（awwwards 包 G）：容器级 :focus-within 辉光，聚焦时整组泛光
-          className="mt-3 rounded-control focus-glow"
-          error={fieldErrors.identifier}
-        >
-          <Input
-            tone="onDark"
-            fieldSize="lg"
-            placeholder="手机号或邮箱"
-            value={identifier}
-            autoComplete="username"
-            onChange={(event) => {
-              setIdentifier(event.target.value);
-              if (fieldErrors.identifier) setFieldErrors((prev) => ({ ...prev, identifier: undefined }));
-            }}
-          />
-        </FormField>
-
-        <FormField
-          label="密码"
-          labelHidden
-          // focus-glow（awwwards 包 G）：同上，两个输入区统一聚焦辉光表达
-          className="mt-3 rounded-control focus-glow"
-          error={fieldErrors.password}
-        >
-          <Input
-            tone="onDark"
-            fieldSize="lg"
-            placeholder={tab === 'register' ? '设个密码，至少 6 位' : '密码'}
-            type="password"
-            value={password}
-            autoComplete={tab === 'register' ? 'new-password' : 'current-password'}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
-            }}
-          />
-        </FormField>
-
-        {tab === 'register' ? (
-          <FormField label="称呼（可选）" labelHidden className="mt-3">
-            <Input
-              tone="onDark"
-              fieldSize="lg"
-              placeholder="怎么称呼你（可留空）"
-              value={nickname}
-              onChange={(event) => setNickname(event.target.value)}
-            />
-          </FormField>
-        ) : null}
-
-        {/* 主按钮：单色实底。深色下 bg-accent = #6FB3D4、text-on-accent = #070C14，
-            与原来手写的 primary-lift + dusk-base 逐位同色，所以这次迁移本身不改观感。
-            按下时压暗给出物理反馈；不用渐变填充 + 零偏移彩色外发光 —— 那层光晕
-            不表示任何层级关系。
-            size="lg" 的最小高度是 44px，正好压在触控目标下限上（Accessible & Ethical 的
-            44×44 要求），这也是不再写死 min-h-12 的理由：档位化的值可被统一校验。 */}
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          full
-          loading={submitting}
-          // btn-sheen（awwwards 包 G）：悬停扫光点亮实底按钮；磁性吸引见上方 useMagnetic 注释
-          className="mt-4 btn-sheen"
-          {...magneticCta}
-        >
-          {submitting ? '正在处理…' : tab === 'login' ? '进去看看' : '注册并开始'}
-        </Button>
-
-        {/* 通道切换：退成一行纯文字，不再做成占一整个横条的分段控件 ——
-            分段控件是「设置项」的语汇，这里只是换个入口。
-            py-2：文字形态的按钮没有盒模型，默认的可点高度会低于 44px 下限，
-            这里补回纵向内边距把它抬上去 —— 密度只压信息容器，不压交互目标。 */}
-        <p className="mt-4 text-center text-ui-sm text-dusk-muted">
-          {tab === 'login' ? '第一次来？' : '已经有账号了？'}
-          <Button
-            variant="link"
-            onClick={() => {
-              setTab(tab === 'login' ? 'register' : 'login');
-              setFieldErrors({});
-            }}
-            className="ml-1.5 py-2"
-          >
-            {tab === 'login' ? '30 秒注册一个' : '去登录'}
-          </Button>
-        </p>
-      </form>
-
-      {/* 演示入口：双端各一个，压在页面最下方的两行低调文字。
-          与双端开场同构——学生看学习链路、老师看工作台；首次使用自动按身份建号。 */}
-      <div
-        ref={demoRevealRef}
-        className={'reveal-section' + (demoRevealed ? ' is-revealed' : '') + ' mt-7 text-center'}
-        // 错峰 120ms：等表单落定后再浮出次级入口（awwwards directed motion）
-        style={demoRevealed ? { animationDelay: '120ms' } : undefined}
-      >
-        <div className="flex flex-wrap items-center justify-center gap-x-5">
-          <Button
-            variant="link"
-            loading={submitting}
-            onClick={() => void handleDemoEnter('student')}
-            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
-          >
-            用演示账号看看学生端
-          </Button>
-          <Button
-            variant="link"
-            loading={submitting}
-            onClick={() => void handleDemoEnter('teacher')}
-            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
-          >
-            用演示账号看看老师端
-          </Button>
-        </div>
-        {/* 等宽 + 表格数字：字符数一眼可数，抄的时候不容易错 */}
-        <p className="mt-1.5 font-mono text-caption tabular-nums text-dusk-muted">
-          demo_student · demo_teacher / {DEMO_PASSWORD}
-        </p>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

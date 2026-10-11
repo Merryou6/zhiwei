@@ -164,6 +164,11 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  * 【2026-10-11 迁移 P10.3（D24 逐页扩表）】/self-report 页头归页面自有：原型
  *   PAGES['self-report'] L2018 自渲染 sheetHead（「30 秒先验」与档位口径只有
  *   页面拿得到）。迁移前该页同样在外壳里同时有通用页头与自己的 PageHeader ⇒ 双 h1。
+ *
+ * 【2026-10-11 迁移 P10.4（D24 逐页扩表）】/login 页头归页面自有：原型 PAGES.login
+ *   L1951 自渲染 sheetHead（标题随「登录 / 注册」分段切换、SHEET 10-02，只有页面拿得到）。
+ *   本页同时由 `Guarded bare` 改为在壳内渲染（原型 login 就是画在外壳里的图纸），
+ *   不登记则会出现「外壳通用页头 + 页面 sheetHead」两个 h1。
  */
 const PAGE_OWNED_HEAD = new Set<string>([
   '/report',
@@ -176,6 +181,7 @@ const PAGE_OWNED_HEAD = new Set<string>([
   '/spaces',
   '/start',
   '/self-report',
+  '/login',
 ]);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */

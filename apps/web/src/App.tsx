@@ -83,9 +83,11 @@ export function readSession(): { token: string | null; hasActiveSpace: boolean }
 /**
  * 守卫 + 外壳。
  *
- * bare（视觉改版 2026-09-22）：登录页是「全屏深色开场 + 中央粒子标识」，不套带顶栏的
- * Layout —— 未登录的人看到导航没有意义，而且深色开场必须占满视口。此时仍挂 ToastHost，
- * 保证校验/服务端错误照旧走非阻断提示（与内页同一份队列实现）。
+ * bare（视觉改版 2026-09-22；现只服务教师端路由族 /t）：不套带顶栏的 Layout —— 教师端
+ * 自带 TeacherShell，不需要学生端外壳。此时仍挂 ToastHost，保证校验/服务端错误照旧走
+ * 非阻断提示（与内页同一份队列实现）。
+ * ⚠ /login 曾用 bare（全屏深色开场 + 中央粒子标识）；2026-10-11 style-10 迁移 P10.4 起
+ *   改为在壳内渲染（原型 login 就是外壳里的图纸），此处不再有登录页分支。
  */
 function Guarded({ children, bare = false }: { children: ReactElement; bare?: boolean }) {
   const location = useLocation();
@@ -172,7 +174,13 @@ export default function App() {
               key={route.path}
               path={route.path}
               element={
-                <Guarded bare={route.path === LOGIN_PATH}>
+                // 【2026-10-11 style-10 迁移 P10.4】/login 不再走 bare：原型 PAGES.login
+                // 是**画在外壳里**的图纸（原型 L1951 的 sheetHead + 左右分栏，左侧分层索引
+                // 可见），D24 登记表也写明「登录页在外壳内渲染图纸制式」。旧 bare 形态是
+                // 2026-09-22「全屏深色开场 + 中央粒子标识」那一版的产物，与本迁移的视觉
+                // 唯一依据（原型）冲突，故此处去掉 bare 分支 —— 见执行报告 D-P10.4-1。
+                // （`Guarded` 的 bare 形参本身保留：/t 教师端路由族仍在用。）
+                <Guarded>
                   {/* 页面级边界：只兜内容区，顶栏导航保留 → 出错也能切到别的页 */}
                   <ErrorBoundary key={`page:${route.path}`}>
                     <Suspense fallback={<PageLoading />}>
