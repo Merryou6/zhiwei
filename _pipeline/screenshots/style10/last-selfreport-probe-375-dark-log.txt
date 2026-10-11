@@ -1,0 +1,23 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = dark
+width   = 375 × 812
+
+auth    = via=login 空间数=5 激活=sp_muf82zhx02br0
+== 状态取证 ==
+  normal     溢出=   0px  h1=1  章节行=8 档位钮=40 已选=0 绿章=false
+  → _pipeline/screenshots/style10/self-report-375-dark-normal.png
+  点「按 3 档先填上」=true
+  picked     溢出=   0px  h1=1  章节行=8 档位钮=40 已选=8 绿章=false
+  → _pipeline/screenshots/style10/self-report-375-dark-picked.png
+  第一行选 03 档=true
+  点「提交自报」=true
+  submitted  溢出=   0px  h1=1  章节行=0 档位钮=0 已选=0 绿章=true
+     回执：自报已记录 已更新 2 个知识点的起点（作为先验参与计算，不覆盖测评与试卷证据）。接下来我出几道题，看看猜得准不准—— 你把会做的做掉就行，不用纠结对错，我这边只看整体。 开始测评 先看看我的地图
+  → _pipeline/screenshots/style10/self-report-375-dark-submitted.png
+
+→ _pipeline/screenshots/style10/self-report-375-dark.json
+overflowPx 最大 0px（判据：0）
+h1 ≠ 1 的状态：无
+已记录态取证：绿章=true RECEIVED=true

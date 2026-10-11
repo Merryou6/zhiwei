@@ -5,7 +5,7 @@
  "mobile": true,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T09:17:41.471Z",
+ "capturedAt": "2026-10-11T09:32:43.964Z",
  "pages": [
   {
    "hash": "#/login",
@@ -27,7 +27,7 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": -25,
-     "right": 519,
+     "right": 519.1,
      "w": 544
     }
    ],
@@ -74,23 +74,23 @@
      "x": 0,
      "y": 72.5,
      "w": 375,
-     "h": 1997.44
+     "h": 2677.06
     },
     "mainChild": {
      "x": 12,
      "y": 88.5,
      "w": 351,
-     "h": 1905.44
+     "h": 2585.06
     },
     "firstCard": {
      "x": 12,
      "y": 88.5,
      "w": 351,
-     "h": 89.56
+     "h": 168.06
     },
     "heading": {
      "x": 12,
-     "y": 111,
+     "y": 143,
      "w": 351,
      "h": 25
     }
@@ -101,7 +101,7 @@
     "heading": "20px",
     "headerNav": null
    },
-   "textLen": 686,
+   "textLen": 923,
    "route": "/self-report",
    "routeName": "self-report",
    "width": 375,

@@ -1,0 +1,118 @@
+{
+ "page": "/self-report",
+ "width": 375,
+ "height": 812,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T09:35:13.281Z",
+ "auth": {
+  "via": "login",
+  "count": 5,
+  "names": [
+   "初中数学",
+   "UI 验收·先修薄弱",
+   "P6 四态取证空间",
+   "P6四态1791695333756",
+   "P10-1-409-1791710050756"
+  ],
+  "activeSpace": "sp_muf82zhx02br0"
+ },
+ "sideEffects": {
+  "createdSpace": null,
+  "spaceCountBefore": 5,
+  "selfReportSubmits": 1,
+  "selfReportScope": "第一行章节 × 03 档（先验 p_l0，不写 evidence_events）"
+ },
+ "states": [
+  {
+   "hash": "#/self-report",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "起点自报：每章说一个档位"
+   ],
+   "sheet10": true,
+   "eyebrow": true,
+   "rows": 8,
+   "radios": 40,
+   "checked": 0,
+   "stampOk": false,
+   "received": false,
+   "updatedText": null,
+   "exits": [],
+   "buttons": [
+    "按 3 档先填上",
+    "提交自报"
+   ],
+   "textLen": 867,
+   "state": "normal",
+   "note": "进页默认态：8 章 × 5 档全部未选",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/self-report",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "起点自报：每章说一个档位"
+   ],
+   "sheet10": true,
+   "eyebrow": true,
+   "rows": 8,
+   "radios": 40,
+   "checked": 8,
+   "stampOk": false,
+   "received": false,
+   "updatedText": null,
+   "exits": [],
+   "buttons": [
+    "按 3 档先填上",
+    "提交自报"
+   ],
+   "textLen": 921,
+   "state": "picked",
+   "note": "一键加速：真实点击「按 3 档先填上」按钮",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/self-report",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "起点自报：每章说一个档位"
+   ],
+   "sheet10": true,
+   "eyebrow": true,
+   "rows": 0,
+   "radios": 0,
+   "checked": 0,
+   "stampOk": true,
+   "received": true,
+   "updatedText": "自报已记录 已更新 2 个知识点的起点（作为先验参与计算，不覆盖测评与试卷证据）。接下来我出几道题，看看猜得准不准—— 你把会做的做掉就行，不用纠结对错，我这边只看整体。 开始测评 先看看我的地图",
+   "exits": [
+    "开始测评",
+    "先看看我的地图"
+   ],
+   "buttons": [
+    "开始测评",
+    "先看看我的地图"
+   ],
+   "textLen": 384,
+   "state": "submitted",
+   "note": "真实提交：第一行 03 档 → POST /api/evidence/self-report（只写先验，不写 evidence_events）",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  }
+ ]
+}

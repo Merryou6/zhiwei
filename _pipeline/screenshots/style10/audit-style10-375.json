@@ -5,7 +5,7 @@
  "mobile": true,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T09:17:59.217Z",
+ "capturedAt": "2026-10-11T09:33:53.228Z",
  "pages": [
   {
    "hash": "#/login",
@@ -74,23 +74,23 @@
      "x": 0,
      "y": 72.5,
      "w": 375,
-     "h": 1997.44
+     "h": 2677.06
     },
     "mainChild": {
      "x": 12,
      "y": 88.5,
      "w": 351,
-     "h": 1905.44
+     "h": 2585.06
     },
     "firstCard": {
      "x": 12,
      "y": 88.5,
      "w": 351,
-     "h": 89.56
+     "h": 168.06
     },
     "heading": {
      "x": 12,
-     "y": 111,
+     "y": 143,
      "w": 351,
      "h": 25
     }
@@ -101,7 +101,7 @@
     "heading": "20px",
     "headerNav": null
    },
-   "textLen": 686,
+   "textLen": 923,
    "route": "/self-report",
    "routeName": "self-report",
    "width": 375,
