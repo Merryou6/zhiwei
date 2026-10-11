@@ -1,0 +1,632 @@
+{
+ "tag": "style10",
+ "width": 1440,
+ "height": 900,
+ "mobile": false,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T04:58:26.958Z",
+ "pages": [
+  {
+   "hash": "#/login",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [
+    {
+     "tag": "div",
+     "cls": "aurora-blob aurora-2",
+     "left": 1040,
+     "right": 1584.1,
+     "w": 544
+    }
+   ],
+   "anchors": {
+    "header": null,
+    "headerNav": null,
+    "main": null,
+    "mainChild": null,
+    "firstCard": null,
+    "heading": null
+   },
+   "fonts": {
+    "body": "16px",
+    "main": null,
+    "heading": null,
+    "headerNav": null
+   },
+   "textLen": 143,
+   "route": "/login",
+   "routeName": "login",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/self-report",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 1451.94
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 1387.94
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 963,
+   "route": "/self-report",
+   "routeName": "self-report",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 915.56
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 851.56
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 785,
+   "route": "/spaces",
+   "routeName": "spaces",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/assessment",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 702.13
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 638.13
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 720,
+   "route": "/assessment",
+   "routeName": "assessment",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/paper",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 662.88
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 598.88
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 721,
+   "route": "/paper",
+   "routeName": "paper",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/chat",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 655.13
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 591.13
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 707,
+   "route": "/chat",
+   "routeName": "chat",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/attribution",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 832.38
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 768.38
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 1091,
+   "route": "/attribution",
+   "routeName": "attribution",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/graph",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [
+    {
+     "tag": "div",
+     "cls": "",
+     "left": 285,
+     "right": 2405,
+     "w": 2120
+    },
+    {
+     "tag": "div",
+     "cls": "",
+     "left": 285,
+     "right": 2405,
+     "w": 2120
+    },
+    {
+     "tag": "canvas",
+     "cls": "",
+     "left": 285,
+     "right": 2405,
+     "w": 2120
+    }
+   ],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 1090.38
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 1026.38
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 910,
+   "route": "/graph",
+   "routeName": "graph",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/report",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 2295.13
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 2231.13
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 101.75
+    },
+    "heading": {
+     "x": 284,
+     "y": 138,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 1978,
+   "route": "/report",
+   "routeName": "report",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/drive",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 753.44
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 689.44
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 833,
+   "route": "/drive",
+   "routeName": "drive",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  },
+  {
+   "hash": "#/me",
+   "title": "知微 · 学习伴侣",
+   "innerWidth": 1440,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "overflowPx": 0,
+   "bodyScrollWidth": 1440,
+   "overflow": [],
+   "anchors": {
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 62
+    },
+    "headerNav": null,
+    "main": {
+     "x": 236,
+     "y": 62,
+     "w": 1204,
+     "h": 1641.06
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 1577.06
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 110,
+     "w": 1108,
+     "h": 76
+    },
+    "heading": {
+     "x": 284,
+     "y": 132.5,
+     "w": 1108,
+     "h": 32.5
+    }
+   },
+   "fonts": {
+    "body": "16px",
+    "main": "16px",
+    "heading": "26px",
+    "headerNav": null
+   },
+   "textLen": 887,
+   "route": "/me",
+   "routeName": "me",
+   "width": 1440,
+   "height": 900,
+   "tag": "style10",
+   "theme": "dark"
+  }
+ ]
+}

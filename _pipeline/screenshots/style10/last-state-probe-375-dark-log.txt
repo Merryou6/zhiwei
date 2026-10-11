@@ -1,0 +1,20 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = dark
+width   = 375 × 812
+
+登录 = {"ok":true,"spaces":3,"sid":"sp_muf82zhx02br0"}
+正常态：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/state-375-dark-normal.png
+loading 态（骨架）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/state-375-dark-loading.png
+error 态（红章）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/state-375-dark-error.png
+新建空间 = {"ok":true,"status":200,"sid":"sp_mv3d53em02iv2"}
+无数据态（双空盒）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/state-375-dark-no-data.png
+
+无空间态：**探针不采** —— router.guardPath 在「已登录 + 无活跃空间」时
+  直接把 /report 重定向到 /spaces（router.tsx 属冻结区）。该分支只在
+  「页面已挂载时空间被清空」这一路径下出现，故无导航取证方式（R12 口径）。
