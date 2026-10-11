@@ -4,12 +4,12 @@
  "height": 900,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T08:40:18.379Z",
+ "capturedAt": "2026-10-11T12:10:33.262Z",
  "auth": {
   "via": "login",
-  "space": "sp_mv3d53em02iv2",
-  "spaceName": "P6四态1791695333756",
-  "spaces": 4
+  "space": "sp_mv3d1i2g01js2",
+  "spaceName": "P6 四态取证空间",
+  "spaces": 5
  },
  "chain": {
   "fileIndex": 0,
@@ -42,6 +42,7 @@
    "paperWrongCount": null,
    "textLen": 618,
    "state": "select",
+   "injected": null,
    "width": 1440,
    "height": 900,
    "theme": "dark"
@@ -67,6 +68,7 @@
    "paperWrongCount": null,
    "textLen": 976,
    "state": "recognized",
+   "injected": null,
    "width": 1440,
    "height": 900,
    "theme": "dark"
@@ -92,6 +94,7 @@
    "paperWrongCount": null,
    "textLen": 976,
    "state": "reload",
+   "injected": null,
    "width": 1440,
    "height": 900,
    "theme": "dark"
@@ -107,21 +110,22 @@
    ],
    "sheet10": true,
    "stageBadge": "done",
-   "fileRows": 3,
+   "fileRows": 0,
    "verdictSegments": 0,
    "gapsStamp": false,
    "measures": 4,
    "measuresText": [
-    "新增证据\n3\n条",
-    "更新知识点\n3\n个",
-    "初始覆盖\n3\n个知识点",
-    "待巩固\n3\n个"
+    "新增证据\n0\n条",
+    "更新知识点\n0\n个",
+    "初始覆盖\n0\n个知识点",
+    "待巩固\n0\n个"
    ],
-   "masteryRows": 3,
+   "masteryRows": 0,
    "recognitionIdSet": false,
    "paperWrongCount": 3,
-   "textLen": 579,
+   "textLen": 444,
    "state": "submitted",
+   "injected": null,
    "width": 1440,
    "height": 900,
    "theme": "dark"
@@ -131,12 +135,37 @@
    "overflowPx": 0,
    "clientWidth": 1440,
    "scrollWidth": 1440,
-   "h1Count": 2,
+   "h1Count": 1,
    "h1Text": [
-    "归因结果",
-    "看看这道题错在哪"
+    "错题归因：往上找真正卡住你的那一环"
    ],
    "sheet10": false,
+   "stageBadge": "pick",
+   "fileRows": 3,
+   "verdictSegments": 0,
+   "gapsStamp": false,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 3,
+   "recognitionIdSet": false,
+   "paperWrongCount": 3,
+   "textLen": 1121,
+   "state": "attribution",
+   "injected": null,
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
    "stageBadge": "pick",
    "fileRows": 0,
    "verdictSegments": 0,
@@ -146,8 +175,35 @@
    "masteryRows": 0,
    "recognitionIdSet": false,
    "paperWrongCount": 3,
-   "textLen": 927,
-   "state": "attribution",
+   "textLen": 420,
+   "state": "empty",
+   "injected": "inject:/api/space/{id}/drive=[]",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
+   "stageBadge": "pick",
+   "fileRows": 0,
+   "verdictSegments": 0,
+   "gapsStamp": false,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 0,
+   "recognitionIdSet": false,
+   "paperWrongCount": 3,
+   "textLen": 437,
+   "state": "error",
+   "injected": "inject:/api/space/{id}/drive=500",
    "width": 1440,
    "height": 900,
    "theme": "dark"

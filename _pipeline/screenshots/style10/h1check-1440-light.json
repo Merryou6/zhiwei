@@ -1,0 +1,196 @@
+{
+ "tag": "h1check",
+ "width": 1440,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T12:20:50.252Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_muf82zhx02br0",
+  "spaceName": "初中数学"
+ },
+ "routes": [
+  {
+   "hash": "#/login",
+   "route": "/login",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "登录知微"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 579,
+   "auth": false
+  },
+  {
+   "hash": "#/",
+   "route": "/",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "每一分丢在哪里，都有名字。"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 0,
+   "textLen": 1268,
+   "auth": false
+  },
+  {
+   "hash": "#/assessment",
+   "route": "/assessment",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "测评：只采集，不当场判对错"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 591,
+   "auth": true
+  },
+  {
+   "hash": "#/paper",
+   "route": "/paper",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "拍一张最近的试卷"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 618,
+   "auth": true
+  },
+  {
+   "hash": "#/chat",
+   "route": "/chat",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "对话辅导：卡在哪一步就聊哪一步"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 532,
+   "auth": true
+  },
+  {
+   "hash": "#/practice",
+   "route": "/practice",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 915,
+   "auth": true
+  },
+  {
+   "hash": "#/attribution",
+   "route": "/attribution",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 1068,
+   "auth": true
+  },
+  {
+   "hash": "#/graph",
+   "route": "/graph",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "知识图谱：现在是空的"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 458,
+   "auth": true
+  },
+  {
+   "hash": "#/report",
+   "route": "/report",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "学习报告 · 按空间汇总"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 1644,
+   "auth": true
+  },
+  {
+   "hash": "#/drive",
+   "route": "/drive",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "云盘 · 与正在补的内容挂钩"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 387,
+   "auth": true
+  },
+  {
+   "hash": "#/me",
+   "route": "/me",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "我的页"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 989,
+   "auth": true
+  },
+  {
+   "hash": "#/self-report",
+   "route": "/self-report",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "起点自报：每章说一个档位"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 866,
+   "auth": true
+  },
+  {
+   "hash": "#/spaces",
+   "route": "/spaces",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "学习空间：给证据找一个落点"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 790,
+   "auth": true
+  },
+  {
+   "hash": "#/start",
+   "route": "/start",
+   "overflowPx": 0,
+   "h1AllCount": 1,
+   "h1All": [
+    "先选一条建立初始掌握度的路"
+   ],
+   "h1MainCount": 1,
+   "shellHeaderH1": 1,
+   "textLen": 655,
+   "auth": true
+  }
+ ]
+}

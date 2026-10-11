@@ -7,7 +7,7 @@
  * 全链取证 —— 这两件事必须真操作一遍才拿得到证据，故按 6.5 惯例另起一个
  * 「只取证、不下结论」的探针。
  *
- * 【它采什么（每档 5 个状态）】
+ * 【它采什么（每档 7 个状态）】
  *   select      —— 进页默认态（预置文件库表格 + 已选 1/5）
  *   recognized  —— 点「开始识别」后的逐题确认态（含提交前缺口红章）
  *   reload      —— **刷新页面**后再看一次：凭 sessionStorage 的 zhiwei_recognition_id
@@ -15,6 +15,9 @@
  *   submitted   —— 采纳识别预判 + 手标「识别不确定」题 + 提交确认后的完成态
  *                  （同时读 sessionStorage 的错题缓存条数，勾稽 #3 后半段）
  *   attribution —— 从完成态跳 /attribution：错题缓存被归因页第一步带出（跨页联动）
+ *   empty       —— （P12.3 补）注入 drive=[] ：0 份试卷 → 整页级空盒 + 出路
+ *   error       —— （P12.3 补）注入 drive=500：列表取数失败 → 整页级红章 + 真重试
+ *                  （后两个为注入态，JSON 里用 injected 字段如实标注，不冒充真实链路）
  *
  * 【纪律】只读只取证：不写业务代码、不造假态、不新建空间。
  *   本探针会真实提交一次试卷确认（确认本身是业务行为，会落证据与掌握度），
@@ -186,6 +189,36 @@ const MEASURE_JS = `(() => {
   });
 })()`;
 
+/**
+ * 探针注入脚本（R12 / P12.3 四态补缺口径）：只拦 /api/space/{id}/drive，按
+ * sessionStorage 开关行事。其它请求（含 auth / paper 识别 / 确认）一律透传。
+ *   fail  → 失败响应（error 态：列表取数失败 → 页内红章 + 真重试）
+ *   empty → 空集合（empty 态：0 份试卷 → 空盒给出路）
+ * 与 tools/probe-drive-states.cjs 的注入写法同源（同一 GET 接口，同一响应壳）。
+ */
+const INJECT_JS = `(() => {
+  const originalFetch = window.fetch.bind(window);
+  const read = (key) => { try { return sessionStorage.getItem(key); } catch (e) { return null; } };
+  window.fetch = function (input, init) {
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    const mode = read('__probe_paper_mode');
+    if (mode && url.indexOf('/api/space/') !== -1 && url.indexOf('/drive') !== -1) {
+      if (mode === 'fail') {
+        return Promise.resolve(new Response(JSON.stringify({ code: 9002, msg: '探针注入：试卷文件库请求失败' }), {
+          status: 500, headers: { 'Content-Type': 'application/json' },
+        }));
+      }
+      if (mode === 'empty') {
+        return Promise.resolve(new Response(JSON.stringify({ code: 0, msg: 'ok', data: { files: [] } }), {
+          status: 200, headers: { 'Content-Type': 'application/json' },
+        }));
+      }
+    }
+    return originalFetch(input, init);
+  };
+  return 1;
+})()`;
+
 async function main() {
   const bin = findBrowser();
   fs.rmSync(PROFILE, { recursive: true, force: true });
@@ -221,13 +254,16 @@ async function main() {
     deviceScaleFactor: 1,
     mobile: WIDTH < 768,
   });
+  // 注入脚本只对「注入态」生效（开关默认关闭），不影响下面的真实流转链。
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: INJECT_JS });
 
   const states = [];
 
-  const measureAndShot = async (state) => {
+  const measureAndShot = async (state, injected) => {
     const raw = await cdp.evaluate(MEASURE_JS);
     const data = JSON.parse(raw);
     data.state = state;
+    data.injected = injected ?? null;
     data.width = WIDTH;
     data.height = HEIGHT;
     data.theme = THEME;
@@ -338,6 +374,19 @@ async function main() {
   await nav('/attribution');
   await sleep(2800);
   await measureAndShot('attribution');
+
+  // ── 6. empty / error：四态补缺（P12.3 收尾；规范 §7 paper 行，整页级） ──
+  // 真实流转链跑完后另行注入取数响应取证，不污染上面 5 个真实态；injected 字段如实标注。
+  await cdp.evaluate(`sessionStorage.setItem('__probe_paper_mode', 'empty'); 1`);
+  await nav('/paper');
+  await sleep(2600);
+  await measureAndShot('empty', 'inject:/api/space/{id}/drive=[]');
+
+  await cdp.evaluate(`sessionStorage.setItem('__probe_paper_mode', 'fail'); 1`);
+  await nav('/paper');
+  await sleep(2600);
+  await measureAndShot('error', 'inject:/api/space/{id}/drive=500');
+  await cdp.evaluate(`sessionStorage.removeItem('__probe_paper_mode'); 1`);
 
   const jsonFile = path.join(OUT, `paper-${WIDTH}-${THEME}.json`);
   fs.writeFileSync(

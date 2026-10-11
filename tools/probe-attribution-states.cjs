@@ -6,12 +6,15 @@
  * 勾稽 #3）。所以本探针先真做一遍 /paper 的「选文件 → 识别 → 标记 → 确认」，再带
  * 着缓存进 /attribution 走完向导 —— 全程不作假态、不直接写 sessionStorage 造数据。
  *
- * 【它采什么（每档 5 个状态）】
+ * 【它采什么（每档 7 个状态）】
  *   step1    —— 进页第一步：错题表现身 + 「N 题可带出」chip（勾稽 #3 前半段）
  *   step2    —— 点「用这道」后的复述确认（题目 / 你的作答 / 知识点）
  *   step3    —— 点「就是这样，看看属于哪类」后的分类结果（采纳 or 低置信追问，如实记）
  *   step4    —— 分流（往上游找根源 / 这一类不用深挖，按真实 direction 如实记）
  *   result   —— 点「看看真正的根源」后的结果态（根因块 + 回溯链 + 候选贡献度 + 验证）
+ *   empty    —— （P12.3 补）清掉本会话错题缓存后进页：整页级空盒（无可归因错题）
+ *   error    —— （P12.3 补）带 ?attribution_id= 进页 + 注入 #14 失败：整页级红章 + 真重试
+ *               （后两个为清态/注入态，JSON 里用 injected 字段如实标注，不冒充真实链路）
  *
  * 【纪律】只读只取证：不写业务代码、不造假态、不新建空间。
  *   本探针会真实提交一次试卷确认（业务行为，会落证据与错题缓存），故**默认只在指定
@@ -177,6 +180,35 @@ const MEASURE_JS = `(() => {
   });
 })()`;
 
+/**
+ * 探针注入脚本（R12 / P12.3 四态补缺口径）：只拦 #14 GET /api/attribution/{id}，
+ * 按 sessionStorage 开关行事；analyze / verify 与其余请求一律透传。
+ *   fail → 失败响应（error 态：结果回显取不到 → 整页级红章 + 真重试，不拿向导态冒充结果）
+ * 与 tools/probe-drive-states.cjs 的注入写法同源。
+ */
+const INJECT_JS = `(() => {
+  const originalFetch = window.fetch.bind(window);
+  const read = (key) => { try { return sessionStorage.getItem(key); } catch (e) { return null; } };
+  window.fetch = function (input, init) {
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    const method = ((init && init.method) || 'GET').toUpperCase();
+    const mode = read('__probe_attr_mode');
+    if (
+      mode === 'fail' &&
+      method === 'GET' &&
+      url.indexOf('/api/attribution/') !== -1 &&
+      url.indexOf('/analyze') === -1 &&
+      url.indexOf('/verify') === -1
+    ) {
+      return Promise.resolve(new Response(JSON.stringify({ code: 9002, msg: '探针注入：归因结果回显失败' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' },
+      }));
+    }
+    return originalFetch(input, init);
+  };
+  return 1;
+})()`;
+
 async function main() {
   const bin = findBrowser();
   fs.rmSync(PROFILE, { recursive: true, force: true });
@@ -212,12 +244,15 @@ async function main() {
     deviceScaleFactor: 1,
     mobile: WIDTH < 768,
   });
+  // 注入脚本只对「注入态」生效（开关默认关闭），不影响上面的真实向导链。
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: INJECT_JS });
 
   const states = [];
-  const measureAndShot = async (state) => {
+  const measureAndShot = async (state, injected) => {
     const raw = await cdp.evaluate(MEASURE_JS);
     const data = JSON.parse(raw);
     data.state = state;
+    data.injected = injected ?? null;
     data.width = WIDTH;
     data.height = HEIGHT;
     data.theme = THEME;
@@ -364,6 +399,21 @@ async function main() {
     await sleep(2400);
     await measureAndShot('result');
   }
+
+  // ── 6. empty / error：四态补缺（P12.3 收尾；规范 §7 attribution 行，整页级） ──
+  // 真实向导链跑完后另行取/注入，不污染上面 5 个真实态；injected 字段如实标注。
+  //   empty：清掉本会话错题缓存（zhiwei_paper_wrong_*）后进页 —— 真实的「无可归因错题」态
+  await cdp.evaluate(`sessionStorage.removeItem('zhiwei_paper_wrong_${SPACE}'); 1`);
+  await nav('/attribution');
+  await sleep(2600);
+  await measureAndShot('empty', 'state:清空 zhiwei_paper_wrong_* 后进页（真实空态入口）');
+
+  //   error：带 ?attribution_id= 进页 + 注入 #14 失败 —— 结果回显取不到的红章态
+  await cdp.evaluate(`sessionStorage.setItem('__probe_attr_mode', 'fail'); 1`);
+  await nav('/attribution?attribution_id=probe-p12-injected');
+  await sleep(3000);
+  await measureAndShot('error', 'inject:GET /api/attribution/{id}=500');
+  await cdp.evaluate(`sessionStorage.removeItem('__probe_attr_mode'); 1`);
 
   const jsonFile = path.join(OUT, `attribution-${WIDTH}-${THEME}.json`);
   fs.writeFileSync(

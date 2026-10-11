@@ -1,0 +1,27 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+theme   = light
+width   = 768 × 900
+
+== 未登录态 ==
+  ok /login                   落入=/login                   溢出=   0px h1=1 (main 1 / header 1) textLen=579 h1Text="登录知微"
+  ok /                        落入=/                        溢出=   0px h1=1 (main 1 / header 0) textLen=1268 h1Text="每一分丢在哪里，都有名字。"
+
+auth    = via=login 空间数=5 活跃=初中数学
+
+== 登录态 ==
+  ok /assessment              落入=/assessment              溢出=   0px h1=1 (main 1 / header 1) textLen=591 h1Text="测评：只采集，不当场判对错"
+  ok /paper                   落入=/paper                   溢出=   0px h1=1 (main 1 / header 1) textLen=609 h1Text="拍一张最近的试卷"
+  ok /chat                    落入=/chat                    溢出=   0px h1=1 (main 1 / header 1) textLen=532 h1Text="对话辅导：卡在哪一步就聊哪一步"
+  ok /practice                落入=/practice                溢出=   0px h1=1 (main 1 / header 1) textLen=915 h1Text="专项练习：把思路一步一步摊开"
+  ok /attribution             落入=/attribution             溢出=   0px h1=1 (main 1 / header 1) textLen=1068 h1Text="错题归因：往上找真正卡住你的那一环"
+  ok /graph                   落入=/graph                   溢出=   0px h1=1 (main 1 / header 1) textLen=458 h1Text="知识图谱：现在是空的"
+  ok /report                  落入=/report                  溢出=   0px h1=1 (main 1 / header 1) textLen=1578 h1Text="学习报告 · 按空间汇总"
+  ok /drive                   落入=/drive                   溢出=   0px h1=1 (main 1 / header 1) textLen=665 h1Text="云盘 · 与正在补的内容挂钩"
+  ok /me                      落入=/me                      溢出=   0px h1=1 (main 1 / header 1) textLen=988 h1Text="我的页"
+  ok /self-report             落入=/self-report             溢出=   0px h1=1 (main 1 / header 1) textLen=866 h1Text="起点自报：每章说一个档位"
+  ok /spaces                  落入=/spaces                  溢出=   0px h1=1 (main 1 / header 1) textLen=790 h1Text="学习空间：给证据找一个落点"
+  ok /start                   落入=/start                   溢出=   0px h1=1 (main 1 / header 1) textLen=655 h1Text="先选一条建立初始掌握度的路"
+
+→ _pipeline/screenshots/style10/h1check-768-light.json
+routes=14  overflowPx 全 0 = true  h1 全 1 = true  不合规路由数=0

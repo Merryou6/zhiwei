@@ -3,27 +3,30 @@ base    = http://127.0.0.1:5173
 out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
 theme   = dark
 width   = 1440 × 900
-space   = sp_mv3d1i2g01js2 · 造错题文件序号 = 1
+space   = sp_mv3d1i2g01js2 · 造错题文件序号 = 0
 
 auth    = via=login space=sp_mv3d1i2g01js2（P6 四态取证空间）
 == 前置：/paper 真链路造错题 ==
-  换选文件[1] = switched
   开始识别=true
   一键采纳=true
   手标题数=1  提交=true  错题缓存=3 条
 == 状态取证（/attribution） ==
   step1    溢出=   0px  h1=1  错题表=3  链=0  候选=0  wrong=3
   → _pipeline/screenshots/style10/attribution-1440-dark-step1.png
-  选错题[manual] = manual-picked
+  选错题[0] = picked
   step2    溢出=   0px  h1=1  错题表=0  链=0  候选=0  wrong=3
   → _pipeline/screenshots/style10/attribution-1440-dark-step2.png
   看看属于哪类=true
   step3    溢出=   0px  h1=1  错题表=5  链=0  候选=0  wrong=3
   → _pipeline/screenshots/style10/attribution-1440-dark-step3.png
-  step4    溢出=   0px  h1=1  错题表=0  链=2  候选=3  wrong=3
+  step4    溢出=   0px  h1=1  错题表=0  链=1  候选=0  wrong=3
   → _pipeline/screenshots/style10/attribution-1440-dark-step4.png
-  result   溢出=   0px  h1=1  错题表=0  链=2  候选=3  wrong=3
+  result   溢出=   0px  h1=1  错题表=0  链=1  候选=0  wrong=3
   → _pipeline/screenshots/style10/attribution-1440-dark-result.png
+  empty    溢出=   0px  h1=1  错题表=0  链=0  候选=0  wrong=null
+  → _pipeline/screenshots/style10/attribution-1440-dark-empty.png
+  error    溢出=   0px  h1=1  错题表=0  链=0  候选=0  wrong=null
+  → _pipeline/screenshots/style10/attribution-1440-dark-error.png
 
 → _pipeline/screenshots/style10/attribution-1440-dark.json
 overflowPx 最大 0px（判据：0）
