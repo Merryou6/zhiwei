@@ -370,8 +370,10 @@ async function main() {
       }
       await cdp.evaluate(`sessionStorage.removeItem('__probe_teacher_mode'); 1`);
 
-      await go('/t/student/');
-      await measureAndShot('missing', 'no-student-id:page-level-error');
+      // 参数不全（无 space_id）：路由能匹配（:studentId 非空），页面走「链接缺少学生或空间参数」
+      // 的页面级错误分支 —— 这一支是规范 §7 要求的「无学生 → 页面级错误」取证。
+      await go('/t/student/probe-missing-params');
+      await measureAndShot('missing', 'no-space-id:page-level-error');
 
       await cdp.evaluate(
         `localStorage.setItem('zhiwei_token', '${s.ok ? s.token : t.token}'); localStorage.setItem('zhiwei_user_id', '${s.ok ? s.userId : t.userId}'); localStorage.setItem('zhiwei_role', 'student'); 1`,

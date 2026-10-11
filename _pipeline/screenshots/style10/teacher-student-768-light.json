@@ -1,0 +1,136 @@
+{
+ "tag": "teacher",
+ "page": "student",
+ "width": 768,
+ "height": 900,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:43:08.959Z",
+ "auth": {
+  "teacher": {
+   "ident": "demo_teacher",
+   "via": "login"
+  },
+  "student": {
+   "ident": "e2e_smoke",
+   "via": "login"
+  }
+ },
+ "boundStudents": 1,
+ "states": [
+  {
+   "hash": "#/t/student/u_muf82zgk01a7m?space_id=sp_muf82zhx02br0",
+   "overflowPx": 0,
+   "clientWidth": 768,
+   "scrollWidth": 768,
+   "h1Count": 1,
+   "h1Text": [
+    "学生详情 · 未署名学生"
+   ],
+   "sheetNo": "SHEET 10-16",
+   "eyebrowOk": true,
+   "measures": 8,
+   "tblRows": 3,
+   "hasTable": true,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "chips": 9,
+   "sections": [
+    "概览",
+    "缺口与推荐下发",
+    "已下发",
+    "最近答题原文",
+    "归因记录"
+   ],
+   "shellNav": true,
+   "textLen": 970,
+   "state": "normal",
+   "injected": null,
+   "width": 768,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t/student/u_muf82zgk01a7m?space_id=sp_muf82zhx02br0",
+   "overflowPx": 0,
+   "clientWidth": 768,
+   "scrollWidth": 768,
+   "h1Count": 1,
+   "h1Text": [
+    "学生详情"
+   ],
+   "sheetNo": "SHEET 10-16",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 1,
+   "sections": [],
+   "shellNav": true,
+   "textLen": 204,
+   "state": "error",
+   "injected": "inject:/api/teacher/students/:id=500",
+   "width": 768,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t/student/probe-missing-params",
+   "overflowPx": 0,
+   "clientWidth": 768,
+   "scrollWidth": 768,
+   "h1Count": 1,
+   "h1Text": [
+    "学生详情"
+   ],
+   "sheetNo": "SHEET 10-16",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 1,
+   "sections": [],
+   "shellNav": true,
+   "textLen": 203,
+   "state": "missing",
+   "injected": "no-space-id:page-level-error",
+   "width": 768,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t/student/u_muf82zgk01a7m?space_id=sp_muf82zhx02br0",
+   "overflowPx": 0,
+   "clientWidth": 768,
+   "scrollWidth": 768,
+   "h1Count": 1,
+   "h1Text": [
+    "学生详情"
+   ],
+   "sheetNo": "SHEET 10-16",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 1,
+   "sections": [],
+   "shellNav": true,
+   "textLen": 202,
+   "state": "denied",
+   "injected": "real-403:student-token",
+   "width": 768,
+   "height": 900,
+   "theme": "light"
+  }
+ ]
+}
