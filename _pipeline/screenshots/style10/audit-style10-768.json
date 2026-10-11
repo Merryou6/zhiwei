@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T09:11:38.168Z",
+ "capturedAt": "2026-10-11T11:35:14.842Z",
  "pages": [
   {
    "hash": "#/login",
@@ -15,30 +15,47 @@
    "scrollWidth": 768,
    "overflowPx": 0,
    "bodyScrollWidth": 768,
-   "overflow": [
-    {
-     "tag": "div",
-     "cls": "aurora-blob aurora-2",
-     "left": 368,
-     "right": 912,
-     "w": 544
-    }
-   ],
+   "overflow": [],
    "anchors": {
-    "header": null,
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 768,
+     "h": 61
+    },
     "headerNav": null,
-    "main": null,
-    "mainChild": null,
-    "firstCard": null,
-    "heading": null
+    "main": {
+     "x": 0,
+     "y": 61,
+     "w": 768,
+     "h": 1308.19
+    },
+    "mainChild": {
+     "x": 18,
+     "y": 83,
+     "w": 732,
+     "h": 1274.19
+    },
+    "firstCard": {
+     "x": 18,
+     "y": 83,
+     "w": 732,
+     "h": 101.75
+    },
+    "heading": {
+     "x": 18,
+     "y": 111,
+     "w": 732,
+     "h": 32.5
+    }
    },
    "fonts": {
     "body": "16px",
-    "main": null,
-    "heading": null,
+    "main": "16px",
+    "heading": "26px",
     "headerNav": null
    },
-   "textLen": 143,
+   "textLen": 621,
    "route": "/login",
    "routeName": "login",
    "width": 768,
@@ -67,23 +84,23 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 1539.94
+     "h": 1641.81
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 1505.94
+     "h": 1607.81
     },
     "firstCard": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 18,
-     "y": 105.5,
+     "y": 111,
      "w": 732,
      "h": 32.5
     }
@@ -94,7 +111,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 685,
+   "textLen": 922,
    "route": "/self-report",
    "routeName": "self-report",
    "width": 768,
@@ -123,13 +140,13 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 1735.13
+     "h": 1938.13
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 1701.13
+     "h": 1904.13
     },
     "firstCard": {
      "x": 18,
@@ -150,7 +167,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 781,
+   "textLen": 846,
    "route": "/spaces",
    "routeName": "spaces",
    "width": 768,
@@ -515,23 +532,23 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 833.44
+     "h": 1199.63
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 799.44
+     "h": 1165.63
     },
     "firstCard": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 18,
-     "y": 105.5,
+     "y": 111,
      "w": 732,
      "h": 32.5
     }
@@ -542,7 +559,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 555,
+   "textLen": 721,
    "route": "/drive",
    "routeName": "drive",
    "width": 768,
@@ -571,23 +588,23 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 1721.06
+     "h": 2287.22
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 1687.06
+     "h": 2253.22
     },
     "firstCard": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 18,
-     "y": 105.5,
+     "y": 111,
      "w": 732,
      "h": 32.5
     }
@@ -598,7 +615,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 609,
+   "textLen": 1044,
    "route": "/me",
    "routeName": "me",
    "width": 768,

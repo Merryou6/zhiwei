@@ -1,0 +1,120 @@
+{
+ "page": "/practice",
+ "width": 375,
+ "height": 812,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T11:47:17.476Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_muf82zhx02br0",
+  "spaceName": "初中数学"
+ },
+ "states": [
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "select",
+   "stepCards": 0,
+   "hintOpen": 0,
+   "conceptPanel": false,
+   "textLen": 916,
+   "state": "normal",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "select",
+   "stepCards": 0,
+   "hintOpen": 0,
+   "conceptPanel": true,
+   "textLen": 1378,
+   "state": "concept",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 0,
+   "conceptPanel": false,
+   "textLen": 648,
+   "state": "drill",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 1,
+   "conceptPanel": false,
+   "textLen": 658,
+   "state": "hint-l1",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 1,
+   "conceptPanel": false,
+   "textLen": 720,
+   "state": "hint-l2",
+   "width": 375,
+   "height": 812,
+   "theme": "light"
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "page": "/start",
+ "width": 768,
+ "height": 900,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T11:41:42.180Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_muf82zhx02br0",
+  "spaceName": "初中数学"
+ },
+ "states": [
+  {
+   "hash": "#/start",
+   "overflowPx": 0,
+   "clientWidth": 768,
+   "scrollWidth": 768,
+   "h1Count": 1,
+   "h1Text": [
+    "先选一条建立初始掌握度的路"
+   ],
+   "sheet10": true,
+   "pathCards": 4,
+   "ctaCount": 4,
+   "textLen": 655,
+   "state": "normal",
+   "width": 768,
+   "height": 900,
+   "theme": "dark"
+  }
+ ]
+}

@@ -5,7 +5,7 @@
  "mobile": true,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T10:20:03.630Z",
+ "capturedAt": "2026-10-11T11:35:13.802Z",
  "pages": [
   {
    "hash": "#/login",
@@ -575,7 +575,15 @@
    "scrollWidth": 375,
    "overflowPx": 0,
    "bodyScrollWidth": 375,
-   "overflow": [],
+   "overflow": [
+    {
+     "tag": "th",
+     "cls": "",
+     "left": 342.6,
+     "right": 390.6,
+     "w": 48
+    }
+   ],
    "anchors": {
     "header": {
      "x": 0,
@@ -588,13 +596,13 @@
      "x": 0,
      "y": 72.5,
      "w": 375,
-     "h": 2322.72
+     "h": 2835.47
     },
     "mainChild": {
      "x": 12,
      "y": 88.5,
      "w": 351,
-     "h": 2230.72
+     "h": 2743.47
     },
     "firstCard": {
      "x": 12,
@@ -615,7 +623,7 @@
     "heading": "20px",
     "headerNav": null
    },
-   "textLen": 824,
+   "textLen": 1045,
    "route": "/me",
    "routeName": "me",
    "width": 375,
