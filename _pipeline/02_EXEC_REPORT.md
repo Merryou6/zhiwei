@@ -1,413 +1,473 @@
-知微 · style-10「青蓝蓝图」全站视觉迁移 —— 第 2 轮执行报告（P6 /report 首迁页）
+知微 · style-10「青蓝蓝图」全站视觉迁移 —— 第 3 轮执行报告（P7 /graph ECharts 改造）
 ================================================================================
-执行角色：implementer（严格按 _pipeline/01_PLAN.md 第 8 版逐项执行）
-执行日期：2026-10-11（本机时间 12:39 起）
-依据计划：_pipeline/01_PLAN.md 第 8 版（2026-10-11 12:39，P6 细化版 + D13/D14/D15 裁决）
-基线：git HEAD = e96c702（tempui-doc 分支，rev-list --count = 185）
-结束：git HEAD = dcda2b9（rev-list --count = 190，本轮 5 个提交）
+执行角色：implementer（严格按 _pipeline/01_PLAN.md 第 9 版逐项执行；本轮为「续完调用」：
+          前一次 implementer 已完成大部分工作但在收尾阶段中断，本次只做逐条复核 +
+          完成剩余步骤 + 落盘报告，不推倒重做）
+执行日期：2026-10-11（本机时间；续完阶段 14:14 起，报告落盘 14:37）
+依据计划：_pipeline/01_PLAN.md 第 9 版（2026-10-11 13:36，P7 细化版 + D16–D20 裁决）
+基线：git HEAD = fa20d8e（tempui-doc 分支，rev-list --count = 191）
+结束：git HEAD = 5069782（本轮计划内 3 个提交 32aaec1 / 22d5628 / fd1b2bb 已于前次入库；
+      本次续完追加 2 个提交 12acf95（走查修复）、5069782（走查产物）+ 1 个报告提交）
 工作目录：/Users/Merryou/LearnBuddy/zhiwei
 $NODE = /Users/Merryou/.workbuddy/binaries/node/versions/22.22.2/bin/node
 $WS   = /Users/Merryou/.workbuddy/binaries/node/workspace
-归档：旧版执行报告（P0–P5 轮）已先复制为
-  _pipeline/archive/02_EXEC_REPORT_20261011_1311.md
-  （两侧 md5 = 6acad0a321383af829c423d97c218dd1，一致；归档只增不删）
+归档：第 2 轮执行报告（P6 版，413 行）已先复制为
+  _pipeline/archive/02_EXEC_REPORT_20261011_1436.md
+  （两侧 md5 = 42a79ba3bedd9debd9caf74e627242c9，一致；归档只增不删）
+红线遵守：01_PLAN.md 未删未改；冻结区两口径零改动；四项测试零改动；前次三个 P7 提交未
+  revert/amend；未碰他人未提交变更（tempui/ 增删、.workbuddy/、node_modules/、
+  package-lock.json、_pipeline/PR-tempdeploy.md 一律未动、未入库）
 
 
 --------------------------------------------------------------------------------
-一、结论摘要
+零、结论摘要
 --------------------------------------------------------------------------------
-P6.0–P6.5 全部完成，检查点⑤要求的产物齐备，验收判据全部取得证据、全部达成：
+检查点⑥（/graph ECharts 改造）本轮要求的产物齐备，验收判据全部取得证据、全部达成：
 
-  · vitest 三批全绿：apps/web 208 / packages 43 / functions 202 = 453 用例
-    （42 个测试文件；基线 451 → +2，只增不减）
-  · tsc 三段 exit 0（packages/engine · functions/api · apps/web）
-  · build 等价口径通过：vite build --outDir /tmp/zhiwei-web-build-p6（exit 0）
-  · F-01 判据：audit-style10-375.json 中 /report 的 overflowPx = 0
-    （浅色档 0；暗色档副本 audit-style10-375-dark.json 同为 0）
-  · 走查：双主题 × 1440/1024/768/375 四档，8 组合 × 11 路由 = 88 张截图，
-    页面级横向溢出全档全页 0px（768-light 本轮必采，清偿第 1 轮 D-05）
-  · 冻结区检查：两条 git --no-pager diff 命令均为空输出（exit 0）
-
-本轮提交 5 个（计划预计 3 个；多出的 2 个是走查修复与走查产物，见「七、偏差」D16/D17）：
-  d050fcb  P6.0 记账入库（计划第 3 个提交位之外的第 1 个，计划内）
-  ddc6eca  P6.1 M-1 裁决落地：Sheet 内边距补 token 对齐规范 §4.2
-  7935705  P6.2 /report 视觉层重写 + F-01 修复（主体）
-  a169874  P6b 走查修复（计划外第 4 提交，偏差 D17）
-  dcda2b9  P6 走查产物重采 + /report 四态取证探针（计划外第 5 提交，偏差 D17）
-
-
---------------------------------------------------------------------------------
-二、逐步执行状态（P6.0 → P6.5）
---------------------------------------------------------------------------------
-
-P6.0 记账入库 —— 完成
-  commit d050fcb「style10记账: 01_PLAN 第8版(P6 细化+M-1/F-01 裁决)+第7版归档+第1轮审查报告入库」
-  变更文件（白名单显式 git add，逐个列出，未用 git add -A / .）：
-    _pipeline/01_PLAN.md（第 8 版）
-    _pipeline/03_REVIEW.md（第 1 轮 PASS 报告）
-    _pipeline/archive/01_PLAN_20261010_2109.md（第 6 版归档件，untracked → 入库）
-    _pipeline/archive/01_PLAN_20261011_1239.md（第 7 版归档件 → 入库）
-    _pipeline/archive/03_REVIEW_20261011_0029.md（审查报告归档件 → 入库）
-  检查命令与结果：
-    git --no-pager diff --name-only HEAD -- _pipeline   → 空输出（exit 0）✔
-  未触碰：_pipeline/PR-tempdeploy.md（他人产物）仍在 untracked，未入库。
-
-P6.1 M-1 裁决落地：Sheet 内边距补 token 对齐规范 §4.2 —— 完成
-  commit ddc6eca「style10P6a: Sheet 内边距按规范§4.2/原型补 token 对齐(M-1 裁决)」
-  变更文件与关键位置：
-    apps/web/tailwind.config.js —— theme.extend 新增 spacing 块（+34 行）：
-      pad-frame-md-y '22px' / pad-frame-md-x '18px' / pad-frame-md-b '12px' /
-      pad-frame-sm-b '10px'，注释指向规范 §4.2 与原型 L40/L140/L680/L681
-    apps/web/src/components/blueprint/Sheet.tsx —— 抽出 SHEET_PADDING 常量并替换
-      main 的 className（原 L118 一行 → 常量 + 注释块，前后值对照见「五、M-1」）；
-      SheetHead / SheetBlock / aside 结构一行未动
-    apps/web/tests/tokens.test.ts —— 新增 describe「⑬ 图纸内边距 token」2 条用例
-      （只增；既有 21 条断言一字未改，文件头 ①–⑫ 清单补一行 ⑬）
-    tempui/STYLE-10-设计系统规范.md —— §4.2 矩阵四行「Sheet 内边距」列补垂直值
-      （原值 '48px' / '22px 18px' / '16px 12px' 逐字保留）+ 表下一段只增留痕说明
-  测试命令与逐条结果（各条独立执行）：
-    $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests/tokens.test.ts
-      → 首跑 1 failed / 22 passed：我新加的断言把 Sheet.tsx 注释里举例的
-        「pt-[22px]」当成裸任意值命中（注释行未排除）。按本文件 ⑧/⑩/⑪ 既有口径
-        （注释行不算）修正为跳过注释行后复跑 → 23 passed（21 原始 + 2 新增）✔
-    $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests → 21 files / 208 passed ✔
-    $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json → exit 0 ✔
-    $NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts
-      --outDir /tmp/zhiwei-web-build-p6m1 → built in 3.77s, exit 0 ✔
-    产物抽验：dist CSS 中 narrow\:pt-pad-frame-md-y{padding-top:22px}、
-      sheet\:pt-12{padding-top:3rem}、sheet\:px-12{padding-left/right:3rem} 均在 ✔
-    3.2 冻结区检查 → 两条命令空输出（exit 0）✔
-
-P6.2 /report 视觉层重写 + F-01 修复（主体） —— 完成
-  commit 7935705「style10批1: /report 学习报告——五节制式+细网格表+四态落位+打印样式」
-  变更文件与关键位置：
-    apps/web/src/pages/ReportPage.tsx —— 整页重写（+703/-237 计）
-    apps/web/src/index.css —— 新增 .bp-tbl-wrap/.bp-tbl 细网格表制式（含 ≤900 转卡片）
-      + 打印块补齐（按原型 L784-804）+ .print-only（+226 行）
-    apps/web/src/components/blueprint/Sheet.tsx —— 新增导出 sheetDimText()（+13 行）
-    apps/web/src/components/Layout.tsx —— 新增 PAGE_OWNED_HEAD 登记表 + head 传 undefined
-      + dim 改用 sheetDimText（+37/-6）**计划外文件，偏差 D16，见「七、」**
-  逐段复现勾稽（对照原型行号）：
-    ① 页头 L2944-2946 → SheetHead{eyebrow 'REPORT / 汇总与验证'、sheetNo '10-12'、
-       section '2.12'、h1 '学习报告 · 按空间汇总'、sub 含空间名（num-mono）、
-       chips <Badge tone="accent">T0 · 可打印</Badge>、dim sheetDimText(tier)} ✔
-    ② 打印条 L2947-2949 → <section data-print="hide"> btn primary「打印 / 留存为 PDF」
-       + tok「打印样式：隐藏导航与标注、白底黑字、表格不截断」；
-       window.print() 与 data-print='hide' 接线（P3-4 成果）原样保留 ✔
-    ③ 01 一句话总评 L2950-2955 → .bp-panel #verdict：Badge tone="negative" 档位短标
-       + tok 两口径如实并列（缺口清单 N 处 · 掌握度低于 0.40 节点 M 个）
-       + text-title-sm(17px) 正文（summaryLine 原样）+ 口径 hint ✔
-    ④ 02 掌握度四档分布 L2956-2963 → .dist 条形（BandMark 档名 + 条形 + num-mono 计数）
-       + .bp-tbl「分档明细」（档位/个数/占比/知识点 chips）✔
-    ⑤ 03 缺口清单 L2964-2966 → .bp-tbl（知识点/掌握度/档位/最近一次归因/出路
-       「去补习」·「看先修链」）✔
-    ⑥ 04 基线与复测对比 L2967-2970 → .bp-tbl ΔAccuracy（▲/▼/不可算）+ 说明列
-       + print-only「主结果」行 ✔
-    ⑦ 05 从缺口出发 L2971-2973 → data-print="hide" 包裹；btn primary「去对话页补一补」
-       + secondary「看技能树」+ NextStepCard 内容语义（缺口最前者 + 两条出路）并入 ✔
-    原型 06「三种空状态（口径说明）」不复现（D15a）✔
-  四态落位：
-    loading → SkeletonLines rows=4 block（PageSkeleton 不再被本页引用，组件保留）✔
-    失败    → Stamp 红章 + 真重试 + alt「回到学习空间」；toast 保留（见偏差 D18）✔
-    无空间  → SheetHead（本页用途说明版）+ EmptyState tag="NO SPACE" 现有文案 ✔
-    无数据  → 两块虚线空盒 NO DATA / NO DELTA（原型 _reportEmpty 双盒）✔
-  F-01（D14 结构修法）：五节纵向堆叠，无 lg:grid-cols-2 双卡、无 min-w-[420px]、
-    无横滚表；保留的 grid 子项一律 min-w-0（dist 行 / 表格容器）✔
-  测试命令与逐条结果：
-    tsc apps/web → 首跑 2 处 TS2322（我误把 Sheet 默认导出当 SheetHead 导入）→ 改为
-      具名导入 { SheetBlock, SheetHead, sheetDimText } 后 → exit 0 ✔
-    $NODE .../vitest.mjs run apps/web/tests → 208 passed ✔
-    tsc packages/engine → exit 0 ✔ ; tsc functions/api → exit 0 ✔
-    vite build --outDir /tmp/zhiwei-web-build-p6 → exit 0 ✔
-    产物抽验：bp-tbl 制式、attr(data-label)、not all and (min-width: 900px)、
-      #sheet{padding:0!important}、.print-only{display:none}/{display:block!important} 均在 ✔
-    6.3 静态纪律四条（含该页零一次性样式抽查）：
-      grep -rn -E "(min|max)-\[[0-9]+px\]:" apps/web/src → 无匹配（exit 1）✔
-      grep -rn "z-\[" apps/web/src → 无匹配 ✔
-      grep -rn "fonts.googleapis\|fonts.gstatic" apps/web → 无匹配 ✔
-      grep -n -E "className=\"[^\"]*#[0-9a-fA-F]{3,8}|min-w-\[" .../ReportPage.tsx
-        → 首跑命中 1 行：文件头注释里举例写的「min-w-[420px]」（非类名）。改写该注释后
-          复跑无匹配 ✔（页面内唯一的 inline style 是条形宽度 calc(share% - 2px)，
-          属数据驱动几何，与 BandMark 既有写法同源，非装饰性内联样式）
-    3.2 冻结区检查 → 空输出 ✔
-
-P6.3 测试收口（并入 P6.2 提交） —— 完成
-  既有纯逻辑测试 0 个改期望（percent/deltaPercent/kpName/summaryLine/phrases/
-  routerGuard/sse/client/chatPanel/mobileNav/dialogStore/graphMastery/graphSnapshot/
-  reveal/phrases/stages/bands/breakpoints/themeStore/blueprint 全部一字未改）；
-  唯一新增 = tokens.test.ts ⑬ 的 pad-frame 断言（2 条）+ 文件头 ⑬ 清单行（新增）。
-  /report 无渲染测试（沿用不引渲染测试栈的纪律），四态与版式由走查验收。
-  用例总数：451（基线）→ 453（+2），只增不减 ✔
-  最终全量三批：208 / 43 / 202 全绿。
-
-P6.4 走查（双主题 × 1440/1024/768/375） —— 完成
-  服务：esbuild 打包 functions/api/src/server.ts → dist/server.js；$NODE 后台运行
-  :8787（日志 /tmp/zhiwei-api-p6.log）；vite --config apps/web/vite.config.ts 后台
-  :5173（日志 /tmp/zhiwei-web-p6.log）；两端均就绪（web 200）。
-  命令形态说明（偏差 D19）：计划 P6.4 的 8 条命令未含 ZHIWEI_AUDIT_OUT，脚本默认产物
-  目录是 _pipeline/screenshots/mobile；本轮按 P5 既有产物目录补
-  ZHIWEI_AUDIT_OUT=/Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10。
-  八条命令（逐条独立跑，防 60s SIGKILL）与结果：
-    dark 1440 → 页面级溢出合计 0px；/report 0px
-    dark 1024 → 0px；/report 0px
-    dark  768 → 0px；/report 0px
-    dark  375 → 0px；/report 0px
-    light 1440 → 0px；/report 0px
-    light 1024 → 0px；/report 0px
-    light  768 → 0px；/report 0px（本轮必采：清偿第 1 轮 D-05）
-    light  375 → 0px；/report 0px
-  首采后走查发现两处版式缺陷，修复（commit a169874）后**八条全部重采一遍**，
-  上表即重采结果（截图与 JSON 与最终代码一致）：
-    缺陷 1（768/≤900 档）：.bp-tbl 转 display:block 后 caption（display:table-caption）
-      在块级父盒里退化成最小内容宽度，「分档明细」被压成一列竖字 → 窄档补
-      .bp-tbl caption{display:block;width:100%}（原型 L707-720 未覆盖，按 D9 只增留痕）
-    缺陷 2（1440 档）：分档明细「档位」列被宽列挤窄，「待巩 / 固」拆两行 →
-      两处表格的档位单元格加 whitespace-nowrap
-  产物清单（只增不删，同名覆盖允许）：
-    走查截图 88 张：style10-<1440|1024|768|375>-<dark|light>-<11 路由>.png
-      （8 组合 × 11 路由；本次重采全部刷新）
-    审计 JSON 8 份：audit-style10-<档>.json（= 浅色档，最后一次采样）+
-      audit-style10-<档>-dark.json（暗色档副本，只增；脚本按宽度命名会覆盖同名文件，
-      故暗色档先复制留证，两套数字都在）
-    四态截图 8 张：state-1440-light-<normal|loading|error|no-data>.png、
-      state-375-dark-<同四态>.png
-    探针日志 2 份：last-state-probe-1440-light-log.txt、last-state-probe-375-dark-log.txt
-  复核点：
-    a) 五节结构与原型对照 —— 逐段勾稽见上（P6.2 ①–⑦），1440/768 截图人工核对 ✔
-    b) 375 档 /report overflowPx=0 —— 见「六、F-01」✔
-    c) M-1 后 4 档无横向溢出、页头不叠字 —— 8 组合全 0px；页头为单 h1（D16 后外壳不再
-       补第二份）✔
-    d) 四态截图：loading（骨架）/ error（红章）/ no-data（双空盒）三态已取到真图；
-       **无空间态取不到**——router.guardPath（冻结区）在「已登录 + 无活跃空间」时把
-       /report 重定向到 /spaces，该分支只能由「页面已挂载时空间被清空」触发，
-       无导航取证路径；探针按 R12 口径如实记录，不伪造（见「八、」）
-    e) 768-light 已采 ✔
-
-P6.5 交付物三件套与停点 —— 完成
-  a) 双主题截图：4 档 × 2 主题 = 8 组合 × 11 路由 88 张（含 375 档）+ 四态 8 张
-  b) 变更说明：本报告第三/五/六/七节即逐段复现清单、接回清单、测试改动清单、
-     M-1 三处同源勾稽表、D15a–e 逐条留痕
-  c) vitest/tsc/build 输出摘录：见「四、」；build 用 /tmp 等价口径（L-1 留痕）
-  停点：本轮交付后停，交 reviewer 按检查点⑤口径 VERDICT。
+  · 计划内 3 个提交（P7.0 记账 / P7.1 清偿 / P7.3 页面含测试）前次已完成并入库，
+    本次逐条复核，与计划要求一致（详见「三、」逐条复核）。
+  · 本次续完补齐 3 项前次中断遗留：
+      (a) 前次未提交的 GraphPage.tsx 表现层细化（走查修复），复核无冻结语义改动后
+          以独立提交 12acf95 入库（可单独 revert）；
+      (b) 375 档专项取证：前次 375-dark 仅采到部分且日志缺失、375-light 完全缺失，
+          本次重采 375-dark 全量 + 新增 375-light（双主题齐备）；
+      (c) 第 3 轮执行报告（本文件）。
+  · 全量验证在**最终提交态**复跑：vitest 三批 43 文件 462 用例全绿（基线 42/453，
+    只增不减）；tsc 三段 0；build 等价口径成功；L-1 判据命中；冻结区双口径空输出。
+  · D8 六项按 D20 分派逐项留痕（三项执行项全落地，三项尽力项 = 键盘已落地、描边入场
+    未做、焦点环近似），本文件「五、」逐项写「做了/没做/差距/原因」。
+  · 唯一需 reviewer 关注项：375 档适配视图下画布节点极小、近空白观感（实测见「九、」
+    OBS-1），属已定设计取舍（窄档画布退化为「形状地图」，完整内容由 05 文字清单承担），
+    本次复核未改设计、如实留痕。
 
 
 --------------------------------------------------------------------------------
-三、计划步骤完成状态一览
+一、前次已完成 / 本次续完（区分标注）
 --------------------------------------------------------------------------------
-  [✔] P6.0 记账入库（d050fcb）        检查命令空输出
-  [✔] P6.1 M-1 token 对齐（ddc6eca）  三处同源齐备，门禁 +2 用例全绿
-  [✔] P6.2 /report 重写 + F-01（7935705）  逐段复现 ①–⑦ 全落，业务逻辑零改动
-  [✔] P6.3 测试收口（并入 7935705）   0 个既有测试改期望，用例只增（451→453）
-  [✔] P6.4 走查（dcda2b9）            8 组合 × 11 路由全 0px + 四态 6 张真图
-  [✔] P6.5 三件套                     本报告 + 截图 + 输出摘录
-  [ ] P7（/graph ECharts）不在本轮（照旧排队）
+【前次 implementer 已完成并已入库】
+  · P7.0 记账         提交 32aaec1
+  · P7.1 L-1/L-2 清偿  提交 22d5628
+  · P7.2 D8④⑤⑥ 评估   以代码注释随 P7.3 落地（无独立提交；评估记录并入本报告「五、」）
+  · P7.3/P7.4 /graph 主体 + 测试  提交 fd1b2bb
+  · P7.5 走查主产物（双主题 × 4 档截图 + 审计 JSON，1440 双主题专项，375-dark 部分）
 
-
---------------------------------------------------------------------------------
-四、测试 / 类型 / 构建输出摘要（最终代码）
---------------------------------------------------------------------------------
-  1) $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
-     → Test Files 21 passed (21) / Tests 208 passed (208)（tokens 23 含新增 2 条）
-  2) $NODE $WS/node_modules/vitest/vitest.mjs run packages
-     → Test Files 2 passed (2) / Tests 43 passed (43)
-  3) $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
-     → Test Files 19 passed (19) / Tests 202 passed (202)
-     合计 42 files / 453 tests 全绿（基线 451，只增不减）
-  4) $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p packages/engine/tsconfig.json
-     → exit 0
-  5) $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
-     → exit 0
-  6) $NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
-     → exit 0
-  7) $NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts
-       --outDir /tmp/zhiwei-web-build-p6
-     → ✓ built in 4.43s，exit 0（等价口径，规避沙箱批量删除闸门；L-1 留痕）
-  8) 冻结区检查（每批提交前 + 收尾各跑，期望空输出）：
-     git --no-pager diff --name-only HEAD -- apps/web/src/router.tsx apps/web/src/api
-       packages/engine functions data   → 空输出（exit 0）
-     git --no-pager diff --name-only HEAD -- apps/web/src/stores → 空输出（exit 0）
-     （P6 未动任何 store，本轮连 theme.ts 也未触碰 ✔）
-  9) 6.3 静态纪律四条 → 全部无匹配（任意值断点 / 裸 z-index / CDN / 该页一次性样式）
- 10) 冻结区行为证据：routerGuard / sse / client / chatPanel / mobileNav / dialogStore /
-     graphMastery / graphSnapshot / reveal / phrases / stages / authStore 等测试文件
-     本身未改且全绿 ⇒ 冻结区未被破坏。
+【本次续完（第 3 轮续完调用）】
+  · 逐条复核 P7.0/P7.1/P7.3 交付物与计划一致性（读代码与 diff）
+  · 复核并补做 P7.2 的 D8 六项评估记录（写入本报告「五、」）
+  · 复核发现并处理 3 项遗留（见「零、」）：
+      1) GraphPage.tsx 未提交表现层改动 → 复核后提交 12acf95
+      2) 375 档专项取证不全/部分过期 → 重采 375-dark 全量 + 新增 375-light
+      3) 第 3 轮报告未落盘 → 本文件
+  · P7.4 测试收口：在最终态复跑 vitest 三批 + tsc 三段 + build（等价口径）
+  · P7.5 走查收尾：核对产物新鲜度、补采、按白名单显式路径提交（5069782）
+  · 验收判据取证：L-1 CSS / 375px overflowPx=0 / 冻结区双口径
+  · P7.6：产物三件套齐备，停点交 reviewer
 
 
 --------------------------------------------------------------------------------
-五、M-1 落地证据（Sheet 内边距向规范 §4.2 对齐）
+二、提交清单与变更文件（本轮全部）
 --------------------------------------------------------------------------------
-  Sheet.tsx 前后值对照（四档，值 = 上/左右/下）：
+1) 32aaec1  style10记账: 01_PLAN 第9版 + 第8版归档 + 第2轮审查报告入库
+   _pipeline/01_PLAN.md                              （第 9 版）
+   _pipeline/03_REVIEW.md                            （reviewer 第 2 轮 PASS，工作区 M）
+   _pipeline/archive/01_PLAN_20261011_1336.md        （第 8 版归档件）
+   _pipeline/archive/03_REVIEW_20261011_1319.md      （归档件）
+   4 files changed, 1151 insertions(+), 418 deletions(-)
 
-    档位（工程断点）              改前                改后              依据
-    ─────────────────────────────────────────────────────────────────────────────
-    base（sm，<420）              24/16/16            16/12/10          原型 L681
-    narrow:（md，420–899.98）     24/16/16            22/18/12          原型 L680
-    sheet:（lg/xl，≥900）         24/24/16            48/48/16          原型 L140+L40
-    annos:（≥1180）              12/48/16（单列）    同 lg/xl（删 annos:px-12 分支）
+2) 22d5628  style10P7a: 认领清偿 L-1/L-2
+   apps/web/src/components/blueprint/Sheet.tsx       （SHEET_PADDING base 档 pb-2.5 → pb-pad-frame-sm-b；
+                                                      文件头注释块同步说明；10px 同值替换）
+   apps/web/tests/breakpoints.test.ts                （仅文件头「合法保留」白名单注释改写；断言/扫描零改）
+   2 files changed, 10 insertions(+), 4 deletions(-)
 
-  改前类串：px-4 pb-4 pt-6 narrow:px-4 sheet:px-6 annos:px-12
-  改后类串：pt-4 px-3 pb-2.5 narrow:pt-pad-frame-md-y narrow:px-pad-frame-md-x
-            narrow:pb-pad-frame-md-b sheet:pt-12 sheet:px-12 sheet:pb-4
-  三处同源（缺一不可，已逐一勾稽）：
-    ① tailwind.config.js：extend.spacing 四个具名 token（pad-frame-md-y 22px /
-       pad-frame-md-x 18px / pad-frame-md-b 12px / pad-frame-sm-b 10px）
-    ② tempui/STYLE-10-设计系统规范.md §4.2：矩阵四行补垂直值（原值逐字保留）+ 留痕说明
-    ③ apps/web/tests/tokens.test.ts ⑬：两条断言（token 存在且值对 + Sheet 内边距
-       无裸任意值类）
-  端点点差留痕（D13b 性质，同既有 nav:720）：原型 md 档是 421–900、lg 档 901 起；
-  工程断点 narrow:420 / sheet:900（D1 具名断点）⇒ 恰好 420px 与 900px 两处归属相差
-  1px，不为此改断点（D1 的价值是全站只有一套边界）。
-  token 使用情况说明：四个 token 中 pad-frame-sm-b(10px) 本轮**未被类名引用** ——
-  计划 D13b 明确指定 base 档用默认刻度的 pb-2.5（同为 10px），故 token 按 D13a 定义、
-  由 ⑬ 断言锁定，作为「规范值的具名来源」保留；md 三个 token 已被 Sheet 实际消费
-  （产物 CSS 可见 narrow\:pt-pad-frame-md-y{padding-top:22px}）。
-  影响面（R11）与实测：lg 档图纸内边距 24→48（内容区变窄）波及全部未迁移页 —— 属规范
-  正确值落地而非回归；本轮 8 组合走查全站 0px 溢出、页头无叠字，未迁移页无挤压破坏。
+3) fd1b2bb  style10批2: /graph 知识图谱（主体）
+   apps/web/src/components/Layout.tsx                （PAGE_OWNED_HEAD 登记 '/graph'，D19，1 行 + 注释）
+   apps/web/src/index.css                            （图谱画布区制式类 bp-gcanvas / bp-gcanvas__viewport /
+                                                      bp-gtools / bp-gcanvas__note / 图例底条 / 文字清单选中行）
+   apps/web/src/lib/graphSymbol.ts                   （新增：六种形状 path 纯函数 + 六态 → symbol 映射）
+   apps/web/src/pages/GraphPage.tsx                  （视觉层重写；取数/守卫/派生/点火/poster/键盘语义冻结）
+   apps/web/tests/graphSymbol.test.ts                （新增：9 用例）
+   5 files changed, 964 insertions(+), 259 deletions(-)
 
+4) 12acf95  style10P7b: /graph 走查修复【本次续完新增】
+   apps/web/src/pages/GraphPage.tsx                  （仅表现层：画布标签由双行(名称+百分数)收敛为单行名称；
+                                                      窄档 cw<700px 不画节点标签；适配缩放下限 0.12 → 0.3；
+                                                      文件头与行内注释同步；业务逻辑零改动）
+   1 file changed, 29 insertions(+), 24 deletions(-)
 
---------------------------------------------------------------------------------
-六、F-01 落地证据（375 档横向溢出 95px → 0）
---------------------------------------------------------------------------------
-  根因（第 1 轮取证 + 本轮复看 audit-style10-375.json 溢出元素清单）：
-    旧页面 lg:grid-cols-2 双卡 grid 里放了带 min-w-[420px] 的表格 ⇒ 单列轨道的
-    min-content 被撑到 454px（溢出元素 cls="rounded-surface border border-line
-    bg-surface p-4 shadow-card" w=454，左右 16→470）⇒ 页面级 scrollWidth 470。
-  修法（D14 结构修法）：按原型 PAGES.report 的纵向 section.block 堆叠重写 ——
-    双卡 grid 与 min-w-[420px] 同时消失（根因消除）；保留的 grid 子项一律 min-w-0；
-    表格窄档走 .bp-tbl 的 data-label 转卡片（原型 L707-720），不再需要横滚。
-  判据数据（最终代码，重采后）：
-    audit-style10-375.json（浅色档）：/report overflowPx = 0，innerWidth 375，
-      scrollWidth 375，溢出元素清单长度 0
-    audit-style10-375-dark.json（暗色档）：/report overflowPx = 0
-    其余三档（1440/1024/768）双主题：/report 0px；页面级合计 0px
+5) 5069782  style10P7走查: /graph 截图与审计 JSON 重采 + 专项探针 + 375 双主题补齐【本次续完新增】
+   _pipeline/screenshots/style10/**                  （8 审计 JSON + 路由截图重采 + graph-* 专项图）
+   tools/probe-graph-states.cjs                      （新增：/graph 四态与专项只取证探针）
 
+6) （本报告提交）style10轮3执行报告：P7 逐步复核 + D8 六项留痕 + 续完 3 项 + 全量验证
+   _pipeline/02_EXEC_REPORT.md                       （第 3 轮版；旧版归档见文件头「归档」）
+   _pipeline/archive/02_EXEC_REPORT_20261011_1436.md （第 2 轮旧版归档件）
 
---------------------------------------------------------------------------------
-七、执行偏差与裁决留痕（逐条）
---------------------------------------------------------------------------------
-D16【计划外文件 · Layout.tsx】迁移页自持页头（新增登记表 + dim 同源）
-  现象：外壳 Layout 给**每个**页面都补一份通用页头（eyebrow = 路由 label、h1 = 路由
-    label、dim）。P6.2 要求 /report 按原型渲染自己的页头（eyebrow 'REPORT / 汇总与验证'、
-    h1 '学习报告 · 按空间汇总'、sub 内嵌当前空间名、chip 'T0 · 可打印'）——这些数据
-    只有页面拿得到。若外壳照旧补一份，一页会出现两个 h1（P5 截图实测已存在
-    「学习报告」+ 页面标题两份，迁移后会更明显）。
-  处置：在 Layout.tsx 增 PAGE_OWNED_HEAD 登记表（'/' 到 '/report' 一行），登记的路径
-    head 传 undefined，由页面渲染；同时把 dim 文本抽成 Sheet.tsx 导出函数
-    sheetDimText(tier)，外壳与页面共用一份（避免第二份格式串）。
-  性质：**计划未列 Layout.tsx**（P6.2 涉及文件只写 ReportPage.tsx + index.css），
-    属计划外改动。理由与最小性：这是「首个迁移页」必然带出的外壳机制，且是达成
-    计划 ① 页头复现与「一页一个 h1」的最低成本做法（备选「页面不管页头」会丢掉
-    原型页头文案与 T0 chip，且外壳仍会给出与原型不符的标题）。
-  影响面：仅 /report 一行；未迁移页继续吃通用页头（共存策略不变）；
-    router.tsx / 守卫 / 外壳结构一行未动。
-  留痕：Layout.tsx 内注释指回本条。
-
-D17【计划 3 个提交 → 实际 5 个】走查修复与走查产物各占一个提交
-  计划：本轮提交数 3（记账 1 + token 1 + 页面 1）。
-  实际：走查发现两处版式缺陷（表格 caption 竖排、档位列折行），修复需落在独立提交
-    才可单独 revert ⇒ a169874；走查/探针产物按 P5 惯例单独入库 ⇒ dcda2b9。
-  回滚关系不变：P6.1 token 与 P6.2 页面的依赖关系照旧（回滚 P6.1 须先回滚 P6.2）。
-
-D18【D15c 的实现取法】失败态「派生」而不是在冻结的取数 effect 里上报
-  计划冲突点：D15c 要求「组件内新增 error state + 重试回调」，同时要求「取数
-    useEffect 与守卫分支零改动」。两条同时满足的唯一做法是：失败由既有状态**推导**——
-    成功必然落 report，故「取数已落定（loading 已转 false）且 report 仍为空」⇔ 首次
-    取数失败。为此新增两条最小状态：retrying（重试在途）与 loadedSpaceId（落定的那次
-    取数属于哪个空间；用它挡住「切换空间在途窗口被误判为失败、闪一顶红章」）。
-  改动边界：取数 useEffect **逐字符未改**（含 reportSummary 调用、cancelled 清理、
-    依赖数组 [activeSpaceId]）；守卫顺序仍是「无空间 → loading → 数据态」，失败分支
-    插在 loading 之后、数据态之前（属新增落点，D15c 授权）；重试复用同一
-    reportSummary（真重试，D10）。
-  toast 保留：冻结 effect 内的 catch 仍走既有 toast 话术（未动），故失败时红章与
-    非阻断 toast 并存；按计划「保留与否随 Stamp 落位一并留痕」→ 保留（避免改动冻结块）。
-  验证：tests/probe 注入 report/summary 失败后获得真图
-    （state-1440-light-error.png：红章 + 原因 + 重试一次 + 回到学习空间）。
-
-D19【走查命令形态】计划 P6.4 八条命令补 ZHIWEI_AUDIT_OUT
-  计划给的命令只带 ZHIWEI_AUDIT_THEME；脚本默认产物目录是 _pipeline/screenshots/mobile。
-  本轮补 ZHIWEI_AUDIT_OUT=.../_pipeline/screenshots/style10，与 P5 既有产物同目录
-  （否则会污染 mobile 基线目录）。八条命令其余部分逐字照用。
-
-D20【原型 vs 计划的细节取舍（逐条，均为「以原型为准」口径）】
-  a) 02 节条形分母：计划 ④ 括注写「条宽 = count/maxCount」，原型 L2960 是
-     count/总知识点数。取原型（占比与相邻「占比」列同义，且 5.1① 规定版式按原型）；
-     遂删去 maxCount 中间量。留痕。
-  b) 总评 chip 文案：原型 chip 里放三档措辞短标。本工程 summaryLine 是整句，故 chip
-     用同阈值的档位短标（没有缺口 / 少量缺口 / 缺口较多），正文用 summaryLine 整句；
-     短标属**新增展示文案**（D5 / D15b 同口径，不进 phrases 逐字锁定范围）。
-  c) 口径 hint 不写数字阈值：原型 hint 抄需求 2.12 的「缺口 ≥5 / 1–4 / 0」，而本工程
-     summaryLine（冻结、一行不改）的边界是 0 / 1–3 / ≥4，写前者会与界面实际行为不符，
-     故 hint 改为不含量化阈值的口径说明（不改动 summaryLine 的阈值）。
-  d) 03 节「最近一次归因」列：原型展示归因长编号（ATTR-…），但契约 #19 只给
-     error_type_last（枚举），故该列沿用既有语义（ERROR_TYPE_LABEL 或 '—'，D5 文案照用），
-     并以「不截断、可换行」满足「完整可复制」的原型意图；不为此新增数据请求。
-  e) 03 节表 caption：原型写「缺口 · 按掌握度升序」，而服务端 gaps 由 mastery 按图谱
-     顺序过滤而来（非升序），故 caption 改为「缺口 · 掌握度低于 40%（服务端口径）」，
-     避免 caption 与真实排序不符。
-  f) 06 节（三种空状态口径说明）不复现（D15a 已裁决）。
-  g) 04 节的 awwwards 大数字头版（旧页 heroRow 编辑式排版）按原型 04 段取消，
-     改为节标题右侧 chip + 纸上 print-only 行；heroRow（Δ 最大者的选取）逻辑保留，
-     仍用于这两处；SuccessMark 在本页不再引用（组件本身仍被 PracticePage/GraphPage 使用）。
-  h) 05 节仅在 gaps.length > 0 时渲染（沿用旧页「有缺口才给路标」的既有语义；原型是
-     MOCK 常量常显）。
-  i) 无数据态 NO DATA 盒标题取原型「还没有可汇总的数据」（hint 与两条出路照用现有引导）。
-
-D21【新增基建文件】tools/probe-report-states.cjs（四态取证）
-  计划 P6.4 d) 要求四态截图，但走查工具每个路由只采默认态、无法注入条件；按既有惯例
-  （probe-dock-click.cjs / probe-nav-rotate.cjs）新增一个**只取证、不下结论、不打闸门**
-  的探针（计划 6.2 明示 tools/ 属基建可改）。它用 CDP 向页面注入 fetch 包装
-  （report/summary 失败 / 挂起）与真实调 /api/space/create 建空空间，不碰任何业务代码、
-  不改后端。产物命名 state-<宽>-<主题>-<态>.png，与走查截图同目录、只增不删。
-  已知副作用：探针在 e2e 账号下建了 2 个空空间（无删除接口），但 /api/space/list 的首项
-  仍是原空间 sp_muf82zhx02br0（实测清单首项 = 初中数学），故走查脚本选空间的行为不变、
-  证据可复现；两条空间仅是多出来的记录。
-
-D22【已知陈旧注释，未改】apps/web/tests/breakpoints.test.ts 文件头白名单注释里仍写着
-  「ReportPage 的 min-w-[420px]：宽度工具类……是 ② 的合法保留项」。本轮该写法已从
-  ReportPage 移除，注释随之陈旧；按计划 3.3「本轮改期望仅 tokens.test.ts」的口径，
-  未改动该测试文件（连注释也未动），在此留痕。
+涉及的新增/修改代码文件全量（去重）：
+  新增：apps/web/src/lib/graphSymbol.ts、apps/web/tests/graphSymbol.test.ts、
+        tools/probe-graph-states.cjs、_pipeline/screenshots/style10/ 走查新产物
+  修改：apps/web/src/pages/GraphPage.tsx、apps/web/src/components/Layout.tsx、
+        apps/web/src/index.css、apps/web/src/components/blueprint/Sheet.tsx、
+        apps/web/tests/breakpoints.test.ts
+  按计划「视评估」列入但实际**未改**：apps/web/src/components/BandLegend.tsx（原因见「七、」）
 
 
 --------------------------------------------------------------------------------
-八、未完成项与已知限制（如实记录，不隐藏）
+三、P7.0–P7.6 逐步完成状态与逐条复核
 --------------------------------------------------------------------------------
-1) 无空间态截图未取得（探针如实记录，非伪造）：
-   router.guardPath（冻结区）在「已登录 + 无活跃空间」时把 /report 重定向到 /spaces，
-   该分支只能由「页面已挂载后空间被清空」触发，无导航取证路径。按 R12 口径留痕说明，
-   不伪造截图；分支本身已按原型 L2914-2918 实现（代码可见，测试未覆盖，走查未截图）。
-2) 四态截图覆盖的主题/宽度：error / loading / no-data 三态在 1440-light 与 375-dark
-   各一套（8 张）；未再按 4 档 × 双主题穷举（计划只要求「四态截图」，未指定档位组合）。
-3) pad-frame-sm-b token 本轮无类名引用（原因见「五、」末尾），由 ⑬ 断言锁定。
-4) 探针在 e2e 账号留下 2 个空空间（服务端无删空间接口）；不影响走查选空间与结果。
-5) 未参与本轮的功能面（照计划边界）：P7 /graph ECharts 改造、P8–P12 各页、状态实验室
-   不迁移；NextStepCard / PageSkeleton / SuccessMark 组件保留未删（供未迁移页）。
+P7.0 记账入库 —— 【前次已完成，本次复核通过】
+  要求：仅提交 _pipeline 白名单 4 件（01_PLAN 第 9 版 / 01_PLAN 第 8 版归档 /
+        03_REVIEW 第 2 轮 / 03_REVIEW 归档件）；不改代码。
+  实际：32aaec1 恰为该 4 件（见「二、」1)），无代码文件混入。
+  复核命令：git --no-pager diff --name-only fa20d8e..32aaec1 → 恰 4 个 _pipeline 路径。
+  结论：一致。
+
+P7.1 认领清偿 L-1 + L-2 —— 【前次已完成，本次复核通过】
+  L-1（D16）：Sheet.tsx SHEET_PADDING base 档 pb-2.5 → pb-pad-frame-sm-b，文件头注释同步，
+             10px 同值替换；tailwind token 定义与 tokens.test 未动、规范 §4.2 未动。
+  L-2（D17）：breakpoints.test.ts 仅文件头注释块改写（删「ReportPage min-w-[420px]」陈旧三行），
+             断言与扫描逻辑零改动（diff 逐行确认，仅注释行）。
+  复核：git --no-pager diff fa20d8e..22d5628 -- apps/web/tests/breakpoints.test.ts -U0
+        → 增删行全部落在 /** */ 注释块内（见「八、」冻结区证据）。
+  结论：一致；L-1/L-2 清偿成立。
+
+P7.2 D8④⑤⑥ 评估先行 —— 【前次以代码注释落地，本次复核并补做成文记录】
+  说明：计划要求产出「评估记录并入执行报告」（不提交、不改代码）。前次的具体选型已体现在
+        P7.3 实现与行内注释中，但未成文；本次据实现与注释复核，补齐「五、」的逐项记录。
+  结论：记录见「五、」。
+
+P7.3 /graph 视觉层重写 —— 【前次已完成（fd1b2bb），本次复核 + 表现层细化提交 12acf95】
+  逐段复现清单对照（原型 tempui/prototypes/style-10/index.html L2793-2908）：
+    ① 页头双分支（有证据 / 空图谱）：GraphPage 两处 SheetHead（eyebrow 'KNOWLEDGE GRAPH /
+       先修链全景'、SHEET 10-11、需求 2.11、chip 'T0 · 三重编码'，空态切标题）+ D19 页头自有登记。
+       ✓ 代码存在；Layout.tsx PAGE_OWNED_HEAD = Set(['/report','/graph'])。
+    ② 01 证据统计四格：MeasureBox 总证据 / 本周新点亮(WeekCount+badge-pop 冻结) / 覆盖进度 /
+       章节通关；数据全部来自既有 summary/badges，无新增请求。✓
+    ③ 02 画布：bp-gcanvas 制式容器 + 工具条四钮（zoomin/zoomout/target/download）+ ECharts
+       画布（roam 保留）+ 窄屏降级 note + BandLegend 底条 + 底部 row（缩放倍数 / 平移提示 /
+       路径高亮 chip / 导出海报）。原型「模拟从报告带入路径」演示按钮未复现（D5，留痕）。✓
+    ④ 画布内节点/边：四档形状 symbol（graphSymbol，D20①）+ 标签（D20② ink 令牌）+ 低置信边框
+       虚线补偿 + 边 hl/done「已打通」角标 + 箭头 + 路径高亮降透明（DIM_OPACITY 冻结）。✓
+    ⑤ 03 节点详情 + 04 为什么是这张图：annos 档双栏；kv 清单 + 掌握度条 + CTA（navigate 冻结）
+       + tick-list 四条。✓
+    ⑥ 05 文字版清单：bp-tbl 细网格表**全档常在**（替换旧 details 折叠）；列齐备；行可点开同一
+       详情卡；行选中态 inset 边线。✓
+    ⑦ 空态分支：!hasAnyEvidence → 空态版页头 + 01 emptyBox（三条冷启动出路）+ 02 口径图例。✓
+  四态落点：loading → SkeletonLines；error → Stamp 红章 + 真重试（D15c 最小新增）；
+            无空间 → EmptyState；无数据 → ⑦。✓（代码存在；取证见「六、」）
+  375 档纪律：旧内联 minWidth 去除，改画布内缩放；audit-375 /graph overflowPx=0（硬判据达成）。
+  冻结复核：12acf95 的 diff 仅涉 label 配置 / fitZoom 下限 / 注释；取数 useEffect、守卫顺序、
+            派生、点火（IGNITE_*、lastIgnitionSourceRef）、theme deps、poster 链路、文字清单键盘
+            语义、UI_TEXT/STATE_HINT/EVIDENCE_LABEL 常量均未动（逐行 diff 确认）。
+  结论：一致。
+
+P7.4 测试收口 —— 【前次已并入 fd1b2bb，本次在最终态复跑复核】
+  见「四、」测试/tsc/build 摘要。四项零改动、三批全绿、用例只增。
+
+P7.5 走查 —— 【前次已完成大部分，本次复核新鲜度 + 补采 + 提交】
+  复核发现（重要）：
+    · 主走查路由截图与 8 份审计 JSON：mtime 14:08:54–14:11:08，均晚于 GraphPage 表现层
+      改动（14:00:01）→ 新鲜有效。
+    · 1440 双主题专项探针图：mtime 14:11:25–14:12:10 → 新鲜有效。
+    · 375-dark 专项：normal/keyboard/theme-before 三张 mtime 14:12:25–29（新），其余 6 张
+      mtime 13:58（早于 14:00 改动，**stale**），且探针日志 mtime 13:58（日志只在探针跑完时
+      写盘）→ 判定前次 375-dark 探针在采到第 3 张后中断、未跑完。
+    · 375-light 专项：**完全缺失**。
+  处理：重采 375-dark 全量（9 张 + 日志）+ 新增 375-light（9 张 + 日志），
+        探针严格按 D18 复用账号既有空空间（不新建）。
+  提交：走查产物独立提交 5069782（可 revert）。
+  结论：双主题 × 4 档主走查齐备；专项探针 1440（双主题）+ 375（双主题）齐备。
+
+P7.6 交付物三件套与停点 —— 【本次完成】
+  a) 双主题截图 4 档 × 2 主题 × 11 路由 + 四态与专项取证图：齐备。
+  b) 变更说明：原型段落复现清单（①–⑦）+ D8 六项分派结果 + 接回清单 + 测试改动清单 +
+     D16–D20 留痕：见本报告「三、」「五、」「七、」「八、」。
+  c) vitest/tsc/build 输出摘录：见「四、」。
+  停点：交 reviewer 按检查点⑥口径 VERDICT 把关。
 
 
 --------------------------------------------------------------------------------
-九、工作区与红线遵守声明
+四、测试 / tsc / build 摘要（命令与逐条结果，均在最终提交态复跑）
 --------------------------------------------------------------------------------
-· 冻结区一行未动：router.tsx 全文件、api/ 全部、stores/ 全部（本轮连 theme.ts 也未动，
-  第二条冻结区检查多次复跑均为空输出）、packages/engine、functions/、data/、四份契约文档。
-· ReportPage 冻结项零改动：取数 useEffect（reportSummary 调用 / cancelled 清理 /
-  依赖数组）逐字符未改；守卫分支顺序（!activeSpaceId → loading → 数据态）未变；
-  summaryLine / percent / deltaPercent / kpName 与 UI_TEXT / ERROR_TYPE_LABEL 文案常量未改。
-· 测试：不删断言、用例只增（208/43/202，合计 453 ≥ 451）；仅 tokens.test.ts 新增 2 条。
-· 他人未提交变更一律未碰：tempui/需求输入（含 D tempui/纯前端需求文档.md 的删除状态）、
-  tempui/prototypes/、tempui/qa-report.json、_pipeline/PR-tempdeploy.md、.workbuddy/、
-  node_modules/、package-lock.json 均未 add、未改、未回退。
-· 无无关格式化/重构/依赖升级；INDEX/依赖清单未变（无 package.json 改动）。
-· 未删除 _pipeline/01_PLAN.md（仅 P6.0 原样入库）；_pipeline/archive/ 与
-  _pipeline/screenshots/ 产物只增不删。
+vitest 三批（分批跑，防 60s SIGKILL）：
+  $NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
+    → Test Files 22 passed (22)；Tests 217 passed (217)；Duration 5.49s
+  $NODE $WS/node_modules/vitest/vitest.mjs run packages
+    → Test Files 2 passed (2)；Tests 43 passed (43)；Duration 1.73s
+  $NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+    → Test Files 19 passed (19)；Tests 202 passed (202)；Duration ~7s
+  合计：43 文件 462 用例全绿。
+  基线（第 2 轮口径）：42 文件 453 用例（apps/web 208 / packages 43 / functions/api 202）。
+  变化：文件 +1（graphSymbol.test.ts），用例 +9（apps/web 208 → 217），**只增不减**。
+
+tsc 类型检查三段（$NODE $WS/node_modules/typescript/bin/tsc --noEmit -p ...）：
+  packages/engine/tsconfig.json   → exit 0
+  functions/api/tsconfig.json     → exit 0
+  apps/web/tsconfig.json          → exit 0
+
+前端构建（沙箱删除闸门规避的等价口径，第 1 轮 L-1 留痕）：
+  $NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts \
+        --outDir /tmp/zhiwei-web-build-p7a
+  → ✓ built in 3.73s
+  产物关键块：index.css 421.65 kB(gzip 162.71) / GraphPage 24.07 kB(gzip 10.53) /
+             react 165.57 kB / index 244.25 kB / echarts 434.35 kB(gzip 146.15，独立懒加载 chunk)
+  说明：echarts 仍为独立 chunk，未并入主包；改前本轮未新增依赖，包体口径无异常增长。
+
+静态纪律四条（6.3，期望无匹配行）：
+  grep -rn -E "(min|max)-\[[0-9]+px\]:" apps/web/src        → 无匹配（exit 1）
+  grep -rn "z-\[" apps/web/src                             → 无匹配（exit 1）
+  grep -rn "fonts.googleapis\|fonts.gstatic" apps/web       → 无匹配（exit 1）
+  grep -n -E "className=\"[^\"]*#[0-9a-fA-F]{3,8}|min-w-\[" apps/web/src/pages/GraphPage.tsx
+                                                           → 无匹配（exit 1）
+
+测试改动清单（3.3 口径）：
+  · 唯一改动的既有测试文件：apps/web/tests/breakpoints.test.ts（仅文件头注释，断言/扫描零改）。
+  · 唯一新增：apps/web/tests/graphSymbol.test.ts（9 用例：顶点数 / 圆含 arc / 方形 4 角 /
+    path:// 前缀 / 六态映射 / 六形状两两不同）。
+  · 该页既有纯逻辑测试改期望：0 个。
 
 
 --------------------------------------------------------------------------------
-十、提交清单（本轮，全部入库）
+五、D8 六项逐项结论（做了 / 没做 / 差距 / 原因）—— 计划红线，不静默砍
 --------------------------------------------------------------------------------
-  d050fcb  style10记账: 01_PLAN 第8版 + 第7版归档 + 第1轮审查报告入库
-  ddc6eca  style10P6a: Sheet 内边距按规范§4.2/原型补 token 对齐(M-1 裁决)
-  7935705  style10批1: /report 学习报告——五节制式+细网格表+四态落位+打印样式
-  a169874  style10P6b: 走查修复——表格 caption 转块级 + 档位列 nowrap
-  dcda2b9  style10P6走查: 双主题×4档截图与审计 JSON 重采 + /report 四态取证探针
-  归档（不在功能提交内，只增）：_pipeline/archive/02_EXEC_REPORT_20261011_1311.md
-  本报告：_pipeline/02_EXEC_REPORT.md（本轮第 2 版，覆盖前已归档旧版）
-================================================================================
+① 四档形状 symbol（执行项）——【做了】
+  做：新增 apps/web/src/lib/graphSymbol.ts，把原型 bandShapePath()（L2784-2792）的顶点公式
+      逐字转写为纯函数：菱形=待巩固（4 顶点，step 90）/ 五边形=不稳定（5）/ 六边形=基本掌握（6）/
+      圆=已掌握（两段弧闭合）/ 方形=未解锁（0.8r 四角）/ 未接触=虚线空心圆（形状同为圆，由边框
+      虚线表达空心）。ECharts 节点 symbol 逐点挂 `path://…`。
+  取证：graphSymbol.test.ts 9 用例全绿；画布截图可见形状差异；BandLegend 复用 BandShape 承担
+        图例形状编码。
+  差距：无（形状语义与原型一致）。
+
+② 天蓝不做小字（执行项）——【做了】
+  做：画布标签文字色取 --c-ink 令牌（themeColor('--c-ink', …)），不再使用天蓝 #4E86D6。
+  取证：代码；1440 双主题截图标签为 ink 家族色；tokens.test 仍绿。
+  差距：无。色值选择留痕：textColor = themeColor('--c-ink')，兜底 TEXT_COLOR_FALLBACK='#22303A'。
+
+③ 主题切换重绘不重播（执行项·既有机制保持）——【做了（机制原样保留 + 取证）】
+  做：theme 进图表 effect deps + 重取 CSS 变量重绘；lastIgnitionSourceRef 判定 byKp 变化才重播，
+      主题/路径重绘不重播。
+  取证（探针四组，切主题前后对照）：
+    1440-dark ：缩放 tok 切换前 0.55× / 切换后 0.55×；画布墨量 350ms=16747 == 稳态=16747
+    1440-light：缩放 tok 0.55× → 0.55×；墨量 350ms=16747 == 稳态=16747
+    375-dark  ：缩放 tok 0.30× → 0.30×；墨量 350ms=1897 == 稳态=1897
+    375-light ：缩放 tok 0.30× → 0.30×；墨量 350ms=1897 == 稳态=1897
+  读法：点火若被重播，350ms 处只有最早若干节点落位 → 墨量远小于稳态、且缩放回退；实测两值相等
+        → 未重播。节点位置不变（缩放/中心未变）。
+  差距：无。
+
+④ 键盘操作（尽力项·评估先行）——【做了（候选 A 落地 + 候选 B 落地）】
+  评估结论：候选 A（画布级）可行且包体零增量 —— 容器 tabIndex=0 + onKeyDown 映射方向键平移 /
+           加减号缩放，走 setOption({series:[{id:'graph',zoom,center}]}) 更新视图，不重建图表；
+           候选 B（节点级）：canvas 无 DOM 节点、节点级 Tab 遍历不可行，改由 05 文字清单的真实
+           <button> 承担节点级键盘选中（全档常在，回车开同一张详情卡，焦点移交详情卡）。
+  做：GraphPage 画布视口 role="group" tabIndex=0 + onCanvasKeyDown（ArrowLeft/Right/Up/Down 平移、
+      +/- 缩放）；文字清单行内按钮 aria-current + 回车开卡。
+  取证：探针键盘注入 {ok:true, focused:true}；注入方向键+加号后缩放读数变化
+        1440-light 0.55× → 0.79×；375-dark 0.30× → 0.43×；375-light 0.30× → 0.43×。
+  差距：canvas 内「点中最近节点」的 Enter 选中（D20④ 可选增强）未做 —— 未纳入必须项，
+        键盘主路径已由文字清单承担。
+  原因：不引渲染测试栈、不碰冻结区、不加大包体（判据）全部满足；可选增强为避免复杂度未做。
+
+⑤ 800ms 描边入场（尽力项·评估先行）——【没做（按候选 A 取舍，留痕差距）】
+  评估：原型 = .drawn .edge stroke-dashoffset 900→0（L570，--t-draw 800ms）+ reduced-motion
+        双通道关闭。ECharts graph edge 无 stroke-dashoffset / 描边生长能力；候选 B（lineStyle
+        opacity/width 渐入）只是「近似而非描边」；候选 C（自绘 SVG）已被 D8 排除。
+  选型：候选 A —— 不做描边入场，由既有节点错落点火（IGNITE 机制，冻结语义）承担入场仪式感。
+  差距：无「边描边生长」动画，与原型存在可见差异。
+  原因：ECharts edge 能力不足；不为此自绘 SVG（D8 已排除）；reduced-motion 已由点火机制降级覆盖
+        （见「六、」f）。
+  是否留痕差距：是（本条）。
+
+⑥ 节点焦点环（尽力项·评估先行）——【部分做（近似表达 + 文字清单 CSS 焦点环）】
+  评估：canvas 无 focus 事件，结论依赖 ④。
+  做：画布键盘/选中态用 emphasis 近似 —— 选中/高亮节点 borderWidth 3（原型 focus 的 3px 描边
+      近似）；画布容器 :focus-visible 有 outline（.bp-gcanvas__viewport:focus-visible）；
+      05 文字清单行的键盘焦点走既有 UI 焦点环 token（天然可达）。
+  差距：canvas 内节点无「真 focus 环 + halo 6px」（原型 L565-567）；只有 borderWidth 近似的选中
+        态，且无 halo。
+  原因：canvas 节点无 DOM 焦点；精确复现需自绘（D8 排除）或引渲染测试栈（判据禁止）。
+  是否留痕差距：是（本条）。
+
+注（D20 尾注）：原型打印样式（L784-804）只覆盖 report 页，/graph 不扩展打印（留痕：无打印需求）。
+
+
+--------------------------------------------------------------------------------
+六、走查清单（P7.5）
+--------------------------------------------------------------------------------
+服务：vite :5173（PID 93824）+ functions/api/dist/server.js :8787（PID 93822），登录探活 200。
+主走查（8 组合 = 4 档 × 2 主题，每组合 11 路由）：
+  ZHIWEI_AUDIT_OUT=.../screenshots/style10 ZHIWEI_AUDIT_THEME={dark,light} \
+    $NODE tools/responsive-audit.cjs --tag style10 --widths {1440,1024,768,375}
+  产物：audit-style10-{1440,1024,768,375}[-dark].json（8 份，各 11 路由）
+        + style10-{w}[-dark]-{route}.png。
+  溢出判据：8 份 JSON 全部 11 路由 overflowPx = 0（全档全页）；/graph 各档：
+        1440=0 / 1024=0 / 768=0 / 375=0（双主题相同）。→ 375 档 /graph overflowPx=0 硬判据
+        **达成**（F-01 同口径）。
+专项探针 tools/probe-graph-states.cjs（新增，基建；只取证不下结论）：
+  ZHIWEI_STATE_THEME={dark,light} ZHIWEI_STATE_WIDTH={1440,375} $NODE tools/probe-graph-states.cjs
+  四组齐备（1440-dark / 1440-light / 375-dark / 375-light），每组 9 图 + 1 日志：
+    normal / keyboard / theme-before / theme-after-350ms / theme-after-settled /
+    reduced-motion / no-data / loading / error
+  专项图共 36 张（graph-{w}-{theme}-{state}.png）+ 4 份日志（last-graph-probe-{w}-{theme}-log.txt）。
+  （375 两组为本轮续完重采/新增；1440 两组为前次 14:11–14:12 采集，新鲜。）
+
+  c) 四态取证：
+     · 无数据态：**复用账号既有空空间**（sp_muf82zhx02br0「初中数学」，evidence=0；D18，不新建）。
+     · loading：注入 graph/mastery 请求永不落地 → SkeletonLines 骨架。
+     · error：注入 graph/mastery 请求失败 → Stamp 红章 + 真重试。
+     · 无空间态：**采不到** —— router.guardPath 在「已登录 + 无活跃空间」时把 /graph 重定向到
+       /spaces（router.tsx 冻结区）；该分支只在「页面已挂载时空间被清空」出现，无导航取证方式。
+       如实记录，不伪造（R12 口径，与 P6 /report 同）。
+  d) 键盘操作/焦点环：探针 CDP 注入 keydown 取证（见「五、」④⑥）。
+  e) 主题切换重绘不重播：切主题前后同空间截图对照（见「五、」③）。
+  f) reduced-motion：Emulation.setEmulatedMedia(prefers-reduced-motion: reduce) 后重进 /graph，
+     四次探针 matchMedia 均返回 true；截图节点瞬时到位（点火/入场动效降级）。
+  g) D18（L-3）空间污染：本轮探针/走查**新建空间 0 个**（累计计数 = 0；账号内既有的 2 个
+     「P6 四态」空间为 P6 遗留，本轮未增）。探针日志逐条记录所选空空间，可追溯。
+
+走查产物目录最终计数：png 134 张（含 88 路由主截图 + 36 graph 专项 + 其余专项/历史）、
+  audit JSON 8 份、探针日志 4 份；本次新增/改动由提交 5069782 入库。
+
+
+--------------------------------------------------------------------------------
+七、验收判据取证
+--------------------------------------------------------------------------------
+1) L-1 判据（build 产物 CSS 含 pb-pad-frame-sm-b{padding-bottom:10px}）——【达成】
+   命令：$NODE … vite build … --outDir /tmp/zhiwei-web-build-p7a
+         grep -o 'pb-pad-frame-sm-b{padding-bottom:10px}' /tmp/zhiwei-web-build-p7a/assets/*.css
+   结果：/tmp/zhiwei-web-build-p7a/assets/index-Q67eXV_O.css:pb-pad-frame-sm-b{padding-bottom:10px}
+         （exit 0）；旁证 pb-pad-frame-md-b{padding-bottom:12px} 亦在产物中。
+2) /graph 375px overflowPx = 0 ——【达成】
+   audit-style10-375.json 与 audit-style10-375-dark.json 中 /graph：
+    overflowPx=0，scrollWidth=375=clientWidth。
+3) 冻结区双口径检查空输出 ——【达成】（见「八、」）。
+
+BandLegend.tsx 复核结论（P7.3 条件项「已达标则不动并留痕」）：
+  P4 起 BandLegend 已是四列信息（BandShape 形状 + 色 + 名称 + 区间），即「色 + 形状 + 文字」三重
+  图例已达标 → **本轮未改** BandLegend.tsx，符合计划的「已达标则不动」分支。空态截图中可见图例
+  形状（◇ 待巩固 / ⬠ 不稳定 / ⬡ 基本掌握 / ⬤ 已掌握）。
+
+
+--------------------------------------------------------------------------------
+八、冻结区结果（计划 3.1 红线）
+--------------------------------------------------------------------------------
+工作区口径（对 HEAD）——期望空输出，实测空：
+  git --no-pager diff --name-only HEAD -- apps/web/src/router.tsx apps/web/src/api \
+      packages/engine functions data        → 空（exit 0）
+  git --no-pager diff --name-only HEAD -- apps/web/src/stores  → 空（exit 0）
+区间口径（fa20d8e..HEAD）——期望空输出，实测空：
+  git --no-pager diff --name-only fa20d8e..HEAD -- apps/web/src/router.tsx apps/web/src/api \
+      packages/engine functions data        → 空（exit 0）
+  git --no-pager diff --name-only fa20d8e..HEAD -- apps/web/src/stores \
+      apps/web/src/lib/graphLayout.ts apps/web/src/lib/graphMastery.ts \
+      apps/web/src/data/graphSnapshot.ts apps/web/src/lib/poster.ts  → 空（exit 0）
+
+四项测试/冻结文件零改动（fa20d8e..HEAD，空输出确认）：
+  apps/web/tests/graphMastery.test.ts / graphSnapshot.test.ts /
+  apps/web/src/lib/graphLayout.ts / poster.ts（并含 graphMastery.ts / graphSnapshot.ts）→ 均空。
+
+3.3「不动清单」既测试文件（fa20d8e..HEAD）：仅 breakpoints.test.ts 被改（许可的注释项）；
+  其余 18 个测试文件（routerGuard/sse/client/chatPanel/mobileNav/dialogStore/reveal/phrases/
+  stages/bands/themeStore/blueprint/tokens/logoGeometry/richText/authStore/format/useCountUp）
+  零改动。
+  且 breakpoints.test.ts 改动逐行确认落在文件头注释块内，断言与扫描逻辑零改动。
+
+行为证据：routerGuard / sse / client / chatPanel / mobileNav / dialogStore / graphMastery /
+  graphSnapshot / reveal / phrases / stages / authStore 等测试文件未改，全绿 → 冻结区未被破坏。
+
+服务端教师 403 兜底（functions/api/src/services/teacher.ts）在冻结区，未动（functions 口径空输出）。
+
+
+--------------------------------------------------------------------------------
+九、L 级清偿证据与偏差 / 观察留痕
+--------------------------------------------------------------------------------
+L-1（D16）token 消费 ——【已清偿】
+  Sheet.tsx base 档底边距改 pb-pad-frame-sm-b；产物 CSS 出现该类（见「七、」1)）；
+  pad-frame-* 四 token（sm-b / md-y / md-x / md-b）全部有类名消费，漂移藏身处清零；
+  tokens.test ⑬ 两条断言仍绿（tokens.test 23 用例全绿）。
+
+L-2（D17）陈旧注释 ——【已清偿】
+  breakpoints.test.ts 文件头白名单删除「ReportPage min-w-[420px]」陈旧描述，改写为「该写法
+  已随 P6 清除」现状；断言/扫描零改；breakpoints.test.ts 9 用例全绿。
+
+L-3（D18）走查/探针空间污染约定 ——【已遵守】
+  无数据态复用账号既有空空间（sp_muf82zhx02br0，evidence=0）；本轮新建空间 0 个（累计 = 0）；
+  探针日志记录所选空空间；服务端无删除/归档接口属已知限制，本轮不补（functions 冻结）。
+
+D19 / INFO-1（/graph 页头归属）——【已落地】
+  Layout.tsx PAGE_OWNED_HEAD = new Set(['/report','/graph'])，/graph 不再吃外壳通用页头，无双 h1。
+
+偏差 / 观察留痕（本次续完实际发生的偏差，均已记录）：
+  DEV-1（前次未提交改动的处置）：本次接手时发现 apps/web/src/pages/GraphPage.tsx 有未提交
+    表现层改动（标签收敛 / 窄档不画标签 / 适配缩放下限 0.3）。经逐行 diff 复核，确认仅涉表现层，
+    不触 3.1 追加红线（取数/守卫/派生/点火/poster/键盘语义/文案常量）。按计划 R1 与 P6 D17
+    「走查修复独立提交」惯例，以**独立提交 12acf95** 入库（可单独 revert），未 amend 历史。
+    属计划 P7.3 表现层细化的续完，非新增范围。
+  DEV-2（走查产物新鲜度）：前次 375-dark 专项探针在采到第 3 张后中断（其余 6 张与日志停留在
+    13:58，早于 14:00 的 GraphPage 改动），且 375-light 专项缺失。判定前次产物**部分 stale**，
+    本次重采 375-dark 全量 + 新增 375-light（双主题齐备），并复核确认主走查与 1440 双主题专项
+    均晚于改动时间、新鲜有效。合入提交 5069782。
+  DEV-3（文件头注释同步）：GraphPage 文件头 ④ 行原写「节点双行文本（名称/百分数）」，与实现
+    收敛后的单行标签不符；本次随 12acf95 同步为准确描述，并补 375 档取舍说明。仅注释，不涉行为。
+  DEV-4（脚本调试副作用，不入库）：为核实 375 档画布可见性，本次在 /tmp 写了一个只读核实脚本
+    （/tmp/graphcheck.cjs）；调试中发现「同一 URL 仅 hash 变化属同文档导航、zustand store 不重新
+    水合」导致首轮取不到 .bp-gcanvas__viewport，改不同 query 后正常。该脚本与 /tmp 产物均不入库，
+    对仓库零影响。此现象与 P7 代码无关（是探针/核实脚本的导航写法问题）。
+
+OBS-1（需 reviewer 关注·未改设计，如实留痕）：375 档 /graph 正常态适配视图下，画布节点极小、
+    近空白观感。实测（本次只读核实，W=375 T=light，活跃空间 UI 验收·先修薄弱）：
+      · 画布 349×340；适配缩放读数 0.30×（= 新下限；字面 fit 约 0.152，被地板截断）。
+      · 画布非透明像素 1897，包围盒 x∈[124,224]、y∈[157,182]（约 100×25 px）。
+    对照 1440：画布 1106×460，缩放 0.55×，墨迹包围盒约 569×82 px。
+    成因：布局为 9 列 × 24 节点（width=1920 / height=180）；窄档适配被下限 0.3 截断后，可视数据
+    窗口只落入图的中部若干列，且 375 档刻意不画节点文字，多数节点为未填充态（仅细描边），
+    故观感接近空白。
+    定性：属已定设计取舍（窄档画布退化为「形状地图」，完整可读内容由 05 文字清单 + 03 详情承担，
+    页面另有「窄屏降级：画布保留，完整可读的表格在下一节」提示）；375 硬判据 overflowPx=0 仍达成。
+    本次**未改设计**（避免推倒重做），仅如实留痕并提示 reviewer 复核「窄档画布是否达标」。
+
+
+--------------------------------------------------------------------------------
+十、未完成项
+--------------------------------------------------------------------------------
+· 无「计划内未完成项」。P7.0–P7.6 全部落地并取证。
+· D8 分派中明确的「不做/近似项」按 D20 口径即属预期（非未完成）：
+    ⑤ 800ms 描边入场 = 候选 A（由点火承担，不做）
+    ⑥ canvas 节点真焦点环/halo = 近似表达（borderWidth 3 + 容器 :focus-visible + 文字清单焦点环）
+    ④ 的「Enter 选中视口中心最近节点」可选增强 = 未做
+  三项均在「五、」逐项写明差距与原因，未静默缩水。
+· 待 reviewer 判定项：OBS-1（375 档画布观感）。
+
+
+--------------------------------------------------------------------------------
+十一、复现命令速查（本轮实际执行、可直接复用）
+--------------------------------------------------------------------------------
+# 冻结区（期望空）
+git --no-pager diff --name-only HEAD -- apps/web/src/router.tsx apps/web/src/api packages/engine functions data
+git --no-pager diff --name-only HEAD -- apps/web/src/stores
+git --no-pager diff --name-only fa20d8e..HEAD -- apps/web/src/stores apps/web/src/lib/graphLayout.ts \
+    apps/web/src/lib/graphMastery.ts apps/web/src/data/graphSnapshot.ts apps/web/src/lib/poster.ts
+# 测试（分批）
+$NODE $WS/node_modules/vitest/vitest.mjs run apps/web/tests
+$NODE $WS/node_modules/vitest/vitest.mjs run packages
+$NODE $WS/node_modules/vitest/vitest.mjs run functions/api/tests
+# 类型
+$NODE $WS/node_modules/typescript/bin/tsc --noEmit -p packages/engine/tsconfig.json
+$NODE $WS/node_modules/typescript/bin/tsc --noEmit -p functions/api/tsconfig.json
+$NODE $WS/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
+# 构建（等价口径）
+$NODE $WS/node_modules/vite/bin/vite.js build --config apps/web/vite.config.ts --outDir /tmp/zhiwei-web-build-p7a
+grep -o 'pb-pad-frame-sm-b{padding-bottom:10px}' /tmp/zhiwei-web-build-p7a/assets/*.css
+# 走查（主 8 组合）
+ZHIWEI_AUDIT_OUT=/Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10 ZHIWEI_AUDIT_THEME=dark  $NODE tools/responsive-audit.cjs --tag style10 --widths 1440
+#   （其余组合 = THEME×WIDTH 组合，逐条跑）
+# 专项探针（四组）
+ZHIWEI_STATE_THEME=dark  ZHIWEI_STATE_WIDTH=1440 $NODE tools/probe-graph-states.cjs
+ZHIWEI_STATE_THEME=light ZHIWEI_STATE_WIDTH=1440 $NODE tools/probe-graph-states.cjs
+ZHIWEI_STATE_THEME=dark  ZHIWEI_STATE_WIDTH=375  $NODE tools/probe-graph-states.cjs
+ZHIWEI_STATE_THEME=light ZHIWEI_STATE_WIDTH=375  $NODE tools/probe-graph-states.cjs
+# 硬判据
+grep -A2 '"/graph"' _pipeline/screenshots/style10/audit-style10-375.json   # overflowPx 应为 0
+
+—— 报告完（第 3 轮，2026-10-11 14:37 落盘）——
