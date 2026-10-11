@@ -1,0 +1,142 @@
+{
+ "tag": "teacher",
+ "page": "recommendations",
+ "width": 1440,
+ "height": 900,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:47:12.929Z",
+ "auth": {
+  "teacher": {
+   "ident": "demo_teacher",
+   "via": "login"
+  },
+  "student": {
+   "ident": "e2e_smoke",
+   "via": "login"
+  }
+ },
+ "boundStudents": 1,
+ "states": [
+  {
+   "hash": "#/t/recommendations",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "推荐管理"
+   ],
+   "sheetNo": "SHEET 10-17",
+   "eyebrowOk": true,
+   "measures": 3,
+   "tblRows": 1,
+   "hasTable": true,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "chips": 10,
+   "sections": [
+    "汇总",
+    "台账",
+    "状态口径"
+   ],
+   "shellNav": true,
+   "textLen": 385,
+   "state": "normal",
+   "injected": null,
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/t/recommendations",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "推荐管理"
+   ],
+   "sheetNo": "SHEET 10-17",
+   "eyebrowOk": true,
+   "measures": 3,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": true,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "chips": 9,
+   "sections": [
+    "汇总",
+    "台账",
+    "状态口径"
+   ],
+   "shellNav": true,
+   "textLen": 390,
+   "state": "empty",
+   "injected": "inject:/api/teacher/recommendations=[]",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/t/recommendations",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "推荐管理"
+   ],
+   "sheetNo": "SHEET 10-17",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 2,
+   "sections": [
+    "台账"
+   ],
+   "shellNav": true,
+   "textLen": 196,
+   "state": "error",
+   "injected": "inject:/api/teacher/recommendations=500",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/t/recommendations",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "推荐管理"
+   ],
+   "sheetNo": "SHEET 10-17",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 2,
+   "sections": [
+    "台账"
+   ],
+   "shellNav": true,
+   "textLen": 194,
+   "state": "denied",
+   "injected": "real-403:student-token",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  }
+ ]
+}

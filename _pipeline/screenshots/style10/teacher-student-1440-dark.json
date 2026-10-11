@@ -5,7 +5,7 @@
  "height": 900,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T10:42:14.205Z",
+ "capturedAt": "2026-10-11T10:48:31.628Z",
  "auth": {
   "teacher": {
    "ident": "demo_teacher",
@@ -35,7 +35,7 @@
    "hasEmpty": false,
    "hasStamp": false,
    "hasSkeleton": false,
-   "chips": 9,
+   "chips": 11,
    "sections": [
     "概览",
     "缺口与推荐下发",
@@ -44,7 +44,7 @@
     "归因记录"
    ],
    "shellNav": true,
-   "textLen": 970,
+   "textLen": 1006,
    "state": "normal",
    "injected": null,
    "width": 1440,
