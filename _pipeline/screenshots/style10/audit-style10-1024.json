@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T07:16:35.184Z",
+ "capturedAt": "2026-10-11T07:52:52.799Z",
  "pages": [
   {
    "hash": "#/login",
@@ -20,7 +20,7 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": 624,
-     "right": 1168.1,
+     "right": 1168,
      "w": 544
     }
    ],
@@ -289,25 +289,25 @@
     "headerNav": null,
     "main": {
      "x": 236,
-     "y": -12,
+     "y": -177,
      "w": 788,
-     "h": 911.56
+     "h": 1077.06
     },
     "mainChild": {
      "x": 284,
-     "y": 36,
+     "y": -129,
      "w": 692,
-     "h": 847.56
+     "h": 1013.06
     },
     "firstCard": {
      "x": 284,
-     "y": 36,
+     "y": -129,
      "w": 692,
-     "h": 76
+     "h": 122
     },
     "heading": {
      "x": 284,
-     "y": 58.5,
+     "y": -101,
      "w": 692,
      "h": 32.5
     }
@@ -318,7 +318,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 704,
+   "textLen": 863,
    "route": "/chat",
    "routeName": "chat",
    "width": 1024,

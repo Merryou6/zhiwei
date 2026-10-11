@@ -5,7 +5,7 @@
  "mobile": true,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T07:16:54.248Z",
+ "capturedAt": "2026-10-11T07:53:25.711Z",
  "pages": [
   {
    "hash": "#/login",
@@ -296,25 +296,25 @@
     "headerNav": null,
     "main": {
      "x": 0,
-     "y": -232.5,
+     "y": -506.5,
      "w": 375,
-     "h": 1044.56
+     "h": 1318.81
     },
     "mainChild": {
      "x": 12,
-     "y": -216.5,
+     "y": -490.5,
      "w": 351,
-     "h": 952.56
+     "h": 1226.81
     },
     "firstCard": {
      "x": 12,
-     "y": -216.5,
+     "y": -490.5,
      "w": 351,
-     "h": 89.56
+     "h": 188.31
     },
     "heading": {
      "x": 12,
-     "y": -194,
+     "y": -436,
      "w": 351,
      "h": 25
     }
@@ -325,7 +325,7 @@
     "heading": "20px",
     "headerNav": null
    },
-   "textLen": 430,
+   "textLen": 589,
    "route": "/chat",
    "routeName": "chat",
    "width": 375,
