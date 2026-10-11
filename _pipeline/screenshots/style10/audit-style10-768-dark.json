@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T04:57:41.356Z",
+ "capturedAt": "2026-10-11T06:09:44.148Z",
  "pages": [
   {
    "hash": "#/login",
@@ -20,8 +20,8 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": 368,
-     "right": 912.1,
-     "w": 544.1
+     "right": 912,
+     "w": 544
     }
    ],
    "anchors": {
@@ -123,13 +123,13 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 995.56
+     "h": 1198.56
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 961.56
+     "h": 1164.56
     },
     "firstCard": {
      "x": 18,
@@ -150,7 +150,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 507,
+   "textLen": 609,
    "route": "/spaces",
    "routeName": "spaces",
    "width": 768,
@@ -390,29 +390,7 @@
    "scrollWidth": 768,
    "overflowPx": 0,
    "bodyScrollWidth": 768,
-   "overflow": [
-    {
-     "tag": "div",
-     "cls": "",
-     "left": 19,
-     "right": 2139,
-     "w": 2120
-    },
-    {
-     "tag": "div",
-     "cls": "",
-     "left": 19,
-     "right": 2139,
-     "w": 2120
-    },
-    {
-     "tag": "canvas",
-     "cls": "",
-     "left": 19,
-     "right": 2139,
-     "w": 2120
-    }
-   ],
+   "overflow": [],
    "anchors": {
     "header": {
      "x": 0,
@@ -425,23 +403,23 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 1200.38
+     "h": 761.63
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 1166.38
+     "h": 727.63
     },
     "firstCard": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 18,
-     "y": 105.5,
+     "y": 111,
      "w": 732,
      "h": 32.5
     }
@@ -452,7 +430,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 632,
+   "textLen": 514,
    "route": "/graph",
    "routeName": "graph",
    "width": 768,
@@ -481,13 +459,13 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 4574.88
+     "h": 4385.88
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 4540.88
+     "h": 4351.88
     },
     "firstCard": {
      "x": 18,

@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T05:03:58.146Z",
+ "capturedAt": "2026-10-11T06:11:08.979Z",
  "pages": [
   {
    "hash": "#/login",
@@ -20,7 +20,7 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": 1040,
-     "right": 1584.1,
+     "right": 1584,
      "w": 544
     }
    ],
@@ -123,13 +123,13 @@
      "x": 236,
      "y": 62,
      "w": 1204,
-     "h": 915.56
+     "h": 1118.56
     },
     "mainChild": {
      "x": 284,
      "y": 110,
      "w": 1108,
-     "h": 851.56
+     "h": 1054.56
     },
     "firstCard": {
      "x": 284,
@@ -150,7 +150,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 785,
+   "textLen": 887,
    "route": "/spaces",
    "routeName": "spaces",
    "width": 1440,
@@ -390,29 +390,7 @@
    "scrollWidth": 1440,
    "overflowPx": 0,
    "bodyScrollWidth": 1440,
-   "overflow": [
-    {
-     "tag": "div",
-     "cls": "",
-     "left": 285,
-     "right": 2405,
-     "w": 2120
-    },
-    {
-     "tag": "div",
-     "cls": "",
-     "left": 285,
-     "right": 2405,
-     "w": 2120
-    },
-    {
-     "tag": "canvas",
-     "cls": "",
-     "left": 285,
-     "right": 2405,
-     "w": 2120
-    }
-   ],
+   "overflow": [],
    "anchors": {
     "header": {
      "x": 0,
@@ -425,23 +403,23 @@
      "x": 236,
      "y": 62,
      "w": 1204,
-     "h": 1090.38
+     "h": 681.63
     },
     "mainChild": {
      "x": 284,
      "y": 110,
      "w": 1108,
-     "h": 1026.38
+     "h": 617.63
     },
     "firstCard": {
      "x": 284,
      "y": 110,
      "w": 1108,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 284,
-     "y": 132.5,
+     "y": 138,
      "w": 1108,
      "h": 32.5
     }
@@ -452,7 +430,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 910,
+   "textLen": 792,
    "route": "/graph",
    "routeName": "graph",
    "width": 1440,
