@@ -16,6 +16,19 @@
  * 长度（H1）：输入框 maxLength 与提交前预检共用 lib/stages 的 SPACE_NAME_MAX（= 后端上限 30），
  * suggestSpaceName() 的返回值恒 ≤ 该上限 ⇒ 用户怎么输入（含「30 字原名已被占用」）都不会因长度被 400。
  *
+ * ─────────────────────────────────────────────────────────────────────
+ * style-10「青蓝蓝图」迁移 P10.1（2026-10-11 第 4 轮）：**仅视觉层**。
+ *   为什么由 P10.1 带出：/spaces 的 02 新建区块渲染的本体就是这个组件（D2c 单一入口），
+ *   不一起换制式则该页 02 区块仍停在迁移前的圆角/实心蓝按钮语汇，页面视觉不完整。
+ *   改动范围（逐项，全部表现层）：
+ *     · 学科单选 → `.bp-seg` 分段制式（原型 .seg；键盘语义仍是原生 radio，不自绘）；
+ *     · 空间名 → ui 原语 FormField + Input（下划线刻度制式，并补上 label↔控件关联）；
+ *     · 提交键 → ui 原语 Button（等宽大写 + inset 内框线 + 禁用态斜纹，随全站按钮制式）；
+ *     · 说明文案 → 批注制式（font-mono text-mono-xs）。
+ *   **业务逻辑一行不改**：handleSubmit / refresh / 本地重名预检 / suggestSpaceName 调用 /
+ *   409 → ConfirmDialog「切换过去」/ setActive→refresh 的先后顺序 / maxLength / 兜底文案
+ *   全部原样。本组件是计划文件清单之外的一个文件，属偏差，见执行报告 D-P10.1-3。
+ *
  * 本地预检的前提（L4）：taken 取自 store.spaces，依赖其新鲜度。列表为空（刚登录 / 尚未拉取）时
  * 这里会**先补拉一次 listSpaces** 再预检；但列表「非空而已过期」（多端并发新建）仍可能落到服务端
  * 409 → ConfirmDialog「切换过去」。单实例 JSON 存储、无并发锁是本项目已知限制（LOOKATME），
@@ -32,6 +45,7 @@ import { UI_TEXT } from '../lib/phrases';
 import { useSpaceStore } from '../stores/space';
 import { useUiStore } from '../stores/ui';
 import ConfirmDialog from './ConfirmDialog';
+import { Button, FormField, Input } from './ui';
 
 export interface SpaceCreateFormProps {
   /** 紧凑态：嵌在顶栏弹层里时用（收紧留白、单选竖向排列）。 */
@@ -99,9 +113,6 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
     }
   }
 
-  const inputClass =
-    'mt-2 w-full rounded-control border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-soft/80';
-
   return (
     <>
       <form
@@ -111,58 +122,53 @@ export default function SpaceCreateForm({ compact = false, onCreated }: SpaceCre
         }}
       >
         <fieldset>
-          <legend className={compact ? 'text-ui-sm text-ink-soft' : 'text-sm text-ink-soft'}>
-            选一个学科
+          <legend className="font-mono text-tok uppercase tracking-widest text-ink-soft">
+            学段学科 / SUBJECT
           </legend>
-          <div className={compact ? 'mt-1.5 flex flex-col gap-1' : 'mt-2 flex flex-wrap gap-2'}>
+          {/* 学科单选走 .bp-seg 分段制式（原型 .seg）：真控件仍是原生 radio，
+              选中态与焦点环由 :has() 表达 —— 不重造键盘语义与读屏语义。 */}
+          <div className={compact ? 'bp-seg bp-seg--vertical mt-2' : 'bp-seg mt-2'}>
             {STAGES.map((stage) => (
-              <label
-                key={stage.id}
-                className={[
-                  'flex cursor-pointer items-center gap-2 rounded-control border px-3 py-1.5 text-sm',
-                  stage.id === stageId
-                    ? 'border-accent bg-accent-veil text-accent-ink'
-                    : 'border-line text-ink hover:bg-raised',
-                ].join(' ')}
-              >
+              <label key={stage.id}>
                 <input
                   type="radio"
                   name="space-stage"
                   value={stage.id}
                   checked={stage.id === stageId}
                   onChange={() => setStageId(stage.id)}
-                  className="h-3.5 w-3.5"
                 />
                 {stage.label}
               </label>
             ))}
           </div>
+          <p className="mt-1.5 font-mono text-mono-xs tracking-wide text-ink-soft">
+            目前覆盖 {STAGES.map((stage) => stage.label).join(' · ')}
+          </p>
         </fieldset>
 
-        <label className={compact ? 'mt-3 block' : 'mt-4 block'}>
-          <span className={compact ? 'text-ui-sm text-ink-soft' : 'text-sm text-ink-soft'}>
-            空间名（可不填）
-          </span>
-          <input
+        <FormField
+          // 上限走 lib/stages 的 SPACE_NAME_MAX（与后端常量同源，见文件头 H1）
+          className={compact ? 'mt-3' : 'mt-4'}
+          label={`空间名称（可不填 · 上限 ${SPACE_NAME_MAX} 字）`}
+          hint="留空则取学科名；重名时自动追加序号，放心建。"
+        >
+          <Input
             type="text"
             value={nameInput}
             onChange={(event) => setNameInput(event.target.value)}
             maxLength={SPACE_NAME_MAX}
             placeholder="不填就用学科名"
-            className={inputClass}
           />
-        </label>
+        </FormField>
 
-        <button
+        <Button
           type="submit"
-          disabled={creating}
-          className={[
-            'min-h-9 rounded-control bg-accent px-4 py-2 text-sm text-on-accent hover:opacity-90 disabled:opacity-60',
-            compact ? 'mt-3 w-full' : 'mt-4',
-          ].join(' ')}
+          loading={creating}
+          full={compact}
+          className={compact ? 'mt-3' : 'mt-4'}
         >
           {creating ? '正在新建…' : '新建空间'}
-        </button>
+        </Button>
 
         <p className={`mt-2 text-ui-sm leading-relaxed text-ink-soft ${compact ? '' : 'max-w-prose'}`}>
           同一个学科可以建多个空间，名字不重复就行（最多 {SPACE_NAME_MAX} 字）。

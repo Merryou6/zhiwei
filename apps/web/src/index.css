@@ -1283,6 +1283,16 @@ textarea::placeholder {
   pointer-events: none;
 }
 
+/* 选中态面板（原型 PAGES.spaces L2047：`style="border-color:var(--cyan)"`）：
+   同一张面板只换边框色表示「当前使用」。做成属性选择器而不是页面里写内联样式 ——
+   与 .bp-step[data-verdict] / .bp-path > li[data-root] 同一手法（状态走 data-*、
+   颜色走变量），页面只负责给 data-active 这个事实，不重复表达颜色。
+   ⚠ 必须带 [data-active] 提高特异性：制式类不带 @layer，在产物里排在工具类之后，
+     单靠 border-accent 这类工具类压不过 .bp-panel 的 border 简写。 */
+.bp-panel[data-active='1'] {
+  border-color: rgb(var(--c-accent));
+}
+
 /* 尺寸块（规范 5.12）：tok 标签（下方虚线）+ big-num。 */
 .bp-measure {
   display: flex;
