@@ -16,7 +16,9 @@ P9.4 b9ca011+a11e7e5+88baf44 完成 /attribution（代码 b9ca011；走查修复
 P9 收尾 — 完成（6.1 全套 + 冻结区双口径，见「六、」；不单列提交）
 P10.1 完成 /spaces（代码 bcc253a；4 状态探针 + 409 专项 1440/375 双主题；1440/1024/375
      双主题 6 组合 overflowPx 全 0；h1=1 无双页头；D-P10.1-1/2/3 三条偏差已留痕）
-P10.2-P10.6 未开始
+P10.2 完成 /start（代码 52212c6；1440/1024/375 双主题 6 组探针 overflowPx 全 0、h1=1、
+     SHEET 10-03 在页、四张路径卡；/start 不在 audit 工具 ROUTES 表内，另起探针取证）
+P10.3-P10.6 未开始
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
@@ -192,15 +194,15 @@ D-P9-6（能力边界·未取证项）：P9.3 与 P9.4 的四态里，error（�
   「先查明来源再取证」，并优先复用 初中数学。
 
 九、未完成项与续完入口（D25 五件证据）
-未完成：P10.2-P10.6（/start /self-report /login /me /drive）、
+未完成：P10.3-P10.6（/self-report /login /me /drive）、
   P11.1-P11.4（/ /t /t/student/:id /t/recommendations + TeacherShell）、
   P12.1-P12.4（终检 / nav 断点清退评估 / 全站走查汇总 / 文档与报告）。
-状态：P10.1 /spaces 已结（代码 bcc253a + 走查产物 + 本报告），其余页面代码一行未动。
+状态：P10.1 /spaces（bcc253a + 06e6925）与 P10.2 /start（52212c6 + 走查提交）已结，
+  其余页面代码一行未动。
 续完入口：先读 01_PLAN「五、」+ 本快照表 + git log 三者对齐，从第一个未完成页
-  P10.2 /start 继续（原型 PAGES['cold-start'] L1974-1999；sheetHead L1986
-  「COLD START / 一次性引导」、SHEET 10-03、需求 2.3；Layout 登记 '/start'；
-  /start **不在** tools/responsive-audit.cjs 的 11 页 ROUTES 表里，故该页需按 6.5
-  另起 tools/probe-start-states.cjs 取证，并在走查里说明）。
+  P10.3 /self-report 继续（原型 PAGES['self-report'] L1999-2040；sheetHead L2018
+  「SELF REPORT / 30 秒先验」、SHEET 10-04、需求 2.4；Layout 登记 '/self-report'；
+  落盘键 zhiwei_sr_done_* 与提交链路零改动；走查 4 档 × 双主题 + 提交后已记录态实拍）。
 P10 批次收尾待办：8 组合一次跑齐（补 768 档）+ 快照表与「五、」勾选同步。
 本页（P9）留下的两条尾账：P9.3/P9.4 的 error/empty 四态实拍（见 D-P9-6）；
   验证/反驳/处方三个既有交互的实拍（见「五、」未做）。
@@ -249,11 +251,37 @@ D-P10.1-3（计划外文件·共享件视觉重写）：/spaces 的 02 新建区
   suggestSpaceName / 409 → ConfirmDialog / setActive→refresh 顺序 / maxLength / 兜底文案）。
   影响面：顶栏弹层与移动抽屉里的紧凑态同步换制式（与 P5 已迁移的外壳一致）。这是本次
   唯一的计划外文件改动，特此标明；reviewer 若判定超出范围，可单条 revert 该文件。
-D-P10.1-4（D23 空间记账·1 个探针空间）：本页第一次跑 409 专项时用的是「先建一个重名空间
+D-P10.1-4（D23 空间记账·1 个探针空间）：P10.1 第一次跑 409 专项时用的是「先建一个重名空间
   制造 store 过期」的旧探针，真实新建了 1 个空间：**P10-1-409-1791710050756**（账号空间数
   4 → 5）。随即改探针为「stale 列表注入 + 真实 409 判定」的零副作用方式并重跑，此后 4 组
   探针（1440/375 × 双主题）不再新建任何空间。后续走查/探针按 D23 以「现为 5」为基数记账；
   该探针空间无证据、可留可清（无删除接口，故保留并如实记账）。
+
+P10.2 /start（原型 PAGES['cold-start'] L1974-1999；代码 52212c6）
+· 涉及文件：apps/web/src/pages/StartPage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/start'，一行 + 注释）。
+  本页无 index.css 新增（bp-panel/Badge/Button/bp-note/.g2 等价类均已存在）。
+· 逐段复现：① sheetHead（COLD START / 一次性引导 · SHEET 10-03 · 需求 2.3 ·
+  h1「先选一条建立初始掌握度的路」· chip「一次性」）；② 01 四条路径 —— 原型 `.g2`
+  （≥900 两列 / 窄档单列，落 `grid-cols-1 sheet:grid-cols-2`）四张 bp-panel 卡：
+  「01 主路径 / 02 主路径 / 03 次要路径 / 04 次要路径」chip（原型 i<2 判据）+
+  「时间 · 负担」tok（约 1 分钟·零负担 / 约 10 分钟·轻度 / 约 30 秒·最轻 / 随时·不采集，
+  逐条对原型 MOCK.coldStart L1063-1068 + 既有文案）+ 标题 + 说明 + CTA「进入这一步」
+  （首条 primary，其余 secondary，full 宽）；③ 02 说明旁注（原型 L1991-1992 的
+  「采集不弹窗」纪律）。
+· 业务逻辑零改动：四个去向仍是 PAPER_PATH / ASSESSMENT_PATH / SELF_REPORT_PATH / '/graph'，
+  与迁移前的两条路径卡 + 自报按钮 + 图谱链接**逐条对应**（原型这四条本就是这四个入口）。
+· 四态：无（静态引导页，规范 §7 明示）—— 故本页不引入任何新状态位。
+· 走查（/start **不在** tools/responsive-audit.cjs 的 11 页 ROUTES 表里）：按 6.5 另起
+  tools/probe-start-states.cjs，1440/1024/375 × 双主题共 6 组，逐组 overflowPx=0、main h1=1、
+  SHEET 10-03 在页、路径卡 4 张、CTA 4 个；目验 1440 浅色：单 h1、无外壳页头残留、四卡两列。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；
+  6.3 静态纪律四条无匹配、StartPage.tsx 无裸 hex 与 min-w-[。
+D-P10.2-1（sub 口径偏差·两处）：原型 sub 里嵌「注册后已自动创建默认空间 <空间名>」
+  （名字来自原型会话对象）；本工程 /start 页不持有空间列表（store 由 /spaces 填充），
+  为一行文案新增取数或新增 store 订阅都超出「表现层」范围，故 sub 只说「已自动创建默认空间」，
+  不编一个空间名。原型说明末尾「回门户图」链接指向 /portal，本工程**没有该路由**（门户是
+  P11.1 的 '/'），故不迁移那半句（不造一个指向不存在路由的链接）。
 
 十、当前状态一句话
 P9 四页（/assessment /practice /paper /attribution）全部完成：每页代码单提交 + 走查独立提交，

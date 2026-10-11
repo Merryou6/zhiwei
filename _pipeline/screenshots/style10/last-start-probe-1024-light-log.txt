@@ -1,0 +1,13 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+theme   = light
+width   = 1024 × 900
+
+auth    = via=login 空间数=5 活跃=初中数学
+== 状态取证 ==
+  normal     溢出=   0px  h1=1  SHEET10-03=true  路径卡=4  CTA=4
+  落入 = #/start
+  → _pipeline/screenshots/style10/start-1024-light-normal.png
+
+→ _pipeline/screenshots/style10/start-1024-light.json
+overflowPx 0px（判据：0）；main h1 = 1（判据：1）
