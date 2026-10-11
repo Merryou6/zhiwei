@@ -1,157 +1,235 @@
-知微 · style-10「青蓝蓝图」迁移 · 第 1 轮审查报告（iteration=1 / MAX=3）
-======================================================================
-审查角色：reviewer（只读审查；本轮除本文件外未修改任何文件）
-审查日期：2026-10-11 00:29（本机时间）
-工作区：/Users/Merryou/LearnBuddy/zhiwei    分支：tempui-doc
-审查基线：df133d6 → HEAD（= e96c702 执行报告提交）
-本轮范围口径（总控按计划 R1 裁量）：P0–P5 最小可交付链；P6 起 17 页迁移不在本轮。
+知微 · style-10 迁移 —— 第 2 轮审查报告（P6 /report 首迁页 + 三项并入）
+================================================================================
+审查角色：reviewer（只读审查；本报告是本轮唯一写入产物）
+审查日期：2026-10-11（本机时间 13:15–13:25）
+审查输入：
+  1. 需求：tempui/STYLE-10-迁移计划.md（配套 STYLE-10-迁移分析.md、原型
+     tempui/prototypes/style-10/index.html：PAGES.report L2911-2979、
+     PAGES._reportEmpty L2981-2987、打印样式 L784-804、表格/卡片制式 L707-712）
+  2. 计划：_pipeline/01_PLAN.md（第 8 版，d050fcb 入库）—— 存在且可读 ✔
+  3. 执行报告：_pipeline/02_EXEC_REPORT.md（第 2 轮版）—— 存在且可读 ✔
+  4. 代码差异：git e96c702 → HEAD fa20d8e，提交 d050fcb → ddc6eca → 7935705
+     → a169874 → dcda2b9（+ 本报告前的执行报告提交 fa20d8e），全部经
+     git --no-pager log/diff 自行取证。
+归档：第 1 轮审查报告已先复制为 _pipeline/archive/03_REVIEW_20261011_1319.md
+  （两侧 md5 = bcc603ce337262eeb565a4e71969132b 一致；归档只增不删）。
 
-审查输入核对（第一步）：
-  _pipeline/01_PLAN.md   存在且可读（工作区第 7 版，493 行，M 状态未入库——按总控口径以工作区为准）✔
-  _pipeline/02_EXEC_REPORT.md 存在且可读（428 行）✔
-  需求 tempui/STYLE-10-迁移计划.md（222 行）、迁移分析、原型 prototypes/style-10/index.html 在位 ✔
 
-----------------------------------------------------------------------
-一、实际改动取证（第二步）
-----------------------------------------------------------------------
-提交序列（df133d6..HEAD，git --no-pager log 实测）：
-  2fe4ba3  P0  规范文档（tempui/STYLE-10-设计系统规范.md，1 file +565）
-  08b2d55  P1  组件库草案（tempui/STYLE-10-组件库草案.md，1 file +338）
-  0be67ee  P2  四个门禁测试期望重写（4 files +351/-105）
-  7ee5dc6  P3  token/主题/字体（7 files +514/-170）
-  dfa3623  P4  blueprint 外壳族 13 件 + ui 改造 14 件 + blueprint.test.ts（29 files +2293/-171）
-  f5d9aed  P5  外壳切换 + ChatPanel 落位 + tabbar（93 files，代码 8 件 + 走查产物 85 件）
-  5d0630d  P5 清尾修复（index.css / Sheet.tsx / tailwind.config.js，3 files +35/-3）
-  404e7bb  P5 走查复采（38 files 同名覆盖，无删除）
-  e96c702  执行报告 + 旧报告归档入库
-逐文件阅读：门禁测试 diff、theme.ts、bands.ts、tailwind.config.js、index.html 内联脚本、
-  Layout/ChatPanel/MobileNav/Sheet 关键段、blueprint 组件清单均已实际查看。
+--------------------------------------------------------------------------------
+一、结论摘要
+--------------------------------------------------------------------------------
+  VERDICT: PASS
 
-范围符合性（第三步）：
-  · 改动文件全部落在计划 P0–P5 涉及清单内（blueprint/×13、ui 改造件、Layout/TopNav/MobileNav/
-    BackToTop/ToastHost、chat/ChatPanel、tests 四门禁 + blueprint.test.ts、tailwind/index.css/
-    index.html/bands.ts/theme.ts/main.tsx/package.json、tools/responsive-audit.cjs）。
-  · 无范围外业务页面改动（pages/ 零触碰，17 页未迁符合 R1 口径）。
-  · tools/responsive-audit.cjs 改动 = 计划 6.2 明示许可（基建可改）。
-  · package.json 仅 +3 行 @fontsource 依赖（计划 P3 明示），无其他依赖变动。
-  · 清尾提交 5d0630d 的 3 个文件均在计划 P3/P4 文件清单内（偏差 D-03 已留痕，可 revert）。
+P6（/report 首迁页）与三项并入事项（记账入库 / M-1 token 裁决落地 / F-01 溢出修复）
+全部通过把关。冻结区零改动、测试只增不减、F-01 硬判据经独立读取审计 JSON 确认、
+M-1 三处同源齐备、/report 五节制式与原型逐段对应、走查产物双主题 × 4 档齐备。
+执行报告自曝的 7 项偏差（D16–D22）逐条评估，均不构成 FAIL 级问题。
+无 H 级、无 M 级问题；3 项 L 级、4 项 INFO 级留痕（见「五、」）。
 
-----------------------------------------------------------------------
-二、独立复跑证据（第六步：报告真实性抽查，共复跑 7 项，全部与报告一致）
-----------------------------------------------------------------------
-1) 冻结区（比报告更强：直接 df133d6→HEAD 对照，非仅 HEAD 对照）
-   git --no-pager diff --name-only df133d6 HEAD -- apps/web/src/router.tsx apps/web/src/api
-     packages/engine functions data        → 空输出 ✔（红线 A 成立）
-   git --no-pager diff --name-only df133d6 HEAD -- apps/web/src/stores
-     → 仅 apps/web/src/stores/theme.ts ✔（红线 B：唯一许可改动，D2/拍板①）
-   四契约文档（API_CONTRACT/ALGORITHM/DATA_SCHEMA/PRD）diff → 空输出 ✔
-2) apps/web 全量测试：21 文件 / 206 用例全绿（4.18s），逐文件计数与报告 §3.2 完全一致
-   （routerGuard 9 / sse 20 / client 13 / chatPanel 5 / mobileNav 5 / dialogStore 7 /
-   graphMastery 7 / graphSnapshot 10 / reveal 11 / phrases 6 / stages 14 / authStore 5 ——
-   12 个冻结区行为背书文件全绿且文件本身未被改 ✔）
-3) packages 测试：2 文件 / 43 用例全绿 ✔；functions 测试：19 文件 / 202 用例全绿 ✔
-   （合计 42 文件 / 451 用例，与报告一致；对计划基线 41/432 只增不减 ✔）
-4) tsc 三段：packages/engine / functions/api / apps/web 全部 exit 0 ✔
-5) 构建：vite build --outDir /tmp（避开沙箱删除闸门，与报告 D-02 同口径）→
-   ✓ built in 3.93s，index.css 418.53 kB / gzip 162.02 kB —— 与报告数字逐字节同值 ✔
-6) 静态纪律三条 grep：任意值断点 / z-[ / CDN 全部无命中（exit 1）✔
-7) 检查点①②自查命令复跑：规范 12 章、冲突留痕 12 处；草案三节标题齐备 ✔
-结论：执行报告无虚报，全部可复核陈述与实际代码/diff 一致。
 
-----------------------------------------------------------------------
-三、检查点①~④把关结论（审查要点 1–4）
-----------------------------------------------------------------------
-【检查点①】tempui/STYLE-10-设计系统规范.md —— PASS
-  12 章齐备且章序与需求 §2 一致（1 意图 / 2 Token / 3 字体 / 4 布局 / 5 组件 / 6 标注 /
-  7 状态 / 8 动效 / 9 无障碍 / 10 17 页要素表 / 11 接线清单 / 12 取舍记录）；
-  「以原型为准」留痕 12 处（含 bands.ts 色名与 PRD §6 冲突的 12.2 章登记）；
-  零 React 代码；第 12 章按 D11 对原型 4 条不足逐条拍板。
-【检查点②】tempui/STYLE-10-组件库草案.md —— PASS
-  「目录结构 / 组件清单 / API 草案」三节齐备；外壳族 13 件逐件 props/variant；
-  就地改造 16 件含改造点与不动点。
-【检查点③】三门禁 + themeStore 期望重写 —— PASS
-  断言结构保留只换值（实测 P2 diff：用例 tokens 12→21 / bands 10→12 / breakpoints 8→9 /
-  themeStore 7→9，只增不减，无断言删除）；
-  独立复跑全绿（tokens 21 / bands 12 / breakpoints 9 / themeStore 9）；
-  tsc 三段 exit 0；build 通过（等价命令）。
-  落地一致性抽查：theme.ts resolveInitialTheme(stored, prefersDark) 与 index.html 首帧内联
-  脚本逐条一致（'dark'→dusk / 'light'→不挂 / 其余看 prefers-color-scheme，键 zhiwei_theme，
-  异常兜底白图）✔；bands.ts 四档 hex 与 tailwind.config.js extend.colors 逐字同源
-  （#B3261E/#7A4F00/#1A5FB4/#00567A），档名/阈值复用 engine 未动 ✔；
-  天蓝 #4E86D6 仅作蓝图实色（--p-band-blue-500），tokens.test.ts 有「不做小字」约束注释 ✔。
-【检查点④】外壳四层 + ChatPanel 三形态 + tabbar/抽屉 —— PASS
-  Board/Masthead/Rail/Sheet/TitleBlock 五件装配齐备（Layout.tsx 实测）；
-  三形态挂 annos(1180)/sheet(900) 档：≥1180 挤压（--panel-dock-offset 单一来源、无幕布）、
-  901–1179 覆盖抽屉+幕布、≤900 全屏覆盖（报告 §4.3 有量化几何取证，代码档位与之一致）；
-  底部 5 项 tabbar（aria-label="主导航"、sheet:hidden、fixed 贴视口底——清尾修复后）+
-  「全部图纸」抽屉（role=dialog / aria-modal / 焦点陷阱 / Esc / 焦点归还）；
-  chatPanel / mobileNav store 零改动（红线 B 复核 + chatPanel 5 / mobileNav 5 用例全绿背书）；
-  面板开时引线停用、标题栏层级处理在 Layout/ChatPanelDock 落地。
-  走查产物 85 件在库：1440/1024/375 × 双主题各 11 路由齐备（22+22+22），375 另含 2 张抽屉
-  探针图，768-dark 11 张补充档；与计划 P5「双主题 × 三档」验收口径吻合 ✔。
+--------------------------------------------------------------------------------
+二、逐项审查结论（对照计划验收清单 ★ 项）
+--------------------------------------------------------------------------------
+[✔] 9a. /report 首迁页按原型复现，业务逻辑一行不改
+    取证：
+    · git diff e96c702..HEAD -- ReportPage.tsx 逐段核对。五节结构 01 总评 /
+      02 四档分布 / 03 缺口清单 / 04 ΔAccuracy / 05 从缺口出发与原型
+      PAGES.report 逐段对应；02 条形分母 = mastery.length（原型 L2960
+      count/total，同口径，D20a 留痕）；04 复测缺失显示「不可算」+ 原因、
+      不填 0（D15b，代码 L553-581 落实）；05 节 data-print='hide' 包裹、
+      NextStepCard 内容语义并入（L598-617）；原型 06 节未复现（D15a 授权）。
+    · .bp-tbl 细网格制式（index.css 新增）与 ≤900 转卡片（@media not all
+      and (min-width:900px) + content:attr(data-label)，原型 L707-720）齐备；
+      a169874 补的 caption 转块级与档位 whitespace-nowrap 已在 768-light
+      截图复核（「分档明细」横排、档位不折行）。
+    · 打印样式：index.css 打印块补齐（#sheet padding 归零、bp-tbl-wrap
+      白底黑边、print-only 显示），与 data-print='hide' 机制合流。
+    · 冻结项逐行核对：取数 useEffect（L125-145）与基线版逐字符一致
+      （reportSummary 调用 / cancelled 清理 / 依赖数组 [activeSpaceId]）；
+      守卫顺序 无空间 → loading → 失败 → 数据态（失败为 D15c 授权的新增
+      落点）；summaryLine / percent / deltaPercent / kpName / UI_TEXT /
+      ERROR_TYPE_LABEL 均未改。
+    · 零一次性样式抽查：grep 裸 hex className / min-w-[ 类 → 无匹配；
+      页内唯一 inline style = 条形宽度 calc(share% - 2px)，数据驱动几何，
+      与 BandMark 既有写法同源，不违纪律。
 
-----------------------------------------------------------------------
-四、发现的问题（分级：H > M > L > INFO）
-----------------------------------------------------------------------
-H：无。
-M-1  Sheet 内边距与规范 §4.2 矩阵不一致且 P4 变更说明未留痕（报告 F-02，交裁决）
-     文件：apps/web/src/components/blueprint/Sheet.tsx
-     问题：规范 xl/lg 48px、md 22×18、sm 16×12；实现 annos:px-12(48)/sheet:px-6(24)/px-4(16)、
-       pt-6/pb-4，即 lg 24 vs 48、md 24 vs 18、sm 16 vs 12。P4 变更说明只留痕了 4 条
-       字号/颜色偏差，未含此条（执行报告已补留痕）。
-     影响：规范-实现漂移；22px/18px 不在 spacing 刻度，补齐需设计体系决策。
-     建议：在 P6 首迁页批次裁决——或补 spacing token 对齐规范、或修订规范 §4.2 为实现值
-       （按 R10「只增与留痕修订」），二选一并在该批变更说明留痕；不宜继续悬置。
-L-1  原地 vite build 未取得通过证据（报告 D-02/F-05）
-     文件：apps/web/dist（沙箱闸门拦截 641 件批量删除）
-     影响：检查点③的 build 判据以 --outDir /tmp 等价命令背书，语义等价但非计划原命令。
-     建议：下一轮由工具人显式清理 apps/web/dist（单目录 rm 属可控操作）后跑一次原地
-       build 补齐证据；或把等价命令写进计划 6.1。
-INFO-1  /report 375 档横向溢出 95px（报告 F-01）——证据链完整（grid 隐式轨道 + min-w-[420px]
-     表格，缺陷在基线 df133d6 已存在，非本轮引入），修复建议（grid-cols-1 或 min-width:0）
-     已给出，留给 P6 顺手修。处置恰当，不构成本轮 FAIL。
-INFO-2  走查未采项（报告 D-05/F-05）：教师端 3 页（需账号，属 P11）、768-light 一套
-     ——P5 要求的 1440/1024/375 × 双主题已满足，属如实留痕，可接受。
-INFO-3  max-narrow 与原型 ≤420 在恰好 420px 处差 1px（具名断点 max 侧 ≤419.98，报告 D-04）
-     ——与既有 nav:720 同性质，已留痕，遵守断点单一来源纪律，接受。
-INFO-4  index.html 顶部 pt-safe/pb-safe 注释过时（报告 D-07）——纯注释无功能影响，
-     留待 P12 收尾批一并处理。
-INFO-5  404e7bb 走查产物同名覆盖 38 件——未删除任何文件，旧证据差异已在 commit message
-     与报告留痕，符合「只增不删」精神。
+[✔] 9b. M-1 裁决落地（Sheet 内边距补 token 对齐规范 §4.2）
+    取证（三处同源逐一核实，缺一不可）：
+    ① tailwind.config.js：extend.spacing 新增 pad-frame-md-y 22px /
+       pad-frame-md-x 18px / pad-frame-md-b 12px / pad-frame-sm-b 10px，
+       注释指向规范 §4.2 与原型 L40/L140/L680/L681。
+    ② tempui/STYLE-10-设计系统规范.md §4.2：矩阵四行补垂直值，原值
+       （48px / 22px 18px / 16px 12px）逐字保留，属只增留痕修订 ✔。
+    ③ tokens.test.ts：新增 describe ⑬ 两条断言（token 存在且值对 +
+       Sheet 无裸任意值内边距），只增不改既有断言（21 → 23）。
+    · Sheet.tsx：SHEET_PADDING 四档 = pt-4 px-3 pb-2.5（16/12/10）/
+      narrow 22/18/12（token）/ sheet 48/48/16；annos 单列分支删除（同值），
+      与 D13b 逐值一致。原型锚点值本人已直接读原型 L40/L140/L680/L681
+      复核（--pad-frame:48px、22px 18px 12px、16px 12px 10px），一致。
+    · 产物级独立取证：本轮自行 build 后 grep dist CSS，确认
+      narrow\:pt-pad-frame-md-y{padding-top:22px} 与
+      sheet\:pt-12{padding-top:3rem} 实际生成。
 
-执行报告自曝问题处置评估（审查要点 7）：F-01/F-02/F-05 均如实列出、证据链完整、
-  未静默处理 → 处置恰当；其中仅 F-02 升为 M-1 需后续批次裁决，其余不构成 FAIL 级。
+[✔] 9c. F-01 修复（375 档横向溢出 95px → 0）
+    取证（独立复跑 / 读文件，不依赖报告转述）：
+    · 自行解析 audit-style10-375.json 与 audit-style10-375-dark.json：
+      #/report overflowPx=0、innerWidth=375、scrollWidth=375、溢出元素
+      清单长度 0（两份主题副本均 0）；另抽 768 / 1440 双档 JSON 同为 0。
+    · grep 确认 apps/web/src 无 min-w-[420px]（exit 1）；旧根因
+      lg:grid-cols-2 双卡 grid 已随结构修法消失（全页无 grid-cols-2 双卡）。
+    · 375-dark /report 截图人工复核：纵向堆叠、无横向截断。
 
-----------------------------------------------------------------------
-五、安全与质量抽查（第五步）
-----------------------------------------------------------------------
-· 注入/越权：本轮无接口/鉴权/数据层改动（api/、functions/、stores 除 theme.ts 均零 diff）。
-· 敏感信息：theme.ts 落盘键沿用 zhiwei_theme，无新增落盘字段；无密钥/凭据入库。
-· 依赖安全：仅 +3 项 @fontsource 官方包（^5.3.0），字体自托管去 CDN 化属安全正向改动。
-· 路径遍历/资源释放：ChatPanelDock 与抽屉均用 overflow-hidden 剪裁入场起始帧、
-  面板/抽屉关闭即卸载（条件渲染），无泄漏路径。
-· 日志脱敏：无新增日志面。
-· 无障碍：aria-expanded/role=dialog/aria-modal/焦点陷阱/焦点归还按 D11 落地，探针 16/0。
+[✔] 9d. 记账入库（P6.0）
+    取证：d050fcb 提交内容 = 01_PLAN 第 8 版 + 03_REVIEW 第 1 轮 + 3 份
+    archive 归档件，与白名单一致；未夹带任何代码文件。
 
-----------------------------------------------------------------------
-六、测试缺口评估（第七步）
-----------------------------------------------------------------------
-· 新逻辑有测试：blueprint.test.ts 7 用例（纯静态/纯函数，遵守「不引渲染栈」纪律）✔
-· 关键分支覆盖：themeStore 新意图含 prefers-dark 两分支 + matchMedia 缺席兜底 ✔；
-  四门禁 51 用例全绿 ✔。
-· 测试命令实际执行：本轮独立复跑 7 项全部通过（见二、），无失败被忽略或未如实记录。
-· 缺口：blueprint 外壳族组件（Layout 装配态、面板三形态几何）无组件级测试，靠走查
-  探针（16 项）背书——与「不引渲染测试栈」既有纪律一致，接受；建议 P12 收尾时评估
-  是否补 panelDock 纯函数用例。
-· 走查超时预案、单条命令 60s 限制均已遵守（vitest 分批、git --no-pager）。
+[✔] 冻结区（全程红线）
+    取证：
+    · git --no-pager diff --name-only e96c702..HEAD 全量清单中无
+      router.tsx / api/ / stores/ / packages/engine / functions / data/
+      任何文件（grep 复核 exit 1）；工作区 vs HEAD 两条冻结区命令空输出。
+    · 唯一被改测试 = tokens.test.ts（计划 3.3 许可范围内）；
+      routerGuard / sse / phrases / format 等冻结区测试文件零改动且本轮
+      全量复跑全绿。
 
-----------------------------------------------------------------------
-七、总结论
-----------------------------------------------------------------------
-P0–P5 六批全部达成计划验收项；检查点①②③④把关全部 PASS；一行不动红线独立复核成立；
-执行报告真实可复核；自曝问题处置恰当。存在 1 条 M 级留痕事项（Sheet 内边距偏差待裁决）
-与若干 L/INFO 级留痕，均不阻塞本轮验收，已给出后续批次处置建议。
+[✔] 范围边界
+    本轮代码改动仅 6 文件 + 1 新探针工具：tailwind.config.js / Sheet.tsx /
+    Layout.tsx / index.css / ReportPage.tsx / tokens.test.ts /
+    tools/probe-report-states.cjs，与计划清单（含 D16 计划外声明）一致；
+    其余全部为 _pipeline 文档与走查产物。P7 起批次未做，按口径不计。
 
-逐项审查结论（对照 7 点审查要点）：1✔ 2✔ 3✔ 4✔ 5✔ 6✔（复跑 7 项一致）7✔
+
+--------------------------------------------------------------------------------
+三、独立复跑证据（reviewer 本机自行执行，非转述）
+--------------------------------------------------------------------------------
+  1) vitest apps/web/tests        → 21 files / 208 passed ✔
+  2) vitest packages              → 2 files / 43 passed ✔
+  3) vitest functions/api/tests   → 19 files / 202 passed ✔
+     合计 453 ≥ 基线 451，只增不减；增量 = tokens.test.ts ⑬ 两条 ✔
+  4) tsc --noEmit -p apps/web/tsconfig.json → exit 0 ✔
+     （packages/engine 与 functions/api 本轮 diff 为零改动，未重跑，
+       以两批 vitest 全绿 + 区间 diff 为佐证）
+  5) vite build --outDir /tmp/zhiwei-web-build-review-p6 → built in 3.73s,
+     exit 0（等价口径）；产物 CSS 抽验 pad-frame token 与 sheet 档刻度均在 ✔
+  6) 冻结区两条命令（工作区 vs HEAD）→ 空输出 ✔；区间 grep → 无命中 ✔
+  7) 静态纪律四条（任意值断点 / 裸 z-\[ / CDN / 该页一次性样式）→ 全无匹配 ✔
+  8) 审计 JSON 独立解析（375 双主题 + 768/1440 抽档）→ /report 全 0px ✔
+  9) 截图人工复核 4 张：1440-light-report（五节+细网格表+单 h1）、
+     768-light-report（caption 横排+档位 nowrap，a169874 修复生效）、
+     375-dark-report（纵向堆叠无溢出）、state-1440-light-error
+     （红章+原因+重试一次+回到学习空间+toast 并存，与 D18 描述一致）✔
+ 10) 截图产物盘点：walkthrough 88 张（8 组合 × 11 路由，768-light 11 张
+     在册，清偿第 1 轮 D-05）+ 四态 8 张 + 探针日志 2 份 ✔
+
+
+--------------------------------------------------------------------------------
+四、执行偏差 D16–D22 处置评估（逐条）
+--------------------------------------------------------------------------------
+D16【计划外文件 Layout.tsx + Sheet.tsx sheetDimText】—— 采纳，不判 FAIL。
+  核实：PAGE_OWNED_HEAD 仅含 '/report' 一行；未迁移页 head 分支的 dim 改经
+  sheetDimText(tier) 输出，字符串与改前逐字相同（共用一份格式串），未迁移页
+  视觉与行为零变化。该改动是达成计划 P6.2 ① 页头复现（eyebrow/h1/sub/chip
+  数据只有页面拿得到）与「一页一个 h1」的最小必要改动，属「修复验收失败
+  （双 h1 / 页头文案不符原型）所必需」范畴。留痕充分（代码注释指回 D16）。
+  过程性提醒见 INFO-1。
+
+D17【3 提交 → 5 提交】—— 采纳。走查修复（a169874）与走查产物（dcda2b9）
+  各自独立提交，可独立 revert，符合计划「单批独立提交可回滚」的总原则；
+  P6.1/P6.2 依赖关系未变。
+
+D18【失败态派生实现】—— 采纳，实现质量良好。
+  核实：冻结 effect 逐字符未改；loadedSpaceId 记账挡住「切空间在途窗口被
+  误判为失败」（failed 条件含 loadedSpaceId===activeSpaceId，边界正确）；
+  重试复用同一 reportSummary（真重试）；toast 保留 = 保留冻结块内 catch
+  原样，符合「一行不改」优先于美观取舍的口径。error 态截图已人工复核。
+
+D19【走查命令补 ZHIWEI_AUDIT_OUT】—— 采纳。避免污染 mobile 基线目录，
+  属命令形态修正而非范围扩大。
+
+D20【原型优先细节 a–i】—— 逐条与代码核实一致（分母取 total、chip 短标
+  用 summaryLine 同边界、hint 不写阈值、归因列按契约 #19 语义、caption 改
+  服务端口径、05 节条件渲染、NO DATA 盒文案）。均为「以原型为准 / 以
+  契约为准」的正当取舍，留痕完整。
+
+D21【新探针 tools/probe-report-states.cjs】—— 采纳。只取证不打闸门、
+  不碰业务代码与后端；头部注释如实写明 no-space 态采不到的原因。副作用
+  （e2e 账号多 2 个空空间、服务端无删除接口）已留痕，见 L-3。
+
+D22【breakpoints.test.ts 陈旧注释未改】—— 采纳。计划 3.3 限定本轮测试
+  改动仅 tokens.test.ts，连注释不动是守纪而非失职；已留痕（见 L-2）。
+
+无空间态截图缺失 —— 不构成 FAIL。计划 R12 明文允许「取不到则留痕说明取证
+  方式，不伪造」；探针注释与执行报告「八、1」如实记录根因（router.guardPath
+  冻结区重定向），分支本身代码已按原型 L2914-2918 实现。属已知限制留痕。
+
+
+--------------------------------------------------------------------------------
+五、问题分级（H / M / L / INFO；无 H、无 M）
+--------------------------------------------------------------------------------
+L-1  pad-frame-sm-b(10px) token 已定义但无类名消费（base 档按 D13b 用
+     默认刻度 pb-2.5，同为 10px）。
+     文件：apps/web/tailwind.config.js / apps/web/src/components/blueprint/Sheet.tsx
+     影响：无功能影响；token 由 ⑬ 断言锁定为「规范值的具名来源」，但
+     「定义未被消费」的 token 是未来漂移的潜在藏身处（改它不会影响任何页面）。
+     建议：P12 收尾时二选一——base 档改用 pb-pad-frame-sm-b 消费之，或在
+     token 注释与规范留痕里明示「此 token 当前仅作规范值锚点、无类名消费」。
+
+L-2  apps/web/tests/breakpoints.test.ts L32 文件头注释仍写「ReportPage 的
+     min-w-[420px] … 是 ② 的合法保留项」，已与代码不符（本轮已清除该类）。
+     影响：仅注释误导，无行为影响；后续轮次有人按此注释「恢复」该写法时
+     缺少保护。
+     建议：下一轮任何允许动测试文件的批次中顺手删除该 3 行陈旧注释
+     （本轮按 3.3 口径不动是对的，勿在本轮回改）。
+
+L-3  探针在 e2e 账号留下 2 个空空间（服务端无删除接口），属对共享测试
+     数据的一次性污染。
+     文件：tools/probe-report-states.cjs（行为本身），数据侧不可逆。
+     影响：走查脚本按 /api/space/list 首项选空间，实测首项仍为原空间，
+     证据可复现；但 e2e 账号空间列表被永久加长。
+     建议：后端补 space 删除/归档接口前，探针注释里已留痕即可；若后续
+     轮次再用探针建空间，建议先在 D21 注释基础上累计计数，避免无感膨胀。
+
+INFO-1  D16 计划外文件改动暴露 planner 盲点：页面批次涉及文件清单未预判
+     「页头归属权」这一外壳机制。建议 planner 在 P7/P8 计划中主动把
+     Layout.tsx（PAGE_OWNED_HEAD 加行）列入涉及文件，避免每轮都靠执行方
+     自曝。本轮处置（自曝 + 最小改动 + 影响面核实）本身是合格示范。
+
+INFO-2  未迁移页受 M-1 波及（lg 档内边距 24→48），属规范正确值落地
+     （R11 预告口径）；本轮 8 组合走查全站 0px 溢出、截图未见挤压破坏，
+     共存策略成立。P7 起各页走查继续顺带复核即可。
+
+INFO-3  四态截图仅覆盖 1440-light 与 375-dark 两组（计划未指定档位组合，
+     不判缺）；error 态依赖探针注入，属 R12 预案内的取证方式。
+
+INFO-4  执行报告「四、8」引用的冻结区命令是「工作区 vs HEAD」口径；
+     reviewer 已补做「e96c702..HEAD 区间」口径复核（同样零命中），两种
+     口径本轮均成立。建议后续报告把区间口径也列入标准命令集。
+
+
+--------------------------------------------------------------------------------
+六、对三项并入事项的把关结论
+--------------------------------------------------------------------------------
+  1. 记账入库（P6.0）：PASS —— 白名单精确、无夹带，第 1 轮 L 级记账遗漏清偿。
+  2. M-1 token 裁决落地：PASS —— 三处同源齐备且经产物 CSS 独立验证，
+     D13 四档值逐一对上原型，端点 1px 差留痕合规。
+  3. F-01 溢出修复：PASS —— 结构修法消除根因 + min-w-0 双保险，
+     硬判据 overflowPx=0 经 reviewer 独立读 JSON 确认（双主题副本均 0）。
+
+
+--------------------------------------------------------------------------------
+七、结论依据（PASS 的成立条件）
+--------------------------------------------------------------------------------
+  · 计划内 ★ 项（9a/9b/9c/9d）全部有实证且 reviewer 独立复核通过；
+  · 冻结区（router/api/stores/engine/functions/data + ReportPage 冻结项）
+    在两种 diff 口径下均零改动，行为证据（冻结区测试全绿）成立；
+  · 测试 451→453 只增不减、三批全绿（reviewer 复跑）、tsc/build 复跑通过；
+  · 走查产物齐备（88 + 8 张截图、8 份审计 JSON、2 份探针日志），
+    768-light 已采（D-05 清偿），F-01 硬判据达成；
+  · 全部偏差已自曝并逐条评估为可采纳，无隐瞒、无伪造证据；
+  · 范围边界干净：未因 P6 扩大到 P7 及以后。
+  唯一保留意见：L-1/L-2/L-3 三项均为低危留痕事项，不阻塞本轮 PASS，
+  已给出后续轮次的处置建议，请 planner 在 P7 计划中认领。
+
 
 VERDICT: PASS
+================================================================================
