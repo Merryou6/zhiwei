@@ -1,127 +1,207 @@
 知微 · style-10 迁移 第 4 轮执行报告
 ====================================
 执行角色：implementer；起点 HEAD=bf3c7fe；第3轮报告已归档 _pipeline/archive/02_EXEC_REPORT_20261011_1548.md
-一、快照表（D25 E5）
-P8.0 03da6ee 完成 记账
-P8.1 087da5d+904ef8f 完成 清偿 M-1/L-1
-P8.2 e5ee88f+2adb903 完成 /chat
-P9.1-P9.4 未开始
+本文件在本轮内被多次续写（D25 续完口径）：P8 段 → P9.1 → P9.2 收口 → P9.3 → P9.4。
+报告随每次续写提交入库；「一、快照表」永远反映当前真实进度。
+
+一、快照表（D25 E5；hash 取自 git log）
+P8.0 03da6ee 完成 记账（01_PLAN 第10版 + 第9版归档 + 第3轮审查报告）
+P8.1 087da5d+904ef8f 完成 清偿 M-1（labelLayout.hideOverlap + 8 字截断）/ L-1（ZOOM_MIN 0.12→0.3）
+P8.2 e5ee88f+2adb903 完成 /chat（8 组合 overflowPx 全 0）
+P9.1 78b236b+c2ef68e 完成 /assessment（8 组合 overflowPx 全 0，截图新鲜）
+P9.2 36948ae+5f9a72b 完成 /practice（代码 36948ae；8 组合重采 + 提示链专项 5f9a72b）
+P9.3 39b3ea1+c9d1494 完成 /paper（代码 39b3ea1；8 组合 + 三段流转专项 c9d1494）
+P9.4 b9ca011+a11e7e5+88baf44 完成 /attribution（代码 b9ca011；走查修复 a11e7e5；
+     8 组合 + 向导五步专项 88baf44）
+P9 收尾 — 完成（6.1 全套 + 冻结区双口径，见「六、」；不单列提交）
 P10.1-P10.6 未开始
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
-二、本轮实际完成的三个批次
-P8.0 记账：白名单显式 add 四件（01_PLAN 第10版 / 第9版归档 / 03_REVIEW 第3轮 / 其归档），
-  提交后 git diff --name-only HEAD -- _pipeline 空输出；他人未提交项一律未碰。
-P8.1 清偿（D21/D22）：见「三、」。
-P8.2 /chat：见「四、」。
+本次调用（P9.2 收口 + P9.3 + P9.4 + P9 收尾）入库提交（旧→新）：
+5f9a72b P9.2 走查 / 39b3ea1 P9.3 代码 / c9d1494 P9.3 走查 /
+b9ca011 P9.4 代码 / a11e7e5 P9.4 走查修复 / 88baf44 P9.4 走查 /（本报告）
 
-三、P8.1 清偿（M-1 + L-1）
-文件：apps/web/src/pages/GraphPage.tsx（唯一代码改动，纯表现层）
-D21 第一层核实：label 的 overflow 通路确实存在（echarts labelStyle.js L270
-复制 overflow；zrender parseText.js L104 截断条件 width!=null；series.labelLayout
-由 echarts/core 默认注册，export/core.js L50-51）。
-但 1440/1024 实采放大目验证实：多列标签仍咬合成片不可读 —— 单列在屏间距 =
-COLUMN_GAP 240 x 适应缩放 0.3 ≈ 72px，而 16 字名称渲染宽约 176px，
-仅靠 label.width:96/overflow:'truncate' 控不住密度 → 采用 D21 第二层。
-D21 第二层实现：series 级 labelLayout:{hideOverlap:true}（ECharts 内建避让；
-hideOverlap 置 label.ignore=true 并保留 emphasis 态 ignore=false → 悬停仍可见该
-节点名称）+ shortLabel() 把 >8 字名称截到 8 字 + 省略号（1024 说明见下）。
-D22 实现：ZOOM_MIN 0.12 → 0.3，与 fitZoom 地板同口径，注释留痕「防节点成点」。
-OBS-2 前后对照（均在 _pipeline/screenshots/style10/）：
- 修复前 style10-1440-light-normal-before-m1.png / style10-1440-dark-graph-before-m1.png
- 修复后 graph-1440-light-normal.png / graph-1440-dark-normal.png（探针重采）
- 放大对照 obs2-m1-1440-light-before-crop.png / -after-crop.png 与深色同款
- （PIL 指定窗口裁剪 x380-1300 / y655-735 后 2 倍放大；sips 只能居中裁剪，故用
- PIL，脚本 /tmp/m1-crop.py 不入库，DEV-4 惯例）
-目验结论：修复前 12 列标签相互穿插成连续文字带（不可读）；修复后为分离的短标签，
-截断处带省略号且有留白（obs2 对照图可复看）。
-1024 档如实说明：1024 画布容器 clientWidth < 700，第 3 轮 12acf95 既有策略「窄档
-只留形状地图不画标签」在 1024 档已生效（git show 12acf95:…GraphPage.tsx 含
-showLabels = cw >= 700），故 1024 档本无标签可叠压；1024 修复后图 graph-1024-
-light-normal.png + obs2-m1-1024-light-shapemap-crop.png 留痕（非本轮引入）。
-P8.1 命令与结果：apps/web vitest 22/217 全绿；tsc apps/web exit 0；
-build --outDir /tmp/zhiwei-web-build-p8a ✓ built in 4.77s（echarts 434.35 kB
-仍独立懒加载 chunk，GraphPage 24.17 kB）；3.2 冻结区两命令均空输出。
- 走查：1440/1024/375（深+浅）6 组合重采，逐档「页面级溢出合计 0px」；
- 8 份 audit JSON 解析（11 路由 × 8 组合）overflowPx 全 0（375 硬判据不回退）；
- 探针 probe-graph-states.cjs 1440/1024 深+浅 4 次重采（含 OBS-2 数据态）。
+二、本次调用做了什么（逐项）
+1) P9.2 收口（不推倒重做，按 D25 E1–E5 判进度）
+   核实：/practice 代码 36948ae（16:17:55）之后，只有 1440 深色档（16:18:17）与 1440 浅色
+   探针（16:19:28）是新鲜的；浅色档 8 组合其余 6 档的截图/JSON 早于代码提交（16:10-16:15），
+   按 E3 新鲜度判据属证据过期 ⇒ 全部重采。
+   做法：1440/1024/768/375 × 双主题共 8 条走查命令逐条重跑（深色采完归档一份 -dark.json，
+   同第 3 轮惯例），逐档「页面级溢出合计 0px」。
+   补缺：tools/probe-practice-states.cjs 增加 hint-l1 / hint-l2 两个状态（点选
+   input[name="hint-level"][value=1|2] 走真实用户路径），覆盖计划要求的「三级提示逐级解锁
+   实拍」；1440 双主题各跑一次，5 个状态全部 overflowPx=0、h1=1（无双 h1）。
+   提交：走查产物独立提交 5f9a72b（不混入代码）。
 
-四、P8.2 /chat（e5ee88f 代码 + 2adb903 走查）
-变更文件：ChatPage.tsx（视觉层重写）；Layout.tsx（PAGE_OWNED_HEAD 加 '/chat'，D24）；
- index.css（新增「/chat 页制式」段：.bp-thread 气泡三制式与系统提示、.bp-composer
- 细线分隔）。七件套零改动 —— 制式经 .bp-thread 作用域选择器锚在全屏页外壳上
- （与 .chat-stream 同手法），右侧常驻面板不受影响。
-逐段复现：① SheetHead（CHAT / 学长式引导，SHEET 10-09，需求 2.9，h1「对话辅导：
-卡在哪一步就聊哪一步」+ chip T0 · 双形态）；② 01 本轮对象（原型 kp-bar 对位）：
-对象 chip + 置信度 chip（<60% 走 warning 档）+ 收进侧栏 + 侧栏状态 caption；
-③ 02 消息流：气泡三制式 + 停滞出口（原型 stall → Stamp tone=amber）；
-④ 03 发送：原型 .composer 顶部细线制式（原 glass-card 玻璃面按原型口径退场，
-focus-glow 保留）；⑤ 双栏挂 annos（1180）新档，≤1179 单栏（原 nav: 档换新档）。
-接线勾稽：#1 SSE 六事件真流式 —— useChatSend/sse.ts/client.ts 零改动，
- sse.test(20)+client.test(13) 全绿；#2 常驻面板同构 —— 同一套七件套，chatPanel.test(5)
- +dialogStore.test(7) 全绿；#5 守卫 guardPath 原样（router.tsx 未动）。
-四态落点：空集合 → 共享件 EmptyState（既有文案，D5）；无空间 → guardPath 重定向
-（R19 取证口径）；loading/error —— 见「五、偏差」D-P8.2-1。
-测试：apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；冻结区两命令空输出；
-6.3 静态纪律四条 + ChatPage 抽查均无匹配。
-走查：4 档（1440/1024/768/375）× 双主题共 8 组合重采，逐档「页面级溢出合计 0px」；
-目验 1440 浅色截图：单 h1、01/02/03 三节与右侧链路栏（annos 双栏）落位正确。
-未完成专项（如实）：(a) 登录态发消息的 SSE 流式实拍与降级链触发截图；
-(b) 面板/全屏同构对照截图；(c) 四态探针（tools/probe-chat-states.cjs 未新建）。
-原因：本轮输出容量不足，优先保证了「页面视觉 + 三件套 + 8 组合走查 + 单页提交」。
+2) P9.3 /paper（原型 PAGES.paper L2213-2348；单页单提交）
+   代码 39b3ea1，三个文件：apps/web/src/pages/PaperPage.tsx（视觉层重写）、
+   apps/web/src/components/Layout.tsx（D24 登记 '/paper'，一行 + 注释）、
+   apps/web/src/index.css（新增 .bp-check 勾选框制式，转录原型 .check L303-309）。
+   逐段复现：① sheetHead（PAPER / 批量证据采集（三段）· SHEET 10-07 · 需求 2.7 ·
+   h1 拍一张最近的试卷 · chip T0 · 明判草稿）；② 阶段条 01 选文件 / 02 逐题确认 / 03 完成 +
+   「三段之间单向推进」；③ STAGE1 预置文件库（已选 n/5 chip + 清空 + bp-tbl 细网格表：
+   勾选框 / 文件名 + file_id / 类型 / 大小 / 备注「预选第一份」+ 开始识别主键与禁用说明）；
+   ④ 识别中 → SkeletonLines 骨架（bp-note 说明识别只出草稿）；⑤ STAGE2 逐题确认
+   （已判定 chip + 一键采纳 + 每题 bp-panel：卷面识别 tok / 题干 / bp-kv 识别出的作答
+   （空 → 「识别为空」红 chip）/ VERDICT 分段（真 radio，含 label:has 焦点环）/
+   知识点（识别猜的 → 徽标按钮展开分组 select 的既有交互保留）+ 低置信行 bp-note--alert
+   点名「不允许默认」）；⑥ 提交前缺口红章（复用 Stamp 组件，seal=INCOMPLETE，
+   逐条列出第几题缺什么）；⑦ STAGE3 完成（bp-measure 四格 + 掌握度前后变化 bp-tbl
+   （前/后/变化 ↑↓ + up/down 色 + 档位走 masteryBandOf）+ 错题缓存 bp-note--ok +
+   随情形变的主出口）。
+   四态（整页级）：loading → SkeletonLines；empty（0 份试卷）→ EmptyState（给回学习空间出路）；
+   error（列表失败 / 识别失败）→ Stamp 红章 + 真重试（重发同一个 drive() / startRecognize()）。
+   接线勾稽（规范第 11 章 #3，本轮关键页）——**全链已在真浏览器取证**（c9d1494 的 JSON）：
+   · 刷新回显：zhiwei_recognition_id 在识别后写入（probe 实测「刷新前有 → 刷新后有」，
+     刷新后仍是 STAGE 2 / 3 且题数 3），确认后被清空（submitted 态 recId=false）；
+   · 错题缓存：确认后 sessionStorage zhiwei_paper_wrong_<space> 写入 3 条，紧接着进
+     /attribution 同会话可见（联动）。
+   router.tsx（键位定义）与 api/* 一行未动 —— 冻结区命令空输出。
 
-五、偏差与 D 编号裁决留痕
-D-P8.1-1（D21 分层落点）：未走第三层兜底，采用第二层（labelLayout.hideOverlap +
- 8 字截断）。理由与证据见「三、」。冻结语义零改动：取数 useEffect、守卫顺序、
- 点火/重绘/DIM_OPACITY/文字清单键盘语义、poster 链路、文案常量全部原样
- （graphMastery/graphLayout 及其测试零改动，全绿）。
-D-P8.2-1（四态 error/loading）：计划 §7 chat 行要求 error → Stamp 红章。
- 实现按 3.1c（状态机与 store 冻结）保留既有落点 —— 失败是降级链末端由 useChatSend
- 调 store.failAssistant 追加/改写的那条错误气泡（文案含「草稿还在输入框里」），
- 未新增页面级红章（新增派生需匹配错误文案，脆弱且要碰 store 语义）。
- loading 同理不适用：本页无取数（对话在全局 store），无 loading 窗口。
- 此为与计划的偏差，理由如上；如 reviewer 判定必须补红章，请在下一轮指示。
-D-P8.2-2（原型模式 seg 不迁移）：原型「专注/陪伴」seg 由 S.flow.chat.mode 驱动，
- 属原型 mock 交互；本工程无对应 store → 按 D5 不迁移（01 节改由既有 meta 驱动）。
+3) P9.4 /attribution（原型 PAGES.attribution L2604-2760；单页单提交）
+   代码 b9ca011（AttributionPage.tsx 视觉层重写 + Layout.tsx 登记 '/attribution' +
+   index.css 新增 .bp-path / .bp-cands / .bp-bar 三段制式类，逐条转录原型 L397-414 / L318-321，
+   含 md/sm 档分叉），走查修复 a11e7e5（见「七、D-P9.4-2」）。
+   逐段复现：① sheetHead（ATTRIBUTION / 沿先修链回溯 · SHEET 10-10 · 需求 2.10 ·
+   h1 错题归因：往上找真正卡住你的那一环 · chip T0 · 回溯）；② 步骤条五步
+   （01 挑一道错题 … 05 结果与验证，当前步 accent + aria-current 语义位 + 已过步降透明）；
+   ③ STEP1 挑一道错题（左：错题表 —— 题 / 题干 / 知识点 / 你的作答 / 「用这道」，
+   chip「N 题可带出 / 暂无缓存」；缓存为空 → EmptyState 如实说没有并给「先去传一张卷子」
+   出路；右：手动填一道 —— 题干 / 你的作答 / 知识点，走同一套流程）；
+   ④ STEP2 复述确认（bp-panel + bp-kv 三行 + 两个动作）；⑤ STEP3-A 低置信追问
+   （bp-panel.border-band-weak + 再判一次 / 回到上一步）；⑥ STEP3-B 五类闭集
+   （bp-tbl，命中行走 tr[data-current=true] 高亮 + 命中 chip + 把握读数）；
+   ⑦ STEP4 分流（direction=none → 「SMALL MISTAKE · 不再向上回溯」既不出现 analyze
+   键也给出路；否则「这一类值得往上走」+ 看看真正的根源）；⑧ 结果态：05 结论块
+   （根因 / 错误类型 chip / 已验证 / 已记录反驳 / 归因编号 + 层数 + 当前状态 + 为什么 +
+   去验证锚点键）+ 01 回溯路径（ol.bp-path，L 层号窄栏 + 根因那一节红框 +「根因在此」）+
+   02 候选根因排序（ul.bp-cands + bp-bar 贡献度条 + 读数）+ 03 验证环节（ItemCard 既有件）+
+   04 处方（验证通过才给；给出后是策略 + 大纲 + 题目序列表 + 去图谱）+ 页脚反驳常驻。
+   四态（整页级）：loading（?attribution_id= 回显中）→ SkeletonLines + 「载入该次归因结果」
+   分节；error（回显取不到）→ Stamp 红章 + 真重试（重发同一个 #14 请求），不拿向导态冒充结果；
+   empty（本会话无错题）→ EmptyState；无空间 → guardSpace 既有语义。
+   **D24 双 h1 消除已取证**：迁移前 /attribution 走查实测 h1=2（外壳通用页头 + 页面
+   PageHeader 各一份），迁移并登记 PAGE_OWNED_HEAD 后实测 h1=1（两次专项 JSON 与 8 组合
+   截图均为 1）。
 
-六、未完成项与续完入口（D25 五件证据）
-未完成：P9.1 /assessment、P9.2 /practice、P9.3 /paper、P9.4 /attribution、
- P10.1-P10.6（/spaces /start /self-report /login /me /drive）、
- P11.1-P11.4（/ /t /t/student/:id /t/recommendations + TeacherShell）、P12.1-P12.4。
-状态：以上页面代码一行未动（工作区无这些页的未提交改动），计划勾选保持未勾。
+4) P9 批次收尾验证（6.1 全套 + 冻结区）——见「六、」。
+
+三、P9.2 /practice 收口细节（诚实的取证边界）
+· 8 组合重采后逐档审计 JSON 的 overflowPx 全 0；8 份 JSON 的 theme 字段与文件名一致
+  （深色档另存 -dark.json），避免「用深色数据冒充满色」这类不可核查的写法。
+· 提示链专项：L1「给个方向」→ L2「再给点思路」逐级解锁，双主题各 5 个状态
+  （normal / concept / drill / hint-l1 / hint-l2）全部 overflowPx=0、h1=1。
+· 目验：1440 浅色 drill 截图 —— 单 h1、SHEET 10-08 页头、阶段条、阶梯、STEP 01 步骤卡齐备。
+· 未做（如实）：L2 之后「第三级提示 = 逐步批改本身」的执行与判后重试回路未单独截图
+  （属 /practice 既有业务链，本轮未改动，且不在计划要求的专项清单里）。
+
+四、P9.3 /paper 专项取证（c9d1494 的 paper-1440-{light,dark}.json）
+· 状态链：select（预置文件库，已选 1/5）→ recognized（点开始识别，STAGE 2，3 题，
+  缺口红章在）→ reload（**刷新页面**，仍 STAGE 2、题数 3、recognition_id 仍在）→
+  submitted（一键采纳 + 手标 1 题 + 提交，STAGE 3，events/掌握度表、错题缓存 3 条，
+  recognition_id 已清）→ attribution（同会话进归因页，缓存 3 条可带出）。
+· 数据口径（如实）：确认服务的幂等键是「同用户 × 同空间 × 同知识点 × 同来源 × 同小时」
+  （packages/engine/src/dedup.ts 的 hourBucket）⇒ 同一小时内重复确认同一份文件（同 kp）
+  会得到 events_created=0，那是真实业务结果而非缺陷。为使「完成态」取到非零样本，探针支持
+  换选第 N 份预置文件（ZHIWEI_STATE_FILE_INDEX）：浅色档用第 2 份得到
+  新增证据 2 / 更新知识点 2 的完整表；深色档在另一个零证据取证空间得到
+  新增证据 3 / 更新知识点 3 / 三条掌握度前后变化（+14% ↑ / 档位 待巩固）的完整表。
+· 目验：1440 浅色 select / recognized / submitted 三张与 1440 深色 submitted 均已目验。
+
+五、P9.4 /attribution 专项取证（88baf44 的 attribution-1440-{light,dark}.json）
+· 前置真实链路：探针先真做一遍 /paper「选文件 → 识别 → 一键采纳 + 手标 → 确认」，
+  得到 3 条错题缓存（**不作假态、不直接写 sessionStorage**），再进 /attribution。
+· 状态链：step1（错题表 3 行 + 「3 题可带出」chip —— 勾稽 #3 联动实测）→ step2（复述确认，
+  题目 / 你的作答 / 知识点三行）→ step3（五类闭集表 + 把握读数）→ step4 → result。
+· 分类落点如实记录：用试卷错题那份数据时，判定落在低置信追问（clarify）分支
+  （JSON 的 hasClarify=true）—— 这是真实数据的真实结果，不是缺陷；为取到「深挖 → 结果态」
+  的样本，探针另走产品本来就有的「或者手动填一道」入口，用真实题库数据填
+  （q_cz_g2v_006：kp=math.cz.quadratic.general_to_vertex，作答 y = (x + 2)^2 - 7，
+  命中 prerequisite_completing_square_gap → prerequisite_gap → direction=upstream）：
+  结果态实测 回溯链 2 层（L02 一般式与顶点式互化 / L01 y=ax2 的图像与性质 + 根因在此）、
+  候选根因 3 条（0.60 / 0.60 / 0.36）、验证环节、处方「验证通过后给出」。
+· 目验：1440 浅色 step1（错题表 + 手填栏）与 result（05 结论 / 01 回溯链 / 02 候选条）均目验。
+· 未做（如实）：验证环节的作答与反驳（#15 / #16）未在本轮实拍；处方生成（#17）按钮未点。
+  这三处是既有业务链、本轮视觉层未改动其交互；P12.3「四态/专项取证补缺」可补。
+
+六、P9 批次收尾：6.1 全套 + 冻结区（全部实测）
+类型检查三段：
+  tsc --noEmit -p packages/engine/tsconfig.json → exit 0
+  tsc --noEmit -p functions/api/tsconfig.json → exit 0
+  tsc --noEmit -p apps/web/tsconfig.json → exit 0（P9.3、P9.4 各一次）
+测试三批（用例只增不减：462 = 217 + 43 + 202，与第 3 轮基准一致，无删减）：
+  vitest run apps/web/tests     → 22 文件 217 用例全绿（P9.3 一次、P9.4 两次）
+  vitest run packages           → 2 文件 43 用例全绿
+  vitest run functions/api/tests→ 19 文件 202 用例全绿
+构建（等价口径，规避沙箱删除闸门）：
+  vite build --config apps/web/vite.config.ts --outDir /tmp/zhiwei-web-build-p9
+  → ✓ built in 3.84s；echarts 434.35 kB 仍为独立懒加载 chunk（GraphPage 24.98 kB /
+    index 256.88 kB / react 165.57 kB）；CSS 429.24 kB
+冻结区（3.2 双口径，均空输出）：
+  git diff --name-only HEAD -- apps/web/src/router.tsx apps/web/src/api packages/engine functions data → 空
+  git diff --name-only HEAD -- apps/web/src/stores → 空
+  git diff --name-only bf3c7fe..HEAD --（同上两组 + graphLayout/graphMastery/graphSnapshot/poster）→ 空
+6.3 静态纪律四条（任意值断点 / z-[ / CDN 字体）全局无匹配；
+  逐页抽查 PaperPage.tsx / AttributionPage.tsx 的裸 hex className 与 min-w-[ 均无匹配。
+走查（T0 四页齐全，均在本页最后一次代码提交之后重采）：
+  每页 8 组合（1440/1024/768/375 × 双主题）× overflowPx=0；四页专项探针双主题齐全。
+
+七、偏差与 D 编号裁决留痕
+D-P9.3-1（取数 effect 的最小新增·表现层）：/paper 的取数 effect 里加了
+  filesLoading（finally 落定）/ loadFailed（既有 catch 内置位）/ recognizeFailed
+  （startRecognize 既有 catch 内置位）三个 setter —— 与 P6 /report、P7 /graph 的
+  D15c 先例同口径（接口调用参数、cancelled 清理、依赖数组 [activeSpaceId] 逐字符未动）。
+  不加的话，「取到了但一份都没有」与「取不到」无法区分，四态里的空态与失败态必然混淆
+  （空 ≠ 失败，规范 7.1）。
+D-P9.4-1（同上）：/attribution 的回显 effect catch 里加 viewFailed（接口调用、cancelled
+  清理、依赖数组 [attributionId] 逐字符未动），用于「结果取不到 → 红章 + 真重试」。
+D-P9.4-2（走查修复·口径纠正）：原型 L2732 的旁注写「贡献度合计为 1」，照抄会与数据不符
+  —— 本工程 view.suspect_scores 是引擎的**嫌疑分**（先修距离越近越高，上界 d=1 0.60 /
+  d=2 0.36 / d=3 0.216，不归一；第 1 轮审查实测六项合计 ≈2.5）。故 a11e7e5 独立提交把
+  该块文案改为「嫌疑分按先修距离排（越近越高），不归一；排第一的是本次认定的根因」，
+  aria-label 同步改为「嫌疑分 x.xx」。业务逻辑零改动。这是「只增留痕、不照搬 mock 口径」
+  的一次执行（D9：规范/原型冲突以原型为准，但当原型口径与真实字段语义冲突时以真实为准并留痕）。
+D-P9.4-3（区块按数据不渲染）：候选根因排序块只在 suspect_scores 非空时出现（既有语义：
+  direction=self 时为空、不回溯）。所以单层回溯的真实数据下该块不渲染 —— 已用 upstream
+  数据补到链 2 / 候选 3 的实拍样本，块样式有证。
+D-P9-4（提交口径的一处偏差）：c9d1494 与 88baf44 两个走查提交用
+  `git add -- _pipeline/screenshots/style10 tools/probe-*.cjs`（目录级 + 单个工具文件），
+  而非逐文件显式列举（P9.2 的 5f9a72b 是逐文件列举）。理由：本页走查涉及 8 份审计 JSON +
+  30 余张重采 png，逐条列举易漏。风险控制：提交前先跑
+  `git status --porcelain -- _pipeline/screenshots/style10 tools` 逐行核对，确认范围**仅**
+  走查产物与探针工具（不含任何他人未提交项与代码文件），提交后 `git show --stat` 复核。
+  纪律边界未破：仍禁 git add -A / git add .，且未动 tempui/、.workbuddy/ 等他人产物。
+D-P9-5（走查顺序留痕）：P9.2 收口时先补齐 8 组合与专项，再按白名单提交；P9.3/P9.4 采取
+  「先提交代码 → 再重采走查 → 走查独立提交」，使 D25 E3 的新鲜度判据（产物 mtime 晚于
+  该页最后一次代码提交）在提交时点即可被验证。
+D-P9-6（能力边界·未取证项）：P9.3 与 P9.4 的四态里，error（红章）与 empty（空盒）两份
+  取证未单独截图 —— 分支代码已实现且类型/测试通过，但「error/empty 态实拍」需注入失败与
+  空数据。列入 P12.3「四态取证补缺」清单，不伪造、不占用本轮剩余容量。
+
+八、D23 空间记账（本轮探针的真实副作用，如实登记）
+· 本轮新建空间 0（所有探针都只挑不建）。
+· 试卷确认/归因探针会在**取证空间**里真实落证据，本轮发生在：
+  sp_mv3d1i2g01js2（P6 四态取证空间）：多份试卷确认（浅色/深色/专项多次，同小时同 kp 命中
+    幂等键的那几次 events_created=0）；
+  sp_mv3d53em02iv2（P6四态1791695333756）：深色档试卷确认一次（该空间此前零证据）。
+· 因此账号「零证据空空间」由 3 个减为 1 个（sp_muf82zhx02br0 初中数学仍为零证据，四态取证
+  继续优先用它）；sp_mugfdmcl01qe6（有数据）不变。后续页面若需要空数据空间，按 D23
+  「先查明来源再取证」，并优先复用 初中数学。
+
+九、未完成项与续完入口（D25 五件证据）
+未完成：P10.1-P10.6（/spaces /start /self-report /login /me /drive）、
+  P11.1-P11.4（/ /t /t/student/:id /t/recommendations + TeacherShell）、
+  P12.1-P12.4（终检 / nav 断点清退评估 / 全站走查汇总 / 文档与报告）。
+状态：以上页面代码一行未动（工作区无这些页的未提交改动），01_PLAN「五、」勾选保持未勾。
 续完入口：先读 01_PLAN「五、」+ 本快照表 + git log 三者对齐，从第一个未完成页
-P9.1 /assessment 继续（锚点 PAGES.assess L2107-2213；Layout 登记 '/assessment'）。
-本轮已入库提交（旧→新）：03da6ee P8.0 / 087da5d P8.1 代码 / 904ef8f P8.1 走查 /
- e5ee88f P8.2 代码 / 2adb903 P8.2 走查 / 7ae0559 报告记账。
+  P10.1 /spaces 继续（原型 PAGES.spaces L2040-2107；sheetHead L2087「SPACES / 学习容器管理」、
+  SHEET 10-05、需求 2.5；Layout 登记 '/spaces'；走查 4 档 × 双主题 + 409 冲突专项）。
+本页（P9）留下的两条尾账：P9.3/P9.4 的 error/empty 四态实拍（见 D-P9-6）；
+  验证/反驳/处方三个既有交互的实拍（见「五、」未做）。
 
-七、全量验证与冻结区状态（本轮实测）
-apps/web vitest：22 文件 217 用例全绿（P8.1、P8.2 各一次）。
-七件套锚点单跑：sse+client+chatPanel+dialogStore = 4 文件 45 用例全绿。
-tsc --noEmit -p apps/web/tsconfig.json：exit 0（P8.1、P8.2 各一次）。
-vite build（--outDir /tmp/zhiwei-web-build-p8a）：✓ built in 4.77s；
- echarts 434.35 kB 仍为独立懒加载 chunk（GraphPage 24.17 / index 244.25 /
- react 165.57）；CSS 421.65 kB。
-冻结区（工作区口径，P8.1/P8.2 提交前各一次）：
- git diff --name-only HEAD -- router.tsx api/ packages/engine functions data → 空
- git diff --name-only HEAD -- stores/ → 空
-区间口径（bf3c7fe..HEAD，提交 a867887 后实测）：
- router.tsx + api + packages/engine + functions + data → 空；stores → 空。
- 完整终检（含 graphLayout/graphMastery/graphSnapshot/poster 四冻结件）由 P12.1 补做。
-未在本轮复跑：packages 测试 43 例、functions/api 测试 202 例、packages 与
- functions 两段 tsc —— 本轮未触碰其代码，冻结区命令为空输出旁证；计划 6.1 全套
- 须在批次收尾（P9/P10/P11 各批完成时）补跑，本轮未达该批次收尾点。
-6.3 静态纪律四条：任意值断点 / z-[ / CDN 字体三条全局均无匹配；
- 逐页抽查（GraphPage.tsx、ChatPage.tsx）裸 hex className 与 min-w-[ 均无匹配。
-
-八、D23/D24 执行留痕
-D23（空间基数 3）：本轮只读取证，实测账号共 4 个空间 ——
- sp_muf82zhx02br0 初中数学（0 证据，即 D23 记的空空间基线之一）、
- sp_mugfdmcl01qe6 UI 验收·先修薄弱（2 条证据，探针数据态即复用此空间）、
- sp_mv3d1i2g01js2 P6 四态取证空间（0）、sp_mv3d53em02iv2 P6四态1791695333756（0）——
- 与 INFO-1/D23「3 个空空间 + 1 个有数据空间，共 4 个」一致，命名与时间戳均指向 P6
- 遗留；本轮新建空间 0（探针复用既有空空间）。
-D24（PAGE_OWNED_HEAD）：本轮扩表一处 —— Set(['/report','/graph','/chat'])，注释说明
- '/chat' 归页面自有（原型 L2535）；走查目验 1440 档 /chat 单 h1、无外壳通用页头残留。
- 其余 13 页待逐页扩表（前缀匹配特例 /t/student/ 在 P11.3 落地）。
-—— 第 4 轮执行报告（P8 段）完；P9–P12 未开始，续完入口见「六、」——
+十、当前状态一句话
+P9 四页（/assessment /practice /paper /attribution）全部完成：每页代码单提交 + 走查独立提交，
+  8 组合 overflowPx 全 0、无双 h1、勾稽 #3（试卷识别刷新回显 + 错题缓存接回）在真浏览器
+  全链取证；6.1 全套（462 用例 / 三段 tsc / build）与冻结区双口径全绿；下一站 P10.1 /spaces。
+—— 第 4 轮执行报告（P8 + P9 段）完；P10–P12 未开始，续完入口见「九、」——
