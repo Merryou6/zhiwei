@@ -1,7 +1,8 @@
 知微 · style-10 迁移 第 4 轮执行报告
 ====================================
 执行角色：implementer；起点 HEAD=bf3c7fe；第3轮报告已归档 _pipeline/archive/02_EXEC_REPORT_20261011_1548.md
-本文件在本轮内被多次续写（D25 续完口径）：P8 段 → P9.1 → P9.2 收口 → P9.3 → P9.4。
+本文件在本轮内被多次续写（D25 续完口径）：P8 段 → P9.1 → P9.2 收口 → P9.3 → P9.4 →
+P10.1 → P10.2 → P10.3 收口 → P10.4 → P10.5 收口 → P10.6 → P10 批次收尾。
 报告随每次续写提交入库；「一、快照表」永远反映当前真实进度。
 
 一、快照表（D25 E5；hash 取自 git log）
@@ -24,7 +25,14 @@ P10.3 完成 /self-report（代码 b026e72（前次半页未提交改动经逐�
 P10.4 完成 /login（代码 7653b2b：含计划外 App.tsx 去 bare / ToastHost 注释两处；走查 056a2c2：
      1440/1024/375 双主题 6 组合 overflowPx 全 0、h1=1；链路专项 7 状态 × 1440/375 × 双主题
      全绿——真登录落 token / 刷新不掉线 / 真 401 回 /login / 演示账号两分支；D-P10.4-1~4 留痕）
-P10.5-P10.6 未开始
+P10.5 完成 /me（代码 1b3f41d（前次半页未提交改动经逐行复核 + 逐段对照原型 L3028-3120 后收口）；
+     走查 8bbfb93：1440/1024/375 双主题 6 组合 overflowPx 全 0、h1=1；专项探针新增
+     tools/probe-me-states.cjs：登录态/全零空间/守卫重定向/主题切换实拍/全站生效 5 状态 ×
+     1440/375 × 双主题全绿；D24 单 h1；D-P10.5-1/2/3 留痕）
+P10.6 完成 /drive（代码 e59035c；走查 50a306b：1440/1024/375 双主题 6 组合 overflowPx 全 0、
+     h1=1；专项探针新增 tools/probe-drive-states.cjs：normal/empty/error/no-space 四状态 ×
+     1440/375 × 双主题全绿；D24 登记 '/drive' 消除双 h1；D-P10.6-1/2/3 留痕）
+P10 批次收尾 完成（6.1 全套实测 + 冻结区双口径空输出，见「十二、」；不单列提交）
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
@@ -432,8 +440,123 @@ D-P10.4-4（**发现的组件库缺陷·本次只做本页规避，未扩大范�
   属跨批改动）。建议：作为下一轮认领（与第 3 轮 M-1/L-1 同性质）补登 5–6 个字号令牌到
   cn.ts 的 font-size 组，一处修全站；修完需对含 sm primary 按钮的页面补一次走查快照。
 
+P10.5 /me（原型 PAGES.profile L3028-3120；代码 1b3f41d；走查 8bbfb93；半页收口）
+· 本页是「上次调用未提交半页」的续完：进本次调用时工作区有 M MePage.tsx + M Layout.tsx +
+  M StudentTeacherSection.tsx 三处未提交改动。按 D25/D-P10.1-1 惯例先做**逐行复核**（不推倒重做）：
+  · Layout.tsx 的改动 = D24 在 PAGE_OWNED_HEAD 登记 '/me'（Set 一行 + 4 行注释），与 P10.1–P10.4
+    同款改法、注释口径一致 ⇒ 保留。
+  · MePage.tsx 的改动 = 整页视觉层重写（sheetHead L3054 / 01 概览 measure+dist / 02 我的老师 +
+    03 当前空间 split / 04 老师推荐台账 / 05 账号 kv / 06 外观与模型 / 07 退出），逐段对照原型
+    L3028-3120 与迁移前实现（git HEAD）后判定「方向正确、结构齐备、业务逻辑零改动」⇒ 不重写。
+  · StudentTeacherSection.tsx 的改动 = 共享件视觉重写（Card → SheetBlock/bp-panel/bp-tbl）+ 新增
+    `recommendationsOnly` 渲染开关（纯挂载开关，不改数据流）⇒ 保留（见 D-P10.5-1）。
+· 涉及文件：apps/web/src/pages/MePage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/me'）、
+  *apps/web/src/components/StudentTeacherSection.tsx（计划清单之外，仅视觉 + 渲染开关，见 D-P10.5-1）*。
+  本页无 index.css 新增（bp-measure/big-num/bp-kv/bp-tbl/bp-note/bp-tick-list 全部既有）。
+· 逐段复现：① sheetHead（PROFILE / 个人中心 · SHEET 10-14 · 需求 2.14 · h1「我的页」· chip T1）；
+  ② 01 学习概览（四格 .bp-measure + 四档分布行 .dist + 平均掌握度旁注；loading → SkeletonLines，
+  无空间 → 空盒）；③ 02 我的老师（邀请码绑定 + 确认卡 + 已绑定列表）+ 03 当前空间（.split 右栏：
+  空间/学科/角色 kv + 切换空间）；④ 04 老师推荐（六态七列台账 .bp-tbl；回执 ▲▼ + 数值；done 未复测
+  如实写「暂无复测结果」）；⑤ 05 账号信息（.bp-kv：账号/昵称（空显示「未设置」）/用户标识/注册时间/
+  角色）；⑥ 06 外观与模型（ThemeToggle + 对话模型只读说明）；⑦ 07 退出（danger 主键 + ConfirmDialog）。
+· 业务逻辑逐行未动（对照 git HEAD 迁移前实现）：getUserProfile / reportSummary 两个 effect
+  （接口调用 / cancelled 清理 / 依赖数组 [] 与 [spaceId] 逐字符未动）、handleLogout 的
+  clearAuth→clearSpace→navigate(LOGIN_PATH,replace) 顺序、ConfirmDialog 语义、概览 masteryBandOf
+  分档与 clamp 文案全部原样。
+· 走查：1440/1024/375 × 双主题共 6 组合重采，/me overflowPx 全 0（深色 JSON 另存 -dark.json，
+  theme 字段与文件名一致，可核查）。专项探针（6.5 新增 tools/probe-me-states.cjs，1440/375 ×
+  双主题共 4 组 × 5 状态）：logged-in → overview-empty → no-space → toggle（点页内 ThemeToggle：
+  zhiwei_theme 真翻转 + html.dusk 同步）→ global（跳 /report 证全站生效）。20 个状态量尺全部
+  overflowPx=0、main h1=1。目验 1440 浅色：单 h1「我的页」、SHEET 10-14、七段齐备、无外壳页头残留。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；
+  6.3 静态纪律四条无匹配、MePage.tsx / StudentTeacherSection.tsx 无裸 hex 与 min-w-[。
+D-P10.5-1（计划外文件·共享件视觉重写）：/me 的 02 我的老师 / 04 老师推荐本体是共享件
+  components/StudentTeacherSection（不在计划 P10.5「涉及」清单）。不迁移则该页 02/04 仍是迁移前的
+  圆角 Card 语汇；另起一份会复制「邀请码绑定 / 推荐回执」这套业务逻辑（违反「业务逻辑一行不改」）。
+  故按 P10.1 的 SpaceCreateForm 先例**只换视觉**（Card → SheetBlock + bp-panel/bp-tbl + Badge/
+  Button/FormField+Input 原语），并新增 `recommendationsOnly` 形参（纯渲染开关，只决定渲染哪一节，
+  不改任何数据流），5 个接口调用 / load useCallback / 两 effect 依赖 / toast 文案 / navigate 目标
+  逐行未动。这是本次唯一的计划外文件改动，特此标明；reviewer 若判超范围，可单条 revert 该文件。
+D-P10.5-2（四态取证边界·overview-empty）：探针原设计「切到账号里的零数据空间取概览空盒」，实测
+  该空间的 #9 reportSummary 仍返回**全部 24 个知识点行**（mastery 值全 0）⇒ MePage 的
+  `distribution.total === 0` 空分支不触发（total = mastery.length = 24）。这是**既有语义**
+  （迁移前 OverviewCard 同款判据），非本次引入；探针已如实记录该状态（截图与 logged-in 同形），
+  并据此把探针的「空空间」判据校准为 max(mastery)=0（原按行数=0，永不成立）。四态的「无数据」
+  分支在本账号取不到，留痕不伪造。
+D-P10.5-3（四态取证边界·no-space 被守卫重定向，R19）：清掉 zhiwei_active_space 后进 /me 被
+  router.tsx guardPath（L120-121：token 且无活跃空间且非 /spaces、/self-report → /spaces）
+  重定向到 /spaces ⇒ MePage 内的「还没选中的学习空间」空盒分支**不可直接导航取到**（防御分支，
+  与迁移前 `{activeSpace ? … : null}` 同性质）。按 R19 口径留痕，不伪造。
+
+P10.6 /drive（原型 PAGES.library L2990-3028；代码 e59035c；走查 50a306b）
+· 涉及文件：apps/web/src/pages/DrivePage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/drive'，一行 + 注释）。
+  本页无 index.css 新增（bp-tbl/bp-panel/bp-note/Stamp/EmptyState 全部既有）。
+· 逐段复现：① sheetHead（LIBRARY / 只读资料 · SHEET 10-13 · 需求 2.13 · h1「云盘 · 与正在补的
+  内容挂钩」· chip「T2 · 只读」）；无空间分支走原型 L2994 的另一份 sheetHead（h1「云盘」+ chip T2）；
+  ② 01 预置教材文件（计数 chip + .bp-tbl：文件名/类型/大小/只读徽标 + file_id；区域级四态）；
+  ③ 02 与当前缺口相关（.split 左栏：既有 relevance —— 文件 → 你正在补的缺口名的确定性映射）；
+  ④ 03 自定义知识库（.split 右栏：既有禁用入口制式化 —— 禁用 Button + 原因 + 「规划中 · 与只读
+  区分」旁注）；⑤ 04 没有缺口时（既有「还没有能把资料和你挂钩的数据」引导 + 去做几道题出路）。
+· 业务逻辑逐行未动（对照 git HEAD）：drive / reportSummary 两个取数（Promise.all + report 失败
+  不拖垮列表）、cancelled 清理、依赖数组 [activeSpaceId] 逐字符未动；relevance 的确定性映射
+  （GRAPH_NODES chapterOf / GRADE9_CHAPTERS / textbook+syllabus 选择 / slice(0,3)）全部原样。
+  页面仅在既有 catch 内加一个 loadFailed 置位（D15c/D-P9.3-1 同口径的表现层状态位）。
+· 走查：1440/1024/375 × 双主题共 6 组合重采，/drive overflowPx 全 0。专项探针（6.5 新增
+  tools/probe-drive-states.cjs，1440/375 × 双主题共 4 组 × 4 状态）：normal（2 行文件表 + 2 个
+  相关块 + 只读徽标）→ empty（注入空集合 ⇒ .bp-empty）→ error（注入 500 ⇒ .bp-stamp 红章）→
+  no-space（守卫重定向 /spaces，R19）。16 个状态量尺全部 overflowPx=0、main h1=1。empty/error
+  按 R12 注入口径，theme/injected 在 JSON 里如实标注。目验 1440 浅色：单 h1「云盘 · 与正在补的
+  内容挂钩」、SHEET 10-13、只读徽标、02/03 齐备、无外壳页头残留。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；
+  6.3 静态纪律四条无匹配、DrivePage.tsx 无裸 hex 与 min-w-[。
+D-P10.6-1（原型 02 的两颗动作键不迁移）：原型 02「与当前缺口相关」带两颗键「分步练一道」
+  （→ /practice?chapter=… ）与「看先修链」（→ /graph?path=… ）。本工程既有 /drive 没有这两条动作，
+  补上即是**新增导航语义**（超出「只改视觉」）；且本工程 relevance 是「文件→缺口名」的映射，
+  原型是「缺口→章节→相关知识点」的 mock 结构，二者数据形状不同。故不迁移这两颗键，只按原型
+  panel 制式列既有 relevance（不漏既有信息）。
+D-P10.6-2（错误态不提供重试，按原型 errAlt 口径）：原型 stateBlock 的错误态 errAlt 是「回报告页」
+  这条出路（非真重试）。本页取数 effect 依赖 [activeSpaceId] 逐字符冻结（3.1a），页面内要在
+  不复制取数逻辑的前提下重发同一请求做不到；故红章只给出路（回报告页），与原型一致。属
+  「原型 mock 口径 vs 工程冻结约束」冲突，以「不复制业务逻辑」优先并留痕。
+D-P10.6-3（noSpace 分支被守卫重定向，R19）：同 D-P10.5-3，/drive 的 noSpace 提示分支（原型
+  L2994）在本工程被 guardPath 重定向到 /spaces，不可直接导航取到（防御分支）。按 R19 留痕。
+
+十二、P10 批次收尾：6.1 全套 + 冻结区（全部实测）
+类型检查三段（本轮 P10 收尾）：
+  tsc --noEmit -p packages/engine/tsconfig.json → exit 0
+  tsc --noEmit -p functions/api/tsconfig.json → exit 0
+  tsc --noEmit -p apps/web/tsconfig.json → exit 0
+测试三批（用例只增不减：462 = 217 + 43 + 202，与第 3 轮基准一致，无删减）：
+  vitest run packages           → 2 文件 43 用例全绿
+  vitest run functions/api/tests→ 19 文件 202 用例全绿
+  vitest run apps/web/tests     → 22 文件 217 用例全绿
+构建（等价口径，规避沙箱删除闸门）：
+  vite build --config apps/web/vite.config.ts --outDir /tmp/zhiwei-web-build-p10
+  → ✓ built in 3.80s；echarts 434.35 kB 仍为独立懒加载 chunk（GraphPage 24.98 kB /
+    index 260.42 kB / react 165.57 kB）；CSS 427.27 kB
+冻结区（3.2 双口径，均空输出）：
+  git diff --name-only HEAD -- apps/web/src/router.tsx apps/web/src/api packages/engine functions data → 空
+  git diff --name-only HEAD -- apps/web/src/stores → 空
+  git diff --name-only bf3c7fe..HEAD --（同上两组 + graphLayout/graphMastery/graphSnapshot/poster）→ 空
+6.3 静态纪律四条（任意值断点 / z-[ / CDN 字体）全局无匹配；
+  nav: 用法现存 36 处（P12.2 按 D26 逐条 A/B/C 分类处置）。
+
+十三、未完成项与续完入口（本次调用后 · D25 五件证据）
+未完成：P11.1-P11.4（/ → /t(+TeacherShell) → /t/student/:id → /t/recommendations）、
+  P12.1-P12.4（终检 / nav 断点清退评估 / 全站走查汇总 / 文档与报告）。
+状态：P10 六页全部完成（/spaces bcc253a → /start 52212c6 → /self-report b026e72 →
+  /login 7653b2b → /me 1b3f41d → /drive e59035c），每页代码 + 走查各独立提交；P10 批次收尾
+  6.1 全套 + 冻结区双口径已实测（见「十二、」）。
+续完入口：先读 01_PLAN「五、P11」+ 本快照表 + git log 三者对齐，从第一个未完成页
+  P11.1 /（门户落地页）继续 —— 原型 PAGES.portal L1855-1911 / hero L1881-1889；
+  Layout 登记 '/'（D24；portal 为 PUBLIC SHEET，自渲染 hero，不套 SheetHead 件）；
+  拍板④ + D6：现有四章叙事内容与信息架构保留、视觉层换蓝图；逐字动画保留。
+
 十、当前状态一句话
-P10 四页（/spaces /start /self-report /login）完成；本调用收口 P10.3 半页 + 完成 P10.4
-  （含「登录页进壳」这一处计划外必要改动与一条组件库缺陷的举证规避），两页走查各 6 组合
-  overflowPx 全 0、D24 单 h1；下一站 P10.5 /me。
-—— 第 4 轮执行报告（P8 + P9 段）完；P10–P12 未开始，续完入口见「九、」——
+P10 六页（/spaces /start /self-report /login /me /drive）全部完成；本次调用收口 P10.5 半页
+  （逐行复核三份未提交 diff 后判定方向正确并收口）+ 完成 P10.6，两页走查各 6 组合 overflowPx
+  全 0、D24 单 h1、专项探针双主题齐备；P10 批次 6.1 全套 + 冻结区双口径实测通过（462 用例
+  全绿只增不减）；下一站 P11.1 门户 /。
+—— 第 4 轮执行报告（P8 + P9 + P10 段）完；P11–P12 未开始，续完入口见「十三、」——
