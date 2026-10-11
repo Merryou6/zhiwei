@@ -51,6 +51,15 @@
  *   窄档补充（2026-10-11 走查复核）：适配缩放下限取 0.3（避免缩到节点成点），且容器
  *   宽 < 700px 时不画节点文字（标签不随 roam 缩放，窄档会叠成一团）—— 窄档画布退化为
  *   「形状地图」，名称/百分数/编号由下方 05 文字清单承载（原型窄档降级同口径）。
+ *
+ * ── 第 3 轮认领清偿（P8.1，2026-10-11 第 4 轮）：
+ *   · M-1（1440/1024 档节点标签叠压成片不可读，D21 第二层）：核实「label.width:96 +
+ *     overflow:'truncate' 单独控密度不足」后，改用 series 级 labelLayout:{hideOverlap:true}
+ *     （ECharts 内建避让，重叠标签自动隐藏且 emphasis 态保留 → 悬停仍可见）+ shortLabel
+ *     把超长名称截到 8 字 + 省略号（完整名称由 tooltip / 详情卡 / 05 文字清单承担）。
+ *     不动任何冻结语义（点火 / DIM_OPACITY / 重绘机制 / 文字清单键盘语义 / 取数）。
+ *   · L-1（D22）：ZOOM_MIN 由 0.12 改 0.3，与「适应窗口」地板同口径（防节点成点），
+ *     禁止两口径并存。
  */
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
@@ -118,14 +127,28 @@ const LOCKED_COLOR_FALLBACK = '#4A5560';
 const IGNITE_BASE_MS = 900;
 const IGNITE_STAGGER_MS = 36;
 
-/** 画布视图缩放的安全范围（工具条 / 键盘共同遵守）。 */
-const ZOOM_MIN = 0.12;
+/**
+ * 画布视图缩放的安全范围（工具条 / 键盘共同遵守）。
+ * 下限 0.3 与「适应窗口」地板同口径（D22 / 第 3 轮 L-1 清偿）：两者都遵守
+ * 「防节点成点」这一条取舍，不允许一个 0.12 一个 0.3 并存。
+ */
+const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 8;
 /** 键鼠一次缩放的倍率（原型 gZoom 取 1.2 / 0.83）。 */
 const ZOOM_STEP_IN = 1.2;
 const ZOOM_STEP_OUT = 0.83;
 /** 方向键平移的屏幕步长（px）；换算到数据坐标时除以当前缩放。 */
 const PAN_STEP_PX = 60;
+
+/**
+ * 画布节点标签的最长字数（第 3 轮 M-1 清偿 / D21 第二层）。
+ * 依据：列距 240px × 适应缩放 ~0.3 ≈ 72px 在屏间距，而 11px 字体下一个中文字约 11px
+ * —— 16 字的章节名（≈176px）必然与左右两列的标签咬合成片（第 3 轮 1440 档实采确证）。
+ * 截断到 8 字 + 省略号（≈99px）后，配合 series 级 labelLayout.hideOverlap 的内建避让，
+ * 留在画布上的标签都是可读的；完整名称照旧由 tooltip、节点详情卡、05 非图形文字版清单
+ * 三处承担（D8「文字编码多路径」口径不变）。
+ */
+const LABEL_MAX_CHARS = 8;
 
 /** 最后一个节点落位的时刻（24 节点 → 约 1.7s）。 */
 function ignitionLandingMs(nodeCount: number): number {
@@ -191,6 +214,11 @@ function shortKpId(id: string): string {
 /** kp 显示名：优先 #32 的服务端名称，兜底结构快照（禁止白屏的既有纪律）。 */
 function kpNameOf(id: string, serverName: string | undefined): string {
   return serverName ?? (snapshotNode(id)?.name ?? id);
+}
+
+/** 画布标签文本：截断 + 省略号，控住密度（见 LABEL_MAX_CHARS；纯展示变换，不动数据）。 */
+function shortLabel(name: string): string {
+  return name.length > LABEL_MAX_CHARS ? `${name.slice(0, LABEL_MAX_CHARS)}…` : name;
 }
 
 /** 画布视图相机（数据坐标系）：适应窗口的初始值 + 键盘/工具条的缩放与平移。 */
@@ -300,8 +328,9 @@ export default function GraphPage() {
     const onPath = (id: string): boolean => highlightPath.includes(id);
 
     // 画布视图：按容器实测尺寸算「适应窗口」的初始 zoom/center（消除页面级横向溢出）。
-    // 下限 0.3：窄档若照字面 fit 会缩到 ~0.15（节点成点、不可读），故留一个「看得见形状」
-    // 的地板，超出部分由 roam（拖拽 / 方向键）查看 —— 完整可读的表在下一节（原型窄档口径）。
+    // 下限 0.3（= ZOOM_MIN，D22 同口径）：窄档若照字面 fit 会缩到 ~0.15（节点成点、不可读），
+    // 故留一个「看得见形状」的地板，超出部分由 roam（拖拽 / 方向键）查看 —— 完整可读的表
+    // 在下一节（原型窄档口径）。
     const pad = 56;
     const cw = container.clientWidth || 720;
     const ch = container.clientHeight || 360;
@@ -364,6 +393,8 @@ export default function GraphPage() {
               // 画布承载「形状（symbol）+ 名称（label）」两重编码；百分数（数字）与编号
               // 由 tooltip、节点详情卡、文字清单三处承载。三重编码在图例（形状+色+文字+区间）
               // 与文字清单（编号+名称+百分数+档位）上完整成立。落差留痕见执行报告。
+              // M-1 清偿（D21 第二层）：宽度截断只是兜底（8 字短标签 ≈99px 已先由 shortLabel
+              // 截好），真正的密度控制交给下面的 labelLayout.hideOverlap。
               show: showLabels,
               position: 'bottom',
               distance: 6,
@@ -376,6 +407,10 @@ export default function GraphPage() {
                 return data?.labelText ?? '';
               },
             },
+            // ECharts 内建标签避让（第 3 轮 M-1 清偿 / D21 第二层）：重叠的标签自动隐藏
+            // （label.ignore = true，emphasis 态保留 → 鼠标悬停/聚焦仍能看到该节点名称），
+            // 单靠 label.width/overflow 截断不足以控住「多列标签咬合成片」的密度。
+            labelLayout: { hideOverlap: true },
             emphasis: { focus: 'adjacency', label: { fontSize: 12 } },
             data: layout.nodes.map((placed) => {
               const snapshot = snapshotNode(placed.id);
@@ -413,9 +448,9 @@ export default function GraphPage() {
                 y: placed.y,
                 symbol: symbolForState(state),
                 symbolSize: onHighlight || isSelected ? 34 : state === 'weak' ? 30 : 26,
-                // 画布单行标签 = 名称（11px ink 令牌，D20② 不用天蓝）；百分数由 tooltip/
-                // 详情卡/文字清单承载（见 label 处的取舍说明）。
-                labelText: name,
+                // 画布单行标签 = 名称的短标签（>8 字截断 + 省略号，见 shortLabel；
+                // 11px ink 令牌，D20② 不用天蓝）；百分数由 tooltip/详情卡/文字清单承载。
+                labelText: shortLabel(name),
                 itemStyle: {
                   color,
                   borderColor: border,
