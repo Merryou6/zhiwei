@@ -135,8 +135,11 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  * 【2026-10-11 迁移 P7（D19，INFO-1 认领）】/graph 页头归**页面自有**：原型 PAGES.graph
  *   两个分支（有证据 L2865 / 空图谱 L2854）都渲染自己的 sheetHead，且 sub/chip 数据
  *   只有页面拿得到 —— 登记 '/graph'，避免外壳再补一份通用页头造成双 h1。
+ *
+ * 【2026-10-11 迁移 P8.2（D24 逐页扩表）】/chat 页头归页面自有：原型 PAGES.chat L2535
+ *   自渲染 sheetHead（sub 带当轮 kp 与置信度，只有页面拿得到）。
  */
-const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph']);
+const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph', '/chat']);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {

@@ -1123,6 +1123,67 @@ textarea::placeholder {
   }
 }
 
+/* ── /chat 全屏对话页图纸制式（style-10 迁移 P8.2）────────────────────
+   原型 PAGES.chat（L2523-2604）的 .thread / .msg / .composer 制式。七件套共享组件
+   （D11）不可改，故与 .chat-stream 同一手法：用**作用域选择器**把制式锚在全屏页外壳
+   .bp-thread / .bp-composer 上，右侧常驻面板里的同款组件（不带这两个类）不受影响。
+   只经 --c-* 变量取色（不写 hex）。本段排在校内 .chat-stream 段**之前**：空态玻璃面
+   与入场动画的既有规则按层叠顺序仍然生效（border-color / background-color 可覆盖）。 */
+
+/* 消息流外壳：原型 .thread = 无外框、纵向 14px 间距（共享件根容器自带卡片外框，
+   这里收掉外框与内边距，改由每条气泡自身承担 1px 线制式）。 */
+.bp-thread > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* 共享件根容器用 space-y-3 定间距，与上面的 gap 会叠加 → 交还给 gap。 */
+.bp-thread > div:first-child > * + * {
+  margin-top: 0;
+}
+
+/* 气泡本体（原型 .msg .body：1px 实线 + 内嵌 4px 细线；图纸语汇取直角）。 */
+.bp-thread .justify-end > div > div[class*='inline-block'],
+.bp-thread .justify-start > div > div[class*='inline-block'] {
+  border: 1px solid rgb(var(--c-line));
+  border-radius: 0;
+  outline: 1px solid rgb(var(--c-line-faint));
+  outline-offset: -4px;
+  padding: 12px 14px;
+}
+
+/* 学生（右）：抬升面（原型 .msg.stu 取 surface-3 档）。 */
+.bp-thread .justify-end > div > div[class*='inline-block'] {
+  background-color: rgb(var(--c-raised));
+}
+
+/* 学长（左）：左侧 2px 强调线（原型 .msg.tutor `border-left:2px solid cyan`）。 */
+.bp-thread .justify-start > div > div[class*='inline-block'] {
+  border-left: 2px solid rgb(var(--c-accent));
+  background-color: rgb(var(--c-surface));
+}
+
+/* 系统提示（原型 .msg.sys）：虚线框 + 透明底 + 次一级文字。 */
+.bp-thread > div:first-child > p[class*='text-center'] {
+  border: 1px dashed rgb(var(--c-line));
+  background-color: transparent;
+  color: rgb(var(--c-ink-soft));
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* 输入区：原型 .composer = 顶部 1px 细线分隔 + 纵向留白（输入控件本体已随组件库
+   Textarea/Button 原语，刻度无需重写）。 */
+.bp-composer {
+  border-top: 1px solid rgb(var(--c-line));
+  padding-top: 12px;
+}
+
 /* ── 对话页作用域（2026-10-09 awwwards 适配包 F）────────────────────
    ChatMessageList / ChatComposer 是全屏页与右侧面板的共享组件（D11），
    包约束不允许改组件文件，因此气泡入场与空态玻璃面的锚点都经 ChatPage
