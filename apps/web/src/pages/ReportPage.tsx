@@ -415,7 +415,10 @@ export default function ReportPage() {
             <tbody>
               {byBand.map(({ band, rows }) => (
                 <tr key={band}>
-                  <td data-label="档位">
+                  {/* whitespace-nowrap：档位是「形状 + 两个字」的固定短语，桌面档列宽
+                      被宽列（知识点 chips）挤窄时不允许拆成两行（走查 1440 实测到
+                      「待巩 / 固」竖排）。窄档转卡片后它是 flex 行里的值，同样受益。 */}
+                  <td data-label="档位" className="whitespace-nowrap">
                     <BandMark band={band} showValue={false} size="sm" />
                   </td>
                   <td data-label="个数" className="n">
@@ -477,7 +480,7 @@ export default function ReportPage() {
                     <td data-label="掌握度" className="n">
                       {percent(row.mastery)}
                     </td>
-                    <td data-label="档位">
+                    <td data-label="档位" className="whitespace-nowrap">
                       <BandMark band={masteryBandOf(row.mastery)} showValue={false} size="sm" />
                     </td>
                     {/* 「完整可复制、打印不截断」（原型 anno③）：单元格不截断、可换行。

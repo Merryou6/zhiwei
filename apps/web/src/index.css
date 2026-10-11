@@ -1593,6 +1593,15 @@ textarea::placeholder {
     width: 100%;
   }
 
+  /* ⚠ caption 必须一并转块级：`display: table-caption` 的子盒在块级父盒（表已转
+     display:block）里会退化成「按最小内容收缩」，标题会被压成一列竖排的字
+     —— 2026-10-11 P6 走查在 768 档实测到（「分档明细」竖着排）。原型 L707-720
+     没有这一条，属原型未覆盖的边界，按「只增留痕修订」补。 */
+  .bp-tbl caption {
+    display: block;
+    width: 100%;
+  }
+
   .bp-tbl tr {
     padding: 3px 0;
     border-bottom: 1px solid rgb(var(--c-line));
