@@ -19,8 +19,9 @@
  *                 画布（roam 保留）+ 窄屏降级 note + 图例底条（BandLegend）+ 底部 row
  *                 （缩放倍数 / 平移提示 / 路径高亮态 / 导出海报）。原型「模拟从报告带入
  *                 路径」演示按钮不复现（D5：不引入 mock 交互）
- *   ④ 画布内节点/边  四档形状 symbol（graphSymbol，D20①）+ 节点双行文本（名称 / 百分数，
- *                 小字走 ink 令牌不用天蓝，D20②）+ 低置信边框虚线补偿 + 边 hl/done
+ *   ④ 画布内节点/边  四档形状 symbol（graphSymbol，D20①）+ 画布单行标签（名称，11px 走
+ *                 ink 令牌不用天蓝，D20②；百分数与编号由 tooltip / 详情卡 / 文字清单承载，
+ *                 见 setOption 处的取舍注）+ 低置信边框虚线补偿 + 边 hl/done
  *                 「已打通」角标 + 箭头 + 路径高亮降透明（DIM_OPACITY 冻结）
  *   ⑤ 03 节点详情 + 04 为什么是这张图  双栏（annos 档以上）：kv 清单 + 掌握度条 + CTA
  *                 （navigate 语义冻结）；aside 分层排布说明 + tick-list 四条
@@ -47,6 +48,9 @@
  *   撑出页面级横向滚动（/graph overflowPx≠0 的根因）。本轮改为**画布内缩放**：容器
  *   `w-full` + 固定视口高（制式类），初始 `zoom/center` 由容器实测尺寸算「适应窗口」，
  *   页面不再出现横向溢出。目标：audit-style10-375.json 中 /graph overflowPx = 0。
+ *   窄档补充（2026-10-11 走查复核）：适配缩放下限取 0.3（避免缩到节点成点），且容器
+ *   宽 < 700px 时不画节点文字（标签不随 roam 缩放，窄档会叠成一团）—— 窄档画布退化为
+ *   「形状地图」，名称/百分数/编号由下方 05 文字清单承载（原型窄档降级同口径）。
  */
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
@@ -286,10 +290,9 @@ export default function GraphPage() {
     // 点火重放判定：byKp 变了（新数据/新空间）才重播；主题切换或路径高亮的重绘不重播。
     const replayIgnition = lastIgnitionSourceRef.current !== byKp;
     lastIgnitionSourceRef.current = byKp;
+    // 节点文字走 ink 令牌：原型 nsh（环内百分数）用天蓝 #4E86D6，面板合成底仅 4.15:1，
+    // 迁移计划已禁用天蓝做小字（D20②）；本页画布标签一律取当前主题达标的 ink 家族。
     const textColor = themeColor('--c-ink', TEXT_COLOR_FALLBACK);
-    // 小字（百分数）走 ink-soft 令牌：原型 nsh 用天蓝 #4E86D6，面板合成底仅 4.15:1，
-    // 迁移计划已禁用天蓝做小字（D20②）；改用当前主题达标的 ink 家族。
-    const metaColor = themeColor('--c-ink-soft', TEXT_COLOR_FALLBACK);
     const edgeColor = themeColor('--c-line', EDGE_COLOR_FALLBACK);
     const accentColor = themeColor('--c-accent', PRIMARY_HEX);
     const lockedColor = themeColor('--c-line', LOCKED_COLOR_FALLBACK);
@@ -297,13 +300,18 @@ export default function GraphPage() {
     const onPath = (id: string): boolean => highlightPath.includes(id);
 
     // 画布视图：按容器实测尺寸算「适应窗口」的初始 zoom/center（消除页面级横向溢出）。
+    // 下限 0.3：窄档若照字面 fit 会缩到 ~0.15（节点成点、不可读），故留一个「看得见形状」
+    // 的地板，超出部分由 roam（拖拽 / 方向键）查看 —— 完整可读的表在下一节（原型窄档口径）。
     const pad = 56;
     const cw = container.clientWidth || 720;
     const ch = container.clientHeight || 360;
     const gw = Math.max(1, layout.width);
     const gh = Math.max(1, layout.height);
-    const fitZoom = Math.max(ZOOM_MIN, Math.min(1.1, Math.min((cw - pad) / gw, (ch - pad) / gh)));
+    const fitZoom = Math.max(0.3, Math.min(1.1, Math.min((cw - pad) / gw, (ch - pad) / gh)));
     const fit: GraphView = { zoom: fitZoom, center: [gw / 2, gh / 2] };
+    // 窄画布（<700px）不画节点文字：标签不随 roam 缩放（ECharts 行为），窄档下会叠成一团。
+    // 此时画布退化为「形状地图」，名称/百分数/编号由下方文字清单承载（与原型窄档降级同口径）。
+    const showLabels = cw >= 700;
     fitRef.current = fit;
     viewRef.current = fit;
     setZoomLevel(fitZoom);
@@ -350,25 +358,22 @@ export default function GraphPage() {
             edgeSymbol: ['none', 'arrow'],
             edgeSymbolSize: 6,
             label: {
-              show: true,
-              position: 'bottom',
-              distance: 5,
               // 单 label 锚点的取舍（原型三段文本：环上编号 / 环内百分数 / 下方名称）：
-              // ECharts graph 节点只有一个 label 锚点，无法在三条边分置文本 —— 折回原型
-              // 的「形状 + 数字 + 文字」三重编码语义：形状由 symbol 承担，label 双行承载
-              // 「名称（下）」+「百分数（原环内）」；编号由 tooltip 与文字清单承载。留痕见报告。
+              // ECharts graph 节点只有一个 label 锚点，且节点文字**不随 roam 缩放**
+              // （原型 SVG 连文字一起缩放）——两条都做不了，只能取一条单行标签以控住密度：
+              // 画布承载「形状（symbol）+ 名称（label）」两重编码；百分数（数字）与编号
+              // 由 tooltip、节点详情卡、文字清单三处承载。三重编码在图例（形状+色+文字+区间）
+              // 与文字清单（编号+名称+百分数+档位）上完整成立。落差留痕见执行报告。
+              show: showLabels,
+              position: 'bottom',
+              distance: 6,
+              fontSize: 11,
+              color: textColor,
+              width: 96,
+              overflow: 'truncate',
               formatter: (raw: unknown) => {
                 const data = (raw as { data?: { labelText?: string } }).data;
                 return data?.labelText ?? '';
-              },
-              rich: {
-                name: { color: textColor, fontSize: 11, lineHeight: 13 },
-                meta: {
-                  color: metaColor,
-                  fontSize: 9.5,
-                  lineHeight: 11,
-                  fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
-                },
               },
             },
             emphasis: { focus: 'adjacency', label: { fontSize: 12 } },
@@ -400,7 +405,6 @@ export default function GraphPage() {
               const borderWidth =
                 onHighlight || isSelected ? 3 : state === 'weak' ? 2.5 : state === 'untouched' || state === 'locked' ? 1.5 : 1;
               const name = kpNameOf(placed.id, profile?.name);
-              const pct = profile ? `${Math.round(mastery * 100)}%` : '—';
 
               return {
                 id: placed.id,
@@ -409,8 +413,9 @@ export default function GraphPage() {
                 y: placed.y,
                 symbol: symbolForState(state),
                 symbolSize: onHighlight || isSelected ? 34 : state === 'weak' ? 30 : 26,
-                // label 双行：名称（11px ink）+ 百分数（9.5px 等宽 ink-soft，D20② 不用天蓝）
-                labelText: `{name|${name}}\n{meta|${pct}}`,
+                // 画布单行标签 = 名称（11px ink 令牌，D20② 不用天蓝）；百分数由 tooltip/
+                // 详情卡/文字清单承载（见 label 处的取舍说明）。
+                labelText: name,
                 itemStyle: {
                   color,
                   borderColor: border,
