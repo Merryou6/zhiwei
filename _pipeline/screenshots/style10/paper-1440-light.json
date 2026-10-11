@@ -1,0 +1,156 @@
+{
+ "page": "/paper",
+ "width": 1440,
+ "height": 900,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T08:39:30.670Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_mv3d1i2g01js2",
+  "spaceName": "P6 四态取证空间",
+  "spaces": 4
+ },
+ "chain": {
+  "fileIndex": 1,
+  "fileSwitch": "switched:2",
+  "recBefore": true,
+  "recAfter": true,
+  "adopted": true,
+  "marked": 1,
+  "submitted": true
+ },
+ "states": [
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
+   "stageBadge": "pick",
+   "fileRows": 2,
+   "verdictSegments": 0,
+   "gapsStamp": false,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 2,
+   "recognitionIdSet": false,
+   "paperWrongCount": null,
+   "textLen": 618,
+   "state": "select",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
+   "stageBadge": "confirm",
+   "fileRows": 0,
+   "verdictSegments": 3,
+   "gapsStamp": true,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 0,
+   "recognitionIdSet": true,
+   "paperWrongCount": null,
+   "textLen": 1006,
+   "state": "recognized",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
+   "stageBadge": "confirm",
+   "fileRows": 0,
+   "verdictSegments": 3,
+   "gapsStamp": true,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 0,
+   "recognitionIdSet": true,
+   "paperWrongCount": null,
+   "textLen": 1006,
+   "state": "reload",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/paper",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "拍一张最近的试卷"
+   ],
+   "sheet10": true,
+   "stageBadge": "done",
+   "fileRows": 2,
+   "verdictSegments": 0,
+   "gapsStamp": false,
+   "measures": 4,
+   "measuresText": [
+    "新增证据\n2\n条",
+    "更新知识点\n2\n个",
+    "初始覆盖\n2\n个知识点",
+    "待巩固\n2\n个"
+   ],
+   "masteryRows": 2,
+   "recognitionIdSet": false,
+   "paperWrongCount": 3,
+   "textLen": 536,
+   "state": "submitted",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/attribution",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 2,
+   "h1Text": [
+    "归因结果",
+    "看看这道题错在哪"
+   ],
+   "sheet10": false,
+   "stageBadge": "pick",
+   "fileRows": 0,
+   "verdictSegments": 0,
+   "gapsStamp": false,
+   "measures": 0,
+   "measuresText": [],
+   "masteryRows": 0,
+   "recognitionIdSet": false,
+   "paperWrongCount": 3,
+   "textLen": 957,
+   "state": "attribution",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  }
+ ]
+}

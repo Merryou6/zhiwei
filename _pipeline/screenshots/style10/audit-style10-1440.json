@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T08:27:29.754Z",
+ "capturedAt": "2026-10-11T08:35:29.788Z",
  "pages": [
   {
    "hash": "#/login",
@@ -235,23 +235,23 @@
      "x": 236,
      "y": 62,
      "w": 1204,
-     "h": 662.88
+     "h": 766.69
     },
     "mainChild": {
      "x": 284,
      "y": 110,
      "w": 1108,
-     "h": 598.88
+     "h": 702.69
     },
     "firstCard": {
      "x": 284,
      "y": 110,
      "w": 1108,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 284,
-     "y": 132.5,
+     "y": 138,
      "w": 1108,
      "h": 32.5
     }
@@ -262,7 +262,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 721,
+   "textLen": 952,
    "route": "/paper",
    "routeName": "paper",
    "width": 1440,

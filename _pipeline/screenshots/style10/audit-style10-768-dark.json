@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T08:26:20.225Z",
+ "capturedAt": "2026-10-11T08:36:23.299Z",
  "pages": [
   {
    "hash": "#/login",
@@ -20,7 +20,7 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": 368,
-     "right": 912.1,
+     "right": 912,
      "w": 544
     }
    ],
@@ -235,23 +235,23 @@
      "x": 0,
      "y": 61,
      "w": 768,
-     "h": 750.88
+     "h": 1084.88
     },
     "mainChild": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 716.88
+     "h": 1050.88
     },
     "firstCard": {
      "x": 18,
      "y": 83,
      "w": 732,
-     "h": 76
+     "h": 101.75
     },
     "heading": {
      "x": 18,
-     "y": 105.5,
+     "y": 111,
      "w": 732,
      "h": 32.5
     }
@@ -262,7 +262,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 443,
+   "textLen": 665,
    "route": "/paper",
    "routeName": "paper",
    "width": 768,

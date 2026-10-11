@@ -1,0 +1,26 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = light
+width   = 1440 × 900
+space   = sp_mv3d1i2g01js2（只在指定空间里跑，见文件头纪律）
+
+auth    = via=login space=sp_mv3d1i2g01js2（P6 四态取证空间）账号空间数=4
+== 状态取证 ==
+  select       溢出=   0px  h1=1  stage=pick  题=0  缺口章=false  recId=false  wrong=null
+  → _pipeline/screenshots/style10/paper-1440-light-select.png
+  换选文件[1] = switched:2
+  开始识别=true
+  recognized   溢出=   0px  h1=1  stage=confirm  题=3  缺口章=true  recId=true  wrong=null
+  → _pipeline/screenshots/style10/paper-1440-light-recognized.png
+  刷新前 recognition_id=有 → 刷新后=有
+  reload       溢出=   0px  h1=1  stage=confirm  题=3  缺口章=true  recId=true  wrong=null
+  → _pipeline/screenshots/style10/paper-1440-light-reload.png
+  一键采纳=true  手标题数=1  提交=true
+  submitted    溢出=   0px  h1=1  stage=done  题=0  缺口章=false  recId=false  wrong=3
+  → _pipeline/screenshots/style10/paper-1440-light-submitted.png
+  attribution  溢出=   0px  h1=2  stage=pick  题=0  缺口章=false  recId=false  wrong=3
+  → _pipeline/screenshots/style10/paper-1440-light-attribution.png
+
+→ _pipeline/screenshots/style10/paper-1440-light.json
+overflowPx 最大 0px（判据：0）
