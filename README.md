@@ -188,7 +188,7 @@ AI 学长把问题分成两类，分别对待——
 ┌──────────────────────────────────────────────────────────────┐
 │  apps/web         React 18 · TypeScript · Vite · Tailwind     │
 │                   学生端 13 路由 + 老师端 /t/* 双壳路由          │
-│                   HashRouter · Zustand · ECharts · 响应式三档   │
+│                   HashRouter · Zustand · ECharts · 响应式四档   │
 ├──────────────────────────────────────────────────────────────┤
 │  functions/api    Node.js · REST / SSE 接口                    │
 │                   学生链路 + teacher 服务（快照聚合/绑定/推荐）    │
@@ -311,11 +311,11 @@ docker compose up -d --build
 
 | 维度 | 现状 |
 | --- | --- |
-| 测试 | **41 个测试文件 · 432 个用例全部通过**（引擎 43 + 后端 202 + 前端 187）；v2.1 / v2.2-m1 新增模块沿用同一纪律，交付即全绿 |
+| 测试 | **43 个测试文件 · 462 个用例全部通过**（引擎 43 + 后端 202 + 前端 217）；v2.1 / v2.2-m1 新增模块沿用同一纪律，交付即全绿 |
 | 类型 | TypeScript 严格模式，三段工程各自 `tsc --noEmit` 全绿 |
 | 数据闸门 | 静态校验 + 题库复算全部通过；专项练习库入库走同一闸门 |
 | 契约 | `API_CONTRACT` > `ALGORITHM` > `DATA_SCHEMA` > `PRD` 四层文档**冻结版**驱动，冲突有法可依，变更**追加式留痕**（v1.5 传图读题与选项化、v1.6 双端增量、v2.1 技能树与逐步批改均已留痕） |
-| 响应式 | 真浏览器在 **1440 / 1024 / 768 / 720 / 414 / 375** 六档 × 各页逐页采集溢出量与几何锚点，桌面三档**逐像素比对**零变化 |
+| 响应式 | 真浏览器在 **1440 / 1024 / 768 / 375** 四档 × 深浅双主题逐页采集（**17 路由 × 8 组合 = 136 单元 overflowPx 全 0、页面级 h1 全 1**，汇总见 `_pipeline/screenshots/style10/overflow-matrix-17x8.md`），桌面三档**逐像素比对**零变化；蓝图成图制式（图签条 / 分层索引 / 图纸制式）全站统一，字体三族自托管（Chivo / IBM Plex Mono / Noto Sans SC，禁 CDN） |
 | 留痕 | 每个模块完成立即提交，中文提交信息完整记录决策与关键数字 |
 
 ---
@@ -344,13 +344,13 @@ docker compose up -d --build
 
 ```
 zhiwei/
-├─ apps/web/             前端：学生端 11 页 + 老师端 /t/* 三页 + 组件 + 状态层
-│  ├─ src/pages/         主链路 10 页 + me 我的 + teacher/（工作台三页）
+├─ apps/web/             前端：学生端 13 路由 + 门户 / + 老师端 /t/* 三页 + 组件 + 状态层
+│  ├─ src/pages/         学生端 14 页（主链路 + 我的 + 门户）+ teacher/（工作台三页）
 │  ├─ src/components/    设计系统组件（含 chat/ 对话视图、practice/ 批改视图）
 │  ├─ src/stores/        Zustand：认证 / 空间 / 测评 / 归因 / 对话 / 面板 / 主题 / 会话
-│  └─ tests/             18 个测试文件
+│  └─ tests/             22 个测试文件
 ├─ functions/api/        后端：学生链路 + teacher 服务 + Store 适配 + 模型适配
-│  └─ tests/             14+ 个测试文件
+│  └─ tests/             19 个测试文件
 ├─ packages/engine/      BKT 引擎 + 分步批改核心（纯函数、零 IO）
 ├─ data/                 知识图谱 / 题库 / 专项练习库 / 知识库索引
 ├─ config/params.json    17 个算法参数（唯一来源）
@@ -359,7 +359,7 @@ zhiwei/
 ├─ deploy/               Docker 部署与运维教程
 ├─ docs/screenshots/     README 配图
 ├─ TEACHER_PORTAL_DESIGN.md  双端架构设计方案（v2.0 蓝图）
-└─ _pipeline/            开发流水线产物（计划 / 执行报告 / 审查报告 / 走查截图）
+└─ _pipeline/            开发流水线产物（计划 / 执行报告 / 审查报告 / 走查截图；style-10 全站走查见 screenshots/style10/）
 ```
 
 ---

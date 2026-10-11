@@ -9,7 +9,9 @@
 > 另有对外说明 **`README.md`**（面向 GitHub 访客：定位 / 闭环 / 亮点 / 架构 / 跑起来 / 部署）；
 > 它由本文件与下表的冻结文档派生，**冲突时一律以冻结文档为准**，改它不必走流水线但须核对数字为实物值。
 
-最后更新：2026-09-24（**移动端适配轮交付完成 + 审查 PASS + 清尾 + 仓库 README**：用户新增需求「适配手机端」与「写 README 好在 GitHub 显示项目信息」。手机端按「修破绽、桌面像素级零变化」深度交付（<720 顶栏改汉堡抽屉；断点收敛为具名 `nav:720px`；真浏览器 7 档宽度 × 12 页走查，桌面三档逐像素零变化），审查 **PASS**（0H/1M/4L/4INFO），清尾轮已清偿 M1/L1/L2 与 720px 错误定性；另新增仓库根 `README.md` + `docs/screenshots/` 配图）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 **104** 次提交（口径 `git rev-list --count HEAD`，**写完本行后又提交了本文件，故读到时请以命令实测为准**；其中移动端适配轮 B0–B6 七批 = `7e4d5ce`/`e20d9ba`/`bdaf2e9`/`d4824f5`/`dabe075`/`58121fd`/`61c1d3b`，清尾 = `a93f629`/`6500121`，流水线产物 `17b0d97`、README `c0a0ef3`、`a365bdb`、总控直接模式补丁 `1af2346`；非合并口径 `--no-merges` 计数略低）
+最后更新：2026-10-11（**style-10 全站视觉迁移第 4 轮（收尾轮）交付完成**：唯一视觉依据 `tempui/prototypes/style-10/index.html`，第 1–3 轮已完成 P0–P7，本轮 P8–P12 完成剩余 14 页，至此 17 页（学生端 13 路由 + 门户 `/` + 教师端 3 页）全部迁到「青蓝蓝图 · 成图制式」——双主题 token 体系 + 字体三族自托管（Chivo / IBM Plex Mono / Noto Sans SC，禁 CDN）+ 具名断点四档（`narrow:420` / `sheet:900` / `annos:1180`，`nav:720` 保留、语义收窄为触控目标作用域）+ 图纸/台账制式组件库 + 四态落点逐页齐备 + `PAGE_OWNED_HEAD` 消双 h1；**冻结区一行未动**（`router.tsx` / `api/` / `stores/` / `packages/engine` / `functions` / `data` / 图谱四件）、**既有测试文件零改动**（462 用例全绿只增不减）、tsc 三段 exit 0、`vite build` 成功；全站走查 17 路由 × 8 组合 overflowPx 全 0（产物 `_pipeline/screenshots/style10/`）；交付后停，待第 4 轮审查）｜ 维护：总控 ｜ 分支：`tempui-doc`，累计 **242** 次提交（口径 `git rev-list --count HEAD`，**写完本行后又提交了本文件，故读到时请以命令实测为准**；其中 style-10 迁移轮 = 起点 `bf3c7fe` → 本轮 45 个提交，含本提交为第 46 个，口径以 `git rev-list --count bf3c7fe..HEAD` 实测为准）
+
+最后更新（历史留痕）：2026-09-24（**移动端适配轮交付完成 + 审查 PASS + 清尾 + 仓库 README**：用户新增需求「适配手机端」与「写 README 好在 GitHub 显示项目信息」。手机端按「修破绽、桌面像素级零变化」深度交付（<720 顶栏改汉堡抽屉；断点收敛为具名 `nav:720px`；真浏览器 7 档宽度 × 12 页走查，桌面三档逐像素零变化），审查 **PASS**（0H/1M/4L/4INFO），清尾轮已清偿 M1/L1/L2 与 720px 错误定性；另新增仓库根 `README.md` + `docs/screenshots/` 配图）｜ 维护：总控 ｜ 分支：`tempdeploy`，累计 **104** 次提交（口径 `git rev-list --count HEAD`，**写完本行后又提交了本文件，故读到时请以命令实测为准**；其中移动端适配轮 B0–B6 七批 = `7e4d5ce`/`e20d9ba`/`bdaf2e9`/`d4824f5`/`dabe075`/`58121fd`/`61c1d3b`，清尾 = `a93f629`/`6500121`，流水线产物 `17b0d97`、README `c0a0ef3`、`a365bdb`、总控直接模式补丁 `1af2346`；非合并口径 `--no-merges` 计数略低）
 
 ---
 
@@ -58,6 +60,7 @@
 | 赛前修整轮 | 3 项反馈 + 1 项仓库卫生：① 空间新建真学科选择器（共享 SpaceCreateForm：/spaces 完整态 + 顶栏弹层紧凑态，可填空间名、重名本地自动后缀）② 深浅主题（默认深色 + localStorage 记忆 + 首帧内联脚本防闪 + theme-color 跟随）③「我的」页 + 只读接口 #20 GET /api/user/profile；另：仓库卫生（`deploy/*.env` 通配忽略 + 两 env 模板变量集对齐，属计划 D5、非用户反馈）。第 5 条对话链路留轮 2。轮 1 审查 FAIL 后返工修 H1（空间名上限前端 40 → 与服务端同源的 30） | 完成（已提交，返工后待审查） | 轮 1 FAIL（已返工）；待复审 |
 | 赛前修整轮 2 | 用户反馈第 5 条（最后一条）「对话链路透出 + 右侧常驻面板」：E1 契约 v1.3 冻结 / E2 本地链路真透出（prepareChat+runChat 拆分、真实中间量）/ E3 远程真流式（stream:true + 增量抽取）/ E4 云函数入口同形 / F1 前端消费层（SSE 三新事件 + trace 状态）/ F2 共享视图七件套 + ChatPage 瘦身 / F3 右侧常驻面板 + 顶栏按钮 / F4 真浏览器走查 + env 复核 + 文档收尾；其后 `9b24d46` 修推理摘要断句 | 完成（已提交） | **PASS**（轮 2 审查：11 条 L/INFO、无 H/M）；清尾 4 条用户可见项已修（L11 左基线 / L2 两处对比度 / L4 浮点显示 / L8-L9 文档数字） |
 | **移动端适配轮** | 用户新增需求「适配手机端」（深度=修破绽，**桌面 ≥768px 像素级零变化**；顶栏收纳=汉堡抽屉）：B0 新增响应式走查工具 `tools/responsive-audit.cjs` + 采集改前基线 / B1 断点单一定义（`nav:720px`，任意值断点清零）+ 3 处裸 z 值令牌化 + `viewport-fit=cover` + 安全区工具类 / B2 顶栏汉堡抽屉（`MobileNav.tsx` + `stores/mobileNav.ts`，与对话面板互斥、Esc/背景幕/焦点陷阱/焦点归还齐备）/ B3 布局与断行破绽（`min-h-dvh`、窄档页边距、`flex-wrap`、长串 `break-all`）/ B4 图谱 `ResizeObserver` + 触控目标 / B5 触控目标与安全区应用 / B6 走查收尾 | 完成（已提交） | **PASS**（0H/1M/4L/4INFO）；清尾轮已清偿 M1（删 2 个未使用的安全区死类 + 断言改锁实际使用点）、L1（screens 解析正则收紧）、L2（导航 id 收敛为 `lib/ids.ts` 共享常量 + 静态断言）、INFO-1（720px 定性更正） |
+| **style-10 全站视觉迁移（第 1–4 轮，2026-10-10 → 10-11）** | 以 `tempui/prototypes/style-10/index.html`（4113 行）为唯一视觉依据，把 **17 页**（学生端 13 路由 + 门户 `/` + 教师端 3 页，含 `TeacherShell`）全部迁到「青蓝蓝图 · 成图制式」：双主题语义 token 体系（白图/蓝图各一套，默认跟随系统、优先白图）+ 字体三族自托管（Chivo / IBM Plex Mono / Noto Sans SC，禁 CDN）+ 制图板外壳族（blueprint 13 件）与 ui 原语族就地改造 + 具名断点四档（`narrow:420` / `sheet:900` / `annos:1180`，`nav:720` 保留、语义收窄为「触控目标作用域」）+ 四态落点逐页齐备（loading/error/empty/无空间）+ `PAGE_OWNED_HEAD` 逐页登记消双 h1 + `<meta name="theme-color">` 随主题；第 4 轮（P8–P12）完成剩余 14 页与收尾：冻结区终检、nav 断点清退评估（D26：零清退）、全站走查汇总、README/LOOKATME 实测数字更新 | 完成（第 4 轮，待审查） | 第 1–3 轮 **PASS**；待第 4 轮审查 |
 | **仓库 README** | 用户新增需求「写 README 好在 GitHub 显示项目信息」：新增仓库根 `README.md`（中文为主 + 英文 Overview；徽章 / 五步闭环 / 五大亮点 / 技术架构 / 数据资产 / 快速开始 / Docker 部署 / 工程质量 / 项目结构 / 文档导航；全部数字按实物复核——36 节点 / 149 典型错误 / 404 题 / 20 接口 / 12 路由 / 32 文件 **364 用例** / 17 参数；许可证按实物为 **GPL-3.0**）+ `docs/screenshots/` 7 张配图（封面 / 图谱 / 报告 / 对话（含思考与工具链）/ 控制台 / 手机两态）；原 `知微-项目介绍.md` 已并入并归档 | 完成（已提交） | 文档类，无代码回归面（README 与 5 份冻结文档冲突时以冻结文档为准） |
 
 **关键数字（均已实跑核对，2026-09-24 赛前修整轮 2 后）**
@@ -79,6 +82,26 @@
   覆盖态零回归（正文宽 976/672/327、面板左缘 624/320/30 与修前一致）；面板跨路由保持展开（`#/console → #/graph → #/report → #/me` 实测 `aria-pressed` 恒 true，375/1440 两档各验一次）
 - 对话链路实测：一轮真实消息产出 **6 个 tool 步骤**（load_graph → model_call → kp_match → dedup_check → apply_evidence → state_machine），
   args/result 全为真实中间量（`kb_math_cz` / `node_count 24` / `confidence 0.85` / `threshold 0.6` / `adopted true` / 真实 ms 0.018–0.386）
+
+**style-10 迁移轮实测（2026-10-11 终态；口径与本章一致的「实物值」，详见 `_pipeline/02_EXEC_REPORT.md` 第 4 轮报告）**
+
+- 测试：**462 用例全绿**（**43 个测试文件**）——引擎 43 + 后端 202 + 前端 **217**（22 个测试文件，视觉门禁 = tokens 23 / bands 12 /
+  breakpoints 9 / themeStore 9 / blueprint 7 / graphSymbol 9）。本轮为纯表现层迁移，**既有测试文件一个未改**
+  （`git --no-pager diff --name-only bf3c7fe..HEAD -- apps/web/tests packages/engine functions/api/tests` 实测空输出），
+  用例只增不减（起点 462 = 终态 462）；本机单条命令约 60 秒被杀，故按 `run packages` / `run functions/api/tests` / `run apps/web/tests` 三条分批实跑
+- 类型检查：三段 `tsc --noEmit`（engine / functions/api / apps/web）**全部 exit 0**
+- 构建：`vite build` 通过（P12 实测：`index` 266.66 kB + `react` 165.57 kB + `echarts` **434.35 kB（仍是进图谱页才加载的独立懒加载 chunk）**
+  + `GraphPage` 24.98 kB + `index.css` **426.14 kB**）
+- 走查（真实 Edge headless + CDP，非模拟）：**17 路由 × 8 组合（1440 / 1024 / 768 / 375 × 深浅双主题）= 136 单元 overflowPx 全 0、
+  页面级 h1 全 1**（汇总矩阵 `_pipeline/screenshots/style10/overflow-matrix-17x8.md`）；产物指引 `_pipeline/screenshots/style10/`
+  （8 份 `audit-style10-*.json` 主走查 + 逐页专项 `*-<档>-<主题>.json` + `h1check-*.json`；探针 `tools/probe-*-states.cjs` 13 个
+  + `tools/probe-h1-sweep.cjs`）
+- 冻结区（3.1 一行不动清单）终检：`router.tsx` / `api/` / `stores/` / `packages/engine` / `functions` / `data` / 图谱四件
+  （graphLayout / graphMastery / graphSnapshot / poster）/ `useChatSend.ts` —— 区间口径 `git --no-pager diff --name-only bf3c7fe..HEAD -- …` **空输出**
+- 断点口径：四档具名断点 `narrow:420` / `sheet:900` / `annos:1180`（+ `nav:720` 保留、语义收窄为「触控目标作用域」）；
+  `src/**` 任意值断点变体与裸 `z-[` 实测 **0 处**（`breakpoints.test.ts` 静态锁死，9 用例全绿）
+- nav 断点清退评估（D26 判据）：真实用法 3 处（`ChatPanel` 2 处 + `Toast` 1 处，均为 `max-nav:min-h-9` 触控目标）⇒ **A 类保留**；
+  B 类（布局行为残留）与 C 类（死代码）**均 0 处** ⇒ 结论 **零清退**（断点定义与断言保留，无代码改动，见第 4 轮报告「十七、」）
 
 **本轮（赛前修整轮）逐项落点**
 
