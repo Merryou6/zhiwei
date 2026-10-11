@@ -18,7 +18,10 @@ P10.1 完成 /spaces（代码 bcc253a；4 状态探针 + 409 专项 1440/375 双
      双主题 6 组合 overflowPx 全 0；h1=1 无双页头；D-P10.1-1/2/3 三条偏差已留痕）
 P10.2 完成 /start（代码 52212c6；1440/1024/375 双主题 6 组探针 overflowPx 全 0、h1=1、
      SHEET 10-03 在页、四张路径卡；/start 不在 audit 工具 ROUTES 表内，另起探针取证）
-P10.3-P10.6 未开始
+P10.3 完成 /self-report（代码 b026e72（前次半页未提交改动经逐段对照原型 L1999-2040 复核后
+     收口 + 两处极小补齐）；走查 5d59594：1440/1024/375 双主题 6 组合 overflowPx 全 0、
+     h1=1；已记录态专项探针 3 状态 × 1440/375 × 双主题全绿；D-P10.3-1/2/3 留痕）
+P10.4-P10.6 未开始
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
@@ -200,9 +203,10 @@ D-P9-6（能力边界·未取证项）：P9.3 与 P9.4 的四态里，error（�
 状态：P10.1 /spaces（bcc253a + 06e6925）与 P10.2 /start（52212c6 + 走查提交）已结，
   其余页面代码一行未动。
 续完入口：先读 01_PLAN「五、」+ 本快照表 + git log 三者对齐，从第一个未完成页
-  P10.3 /self-report 继续（原型 PAGES['self-report'] L1999-2040；sheetHead L2018
-  「SELF REPORT / 30 秒先验」、SHEET 10-04、需求 2.4；Layout 登记 '/self-report'；
-  落盘键 zhiwei_sr_done_* 与提交链路零改动；走查 4 档 × 双主题 + 提交后已记录态实拍）。
+  P10.4 /login 继续（原型 PAGES.login L1912-1974；sheetHead L1951「AUTH / 最小摩擦入口」、
+  SHEET 10-02、需求 2.2；Layout 登记 '/login'；接线勾稽 #6 登录真实链路——token 落盘 /
+  刷新不掉线 / 演示账号 / 401 清理，authStore 冻结；走查 4 档 × 双主题 + 登录成功跳转与
+  字段错误态实拍）。
 P10 批次收尾待办：8 组合一次跑齐（补 768 档）+ 快照表与「五、」勾选同步。
 本页（P9）留下的两条尾账：P9.3/P9.4 的 error/empty 四态实拍（见 D-P9-6）；
   验证/反驳/处方三个既有交互的实拍（见「五、」未做）。
@@ -283,8 +287,65 @@ D-P10.2-1（sub 口径偏差·两处）：原型 sub 里嵌「注册后已自动
   不编一个空间名。原型说明末尾「回门户图」链接指向 /portal，本工程**没有该路由**（门户是
   P11.1 的 '/'），故不迁移那半句（不造一个指向不存在路由的链接）。
 
+P10.3 /self-report（原型 PAGES['self-report'] L1999-2040；代码 b026e72；半页收口）
+· 本页是「上次调用未提交半页」的续完：进本次调用时工作区有 M SelfReportPage.tsx +
+  M Layout.tsx 两处未提交改动。按 D25/D-P10.1-1 惯例先做**逐行复核**（不推倒重做）：
+  · Layout.tsx 的改动 = D24 在 PAGE_OWNED_HEAD 登记 '/self-report'（Set 一行 + 4 行注释），
+    与 P10.1/P10.2 同款改法、注释口径一致 ⇒ 保留。
+  · SelfReportPage.tsx 的改动 = 整页视觉层重写（sheetHead L2018 / 01 章节 × 五档细网格表 /
+    02 操作区 / 03 已记录态），逐段对照原型 L1999-2040 与既有业务逻辑后判定「方向正确、
+    结构齐备」⇒ 不重写，只补两处极小项（下述）。
+  · 半页收口的两处补齐（表现层）：① bp-stamp-ok 回执补 `role="status" aria-live="polite"`
+    —— 原型 L2033 的 stamp-ok 本来就有这两个属性，属逐段复现的漏项；② 文件头注释补记
+    第三条「口径差」（原型「一章都没选就提交」的琥珀 BLOCKED 章正文，见 D-P10.3-3）。
+· 涉及文件：apps/web/src/pages/SelfReportPage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/self-report'，一行 + 注释）。
+  本页无 index.css 新增（bp-seg / bp-stamp-ok / bp-tbl / bp-note / tok 全部既有）。
+· 逐段复现：① sheetHead（SELF REPORT / 30 秒先验 · SHEET 10-04 · 需求 2.4 ·
+  h1「起点自报：每章说一个档位」· chip T0 + 旁注）；② 01 章节 × 五档 —— 细网格表
+  （表头 章节 / 你的感觉 / 已选 + caption「档位口径 · 全站一致」）：每行章节名 + 「N 个
+  知识点」tok + `.bp-seg` 五档**真 radio**（name=sr-<章节>，01 几乎没学过 … 05 很熟；
+  选中态与焦点环由 :has() 表达，不自绘）+ 已选列（选中 → accent chip「03 会一点，会晃」，
+  未选 → tok「未选」）；分节右侧计数 chip「已选 n / 8 章」；③ 02 操作 —— 「按 3 档先填上」
+  （secondary）+ 档位说明 tok + 「提交自报」（primary，loading 时「正在记下…」）+
+  可用状态 tok（可提交 / 至少选一章）；④ 03 已记录 —— bp-stamp-ok 绿章 + tick +「自报已记录」
+  +「已更新 N 个知识点的起点（作为先验参与计算，不覆盖测评与试卷证据）」+ 两条出路
+  （开始测评 / 先看看我的地图）。
+· 四态：无（规范 §7 self-report 行明示「提交失败走 toast」）—— 本页不引入任何新状态位。
+· 业务逻辑零改动（对照 git HEAD 的迁移前实现逐条核）：levels 状态 / chosen 派生 /
+  handleSubmit 三道守卫（submitting / 无空间 → toast+SPACES_PATH / 未选 → toast）/ selfReport
+  调用 / setUpdated / markSelfReportDone(activeSpaceId) / 两条 toast 话术 / 两处 navigate
+  目标（/assessment、/graph）全部原样；未新增、未删除任何取数或副作用。
+· 走查：1440/1024/375 × 双主题共 6 组合重采，/self-report overflowPx 全 0（深色 JSON 另存
+  -dark.json，两份的 theme 字段与文件名一致，可核查）。专项（6.5 新增
+  tools/probe-selfreport-states.cjs，1440/375 × 双主题共 4 组 × 3 状态）：
+  normal（8 章行 / 40 档位钮 / 已选 0）→ picked（点「按 3 档先填上」，已选 8 / 8 章）→
+  submitted（第一行真选 03 档 → 真 POST /api/evidence/self-report → 已记录态：bp-stamp-ok
+  在页 + RECEIVED + 「已更新 2 个知识点的起点」+ 两条出路）；12 个状态量尺全部
+  overflowPx=0、main h1=1（D24 双 h1 复核通过）。目验 1440 浅色 picked / 1440 浅色 submitted：
+  单 h1、无外壳通用页头残留、五档选中态与绿章回执清晰。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；
+  6.3 静态纪律四条（任意值断点 / z-[ / CDN 字体）全局无匹配、SelfReportPage.tsx 无裸 hex
+  与 min-w-[。
+D-P10.3-1（半页收口的「已记录态」区块号）：原型 L2033 的已记录回执是**无编号**的
+  `<section class="block">`（只有 01 / 02 两个编号分节）。本次收口保留 SheetBlock 的
+  title「已记录」并沿用批次惯例给了 `no="03"`（/paper 的 STAGE3 完成块同款处理），
+  理由是页面此时只剩这一个分节、编号不产生歧义；若 reviewer 判为多加元素，可单处删除。
+D-P10.3-2（分节行号注释·口径一致）：本页注释里引用的原型行号按「01 章节 × 五档 = L2024-2026」
+  标注（= 原型 rows / 表体所在行），与 sheetHead L2018、已记录态 L2033-2036 同一套锚点。
+D-P10.3-3（原型 BLOCKED 章不迁移）：原型「一章都没选就提交」会插入琥珀色 BLOCKED 章
+  （mock 的 F.tried 状态位，L2020-2023）。本工程既有语义是 **toast 警告 + 留在原地**
+  （handleSubmit 的 `chosen.length === 0` 守卫），规范 §7 self-report 行也只写「提交失败走
+  toast」；故不新增状态位，02 区块只保留「可提交 / 至少选一章」的实时 tok。属「原型 mock
+  状态位 vs 工程既有语义」冲突，按 D-P9.4-2 同一裁决法：以现有语义为准并留痕。
+D-P10.3-4（D23 记账·自报先验写入）：P10.3 的「已记录态实拍」必须真提交，故 4 组探针各提交
+  1 次（每次只提交第一行 × 03 档）。副作用范围：按 functions/api/src/services/selfReport.ts，
+  只写 mastery_profiles 的 p_l0 / mastery（**不写 evidence_events**），且跳过已有观测证据的
+  知识点；4 次提交同一章节同一档位（幂等覆盖），实测每次 updated=2（代数式 2 个知识点）。
+  空间数不变（仍为 5，见 D-P10.1-4）——本页不新建空间。
+
 十、当前状态一句话
-P9 四页（/assessment /practice /paper /attribution）全部完成：每页代码单提交 + 走查独立提交，
-  8 组合 overflowPx 全 0、无双 h1、勾稽 #3（试卷识别刷新回显 + 错题缓存接回）在真浏览器
-  全链取证；6.1 全套（462 用例 / 三段 tsc / build）与冻结区双口径全绿；下一站 P10.1 /spaces。
+P10 三页（/spaces /start /self-report）完成；本调用收口了 P10.3 的半页（复核方向 → 补两处
+  极小项 → 单页提交），走查 6 组合 overflowPx 全 0、已记录态三状态实拍、h1=1；下一站
+  P10.4 /login（登录真实链路 #6）。
 —— 第 4 轮执行报告（P8 + P9 段）完；P10–P12 未开始，续完入口见「九、」——
