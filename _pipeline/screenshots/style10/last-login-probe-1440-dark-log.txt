@@ -1,0 +1,44 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = dark
+width   = 1440 × 900
+
+演示账号 demo_student 存在 = true（code=0）
+== 状态取证 ==
+  normal       溢出=   0px  h1=1  hash=#/login  token=false  错误行=0  toast=0
+     h1=["登录知微"]  分段=[["登录","注册"],["我是学生\n完整学习链路","我是老师\n带学生看学情"]]
+  → _pipeline/screenshots/style10/login-1440-dark-normal.png
+  aside 放大取景 = {"x":1168,"y":227.75,"width":228,"height":491.5,"scale":3}
+  → _pipeline/screenshots/style10/login-1440-dark-aside-zoom.png
+  空表单提交=true
+  field-error  溢出=   0px  h1=1  hash=#/login  token=false  错误行=2  toast=1
+     h1=["登录知微"]  分段=[["登录","注册"],["我是学生\n完整学习链路","我是老师\n带学生看学情"]]
+  → _pipeline/screenshots/style10/login-1440-dark-field-error.png
+  切到注册=true
+  register-tab 溢出=   0px  h1=1  hash=#/login  token=false  错误行=0  toast=1
+     h1=["注册知微"]  分段=[["登录","注册"],["我是学生\n完整学习链路","我是老师\n带学生看学情"]]
+  → _pipeline/screenshots/style10/login-1440-dark-register-tab.png
+  填入账号=true 密码=true
+  提交=true
+  login-ok     溢出=   0px  h1=1  hash=#/spaces  token=true  错误行=0  toast=1
+     h1=["学习空间：给证据找一个落点"]  分段=[["初中数学","高中数学"]]
+  → _pipeline/screenshots/style10/login-1440-dark-login-ok.png
+  login-reload 溢出=   0px  h1=1  hash=#/spaces  token=true  错误行=0  toast=0
+     h1=["学习空间：给证据找一个落点"]  分段=[["初中数学","高中数学"]]
+  → _pipeline/screenshots/style10/login-1440-dark-login-reload.png
+  bad-token    溢出=   0px  h1=1  hash=#/login  token=false  错误行=0  toast=1
+     h1=["登录知微"]  分段=[["登录","注册"],["我是学生\n完整学习链路","我是老师\n带学生看学情"]]
+  → _pipeline/screenshots/style10/login-1440-dark-bad-token.png
+  点 aside「一键进入」=true
+  demo-enter   溢出=   0px  h1=1  hash=#/spaces  token=true  错误行=0  toast=0
+     h1=["学习空间：给证据找一个落点"]  分段=[["初中数学","高中数学"]]
+  → _pipeline/screenshots/style10/login-1440-dark-demo-enter.png
+  演示账号落地：hash=#/spaces path=login
+
+→ _pipeline/screenshots/style10/login-1440-dark.json
+overflowPx 最大 0px（判据：0）
+h1 ≠ 1 的状态：无
+登录成功：hash=#/spaces token=true
+刷新不掉线：hash=#/spaces token=true
+401 清理：hash=#/login token=false（期望 #/login 且 token=false）

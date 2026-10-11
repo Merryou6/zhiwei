@@ -6,7 +6,7 @@ theme   = light
 widths  = 375
 
 === 宽度档 375 × 812（mobile=true）===
-  /login        溢出=   0px  溢出元素= 2
+  /login        溢出=   0px  溢出元素= 0
   鉴权 via=login space=sp_muf82zhx02br0
   /self-report  溢出=   0px  溢出元素= 0
   /spaces       溢出=   0px  溢出元素= 0

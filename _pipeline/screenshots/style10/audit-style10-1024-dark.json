@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "dark",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T09:32:28.801Z",
+ "capturedAt": "2026-10-11T09:47:03.770Z",
  "pages": [
   {
    "hash": "#/login",
@@ -15,30 +15,47 @@
    "scrollWidth": 1024,
    "overflowPx": 0,
    "bodyScrollWidth": 1024,
-   "overflow": [
-    {
-     "tag": "div",
-     "cls": "aurora-blob aurora-2",
-     "left": 624,
-     "right": 1168,
-     "w": 544
-    }
-   ],
+   "overflow": [],
    "anchors": {
-    "header": null,
+    "header": {
+     "x": 0,
+     "y": 0,
+     "w": 1024,
+     "h": 117
+    },
     "headerNav": null,
-    "main": null,
-    "mainChild": null,
-    "firstCard": null,
-    "heading": null
+    "main": {
+     "x": 236,
+     "y": 117,
+     "w": 788,
+     "h": 1338.19
+    },
+    "mainChild": {
+     "x": 284,
+     "y": 165,
+     "w": 692,
+     "h": 1274.19
+    },
+    "firstCard": {
+     "x": 284,
+     "y": 165,
+     "w": 692,
+     "h": 101.75
+    },
+    "heading": {
+     "x": 284,
+     "y": 193,
+     "w": 692,
+     "h": 32.5
+    }
    },
    "fonts": {
     "body": "16px",
-    "main": null,
-    "heading": null,
+    "main": "16px",
+    "heading": "26px",
     "headerNav": null
    },
-   "textLen": 143,
+   "textLen": 909,
    "route": "/login",
    "routeName": "login",
    "width": 1024,

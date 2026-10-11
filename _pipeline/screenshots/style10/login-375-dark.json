@@ -1,0 +1,334 @@
+{
+ "page": "/login",
+ "width": 375,
+ "height": 812,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T09:50:33.908Z",
+ "probeAccount": {
+  "identifier": "e2e_smoke",
+  "existed": true
+ },
+ "demoStudentExists": {
+  "exists": true,
+  "code": 0,
+  "msg": "success"
+ },
+ "demoEnter": {
+  "path": "login",
+  "hash": "#/spaces"
+ },
+ "sideEffects": {
+  "createdSpace": null,
+  "createdAccount": null,
+  "note": "真登录 3 次（login-ok / login-reload / bad-token 前置）用的都是探针账号 e2e_smoke，不新建空间；demo-enter 走的是产品本身的演示账号链路"
+ },
+ "states": [
+  {
+   "hash": "#/login",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "登录知微"
+   ],
+   "eyebrow": true,
+   "sheet1002": true,
+   "segCount": 2,
+   "segLabels": [
+    [
+     "登录",
+     "注册"
+    ],
+    [
+     "我是学生\n完整学习链路",
+     "我是老师\n带学生看学情"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 6,
+   "demoPanels": 0,
+   "demoNames": [
+    "demo_student",
+    "demo123456",
+    "demo_teacher",
+    "demo123456"
+   ],
+   "nicknameField": false,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 0,
+   "toastText": [],
+   "tokenPresent": false,
+   "tokenTail": null,
+   "identityChip": "身份 未登录收起标注对话辅导空间·未选择全部图纸",
+   "textLen": 580,
+   "state": "normal",
+   "note": "未登录进页：shell 内图纸（SHEET 10-02 + 单 h1）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/login",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "登录知微"
+   ],
+   "eyebrow": true,
+   "sheet1002": true,
+   "segCount": 2,
+   "segLabels": [
+    [
+     "登录",
+     "注册"
+    ],
+    [
+     "我是学生\n完整学习链路",
+     "我是老师\n带学生看学情"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 6,
+   "demoPanels": 0,
+   "demoNames": [
+    "demo_student",
+    "demo123456",
+    "demo_teacher",
+    "demo123456"
+   ],
+   "nicknameField": false,
+   "errorRows": 2,
+   "errorText": [
+    "先填手机号或邮箱，我才能记住你",
+    "密码还没填"
+   ],
+   "toastCount": 1,
+   "toastText": [
+    "先填手机号或邮箱，我才能记住你 知道了"
+   ],
+   "tokenPresent": false,
+   "tokenTail": null,
+   "identityChip": "身份 未登录收起标注对话辅导空间·未选择全部图纸",
+   "textLen": 547,
+   "state": "field-error",
+   "note": "空表单提交：字段级 role=alert 错误 + 非阻断 toast",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/login",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "注册知微"
+   ],
+   "eyebrow": true,
+   "sheet1002": true,
+   "segCount": 2,
+   "segLabels": [
+    [
+     "登录",
+     "注册"
+    ],
+    [
+     "我是学生\n完整学习链路",
+     "我是老师\n带学生看学情"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 7,
+   "demoPanels": 0,
+   "demoNames": [
+    "demo_student",
+    "demo123456",
+    "demo_teacher",
+    "demo123456"
+   ],
+   "nicknameField": true,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 1,
+   "toastText": [
+    "先填手机号或邮箱，我才能记住你 知道了"
+   ],
+   "tokenPresent": false,
+   "tokenTail": null,
+   "identityChip": "身份 未登录收起标注对话辅导空间·未选择全部图纸",
+   "textLen": 602,
+   "state": "register-tab",
+   "note": "分段切到「注册」：h1 与昵称字段随之变化",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "eyebrow": false,
+   "sheet1002": false,
+   "segCount": 1,
+   "segLabels": [
+    [
+     "初中数学",
+     "高中数学"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 3,
+   "demoPanels": 0,
+   "demoNames": [],
+   "nicknameField": false,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 1,
+   "toastText": [
+    "先填手机号或邮箱，我才能记住你 知道了"
+   ],
+   "tokenPresent": true,
+   "tokenTail": "fHTqYM",
+   "identityChip": "身份 学生收起标注对话辅导空间·初中数学全部图纸",
+   "textLen": 791,
+   "state": "login-ok",
+   "note": "真登录（POST /api/auth/login）：token 落盘 + 跳 /spaces",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "eyebrow": false,
+   "sheet1002": false,
+   "segCount": 1,
+   "segLabels": [
+    [
+     "初中数学",
+     "高中数学"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 3,
+   "demoPanels": 0,
+   "demoNames": [],
+   "nicknameField": false,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 0,
+   "toastText": [],
+   "tokenPresent": true,
+   "tokenTail": "fHTqYM",
+   "identityChip": "身份 学生收起标注对话辅导空间·初中数学全部图纸",
+   "textLen": 791,
+   "state": "login-reload",
+   "note": "刷新页面：token 在盘 ⇒ 仍在 /spaces（刷新不掉线）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/login",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "登录知微"
+   ],
+   "eyebrow": true,
+   "sheet1002": true,
+   "segCount": 2,
+   "segLabels": [
+    [
+     "登录",
+     "注册"
+    ],
+    [
+     "我是学生\n完整学习链路",
+     "我是老师\n带学生看学情"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 6,
+   "demoPanels": 0,
+   "demoNames": [
+    "demo_student",
+    "demo123456",
+    "demo_teacher",
+    "demo123456"
+   ],
+   "nicknameField": false,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 1,
+   "toastText": [
+    "token 无效或已过期 知道了 token 无效或已过期 知道了"
+   ],
+   "tokenPresent": false,
+   "tokenTail": null,
+   "identityChip": "身份 未登录收起标注对话辅导空间·未选择全部图纸",
+   "textLen": 580,
+   "state": "bad-token",
+   "note": "无效 token：服务端 401 ⇒ 清会话并回 /login（client.ts 既有链路）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "eyebrow": false,
+   "sheet1002": false,
+   "segCount": 1,
+   "segLabels": [
+    [
+     "初中数学",
+     "高中数学"
+    ]
+   ],
+   "formCount": 1,
+   "inputCount": 3,
+   "demoPanels": 0,
+   "demoNames": [],
+   "nicknameField": false,
+   "errorRows": 0,
+   "errorText": [],
+   "toastCount": 0,
+   "toastText": [],
+   "tokenPresent": true,
+   "tokenTail": "ABndOg",
+   "identityChip": "身份 学生收起标注对话辅导空间·初中数学全部图纸",
+   "textLen": 564,
+   "state": "demo-enter",
+   "note": "演示账号一键进入：本组之前已存在 ⇒ 走登录分支",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  }
+ ]
+}
