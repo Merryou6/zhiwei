@@ -147,6 +147,11 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  *
  * 【2026-10-11 迁移 P9.3（D24 逐页扩表）】/paper 页头归页面自有：原型 PAGES.paper
  *   L2218 自渲染 sheetHead（三段制的段位与「上限 5 页拼一份整卷」只有页面拿得到）。
+ *
+ * 【2026-10-11 迁移 P9.4（D24 逐页扩表）】/attribution 页头归页面自有：原型
+ *   PAGES.attribution L2608 自渲染 sheetHead（四步向导与「验证通过才给处方」只有
+ *   页面拿得到）。迁移前该页在外壳里同时有通用页头与自己的 PageHeader ⇒ 双 h1，
+ *   本页登记后消除（走查实测 2 → 1）。
  */
 const PAGE_OWNED_HEAD = new Set<string>([
   '/report',
@@ -155,6 +160,7 @@ const PAGE_OWNED_HEAD = new Set<string>([
   '/assessment',
   '/practice',
   '/paper',
+  '/attribution',
 ]);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */

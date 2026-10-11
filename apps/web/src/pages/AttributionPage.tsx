@@ -15,31 +15,42 @@
  *   - 耗尽（verification_item=null 且未 verified）→ 诚实兜底文案；rejected_by_student → 「已记录你的反驳」徽标。
  *
  * ─────────────────────────────────────────────────────────────────────
- * P3（2026-09-25）信息架构重做
+ * P3（2026-09-25）信息架构重做（结论 → 为什么 → 怎么找到的 → 其它可能 → 验证 → 处方）
+ * 保留其结论：结论必须是页面的第一眼，处方只在验证通过后出现。
  *
- * 只重排视觉与版式。业务逻辑、数据字段、行为分叉、接口调用、Link 目标一字未动。
+ * ─────────────────────────────────────────────────────────────────────
+ * style-10「青蓝蓝图」迁移 P9.4（2026-10-11 第 4 轮）：视觉层按原型 PAGES.attribution
+ *   （tempui/prototypes/style-10/index.html L2604-2760）逐段复现，**业务逻辑一行不改**
+ *   （四步向导 / classify 与 analyze 的分叉 / direction=none 不出现 analyze / 验证与反驳
+ *   链路 / 处方生成 / 取数 effect 与依赖数组 / Link 目标 / toast 话术全部原样）：
+ *   ① 页头 SheetHead：eyebrow「ATTRIBUTION / 沿先修链回溯」+ SHEET 10-10 + 需求 2.10 +
+ *     h1「错题归因：往上找真正卡住你的那一环」+ chip「T0 · 回溯」；页头归页面自有
+ *     （D24：Layout 的 PAGE_OWNED_HEAD 登记 '/attribution'，外壳不再补第二份 h1）
+ *   ② 步骤条（原型 stepper L2611-2615）：01 挑一道错题 / 02 复述确认 / 03 错误分类 /
+ *     04 分流·深挖 / 05 结果与验证 —— 当前步高亮 + aria-current="step"，已过步走平色
+ *   ③ STEP1 01 挑一道错题（原型 L2625-2649）：左栏「从本会话的试卷错题里挑」（错题表 +
+ *     「N 题可带出 / 暂无缓存」chip；缓存为空 → 空盒如实说没有并给两条出路）+
+ *     右栏「或者手动填一道」（题干 / 你的作答 / 知识点三填，走同一套流程）
+ *   ④ STEP2 02 复述确认（原型 L2651-2665）：复述框（题目 / 你的作答 / 知识点）+
+ *     两个动作（就是这么写的，看看属于哪类 / 换一道）
+ *   ⑤ STEP3 03 错误分类（原型 L2667-2688）：低置信就地追问（我已拿不准就不硬猜）；
+ *     采纳后出「先复述你写的这一步」（含置信度读数与证据）+ 五类闭集清单（命中项高亮）
+ *   ⑥ STEP4 04 分流（原型 L2691-2706）：direction=none → 明说不深挖并给出路；
+ *     否则给出「沿先修链往上回溯」的起步键
+ *   ⑦ STEP5 05+01~04 结果（原型 L2709-2756）：根因块（编号 / 层数 / 状态 / 为什么）+
+ *     回溯路径（.bp-path 链，根因那一节红框 + 「根因在此」）+ 候选根因排序（.bp-cands
+ *     贡献度条）+ 验证环节 + 处方（验证通过才给）+ 反驳常驻在页脚
  *
- * 【改前的毛病】结果态是 5 张**同构等权**卡片（回溯路径 / 嫌疑排序 / 验证一下 /
- * 不同意这个判断 / 处方）自上而下堆叠，全部 `mt-4 rounded-2xl border p-4 shadow-card`。
- * 后果是没有视觉焦点：打开页面第一眼看到的是一堆卡片，而不是「结论是什么」。
- * 对一个「归因」产品这是致命的 —— 学生来就是为了那一句话。
+ * 【四态（规范 §7 attribution 行，整页级）】
+ *   loading（带 ?attribution_id= 回显中）→ SkeletonLines + 「载入该次归因结果」分节
+ *   empty（本会话没有可归因的错题）→ EmptyState（如实说没有，并给「去传一张卷子」的出路）
+ *   error（该次归因结果取不到）→ Stamp 红章 + **真重试**（D15c 同口径：重发同一个 #14 请求）
+ *     —— 不给半截结论：取不到就明说取不到，不拿向导态冒充结果
+ *   无空间 → guardSpace 的既有 toast + 重定向语义一行不改（R19 取证口径）
  *
- * 【改后的叙事】结论 → 为什么 → 怎么找到的 → 其它可能 → 验证 → 处方
- *   ① Hero —— **刻意不是卡片**（无边框、无底色、无圆角，只有左侧 2px 主色标线
- *      与字号阶差）。第一眼就是结论：根因知识点做大字标题；「找到啦…」退成它上方的
- *      一句小字（它表达的是「我们找到了」这个态度，不是结论本身）。
- *   ② 为什么是这里 —— 这一类失误的典型表现 + 沿先修链找了几层、停在哪。
- *   ③ 怎么找到的 —— 纵向路径链（连接线 + 根因光环 + 等宽数字圆点），
- *      替代原来的「数字圆点 + 缩进文本」，让「往上追」这件事本身看得出来。
- *   ④ 其它可能 —— 降为 quiet 档（无边框、无阴影、只靠下沉底色），
- *      嫌疑度改成贡献度条；它是旁证，不该和结论一样重。
- *   ⑤ 验证一下 / ⑥ 处方 —— 页面的主操作区，保持 plain 档。
- *   ⑦ 反驳 + 换一道 —— 降为页脚一行 inline 操作，不再与 Hero 争注意力。
- *
- * 【只用真实字段】Hero 的结论取 view.root_cause；「为什么」取 error_type 与 path.length；
- * 链条取 view.path；贡献度取 view.suspect_scores；验证取 store.verification；
- * 处方取 store.plan。⚠ 结果态**没有** confidence —— 它只存在于向导态的 classifyAdopted，
- * 不得借用、不得编造。
+ * 【D15c 同口径的最小新增（表现层，留痕）】回显 effect 的 catch 里加一个 `viewFailed`
+ *   置位（接口调用、cancelled 清理、依赖数组 [attributionId] 逐字符未动）；重试走
+ *   同一个 getAttribution(attributionId)。与 P6 /report、P7 /graph、P9.2 /paper 同一口径。
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -49,16 +60,15 @@ import { ApiError } from '../api/client';
 import { analyze, classify, generatePlan, getAttribution, reject, verify } from '../api/endpoints';
 import type { AttributionView, ErrorTypeValue } from '../api/types';
 import ItemCard from '../components/ItemCard';
-import PageSkeleton from '../components/PageSkeleton';
+import Stamp from '../components/blueprint/Stamp';
+import SkeletonLines from '../components/blueprint/SkeletonLines';
+import { SheetBlock, SheetHead, sheetDimText } from '../components/blueprint/Sheet';
+import { useBlueprintTier } from '../components/blueprint/Board';
+import EmptyState from '../components/EmptyState';
 import {
   Badge,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   FormField,
-  PageContainer,
-  PageHeader,
   Select,
   Textarea,
   buttonVariants,
@@ -75,7 +85,6 @@ import {
   UI_TEXT,
 } from '../lib/phrases';
 import { SPACES_PATH, readPaperWrong } from '../router';
-import { useReveal } from '../lib/useReveal';
 import { useAttributionStore } from '../stores/attribution';
 import type { AttributionDraft } from '../stores/attribution';
 import { useSpaceStore } from '../stores/space';
@@ -89,6 +98,20 @@ const KP_OPTIONS = GRAPH_NODES.map((node) => ({
 /** 结果态里两个可跳转区块的 id（Hero 的「去验证」用它滚动定位）。 */
 const VERIFY_ANCHOR_ID = 'attribution-verify';
 const PLAN_ANCHOR_ID = 'attribution-plan';
+
+/** 图号与需求号（原型 sheetHead L2608 的 SHEET 10-10 / 需求 2.10）。 */
+const SHEET_NO = '10-10';
+const SECTION_NO = '2.10';
+
+/** 步骤条的五步（原型 stepper L2612；本工程把「错误分类 / 分流」两步分别对应
+ *  clarify|adopted 与 direction 分叉，步序不编造、不加步）。 */
+const WIZARD_STEPS = [
+  ['01', '挑一道错题'],
+  ['02', '复述确认'],
+  ['03', '错误分类'],
+  ['04', '分流 / 深挖'],
+  ['05', '结果与验证'],
+] as const;
 
 export default function AttributionPage() {
   const [params] = useSearchParams();
@@ -110,9 +133,9 @@ export default function AttributionPage() {
   const [busy, setBusy] = useState(false);
   /** 带 ?attribution_id= 进入时的回显等待（批三：此前会先闪一屏空白起始页）。 */
   const [viewLoading, setViewLoading] = useState(false);
-
-  // 设计语言（包F）：向导态页头的滚动揭示（once 语义，reduced-motion 下 hook 直出可见）。
-  const headerReveal = useReveal<HTMLDivElement>();
+  /** 该次归因结果这一次没取到（红章依据，见文件头「D15c 同口径的最小新增」）。 */
+  const [viewFailed, setViewFailed] = useState(false);
+  const tier = useBlueprintTier();
 
   const loadedRef = useRef<string | null>(null);
 
@@ -125,7 +148,9 @@ export default function AttributionPage() {
         const view = await getAttribution(attributionId);
         loadedRef.current = view.attribution_id;
         store.setAttribution(view);
+        setViewFailed(false);
       } catch (error) {
+        setViewFailed(true);
         toast(error instanceof ApiError ? error.message : UI_TEXT.networkError, 'error');
       } finally {
         setViewLoading(false);
@@ -259,6 +284,22 @@ export default function AttributionPage() {
     }
   }
 
+  /** 红章的真重试（D15c 口径）：重发**同一个** #14 请求，不新开取数路径。 */
+  async function retryLoad(): Promise<void> {
+    if (!attributionId) return;
+    setViewLoading(true);
+    try {
+      const view = await getAttribution(attributionId);
+      loadedRef.current = view.attribution_id;
+      store.setAttribution(view);
+      setViewFailed(false);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setViewLoading(false);
+    }
+  }
+
   function restart(): void {
     store.reset();
     loadedRef.current = null;
@@ -266,13 +307,78 @@ export default function AttributionPage() {
     navigate('/attribution', { replace: true });
   }
 
+  const draft = store.draft;
+  const adopted = store.classifyAdopted;
+  const clarify = store.classifyClarify;
+  const wrongItems = activeSpaceId ? readPaperWrong(activeSpaceId) : [];
+
+  /** 当前步（0 起，与 WIZARD_STEPS 对齐）：结果态 = 第 5 步。 */
+  const stepIndex = store.attribution ? 4 : adopted ? 3 : clarify ? 2 : draft ? 1 : 0;
+
+  /** 页头（原型 sheetHead L2608）。**由页面自己渲染**：外壳对此页不再补通用页头
+   *  （Layout 的 PAGE_OWNED_HEAD，D24）—— 否则一页会出现两个 h1。 */
+  const pageHead = (
+    <SheetHead
+      eyebrow="ATTRIBUTION / 沿先修链回溯"
+      sheetNo={SHEET_NO}
+      section={SECTION_NO}
+      title="错题归因：往上找真正卡住你的那一环"
+      sub="四步：挑错题 → 复述确认 → 错误分类 → 分流；验证通过才给处方。允许你反驳。"
+      chips={<Badge tone="accent">T0 · 回溯</Badge>}
+      dim={sheetDimText(tier)}
+    />
+  );
+
+  /** 步骤条（原型 stepper L2611-2615）：当前步高亮，已过的步走平色。 */
+  const stepper = (
+    <div className="bp-flat mb-6 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
+        {WIZARD_STEPS.map(([no, label], index) => (
+          <Badge
+            key={no}
+            tone={stepIndex === index ? 'accent' : 'neutral'}
+            className={cn(stepIndex > index && 'opacity-70')}
+          >
+            {`${no} · ${label}`}
+          </Badge>
+        ))}
+        <span className="tok ml-auto text-ink-soft">从 ?attribution_id= 进入时先取回该次结果</span>
+      </div>
+    </div>
+  );
+
   // ============================================================ 回显等待
   // 带 ?attribution_id= 进入且尚未取回结果：先出骨架，避免闪一屏空白起始页（批三）
   if (viewLoading && !store.attribution) {
     return (
-      <PageContainer width="prose">
-        <PageSkeleton label="正在取这次归因的结果…" rows={2} />
-      </PageContainer>
+      <>
+        {pageHead}
+        {stepper}
+        <SheetBlock no="00" title="载入该次归因结果">
+          <SkeletonLines rows={4} note="正在取这次归因的结果 · 不伪造内容" />
+        </SheetBlock>
+      </>
+    );
+  }
+
+  // ============================================================ 取不到（error）
+  // 不给半截结论：结果取不到就明说取不到，重试重发同一个请求；不拿向导态冒充结果。
+  if (viewFailed && !store.attribution) {
+    return (
+      <>
+        {pageHead}
+        {stepper}
+        <SheetBlock no="00" title="载入该次归因结果">
+          <Stamp
+            reason="这一次没能取回这次归因的结果（网络中断、结果已过期，或服务暂时没有响应）。取不到就不给你半截结论：重试一次通常就能取到，也可以从下面重新挑一道错题开始。"
+            onRetry={() => {
+              void retryLoad();
+            }}
+            retrying={viewLoading}
+            alt={{ label: '重新挑一道错题', to: '/attribution' }}
+          />
+        </SheetBlock>
+      </>
     );
   }
 
@@ -295,258 +401,223 @@ export default function AttributionPage() {
     }
 
     return (
-      // ⚠ 结果态用 standard（768px）而不是向导态的 prose（672px）：
-      // 结果态是**报告**（有链条、有进度条、有列表），不是连续阅读的正文。
-      // 672px 的窄列让这一屏在 1440 下显得又瘦又空 —— 内容只占可用宽度六成，
-      // 右边留出一大片什么都不发生的空白，看起来像没排完版。
-      <PageContainer width="standard">
-        {/* ── ① Hero：页面的视觉焦点，刻意不是卡片 ──────────────────────
-            无边框、无底色、无圆角、无阴影 —— 只靠左侧 2px 主色标线与字号阶差立起来。
-            这是「Hero 不必是 Card」这条判据的执行点：一旦给它套上 rounded-surface +
-            border + shadow-card，它就和下面 4 张卡变成了同一级，结论又沉回页首了。
-            唯一的面部动作是 animate-rise：整页只此一处入场动画，不做逐块 stagger。 */}
-        <section className="animate-rise border-l-2 border-accent pl-4 nav:pl-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="warning">{ERROR_TYPE_LABEL[view.error_type]}</Badge>
-            {view.verified ? <Badge tone="positive">已验证</Badge> : null}
-            {view.rejected_by_student ? (
-              <Badge tone="neutral">{UI_TEXT.rejectRecorded}</Badge>
-            ) : null}
-          </div>
+      <>
+        {pageHead}
+        {stepper}
 
-          <p className="mt-5 text-ui-sm text-ink-soft">{PHRASES.attributionFound}</p>
-          <h1 className="mt-1 text-3xl font-medium leading-tight text-ink">
-            {kpName(view.root_cause)}
-          </h1>
-          <p className="mt-3 text-reading leading-relaxed text-ink-soft">
-            从「{kpName(view.from_kp)}」往上翻，真正卡住的是这一环。
-          </p>
-          <p className="mt-2 font-mono text-caption tabular-nums text-ink-soft">
-            归因编号 {view.attribution_id} · 回溯 {view.path.length} 层
-          </p>
-
-          {/* 主操作：未验证时给出「下一步」，已到达终局就不再堆按钮（处方区自会有操作）。 */}
-          {!view.verified && item ? (
-            <div className="mt-5">
-              <Button variant="secondary" size="sm" onClick={() => scrollTo(VERIFY_ANCHOR_ID)}>
-                去验证这一步 ↓
-              </Button>
+        {/* ── 05 结论（原型 L2715-2721）：根因块是全页的第一眼 ────────── */}
+        <SheetBlock
+          no="05"
+          title={PHRASES.attributionFound}
+          right={<Badge>{`回溯 ${view.path.length} 层`}</Badge>}
+        >
+          <div className="bp-panel p-4">
+            <div className="mb-2.5 flex flex-wrap items-center gap-2.5">
+              <h3 className="font-disp text-ui-sm tracking-tight text-ink">根因</h3>
+              <Badge tone="warning">{ERROR_TYPE_LABEL[view.error_type]}</Badge>
+              {view.verified ? <Badge tone="positive">已验证</Badge> : null}
+              {view.rejected_by_student ? (
+                <Badge tone="neutral">{UI_TEXT.rejectRecorded}</Badge>
+              ) : null}
             </div>
-          ) : null}
-        </section>
-
-        {/* ── ② 为什么是这里 ─────────────────────────────────────────── */}
-        {/* 设计语言（包F）：解释性散文卡用玻璃面；下方路径链/证据列表等密集区保持实底。 */}
-        <Card className="mt-8 glass-card">
-          <CardHeader title="为什么是这里" />
-          <CardContent className="space-y-2 text-sm leading-relaxed text-ink-soft">
-            <p>
-              <span className="text-ink">{ERROR_TYPE_LABEL[view.error_type]}</span>
-              {' —— '}
+            <p className="font-disp text-base leading-snug tracking-tight text-ink">
+              {kpName(view.root_cause)}
+            </p>
+            <p className="tok mt-1.5">
+              归因编号 <span className="num-mono">{view.attribution_id}</span> · 回溯层数{' '}
+              {view.path.length} · 当前状态：
+              {view.verified ? '已验证' : item ? '待验证' : '尝试用完'}
+            </p>
+            <p className="bp-note mt-3">
+              从「{kpName(view.from_kp)}」出发，沿先修链往上找了 {view.path.length} 层，停在了「
+              {kpName(view.root_cause)}」。{ERROR_TYPE_LABEL[view.error_type]} ——{' '}
               {ERROR_TYPE_NOTE[view.error_type]}
             </p>
-            <p>
-              我们从「{kpName(view.from_kp)}」出发，沿先修链往上找了 {view.path.length}{' '}
-              层，停在了「<span className="text-ink">{kpName(view.root_cause)}</span>」。
-            </p>
-          </CardContent>
-        </Card>
+            {/* 主操作：未验证时给出「下一步」，已到达终局就不再堆按钮（处方区自会有操作）。 */}
+            {!view.verified && item ? (
+              <div className="mt-3">
+                <Button variant="secondary" size="sm" onClick={() => scrollTo(VERIFY_ANCHOR_ID)}>
+                  去验证这一步 ↓
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </SheetBlock>
 
-        {/* ── ③ 怎么找到的：纵向路径链 ─────────────────────────────────
-            从「数字圆点 + 缩进文本」升级为一条真正的链：圆点之间画连接线，
-            根因那节换成实心主色 + 光环，读起来才像「一路往上追」而不是一串并列项。
-            ⚠ 连接线靠 left-3 + -translate-x-1/2 居中定位，不去碰图层级 ——
-              src 里禁止任意值 z-index（breakpoints.test.ts 会按字面量静态扫出，
-              连注释里都别写出范例，否则闸门会被自己的说明文字绊倒）。 */}
-        <Card className="mt-4">
-          <CardHeader title="怎么找到的" description="从出错的那一步，沿先修链一路往上。" />
-          <CardContent>
-            <ol className="relative">
-              {view.path.map((id, index) => {
-                const isRoot = index === view.path.length - 1;
-                return (
-                  <li
-                    key={id}
-                    className={cn('relative flex gap-3', !isRoot && 'pb-4')}
-                  >
-                    {!isRoot ? (
-                      <span
-                        aria-hidden="true"
-                        className="absolute left-3 top-7 bottom-0 w-px -translate-x-1/2 bg-line"
-                      />
-                    ) : null}
-                    <span
-                      className={cn(
-                        'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-caption tabular-nums',
-                        isRoot
-                          ? 'bg-accent font-medium text-on-accent ring-4 ring-accent-veil'
-                          : 'border border-line bg-canvas text-ink-soft',
-                      )}
-                    >
-                      {index + 1}
-                    </span>
-                    <div
-                      className={cn(
-                        'min-w-0 rounded-control px-3 py-1.5',
-                        isRoot && 'bg-accent-veil',
-                      )}
-                    >
-                      <p className={cn('text-sm', isRoot ? 'font-medium text-ink' : 'text-ink-soft')}>
-                        {kpName(id)}
-                      </p>
-                      {isRoot ? (
-                        <p className="mt-0.5 text-ui-sm text-accent-ink">根因就在这里</p>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </CardContent>
-        </Card>
+        {/* ── 01 回溯路径（原型 L2722-2727）：一条链，根因那一节换红框 ──── */}
+        <SheetBlock no="01" title="回溯路径">
+          <ol className="bp-path">
+            {view.path.map((id, index) => {
+              const isRoot = index === view.path.length - 1;
+              return (
+                <li key={id} data-root={isRoot ? '1' : '0'}>
+                  <span className="pl" aria-hidden="true">
+                    {`L${String(view.path.length - index).padStart(2, '0')}`}
+                  </span>
+                  <span className="min-w-0">{kpName(id)}</span>
+                  {isRoot ? <Badge tone="negative">根因在此</Badge> : null}
+                </li>
+              );
+            })}
+          </ol>
+          <p className="bp-note">
+            层号从表面往上游数：L{String(view.path.length).padStart(2, '0')} 是那道错题表面的知识点，L01
+            是回溯到的最上游。
+          </p>
+        </SheetBlock>
 
-        {/* ── ④ 其它可能：降为 quiet 档 ────────────────────────────────
-            它是旁证，不是结论。用 quiet（无边框、无阴影、只靠下沉底色）把它压到
-            视觉第二层，避免和上面两张卡抢注意力。 */}
+        {/* ── 02 候选根因排序（原型 L2728-2732）：贡献度条 + 读数 ──────── */}
         {suspects.length > 0 ? (
-          <Card variant="quiet" className="mt-4">
-            <CardHeader
-              title="其它可能"
-              description="如果根因不是上面那个，接下来最像的是这几个。"
-            />
-            <CardContent>
-              <ul className="space-y-2.5">
-                {suspects.map(([suspect, score]) => (
-                  <li key={suspect}>
-                    <div className="flex items-baseline justify-between gap-3 text-sm">
-                      <span className="min-w-0 truncate text-ink">{kpName(suspect)}</span>
-                      <span className="flex-none tabular-nums text-ink-soft">
-                        {percent(score)}
-                      </span>
-                    </div>
-                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-canvas">
-                      <span
-                        className="block h-full rounded-full bg-accent"
-                        style={{ width: `${score * 100}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          <SheetBlock no="02" title="候选根因排序">
+            <ul className="bp-cands">
+              {suspects.map(([suspect, score]) => (
+                <li key={suspect}>
+                  <span className="cn">{kpName(suspect)}</span>
+                  <span
+                    className="bp-bar"
+                    data-share={score >= 0.5 ? 'high' : score >= 0.2 ? 'mid' : 'low'}
+                    role="img"
+                    aria-label={`贡献度 ${score.toFixed(2)}`}
+                  >
+                    <i style={{ width: `${Math.round(score * 100)}%` }} />
+                  </span>
+                  <span className="num-mono">{score.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="bp-note">{`贡献度合计为 1；主根因取最高项（本次 ${percent(suspects[0][1])}）。`}</p>
+          </SheetBlock>
         ) : null}
 
-        {/* ── ⑤ 验证一下 ─────────────────────────────────────────────── */}
-        {/* 设计语言（包F）：验证主操作区玻璃面；卡内 ItemCard 自带实底，可读性不受损。 */}
-        <Card id={VERIFY_ANCHOR_ID} className="mt-4 scroll-mt-20 glass-card">
-          <CardHeader title="验证一下" />
-          <CardContent>
+        {/* ── 03 验证环节（原型 L2733-2745）──────────────────────────── */}
+        <SheetBlock
+          no="03"
+          title="验证环节"
+          id={VERIFY_ANCHOR_ID}
+          className="scroll-mt-20"
+          right={<Badge>{view.verified ? '已验证' : item ? '待你作答' : '尝试用完'}</Badge>}
+        >
+          <div className="bp-panel p-4">
             {item ? (
               <>
-                <p className="text-ui-sm leading-relaxed text-ink-soft">
+                <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
                   做对这一题，就说明我们找对了方向（做错也没关系，我换一道再确认）。
                 </p>
                 <div className="mt-3">
                   <ItemCard item={item} value={verifyAnswer} onChange={setVerifyAnswer} disabled={busy} />
                 </div>
-                <Button
-                  className="mt-3"
-                  loading={busy}
-                  onClick={() => void submitVerify()}
-                >
+                <Button className="mt-3" loading={busy} onClick={() => void submitVerify()}>
                   {busy ? '正在判…' : '提交这一步'}
                 </Button>
               </>
             ) : view.verified ? (
-              <p className="text-sm leading-relaxed text-ink-soft">
+              <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
                 {lastCorrect === false
                   ? '这道没过，我们换个方向继续看。'
                   : `${UI_TEXT.verifyPassed}——这一环确实是我们该补的地方。`}
               </p>
             ) : (
-              <p className="text-sm leading-relaxed text-ink-soft">
+              <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
                 {UI_TEXT.verificationExhausted}
               </p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </SheetBlock>
 
-        {/* ── ⑥ 处方 ───────────────────────────────────────────────────
-            ⚠ 未验证时**不渲染成一张卡**：原来它是一张边框完整、只装一句话的卡片，
-            在一堆卡片中间显得又重又空。只有真的排得出路线时才值得占一张卡。 */}
-        {view.verified ? (
-          <Card id={PLAN_ANCHOR_ID} className="mt-4 scroll-mt-20">
-            <CardHeader
-              title="那就从这一环开始稳"
-              description="我给你排一条从根因往上补的路线，题从易到难。"
-              actions={
+        {/* ── 04 处方（原型 L2746-2753）：验证通过才给 ─────────────────── */}
+        <SheetBlock
+          no="04"
+          title="处方"
+          id={PLAN_ANCHOR_ID}
+          className="scroll-mt-20"
+          right={
+            <Badge tone={view.verified ? 'accent' : 'neutral'}>
+              {view.verified ? '验证通过后给出' : '待验证通过后给出'}
+            </Badge>
+          }
+        >
+          {view.verified ? (
+            <div className="bp-panel p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="font-disp text-ui-sm tracking-tight text-ink">
+                    那就从这一环开始稳
+                  </h3>
+                  <p className="tok mt-0.5">我给你排一条从根因往上补的路线，题从易到难。</p>
+                </div>
                 <Button size="sm" loading={busy} onClick={() => void runPlan()}>
                   {plan ? '重新生成' : '给我一条路线'}
                 </Button>
-              }
-            />
-            {plan ? (
-              <CardContent>
-                <p className="text-sm text-ink">
-                  策略：<span className="text-accent-ink">{plan.strategy}</span>
-                </p>
-                <ol className="mt-2 space-y-1 text-sm leading-relaxed text-ink-soft">
-                  {plan.explanation_outline.map((line, index) => (
-                    <li key={index}>· {line}</li>
-                  ))}
-                </ol>
-                <ul className="mt-3 space-y-2">
-                  {plan.item_sequence.map((sequenceItem) => (
-                    <li
-                      key={sequenceItem.item_id}
-                      className="flex items-baseline gap-2 rounded-control border border-line px-3 py-2 text-sm text-ink"
-                    >
-                      <Badge tone="neutral" size="sm" className="flex-none tabular-nums">
-                        难度 {sequenceItem.difficulty}
-                      </Badge>
-                      <span className="min-w-0">{sequenceItem.stem}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to={`/graph?path=${encodeURIComponent(plan.path.join(','))}`}
-                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'mt-4')}
-                >
-                  去图谱看学习路径
-                </Link>
-              </CardContent>
-            ) : null}
-          </Card>
-        ) : (
-          <p
-            id={PLAN_ANCHOR_ID}
-            className="mt-6 scroll-mt-20 text-sm leading-relaxed text-ink-soft"
-          >
-            先把上面这一步验证完，我再给你排路线。
-          </p>
-        )}
+              </div>
+              {plan ? (
+                <>
+                  <p className="mt-3 text-body-sm text-ink">
+                    策略：<span className="text-accent-ink">{plan.strategy}</span>
+                  </p>
+                  <ul className="bp-tick-list mt-2">
+                    {plan.explanation_outline.map((line, index) => (
+                      <li key={index}>{line}</li>
+                    ))}
+                  </ul>
+                  <div className="bp-tbl-wrap mt-3">
+                    <table className="bp-tbl">
+                      <caption>题目序列（从易到难）</caption>
+                      <thead>
+                        <tr>
+                          <th>难度</th>
+                          <th>题目</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {plan.item_sequence.map((sequenceItem) => (
+                          <tr key={sequenceItem.item_id}>
+                            <td data-label="难度" className="n">
+                              {sequenceItem.difficulty}
+                            </td>
+                            <td data-label="题目">{sequenceItem.stem}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Link
+                    to={`/graph?path=${encodeURIComponent(plan.path.join(','))}`}
+                    className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'mt-4')}
+                  >
+                    去图谱看学习路径
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          ) : (
+            <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
+              先把上面这一步验证完，我再给你排路线。验证通过才生成补齐方案——这次尝试用完了，我们就停在这里，不硬编一份方案出来。
+            </p>
+          )}
+        </SheetBlock>
 
-        {/* ── ⑦ 次要区：一行 inline 操作 ───────────────────────────────
-            「反驳」原先是一张与 Hero 等权的大卡常驻页面中部，抢走了结论的注意力。
-            但它承载的是产品的一条重要纪律（学生可以不同意机器判断），所以不能删 ——
-            降为页脚一行，需要时会展开。 */}
-        <section className="mt-8 border-t border-line pt-4">
+        {/* ── 页脚：反驳常驻 + 重新归因（原型 L2754-2756 的出口行）───────
+            「反驳」承载的是产品的一条纪律（学生可以不同意机器判断），所以常驻；
+            但它不与结论争注意力，落在页脚一行，需要时才展开。 */}
+        <SheetBlock no="06" title="下一步">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-sm font-medium text-ink">不同意这个判断？</h2>
-              <p className="mt-1 text-ui-sm leading-relaxed text-ink-soft">
-                你比我更清楚当时怎么想的——说一句，我换一道题再确认。
-              </p>
+              <h3 className="font-disp text-ui-sm tracking-tight text-ink">不同意这个判断？</h3>
+              <p className="tok mt-0.5">你比我清楚当时怎么想的——说一句，我换一道题再确认。</p>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              aria-expanded={rejectOpen}
-              onClick={() => setRejectOpen((value) => !value)}
-            >
-              {rejectOpen ? '收起' : '反驳一下'}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                aria-expanded={rejectOpen}
+                onClick={() => setRejectOpen((value) => !value)}
+              >
+                {rejectOpen ? '收起' : '反驳一下'}
+              </Button>
+              <Button variant="quiet" size="sm" onClick={restart}>
+                换一道错题重新归因
+              </Button>
+            </div>
           </div>
 
           {rejectOpen ? (
@@ -559,37 +630,30 @@ export default function AttributionPage() {
                   onChange={(event) => setRejectReason(event.target.value)}
                 />
               </FormField>
-              <Button
-                size="sm"
-                className="mt-2"
-                loading={busy}
-                onClick={() => void submitReject()}
-              >
+              <Button size="sm" className="mt-2" loading={busy} onClick={() => void submitReject()}>
                 {busy ? '正在记…' : '提交反驳，换一道验证题'}
               </Button>
             </div>
           ) : null}
 
-          <div className="mt-4">
-            <Button variant="quiet" size="sm" onClick={restart}>
-              换一道错题重新归因
-            </Button>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Link to="/graph" className={cn(buttonVariants({ variant: 'link' }))}>
+              去看技能树
+            </Link>
+            <Link to="/report" className={cn(buttonVariants({ variant: 'link' }))}>
+              学习报告
+            </Link>
           </div>
-        </section>
-      </PageContainer>
+        </SheetBlock>
+      </>
     );
   }
 
   // ============================================================ 向导态
-  const wrongItems = activeSpaceId ? readPaperWrong(activeSpaceId) : [];
-  const draft = store.draft;
-  const adopted = store.classifyAdopted;
-  const clarify = store.classifyClarify;
-
   /**
    * 步骤眉标（P3 新增）。
    * ⚠ 刻意**不用进度条**：契约里没有「总步数」这个概念，画进度条就是编造数据。
-   * 步骤感由眉标 + 内容推进承担，而不是由一个假装能量化进度的组件承担。
+   * 步骤感由步骤条 + 内容推进承担，而不是由一个假装能量化进度的组件承担。
    * 文案留作页内字面量，不并入 UI_TEXT —— 后者有逐字断言（phrases.test.ts）。
    */
   const stepLabel =
@@ -602,74 +666,103 @@ export default function AttributionPage() {
           : '第 2 步 · 先复述一遍';
 
   return (
-    <PageContainer width="prose">
-      {/* 设计语言（包F）：页头进入视口一次性揭示（once），滚动叙事与 LandingPage 同一机制。 */}
-      <div
-        ref={headerReveal.ref}
-        className={cn('reveal-section', headerReveal.inView && 'is-revealed')}
-      >
-        <PageHeader
-          kicker={stepLabel}
-          title="看看这道题错在哪"
-          description="先告诉我一道错题。我会先复述你写的这一步，再说它大概属于哪一类——如果我拿不准，我会问你，而不是猜。"
-        />
-      </div>
+    <>
+      {pageHead}
+      {stepper}
 
-      {/* ── 第一步：选错题来源 ───────────────────────────────────── */}
+      {/* ── STEP1 · 01 挑一道错题（原型 L2636-2648）──────────────────── */}
       {draft === null ? (
-        <div className="mt-6 space-y-4">
-          {wrongItems.length > 0 ? (
-            <Card>
-              <CardHeader
-                title="从试卷错题里挑"
-                description={`这个空间里记下了 ${wrongItems.length} 道错题。`}
-              />
-              <CardContent>
-                <ul className="space-y-2">
-                  {wrongItems.map((item, index) => (
-                    <li key={`${item.kp_id}_${index}`}>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          store.setDraft({
-                            kpId: item.kp_id,
-                            stem: item.stem_excerpt,
-                            studentAnswer: item.student_answer,
-                            itemId: null,
-                          })
-                        }
-                        className="w-full rounded-control border border-line px-3 py-2 text-left transition-colors duration-150 ease-out hover:border-accent hover:bg-raised"
-                      >
-                        <span className="block text-sm text-ink">{item.stem_excerpt}</span>
-                        <span className="mt-1 block text-ui-sm text-ink-soft">
-                          {kpName(item.kp_id)} · 你的作答：{item.student_answer || '（空）'}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ) : null}
+        <SheetBlock
+          no="01"
+          title="挑一道错题"
+          right={<span className="num-mono text-tok text-ink-soft">STEP 1 / 4</span>}
+        >
+          <p className="bp-note mb-3">{`当前：${stepLabel}。先告诉我一道错题：我会先复述你写的那一步，再说它大概属于哪一类——拿不准我会问你，而不是猜。`}</p>
 
-          <Card>
-            <CardHeader title="或者自己填一道" />
-            <CardContent className="space-y-3">
-              <FormField label="题目（写个大概也行）">
-                <Textarea
-                  rows={2}
-                  value={stem}
-                  onChange={(event) => setStem(event.target.value)}
+          <div className="grid grid-cols-1 gap-4 annos:grid-cols-[minmax(0,1fr)_320px]">
+            {/* 左：本会话试卷确认判出的错题（勾稽 #3：只从缓存里取，不凭空造题） */}
+            <div className="bp-panel p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h3 className="font-disp text-ui-sm tracking-tight text-ink">从本会话的试卷错题里挑</h3>
+                <Badge tone={wrongItems.length > 0 ? 'accent' : 'neutral'}>
+                  {wrongItems.length > 0 ? `${wrongItems.length} 题可带出` : '暂无缓存'}
+                </Badge>
+              </div>
+
+              {wrongItems.length > 0 ? (
+                <div className="bp-tbl-wrap">
+                  <table className="bp-tbl">
+                    <caption>试卷逐题确认时判错的题（来自本会话的试卷确认）</caption>
+                    <thead>
+                      <tr>
+                        <th>题</th>
+                        <th>题干</th>
+                        <th>知识点</th>
+                        <th>你的作答</th>
+                        <th>选</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {wrongItems.map((item, index) => (
+                        <tr key={`${item.kp_id}_${index}`}>
+                          <td data-label="题" className="n">
+                            {index + 1}
+                          </td>
+                          <td data-label="题干">{item.stem_excerpt}</td>
+                          <td data-label="知识点">{kpName(item.kp_id)}</td>
+                          <td data-label="你的作答">{item.student_answer || '（空）'}</td>
+                          <td data-label="选">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() =>
+                                store.setDraft({
+                                  kpId: item.kp_id,
+                                  stem: item.stem_excerpt,
+                                  studentAnswer: item.student_answer,
+                                  itemId: null,
+                                })
+                              }
+                            >
+                              用这道
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <EmptyState
+                  tag="NO WRONG ITEMS"
+                  title="这个会话里还没有试卷确认产生的错题"
+                  hint="候选清单只从试卷逐题确认判出的错题里取，不凭空造题；缓存为空就如实说没有。先去传一张卷子（确认判错的题会留在这里），或者在右边手动填一道——手动填的题走同一套归因流程。"
+                  action={
+                    <Button variant="secondary" size="sm" onClick={() => navigate('/paper')}>
+                      先去传一张卷子
+                    </Button>
+                  }
                 />
+              )}
+            </div>
+
+            {/* 右：手动填一道（走同一套流程，不因不是拍照来的就降级处理） */}
+            <div className="bp-flat p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h3 className="font-disp text-ui-sm tracking-tight text-ink">或者手动填一道</h3>
+                <Badge tone="neutral">同一套流程</Badge>
+              </div>
+              <FormField label="题干">
+                <Textarea rows={2} value={stem} onChange={(event) => setStem(event.target.value)} />
               </FormField>
-              <FormField label="你当时怎么写的">
+              <FormField label="你的作答">
                 <Textarea
                   rows={2}
                   value={studentAnswer}
                   onChange={(event) => setStudentAnswer(event.target.value)}
                 />
               </FormField>
-              <FormField label="这道题考的知识点">
+              <FormField label="知识点">
                 <Select value={kpId} onChange={(event) => setKpId(event.target.value)}>
                   {KP_OPTIONS.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -685,51 +778,65 @@ export default function AttributionPage() {
               >
                 下一步：先复述一遍
               </Button>
-            </CardContent>
-          </Card>
-        </div>
-      ) : null}
-
-      {/* ── 第二步：复述确认（先复述再判定，是产品纪律不是装饰）────── */}
-      {draft !== null && !adopted && !clarify ? (
-        <Card className="mt-6">
-          <CardContent>
-            <p className="text-ui-sm text-ink-soft">{UI_TEXT.restateFirst}</p>
-            {/* 复述块：用下沉底色与卡片本体分开，读起来像「引用你写的东西」而不是我们的结论。 */}
-            <div className="mt-3 rounded-control bg-canvas px-3 py-2.5">
-              <p className="text-ui-sm text-ink-soft">题目</p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{draft.stem}</p>
-              <p className="mt-3 text-ui-sm text-ink-soft">你的作答</p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{draft.studentAnswer}</p>
-              <p className="mt-3 text-ui-sm text-ink-soft">知识点：{kpName(draft.kpId)}</p>
             </div>
-          </CardContent>
-          <CardContent className="flex flex-wrap items-center gap-3">
-            <Button loading={busy} onClick={() => void runClassify(draft)}>
-              {busy ? '正在看…' : '就是这样，看看属于哪类'}
-            </Button>
-            <Button variant="quiet" onClick={() => store.reset()}>
-              换一道
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </SheetBlock>
       ) : null}
 
-      {/* ── 第三步 A：低置信就地追问（不自动 analyze）──────────────── */}
+      {/* ── STEP2 · 02 复述确认（先复述再判定，是产品纪律不是装饰）────── */}
+      {draft !== null && !adopted && !clarify ? (
+        <SheetBlock
+          no="02"
+          title="复述确认"
+          right={<span className="num-mono text-tok text-ink-soft">STEP 2 / 4</span>}
+        >
+          <div className="bp-panel p-4">
+            <h3 className="font-disp text-ui-sm tracking-tight text-ink">我把你的作答这样读，对不对？</h3>
+            <p className="bp-note mt-1.5">{UI_TEXT.restateFirst}</p>
+            <div className="mt-3">
+              <div className="bp-kv">
+                <dt>题目</dt>
+                <dd className="whitespace-pre-wrap text-left">{draft.stem}</dd>
+              </div>
+              <div className="bp-kv">
+                <dt>你的作答</dt>
+                <dd className="whitespace-pre-wrap text-left">{draft.studentAnswer}</dd>
+              </div>
+              <div className="bp-kv">
+                <dt>知识点</dt>
+                <dd className="text-left">{kpName(draft.kpId)}</dd>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button loading={busy} onClick={() => void runClassify(draft)}>
+                {busy ? '正在看…' : '就是这样，看看属于哪类'}
+              </Button>
+              <Button variant="quiet" onClick={() => store.reset()}>
+                换一道
+              </Button>
+            </div>
+          </div>
+        </SheetBlock>
+      ) : null}
+
+      {/* ── STEP3-A · 03 低置信就地追问（不自动 analyze）────────────── */}
       {clarify ? (
-        <Card variant="quiet" className="mt-6 border border-band-weak">
-          <CardContent>
-            <p className="text-sm leading-relaxed text-ink">{clarify.question}</p>
-            <p className="mt-1 text-ui-sm text-ink-soft">
-              我拿不准就不硬猜——你把这一步写清楚，我再判一次。
-            </p>
-            <Textarea
-              className="mt-3"
-              rows={3}
-              placeholder="比如把中间那一步式子写出来"
-              value={clarifyInput}
-              onChange={(event) => setClarifyInput(event.target.value)}
-            />
+        <SheetBlock
+          no="03"
+          title="错误分类（我再确认一下）"
+          right={<span className="num-mono text-tok text-ink-soft">STEP 3 / 4</span>}
+        >
+          <div className="bp-panel border-band-weak p-4">
+            <p className="text-body-sm leading-relaxed text-ink">{clarify.question}</p>
+            <p className="bp-note mt-1.5">我拿不准就不硬猜——你把这一步写清楚，我再判一次。</p>
+            <span className="bp-ctl mt-3 block">
+              <Textarea
+                rows={3}
+                placeholder="比如把中间那一步式子写出来"
+                value={clarifyInput}
+                onChange={(event) => setClarifyInput(event.target.value)}
+              />
+            </span>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <Button
                 loading={busy}
@@ -755,105 +862,117 @@ export default function AttributionPage() {
                 回到上一步
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </SheetBlock>
       ) : null}
 
-      {/* ── 第三步 B：判定结果（五类枚举常显，命中项高亮）──────────── */}
+      {/* ── STEP3-B · 03 判定结果（五类闭集常显，命中项高亮）────────── */}
       {adopted ? (
-        <div className="mt-6 space-y-4">
-          <Card>
-            <CardHeader
-              title="先复述你写的这一步"
-              actions={
-                <span className="flex-none text-ui-sm tabular-nums text-ink-soft">
-                  把握 {percent(adopted.confidence)}
-                </span>
-              }
-            />
-            <CardContent className="space-y-2">
+        <>
+          <SheetBlock
+            no="03"
+            title="错误分类（五类闭集）"
+            right={<span className="num-mono text-tok text-ink-soft">STEP 3 / 4</span>}
+          >
+            <div className="bp-panel p-4">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <h3 className="font-disp text-ui-sm tracking-tight text-ink">先复述你写的这一步</h3>
+                <span className="num-mono tok text-ink-soft">把握 {percent(adopted.confidence)}</span>
+              </div>
               {adopted.evidence ? (
-                <p className="rounded-control bg-canvas px-3 py-2.5 text-sm leading-relaxed text-ink">
-                  {adopted.evidence}
-                </p>
+                <p className="bp-note bp-note--ok">{adopted.evidence}</p>
               ) : null}
               {adopted.matched_typical_error ? (
-                <p className="text-ui-sm text-ink-soft">
-                  匹配到的典型失误：{adopted.matched_typical_error}
-                </p>
+                <p className="tok mt-1.5">匹配到的典型失误：{adopted.matched_typical_error}</p>
               ) : null}
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card>
-            <CardHeader
-              title="它大概属于哪一类"
-              description="五类常显，命中的那一类会亮起来。"
-            />
-            <CardContent>
-              <ul className="space-y-2">
-                {ERROR_TYPES.map((type: ErrorTypeValue) => {
-                  const active = adopted.error_type === type;
-                  return (
-                    <li
-                      key={type}
-                      className={cn(
-                        'rounded-control border px-3 py-2',
-                        active ? 'border-accent bg-accent-veil' : 'border-line opacity-60',
-                      )}
-                    >
-                      <p className={cn('text-sm', active ? 'font-medium text-ink' : 'text-ink-soft')}>
-                        {ERROR_TYPE_LABEL[type]}
-                      </p>
-                      <p className="mt-0.5 text-ui-sm leading-relaxed text-ink-soft">
-                        {ERROR_TYPE_NOTE[type]}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </CardContent>
-          </Card>
+            <div className="bp-tbl-wrap mt-3">
+              <table className="bp-tbl">
+                <caption>错误五类 · 命中高亮 + 说明</caption>
+                <thead>
+                  <tr>
+                    <th>类别</th>
+                    <th>说明</th>
+                    <th>按这条走</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ERROR_TYPES.map((type: ErrorTypeValue) => {
+                    const hit = adopted.error_type === type;
+                    return (
+                      <tr key={type} data-current={hit ? 'true' : 'false'}>
+                        <td data-label="类别">
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-ink">{ERROR_TYPE_LABEL[type]}</span>
+                            {hit ? <Badge tone="negative">命中</Badge> : null}
+                          </span>
+                        </td>
+                        <td data-label="说明">
+                          <span className={cn(!hit && 'opacity-70')}>{ERROR_TYPE_NOTE[type]}</span>
+                        </td>
+                        <td data-label="按这条走">
+                          {hit ? <Badge tone="accent">当前判定</Badge> : <span className="tok">未命中</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </SheetBlock>
 
-          {adopted.attribution_direction === 'none' ? (
-            /* 契约硬约束：direction=none（procedural_slip / misreading）**不出现 analyze 按钮**。
-               这类不是知识缺口，往上翻没有意义，只能诚实告诉学生「不用归因」。 */
-            <Card variant="quiet" className="border border-band-weak">
-              <CardContent>
-                <p className="text-sm text-ink">{UI_TEXT.slipNoAttribution}</p>
-                <p className="mt-1 text-ui-sm leading-relaxed text-ink-soft">
-                  这类不属于知识缺口，所以我不往上游翻——你需要的只是再稳一遍手。
+          {/* ── STEP4 · 04 分流（原型 L2691-2706）────────────────────── */}
+          <SheetBlock
+            no="04"
+            title={
+              adopted.attribution_direction === 'none' ? '分流：这一类不用深挖' : '分流：往上游找根源'
+            }
+            right={<span className="num-mono text-tok text-ink-soft">STEP 4 / 4</span>}
+          >
+            {adopted.attribution_direction === 'none' ? (
+              /* 契约硬约束：direction=none（procedural_slip / misreading）**不出现 analyze 按钮**。
+                 这类不是知识缺口，往上翻没有意义，只能诚实告诉学生「不用归因」。 */
+              <div className="bp-panel p-4">
+                <p className="font-mono text-ui-sm uppercase tracking-widest text-band-unstable">
+                  SMALL MISTAKE · 不再向上回溯
                 </p>
-              </CardContent>
-              <CardContent className="flex flex-wrap items-center gap-3">
-                <Link
-                  to="/assessment"
-                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }))}
-                >
-                  再练几道
-                </Link>
-                <Button variant="quiet" size="sm" onClick={() => store.reset()}>
-                  看下一道错题
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="flex flex-wrap items-center gap-3">
-                {/* R7：两个按钮由「同行 inline-block + 第二个 ml-3」改成「flex-wrap + gap-3」。
-                    JSX 会吃掉换行相邻的空白，故原先按钮之间只有 ml-3 的 12px、不含额外空格宽；
-                    gap-3 同为 12px ⇒ 桌面（不换行时）间距与位置逐像素不变，窄屏才换行堆叠。 */}
-                <Button loading={busy} onClick={() => void runAnalyze()}>
-                  {busy ? '正在往上找…' : '看看真正的根源'}
-                </Button>
-                <Button variant="quiet" onClick={() => store.reset()}>
-                  换一道
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                <p className="mt-2 text-body-sm text-ink">{UI_TEXT.slipNoAttribution}</p>
+                <p className="bp-note mt-2">
+                  这类不属于知识缺口，所以我不往上游翻——你需要的只是再稳一遍手。这一类不提供深挖入口。
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <Link to="/assessment" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }))}>
+                    再练几道
+                  </Link>
+                  <Button variant="quiet" size="sm" onClick={() => store.reset()}>
+                    看下一道错题
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="bp-panel p-4">
+                <h3 className="font-disp text-ui-sm tracking-tight text-ink">这一类值得往上走</h3>
+                <p className="mt-1.5 max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
+                  按「{ERROR_TYPE_LABEL[adopted.error_type]}
+                  」，我会沿先修链向上回溯，找出最早能解释这个行为的那一环，然后用一道新题验证。回溯每一层都会摊开给你看。
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {/* R7：两个按钮由「同行 inline-block + 第二个 ml-3」改成「flex-wrap + gap-3」。
+                      JSX 会吃掉换行相邻的空白，故原先按钮之间只有 ml-3 的 12px、不含额外空格宽；
+                      gap-3 同为 12px ⇒ 桌面（不换行时）间距与位置逐像素不变，窄屏才换行堆叠。 */}
+                  <Button loading={busy} onClick={() => void runAnalyze()}>
+                    {busy ? '正在往上找…' : '看看真正的根源'}
+                  </Button>
+                  <Button variant="quiet" onClick={() => store.reset()}>
+                    换一道
+                  </Button>
+                </div>
+              </div>
+            )}
+          </SheetBlock>
+        </>
       ) : null}
-    </PageContainer>
+    </>
   );
 }

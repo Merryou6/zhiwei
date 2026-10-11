@@ -2161,3 +2161,134 @@ textarea::placeholder {
   outline: 2px solid rgb(var(--c-accent));
   outline-offset: 2px;
 }
+
+/* 回溯路径（原型 .path L397-410）：纵向链，每节左侧一条 48px 的层号窄栏；
+   相邻节共享边框（`+ li` 去掉上边），读起来是「一条链」而不是一串卡片。
+   根因那一节换红框（「根因在此」是归因页的结论，值得与其它节区分）。
+   ⚠ 原型 root 用 --surface-2，本工程没有第三档面层（只有 canvas/surface/raised）
+     ⇒ 取 raised 表达「这一节被抬起来」，并在留痕里说明这是同值域内的就近映射。 */
+.bp-path {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bp-path > li {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px 10px 58px;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-surface));
+  font-size: 14px;
+  color: rgb(var(--c-ink));
+}
+
+.bp-path > li + li {
+  border-top: 0;
+}
+
+.bp-path > li .pl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  width: 48px;
+  place-items: center;
+  border-right: 1px dashed rgb(var(--c-line-faint));
+  background-color: rgb(var(--c-raised));
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgb(var(--c-accent-ink));
+}
+
+.bp-path > li[data-root='1'] {
+  border-color: rgb(var(--c-danger));
+  background-color: rgb(var(--c-raised));
+}
+
+.bp-path > li[data-root='1'] .pl {
+  border-right-color: rgb(var(--c-danger));
+  color: rgb(var(--c-band-1-t));
+}
+
+/* 候选根因排序（原型 .cands L411-414）：名称 + 贡献度条 + 读数三列。
+   窄档（≤899.98）条子独占一行、读数收窄 —— 与原型 md/sm 档同一处分叉。 */
+.bp-cands {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bp-cands > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 52px;
+  gap: 9px;
+  align-items: center;
+}
+
+.bp-cands .cn {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13.5px;
+  color: rgb(var(--c-ink-soft));
+}
+
+.bp-cands .num-mono {
+  font-size: 12.5px;
+  text-align: right;
+  color: rgb(var(--c-ink));
+}
+
+/* 贡献度条（原型 .bar L318-321）：8px 带框条，颜色表达「这一项有多像根因」。
+   ⚠ 与 .bp-hbar（2px，只表达「量」）不是同一个件：这一条要能承载档位色。 */
+.bp-bar {
+  position: relative;
+  height: 8px;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-raised));
+}
+
+.bp-bar > i {
+  position: absolute;
+  inset: 1px auto 1px 1px;
+  background-color: currentColor;
+  transition: width var(--t-draw) var(--ease-ui);
+}
+
+.bp-bar[data-share='high'] {
+  color: rgb(var(--c-band-1));
+}
+
+.bp-bar[data-share='mid'] {
+  color: rgb(var(--c-band-2));
+}
+
+.bp-bar[data-share='low'] {
+  color: rgb(var(--c-band-3));
+}
+
+@media not all and (min-width: 900px) {
+  .bp-cands > li {
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .bp-cands > li .bp-bar {
+    grid-column: 1 / -1;
+  }
+
+  .bp-path > li {
+    padding-left: 52px;
+  }
+}
