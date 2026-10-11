@@ -47,7 +47,7 @@ import { useSpaceStore } from '../stores/space';
 import Board, { useBlueprintTier, type BlueprintTier } from './blueprint/Board';
 import Masthead from './blueprint/Masthead';
 import Rail, { type RailItem } from './blueprint/Rail';
-import Sheet from './blueprint/Sheet';
+import Sheet, { sheetDimText } from './blueprint/Sheet';
 import TitleBlock, { type TitleCell } from './blueprint/TitleBlock';
 import ChatPanel from './chat/ChatPanel';
 import MobileNav from './MobileNav';
@@ -115,6 +115,24 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
   '/chat': 'T1',
   '/report': 'T1',
 };
+
+/**
+ * 自持页头的图纸（2026-10-11 迁移 P6 / D16）。
+ *
+ * 【为什么需要这张表】外壳给所有页面补一个**通用页头**（eyebrow = 路由 label + 优先级、
+ * h1 = 路由 label、dim = 图幅口径）。但迁移页的页头是**页面内容**：eyebrow 要写
+ * `REPORT / 汇总与验证`、h1 要写 `学习报告 · 按空间汇总`、sub 里要嵌当前空间名、
+ * chips 要挂该页的等级（`T0 · 可打印`）—— 这些数据只有页面拿得到，外壳给不出来。
+ *
+ * 【不给会怎样】两条路都错：外壳继续补一份则一页出现两个 h1（「学习报告」与
+ * 「学习报告 · 按空间汇总」），大标题语义坏掉；外壳补一份而页面再写一份正文标题，
+ * 则是同一件事两个真相。所以在**外壳登记、由页面自己渲染**——登记表是外壳的职责
+ * （「哪些图纸已迁移」是外壳才知道的事），页头内容仍是页面的职责。
+ *
+ * ⚠ 这是 P6 首个迁移页带出的外壳机制（计划 P6 只列了 ReportPage + index.css，
+ *   本表属偏差，见 02_EXEC_REPORT 的 D16 留痕）。后续页面迁移时在这里加一行即可。
+ */
+const PAGE_OWNED_HEAD = new Set<string>(['/report']);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {
@@ -321,12 +339,17 @@ export default function Layout({ children }: LayoutProps) {
             // max-sheet:pb-[76px]：≤900 档底部 tabbar 固定在视口底，图纸要给
             // 它让出 76px（tabbar 52px + 安全区 + 呼吸），否则页尾内容被压住。
             className="min-w-0 max-sheet:pb-[76px]"
-            head={{
-              eyebrow: `${route?.label ?? '未登记'} / ${pr} 图纸`,
-              sheetNo,
-              title: route?.label ?? '这一页还没有登记图号',
-              dim: `图幅 ${tier.toUpperCase()} · 基准 15px / IBM Plex Mono 批注`,
-            }}
+            // 已迁移页自持页头（见 PAGE_OWNED_HEAD）：head 传 undefined，由页面渲染。
+            head={
+              PAGE_OWNED_HEAD.has(pathname)
+                ? undefined
+                : {
+                    eyebrow: `${route?.label ?? '未登记'} / ${pr} 图纸`,
+                    sheetNo,
+                    title: route?.label ?? '这一页还没有登记图号',
+                    dim: sheetDimText(tier),
+                  }
+            }
           >
             {children}
             <TitleBlock cells={titleCells} />

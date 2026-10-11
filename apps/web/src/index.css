@@ -789,6 +789,71 @@ textarea::placeholder {
     display: none !important;
   }
 
+  /* ── 图纸化打印（2026-10-11 style-10 迁移 P6：按原型打印块 L784-804 补齐）────
+     原型的口径是：纸面上只留「图纸本身」。外壳（图签条 / 分层索引 / tabbar /
+     抽屉 / 浮层）与一切屏幕定位工具全部摘除；图纸内边距归零，让内容吃满纸宽；
+     面板 / 红章 / 空盒 / 表格换成白底黑边的实线框（屏幕上的双线与虚线在纸上只是
+     一团灰）；链接补出目标地址 —— 纸上的链接点不动，地址就是它唯一的出路。 */
+
+  /* 分层索引列与「回到顶部」：屏幕定位工具，纸上没有滚动与跳转这回事。
+     ⚠ 索引列走它自己的 id（Rail 只在常驻形态挂这个 id）；回到顶部按钮所在的
+       文件不在本批次的可改范围内（无法给它补 data-print 标记），故按其可访问名
+       定位 —— 选择器只此一处，改那个按钮文案时必须同步这里。 */
+  #bp-rail,
+  [aria-label='返回顶部'] {
+    display: none !important;
+  }
+
+  /* 图纸内边距归零（原型 `.sheet{padding:0!important}`）：纸宽本来就窄，
+     48px 的外框内边距会白吃掉将近一成的可读宽度。 */
+  #sheet {
+    padding: 0 !important;
+  }
+
+  /* 面板 / 红章 / 空盒 / 表格容器：白底 + 黑实线框 + 不跨页断开。
+     屏幕上靠双线、虚线、底色建立的层次，在纸上统一换成「线」这一种表达。 */
+  .bp-panel,
+  .bp-stamp,
+  .bp-empty,
+  .bp-tbl-wrap {
+    background-color: #fff !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    break-inside: avoid;
+  }
+
+  /* 装饰性伪元素一律关闭（原型 L793）：内框线、内虚框、内红虚线在纸上是脏点。 */
+  .bp-panel::after,
+  .bp-empty::before,
+  .bp-stamp::after {
+    content: none !important;
+  }
+
+  /* 表格：表头每页重复、行不跨页断开；窄档的「转卡片」在纸上作废 ——
+     纸面没有「窄屏」这回事，一律按表排。 */
+  .bp-tbl thead {
+    display: table-header-group;
+  }
+
+  .bp-tbl tr {
+    break-inside: avoid;
+  }
+
+  /* 链接补出目标地址（原型 L797）。原型用 `a[href^="#/"]` 识别站内链接
+     （它的路由是 hash 制）；本工程是 BrowserRouter，站内链接以 `/` 开头，
+     故选择器相应改写 —— 外链（http…）不加后缀。 */
+  a[href^='/']::after {
+    content: ' (' attr(href) ')';
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8pt;
+    color: #333;
+  }
+
+  /* 纸上专有的行（见文件尾 .print-only 的说明）：只在打印介质里出现。 */
+  .print-only {
+    display: block !important;
+  }
+
   /* 噪点是屏幕上对抗「大面积平涂塑料感」的材质（见 body::after），
      纸面上它只是墨点——整体摘除，打印保持干净。 */
   body::after {
@@ -1406,4 +1471,165 @@ textarea::placeholder {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* ── 细网格表格制式（规范 5.6 / 原型「表格：细网格」L324-339）────────────
+   表格是图纸上最可核查的载体：细网格分列 + 等宽数字右对齐 + 窄档转卡片。
+   逐条对原型转录，只把原型的直连变量换成本工程的角色变量：
+
+     原型                       →  本工程
+     ──────────────────────────────────────────────────────────────────
+     --line / --line-faint      →  --c-line / --c-line-faint
+     --surface / --surface-3    →  --c-surface / --c-raised（抬升表面）
+     --fg-2 / --fg-3            →  --c-ink-soft / --c-ink-faint
+     --leader-fill（hover 底）  →  --c-accent-veil（同色面纱，见 :root 注释）
+     --b4-t / --b1-t            →  --c-band-4-t / --c-band-1-t
+     --mono                     →  'IBM Plex Mono' 栈
+
+   ⚠ 与其它制式类同一条纪律：**不进 @layer utilities**（内容扫描会裁掉它们）。
+   ⚠ 为什么窄档要「转卡片」而不是横滚：横滚的表在 375 档要靠一次横向手势才读得到
+     最右两列，而报告表最右两列恰是 ΔAccuracy 与出路 —— 等于默认藏起来。
+     转卡片后每行都完整落在竖屏里（原型 L707-720 的取舍）。 */
+.bp-tbl-wrap {
+  overflow-x: auto;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+}
+
+.bp-tbl caption {
+  caption-side: top;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(var(--c-line));
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-ink-soft));
+}
+
+.bp-tbl th,
+.bp-tbl td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgb(var(--c-line-faint));
+  border-right: 1px solid rgb(var(--c-line-faint));
+  text-align: left;
+  vertical-align: top;
+}
+
+.bp-tbl th:last-child,
+.bp-tbl td:last-child {
+  border-right: 0;
+}
+
+.bp-tbl thead th {
+  background-color: rgb(var(--c-raised));
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c-ink-soft));
+  white-space: nowrap;
+}
+
+.bp-tbl tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.bp-tbl tbody tr:hover {
+  background-color: rgb(var(--c-accent-veil));
+}
+
+/* 数字列（原型 .n）：等宽 + 表格数字 + 右对齐 + 不折行 —— 同一列上下逐位对齐。
+   「同一列上下对齐着比」正是这张表的用途，比例字体下每次改数都会错位。 */
+.bp-tbl td.n,
+.bp-tbl th.n {
+  text-align: right;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Δ 值语义色（原型 --b4-t / --b1-t）：提升走青、回落走红，与四档编码同一套变量。 */
+.bp-tbl td.up {
+  color: rgb(var(--c-band-4-t));
+}
+
+.bp-tbl td.down {
+  color: rgb(var(--c-band-1-t));
+}
+
+/* 窄档（≤899.98，即 max-sheet 档；原型 md/sm 两档）：表头移出视觉、行转卡片、
+   每个单元格以 data-label 作前置标签（原型 L707-720）。
+   ⚠ 这里手写媒体查询而不是用 `max-sheet:` 变体：`content: attr(data-label)` 与
+     「表/行/单元格一起改 display」不是工具类能表达的东西。边界值与 screens.sheet
+     同源（`not all and (min-width: 900px)` 正是 Tailwind 为 max-sheet: 生成的形态），
+     改断点必须两处同改。 */
+@media not all and (min-width: 900px) {
+  .bp-tbl thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .bp-tbl,
+  .bp-tbl tbody,
+  .bp-tbl tr,
+  .bp-tbl td {
+    display: block;
+    width: 100%;
+  }
+
+  .bp-tbl tr {
+    padding: 3px 0;
+    border-bottom: 1px solid rgb(var(--c-line));
+  }
+
+  .bp-tbl td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 11px;
+    border: 0;
+    text-align: left;
+  }
+
+  .bp-tbl td::before {
+    content: attr(data-label);
+    flex: none;
+    max-width: 44%;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+      monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(var(--c-ink-faint));
+  }
+
+  .bp-tbl-wrap {
+    overflow: visible;
+  }
+}
+
+/* ── 只在纸上出现的行（原型 .print-only）────────────────────────────────
+   屏幕上的同一信息已由区块自己承担（chip / 表格），纸面上按原型的做法再完整给
+   一次「主结果」—— 打印件是脱离屏幕上下文传阅的，主结果必须自成一句。
+   ⚠ 屏幕侧必须显式关掉：这类「纸上专有行」若忘了关，就会在界面上冒出一条
+     谁也没设计过的文字。 */
+.print-only {
+  display: none;
 }

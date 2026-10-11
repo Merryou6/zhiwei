@@ -15,6 +15,19 @@ import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { Icon } from './icons';
 
+/**
+ * 图纸右上角 dim 行文本（规范 4.3：`图幅 <档> · 基准 15px / IBM Plex Mono 批注`）。
+ *
+ * 抽成函数而不是在调用处各写一遍：外壳（Layout）与**自持页头的页面**都要给
+ * `SheetHead` 传 dim，两处各写一份格式串就意味着「改一次文案要记得改两个地方」，
+ * 而漏改的那一处不会有任何报错（正是同源纪律要防的东西）。
+ *
+ * @param tier 图幅档名（Board 的 BlueprintTier：xl / lg / md / sm）。
+ */
+export function sheetDimText(tier: string): string {
+  return `图幅 ${tier.toUpperCase()} · 基准 15px / IBM Plex Mono 批注`;
+}
+
 export interface SheetHeadProps {
   /** 眉标（等宽大写，如 'REPORT / 学习报告'）。 */
   eyebrow: string;
