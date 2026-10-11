@@ -1,0 +1,120 @@
+{
+ "page": "/practice",
+ "width": 1440,
+ "height": 900,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T08:28:33.382Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_muf82zhx02br0",
+  "spaceName": "初中数学"
+ },
+ "states": [
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "select",
+   "stepCards": 0,
+   "hintOpen": 0,
+   "conceptPanel": false,
+   "textLen": 915,
+   "state": "normal",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "select",
+   "stepCards": 0,
+   "hintOpen": 0,
+   "conceptPanel": true,
+   "textLen": 1377,
+   "state": "concept",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 0,
+   "conceptPanel": false,
+   "textLen": 647,
+   "state": "drill",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 1,
+   "conceptPanel": false,
+   "textLen": 657,
+   "state": "hint-l1",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/practice",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "专项练习：把思路一步一步摊开"
+   ],
+   "sheet10": true,
+   "hasStepper": true,
+   "stage": "ladder",
+   "stepCards": 1,
+   "hintOpen": 1,
+   "conceptPanel": false,
+   "textLen": 719,
+   "state": "hint-l2",
+   "width": 1440,
+   "height": 900,
+   "theme": "dark"
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = dark
+width   = 1440 × 900
+
+auth    = via=login space=sp_muf82zhx02br0（初中数学）
+== 状态取证 ==
+  normal   溢出=   0px  h1=1  stage=select
+  → _pipeline/screenshots/style10/practice-1440-dark-normal.png
+  concept-toggle=true
+  concept  溢出=   0px  h1=1  stage=select
+  → _pipeline/screenshots/style10/practice-1440-dark-concept.png
+  开始这一组=true
+  drill    溢出=   0px  h1=1  stage=ladder
+  → _pipeline/screenshots/style10/practice-1440-dark-drill.png
+  hint-L1=true
+  hint-l1  溢出=   0px  h1=1  stage=ladder
+  → _pipeline/screenshots/style10/practice-1440-dark-hint-l1.png
+  hint-L2=true
+  hint-l2  溢出=   0px  h1=1  stage=ladder
+  → _pipeline/screenshots/style10/practice-1440-dark-hint-l2.png
+
+→ _pipeline/screenshots/style10/practice-1440-dark.json
+overflowPx 最大 0px（判据：0）

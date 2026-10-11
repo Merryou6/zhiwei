@@ -5,7 +5,7 @@
  "mobile": true,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T08:15:17.400Z",
+ "capturedAt": "2026-10-11T08:27:12.133Z",
  "pages": [
   {
    "hash": "#/login",
@@ -27,7 +27,7 @@
      "tag": "div",
      "cls": "aurora-blob aurora-2",
      "left": -25,
-     "right": 519,
+     "right": 519.1,
      "w": 544
     }
    ],

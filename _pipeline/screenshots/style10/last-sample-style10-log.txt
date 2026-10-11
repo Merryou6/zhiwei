@@ -3,10 +3,10 @@ base    = http://127.0.0.1:5173
 out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
 tag     = style10
 theme   = light
-widths  = 375
+widths  = 1440
 
-=== 宽度档 375 × 812（mobile=true）===
-  /login        溢出=   0px  溢出元素= 2
+=== 宽度档 1440 × 900（mobile=false）===
+  /login        溢出=   0px  溢出元素= 1
   鉴权 via=login space=sp_muf82zhx02br0
   /self-report  溢出=   0px  溢出元素= 0
   /spaces       溢出=   0px  溢出元素= 0
@@ -18,4 +18,4 @@ widths  = 375
   /report       溢出=   0px  溢出元素= 0
   /drive        溢出=   0px  溢出元素= 0
   /me           溢出=   0px  溢出元素= 0
-  → _pipeline/screenshots/style10/audit-style10-375.json   页面级溢出合计 0px
+  → _pipeline/screenshots/style10/audit-style10-1440.json   页面级溢出合计 0px
