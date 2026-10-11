@@ -1,0 +1,129 @@
+{
+ "tag": "drive",
+ "width": 1440,
+ "height": 900,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:20:22.644Z",
+ "spaceId": "sp_muf82zhx02br0",
+ "spaceName": "初中数学",
+ "states": [
+  {
+   "hash": "#/drive",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "云盘 · 与正在补的内容挂钩"
+   ],
+   "eyebrow": true,
+   "sheet13": true,
+   "tblRows": 2,
+   "hasTable": true,
+   "readOnlyText": 7,
+   "relPanels": 2,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "sections": [
+    "预置教材文件",
+    "与当前缺口相关",
+    "自定义知识库"
+   ],
+   "textLen": 671,
+   "state": "normal",
+   "injected": null,
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/drive",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "云盘 · 与正在补的内容挂钩"
+   ],
+   "eyebrow": true,
+   "sheet13": true,
+   "tblRows": 0,
+   "hasTable": false,
+   "readOnlyText": 5,
+   "relPanels": 0,
+   "hasEmpty": true,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "sections": [
+    "预置教材文件",
+    "自定义知识库"
+   ],
+   "textLen": 430,
+   "state": "empty",
+   "injected": "inject:/api/space/{id}/drive=[]",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/drive",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "云盘 · 与正在补的内容挂钩"
+   ],
+   "eyebrow": true,
+   "sheet13": true,
+   "tblRows": 0,
+   "hasTable": false,
+   "readOnlyText": 5,
+   "relPanels": 0,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "sections": [
+    "预置教材文件",
+    "自定义知识库"
+   ],
+   "textLen": 439,
+   "state": "error",
+   "injected": "inject:/api/space/{id}/drive=500",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "eyebrow": false,
+   "sheet13": false,
+   "tblRows": 0,
+   "hasTable": false,
+   "readOnlyText": 0,
+   "relPanels": 5,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "sections": [
+    "空间列表",
+    "新建"
+   ],
+   "textLen": 790,
+   "state": "no-space",
+   "injected": "guard:router.tsx L120-121 redirect /drive→/spaces",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  }
+ ]
+}
