@@ -138,10 +138,15 @@ export interface SheetProps {
  *
  * ⚠ 22 / 18 走 tailwind.config.js 的 pad-frame-* 具名 token（默认刻度上没有这两个值），
  *   禁止就地写 pt-[22px] —— 裸任意值既不挂在刻度上，也没有任何断言保护。
+ *   四值里 md-y / md-x / md-b 与 sm-b 都走具名 token（2026-10-11 P7a，L-1 裁决 D16）：
+ *   base 档底边距原写 pb-2.5（恰 10px，但只是刻度就近值），改为 pb-pad-frame-sm-b
+ *   —— 值不变（10px 同值替换），但把「这一档的底边距」这件事挂回 §4.2 的事实源，
+ *   使 pad-frame-* 四 token **全部有类名消费**，清零「只定义不消费」的漂移藏身处。
+ *   其余落在默认刻度上的值（pt-4 / px-3 / pt-12 / sheet:pb-4）本就是刻度内取值，保留。
  * ⚠ annos 档不再单列 px-12：lg/xl 同值（48），多一条分支只会多一个真相。
  */
 const SHEET_PADDING =
-  'pt-4 px-3 pb-2.5 narrow:pt-pad-frame-md-y narrow:px-pad-frame-md-x narrow:pb-pad-frame-md-b sheet:pt-12 sheet:px-12 sheet:pb-4';
+  'pt-4 px-3 pb-pad-frame-sm-b narrow:pt-pad-frame-md-y narrow:px-pad-frame-md-x narrow:pb-pad-frame-md-b sheet:pt-12 sheet:px-12 sheet:pb-4';
 
 export default function Sheet({ head, aside, asideOpen = false, className, children }: SheetProps) {
   return (

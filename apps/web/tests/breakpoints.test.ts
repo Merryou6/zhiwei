@@ -28,9 +28,10 @@
  * ⚠ 「合法保留」白名单（以下**不在**断言范围，别把它们当成破绽删掉）：
  *   · src/theme/bands.ts、src/stores/theme.ts、tailwind.config.js 的 colors：
  *     令牌源本身，按定义就是字面 hex；
- *   · GraphPage 的 ECharts 画布回退色：canvas 绘制参数，不是 CSS 类名；
- *   · ReportPage 的 min-w-[420px]：**宽度工具类**（任意值后面没有冒号），
- *     是 ② 的合法保留项——正则带冒号后缀正是为了不误伤它。
+ *   · GraphPage 的 ECharts 画布回退色：canvas 绘制参数，不是 CSS 类名。
+ *   · （2026-10-11 P7a / L-2 裁决 D17）曾列入白名单的 ReportPage min-w-[420px]
+ *     已随 P6 清除，此处不再保留该项；② 的正则仍带冒号后缀，是为防误伤将来任何
+ *     「宽度工具类」（形如 min-w-[NNNpx]，任意值后面没有冒号）这类合法宽度写法。
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
