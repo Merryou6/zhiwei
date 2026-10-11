@@ -21,7 +21,10 @@ P10.2 完成 /start（代码 52212c6；1440/1024/375 双主题 6 组探针 overf
 P10.3 完成 /self-report（代码 b026e72（前次半页未提交改动经逐段对照原型 L1999-2040 复核后
      收口 + 两处极小补齐）；走查 5d59594：1440/1024/375 双主题 6 组合 overflowPx 全 0、
      h1=1；已记录态专项探针 3 状态 × 1440/375 × 双主题全绿；D-P10.3-1/2/3 留痕）
-P10.4-P10.6 未开始
+P10.4 完成 /login（代码 7653b2b：含计划外 App.tsx 去 bare / ToastHost 注释两处；走查 056a2c2：
+     1440/1024/375 双主题 6 组合 overflowPx 全 0、h1=1；链路专项 7 状态 × 1440/375 × 双主题
+     全绿——真登录落 token / 刷新不掉线 / 真 401 回 /login / 演示账号两分支；D-P10.4-1~4 留痕）
+P10.5-P10.6 未开始
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
@@ -203,10 +206,10 @@ D-P9-6（能力边界·未取证项）：P9.3 与 P9.4 的四态里，error（�
 状态：P10.1 /spaces（bcc253a + 06e6925）与 P10.2 /start（52212c6 + 走查提交）已结，
   其余页面代码一行未动。
 续完入口：先读 01_PLAN「五、」+ 本快照表 + git log 三者对齐，从第一个未完成页
-  P10.4 /login 继续（原型 PAGES.login L1912-1974；sheetHead L1951「AUTH / 最小摩擦入口」、
-  SHEET 10-02、需求 2.2；Layout 登记 '/login'；接线勾稽 #6 登录真实链路——token 落盘 /
-  刷新不掉线 / 演示账号 / 401 清理，authStore 冻结；走查 4 档 × 双主题 + 登录成功跳转与
-  字段错误态实拍）。
+  P10.5 /me 继续（原型 PAGES.profile L3028-3120；sheetHead L3054「PROFILE / 个人中心」、
+  SHEET 10-14、需求 2.14；Layout 登记 '/me'；七段制式——概览 measure / 我的老师 /
+  当前空间 / 老师推荐台账 / 账号信息 kv / 外观与模型（主题 seg）/ 退出；主题切换键
+  zhiwei_theme 与退出链路零改动；走查 4 档 × 双主题 + 主题切换实拍）。
 P10 批次收尾待办：8 组合一次跑齐（补 768 档）+ 快照表与「五、」勾选同步。
 本页（P9）留下的两条尾账：P9.3/P9.4 的 error/empty 四态实拍（见 D-P9-6）；
   验证/反驳/处方三个既有交互的实拍（见「五、」未做）。
@@ -344,8 +347,93 @@ D-P10.3-4（D23 记账·自报先验写入）：P10.3 的「已记录态实拍�
   知识点；4 次提交同一章节同一档位（幂等覆盖），实测每次 updated=2（代数式 2 个知识点）。
   空间数不变（仍为 5，见 D-P10.1-4）——本页不新建空间。
 
+P10.4 /login（原型 PAGES.login L1912-1974；代码 7653b2b；走查 056a2c2）
+· 涉及文件：apps/web/src/pages/LoginPage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/login'，一行 + 注释）、
+  **apps/web/src/App.tsx（计划清单之外：去掉 /login 的 bare，见 D-P10.4-1）**、
+  **apps/web/src/components/ToastHost.tsx（计划清单之外：仅注释准确性，见 D-P10.4-2）**。
+  本页无 index.css 新增（bp-seg / bp-note / bp-kv / bp-panel / FormField+Input 全部既有）。
+· 逐段复现：① sheetHead（AUTH / 最小摩擦入口 · SHEET 10-02 · 需求 2.2 · h1 随分段切换
+  「登录知微 / 注册知微」· chip T1）；② 左栏（原型 .split 的 1fr）：登录/注册分段
+  （.bp-seg + 真 radio，即原型 div.seg 的两个选项）+ 期望身份分段（原型 roleSeg →
+  既有「我是学生 / 我是老师」两项 + 说明行取原型 MOCK.auth.identityNote 正文）+
+  三个刻度字段（手机号或邮箱 / 密码 / 注册时昵称，FormField 可见标签 + 必填星 + 提示行）
+  + 提交行（primary 主键 + 「先看看门户图」次键 + aria-live 反馈行）；③ 右栏（原型
+  aside.panel.flat）：02 演示账号 —— 两张演示卡（学生端 accent chip / 教师端 warning chip
+  + 一键进入 + 账号/密码 .bp-kv）+ 注册后冷启动说明。
+· 业务逻辑逐行未动（对照 git HEAD 的迁移前实现核对）：七个状态位、validate 的两条消息
+  与身份人称分支、finishAuth（setSession → 老师直送 TEACHER_HOME → listSpaces/setSpaces/
+  pickDefaultSpace → register 走 START_PATH、login 走 SPACES_PATH，均 replace）、
+  handleSubmit 的三道分支（本地校验 toast / 角色不符温和纠正 toast / 失败 toast）、
+  handleDemoEnter 的「先 login 失败再 register」、DEMO_ACCOUNTS/DEMO_PASSWORD、
+  两处 navigate 目标与 autoComplete 取值 —— 全部原样。唯一变化在分段控件的**实现**：
+  迁移前是文字按钮 + aria-pressed，现为 .bp-seg + 真 radio（状态变更函数同源 switchTab）。
+· 四态：表单不整页四态（规范 §7 login 行）；错误落字段级（FormField 的 role="alert" 行 =
+  规范 5.3 的 .hint.bad 位）+ 既有非阻断 toast 兜底。实测空表单提交：错误行 2 + toast 1。
+· 接线勾稽（规范第 11 章 #6，本轮关键页）——**全部在真浏览器取证**（056a2c2 的 4 份
+  login-<档>-<主题>.json，每份 7 个状态）：
+  · token 落盘：真填探针账号 → 真 POST /api/auth/login → hash 从 #/login 变 #/spaces、
+    localStorage.zhiwei_token 存在；
+  · 刷新不掉线：承上 Page.reload ⇒ 仍在 #/spaces（token 在盘，守卫不弹回登录页）；
+  · 演示账号：点 aside「一键进入（学生端）」⇒ 本机首轮无 demo_student，走**自动注册**分支
+    （真建号 + 服务端建默认空间，落地 #/start，与 finishAuth 的 isRegister 分支一致）；
+    之后各组 demo_student 已在 ⇒ 走**登录**分支（落地 #/spaces）。两条分支各取证一次；
+  · 401 清理：把 token 改成无效串再进 #/spaces ⇒ 服务端 401 ⇒ 会话清空 + 回 #/login
+    （token=false）。这些链路都在 api/client.ts + stores/auth（冻结区），本次一行未动，
+    authStore.test / client.test / routerGuard.test 全绿为证据。
+· 走查：1440/1024/375 × 双主题共 6 组合重采，/login overflowPx 全 0，且**溢出元素由 1 → 0**
+  （迁移前 1440 档有一个 `aurora-blob` 越界元素，随全屏开场一起退场）。专项探针
+  （6.5 新增 tools/probe-login-states.cjs）4 组 × 7 状态 = 28 个状态量尺，全部 overflowPx=0、
+  main h1=1。目验：1440 浅色 normal（单 h1、SHEET 10-02、左右分栏、暗色 aside 卡）、
+  1440 深色 field-error（两行字段级红字 + toast）、375 浅色 normal（窄档单列、分段换行不溢出）、
+  1440 浅色 aside 放大图（chip / 一键进入 / 账号密码 kv 三件齐）。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿（改后复跑一次）；
+  tsc apps/web exit 0；6.3 静态纪律四条无匹配、LoginPage.tsx 无裸 hex 与 min-w-[。
+D-P10.4-1（**计划外文件·App.tsx 去掉 /login 的 bare**）：原型 PAGES.login 是**画在外壳里**的
+  图纸（sheetHead + `.split` 左右分栏 + 左侧分层索引可见），D24 登记表也写明「登录页在
+  外壳内渲染图纸制式」；而本工程 /login 自 2026-09-22 起走 `Guarded bare`（全屏深色开场
+  + 中央粒子标识，不套 Layout）。要按原型复现就必须改这一处：App.tsx 里
+  `bare={route.path === LOGIN_PATH}` → `bare`（去参数），`Guarded` 的 bare 形参保留（/t
+  教师端路由族仍用）。影响面：登录页从此有外壳（图签条 / 分层索引 / 标题栏）；
+  随之退场的是旧开场三件动效资产（ParticleLogo 粒子标识 / aurora 氛围斑 / 表单入场揭示
+  与磁性 CTA），它们只服务于「全屏开场」形态，原型 login 页没有 —— ParticleLogo 组件
+  本身未删，门户 /（P11.1）与 ZhiweiLogo 仍在用。旧文档「登录页不套外壳」的理由
+  （「未登录的人看到导航没有意义」）与本次视觉唯一依据冲突，按 D9 以原型为准并留痕。
+  reviewer 若判定超出范围，本文件可单条 revert（该页其余部分不依赖它）。
+D-P10.4-2（计划外文件·ToastHost.tsx 仅注释）：ToastHost 文件头原写「由『有外壳』的 Layout
+  和『无外壳』的登录页共用」——P10.4 之后 /login 已在壳内，该句失真（注释腐蚀）。
+  只改注释三行、零代码改动；Toast.tsx 同题注释实际不存在（核对后未动）。
+D-P10.4-3（文案与分节号口径，不照抄 mock）：① 提交键文案沿用既有「进去看看 / 注册并开始」
+  与「正在处理…」（原型是「登录 / 注册并创建默认空间」）；② 演示账号卡里的账号/密码给
+  **本工程真实值**（demo_student / demo_teacher / demo123456），不照抄原型 mock 的
+  13800001234 / teacher@zhiwei.dev；③ 原型 `a.btn.text` 指向 `#/portal`，本工程没有该路径
+  （门户是 '/'，P11.1 迁移对象），故「先看看门户图」指到真实存在的 '/'；④ 原型把那排
+  通道切换标成 role="tablist" 而控件是 radio，这里按控件如实标 role="radiogroup"
+  （与本轮 /self-report /paper 的分段同口径）。
+D-P10.4-4（**发现的组件库缺陷·本次只做本页规避，未扩大范围修根因**）：
+  Button 的 `size="sm"` 档带 `text-tok`，而 cn.ts 的 tailwind-merge 登记表里，tailwind.config
+  的 11 个自定义字号令牌只登记了 5 个（caption / ui-sm / reading / display / display-lg），
+  **缺 6 个**（tok / mono-xs / body-sm / title-sm / title / num-lg）⇒ `text-tok` 被当成**颜色类**，
+  在 cva 合并里吃掉 `text-on-accent`。
+  取证（两条，均可复跑）：
+    ① 浏览器实测：/login aside 两颗「一键进入」（size=sm + primary）计算样式为
+       color rgb(18,57,90) / background rgb(26,95,180) ≈ 2.3:1（不到 AA）；className 里
+       确实没有 `text-on-accent`。
+    ② 纯函数复现：用工程同一份 extendTailwindMerge 配置跑
+       tm('border border-accent bg-accent text-on-accent min-h-9 px-3 text-tok tracking-widest')
+       ⇒ 输出里 `text-on-accent` 消失；换成 md 档的 `text-ui-sm` 则保留。
+  影响面：全仓 `size="sm"` 共 28 处，其中 primary 变体者会渲染成「蓝底深蓝字」；
+  secondary/quiet/link 变体的文字色同样会被 `text-tok` 顶掉（回落到继承色，多数情况下
+  看不出差别，属同类静默失效）。这是 P3/P4 加蓝图字号令牌时漏登记留下的老问题，
+  **不是本次改动引入**（P10.1 的 SpaceCreateForm 提交键、P10.3 的按钮都不是 sm 档）。
+  本次处置：/login 的两颗「一键进入」改用**默认 md 档**（已实测 rgb(255,255,255) on
+  rgb(26,95,180) ≈ 5.6:1 过 AA），并在页面注释里写明理由 —— 单页内不落地缺陷，
+  同时**不**在本页提交里动 cn.ts（那会改变 P8/P9/P10.1–P10.3 已走查页面的观感，
+  属跨批改动）。建议：作为下一轮认领（与第 3 轮 M-1/L-1 同性质）补登 5–6 个字号令牌到
+  cn.ts 的 font-size 组，一处修全站；修完需对含 sm primary 按钮的页面补一次走查快照。
+
 十、当前状态一句话
-P10 三页（/spaces /start /self-report）完成；本调用收口了 P10.3 的半页（复核方向 → 补两处
-  极小项 → 单页提交），走查 6 组合 overflowPx 全 0、已记录态三状态实拍、h1=1；下一站
-  P10.4 /login（登录真实链路 #6）。
+P10 四页（/spaces /start /self-report /login）完成；本调用收口 P10.3 半页 + 完成 P10.4
+  （含「登录页进壳」这一处计划外必要改动与一条组件库缺陷的举证规避），两页走查各 6 组合
+  overflowPx 全 0、D24 单 h1；下一站 P10.5 /me。
 —— 第 4 轮执行报告（P8 + P9 段）完；P10–P12 未开始，续完入口见「九、」——
