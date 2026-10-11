@@ -1876,3 +1876,242 @@ textarea::placeholder {
   background-color: rgb(var(--c-accent));
   transition: width var(--t-ui) linear;
 }
+
+/* 分段选择（原型 .seg L289-300）：一组互斥选项（模式 / 判定 / 归因 / 提示级别）。
+   ⚠ 用 label + input[type=radio] 而不是自绘 div：键盘语义与读屏「单选项组」是免费的，
+     而自绘要重新实现一遍方向键与 aria-checked。检查态用 :has() 挂在 label 上。 */
+.bp-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bp-seg--vertical {
+  flex-direction: column;
+}
+
+.bp-seg > label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid rgb(var(--c-line));
+  border-radius: var(--r0);
+  background-color: rgb(var(--c-surface));
+  cursor: pointer;
+  font-size: 14px;
+  color: rgb(var(--c-ink));
+  transition:
+    border-color var(--t-ui) var(--ease-ui),
+    background-color var(--t-ui) var(--ease-ui);
+}
+
+.bp-seg > label:hover {
+  border-color: rgb(var(--c-accent));
+  background-color: rgb(var(--c-accent-veil));
+}
+
+.bp-seg input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.bp-seg > label:has(input:checked) {
+  border-color: rgb(var(--c-accent));
+  background-color: rgb(var(--c-accent-veil));
+  box-shadow: inset 0 0 0 1px rgb(var(--c-accent));
+}
+
+.bp-seg > label:has(input:focus-visible) {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
+}
+
+.bp-seg > label:has(input:disabled) {
+  cursor: not-allowed;
+  color: rgb(var(--c-ink-faint));
+  border-style: dashed;
+}
+
+/* 级别的序号（原型 .seg .n）：等宽小号强调色。 */
+.bp-seg__n {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: rgb(var(--c-accent-ink));
+}
+
+/* 阶梯（原型 .ladder L627-630）：一列由矮到高的方块，已走亮、当前走琥珀。
+   ⚠ 高度由调用方写 style（`10 + i * 3`px）——它是「第几阶」的视觉编码，
+     不是刻度上的尺寸，进不了 token 表。 */
+.bp-ladder {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  height: 26px;
+}
+
+.bp-ladder > i {
+  display: block;
+  width: 14px;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-raised));
+}
+
+.bp-ladder > i[data-on='1'] {
+  background-color: rgb(var(--c-accent));
+  border-color: rgb(var(--c-accent));
+}
+
+.bp-ladder > i[data-cur='1'] {
+  background-color: rgb(var(--c-band-2));
+  border-color: rgb(var(--c-band-2));
+}
+
+/* 步骤卡（原型 .steps / .step L609-621）：分步书写的每一步。
+   判定色走「左 3px 竖条」（形状 + 颜色），不是整块底色 —— 一眼能扫出断点在哪一步。 */
+.bp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bp-step {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid rgb(var(--c-line));
+  border-radius: var(--r);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-step[data-verdict='pass'] {
+  border-left: 3px solid rgb(var(--c-band-4));
+}
+
+.bp-step[data-verdict='slip'] {
+  border-left: 3px solid rgb(var(--c-band-2));
+}
+
+.bp-step[data-verdict='concept_gap'] {
+  border-left: 3px solid rgb(var(--c-danger));
+  background-color: rgb(var(--c-raised));
+  border-color: rgb(var(--c-danger));
+}
+
+.bp-step[data-verdict='unclear'] {
+  border-left: 3px dashed rgb(var(--c-band-2));
+}
+
+.bp-step__no {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgb(var(--c-ink-faint));
+}
+
+/* 窄档（≤899.98 = max-sheet）：步骤卡收成单列 —— 56px 的步号列 + 操作列会
+   把正文挤到不可读，而分步书写的正文就是这一页的主体。 */
+@media not all and (min-width: 900px) {
+  .bp-step {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bp-step > .bp-step__acts {
+    justify-content: flex-start;
+  }
+}
+
+/* 名值对（原型 .kv L233-237）：名（等宽大写小字）— 值（右对齐）。
+   虚线分隔而不是实线：它是同一块里的成组读数，不是表格行。 */
+.bp-kv {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  margin: 0;
+  border-bottom: 1px dashed rgb(var(--c-line-faint));
+}
+
+.bp-kv:last-child {
+  border-bottom: 0;
+}
+
+.bp-kv > dt {
+  margin: 0;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans SC',
+    monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--c-ink-faint));
+}
+
+.bp-kv > dd {
+  margin: 0;
+  font-size: 14px;
+  text-align: right;
+  color: rgb(var(--c-ink));
+}
+
+/* 折叠摘要（原型 .blk-sum L430-436）：概念卡这类「默认收起、展开才读」的区块头。
+   44px 是触控底线：它是这一块唯一的开关，不能在窄档变矮。 */
+.bp-blk-sum {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 13px 16px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  color: rgb(var(--c-ink));
+  transition: color var(--t-ui) var(--ease-ui);
+}
+
+.bp-blk-sum:hover {
+  color: rgb(var(--c-accent-ink));
+}
+
+.bp-blk-sum--open {
+  border-bottom: 1px dashed rgb(var(--c-line-faint));
+}
+
+/* 全对庆祝章（原型 .stamp-ok L636-638）：整组全部走对时的定格，与红章成对
+   ——都是「双线 + 方块章」的手法，只有颜色与语义相反。 */
+.bp-stamp-ok {
+  position: relative;
+  padding: 14px;
+  border: 1px solid rgb(var(--c-band-4));
+  border-radius: var(--r);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-stamp-ok::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed rgb(var(--c-band-4) / 0.5);
+  border-radius: var(--r0);
+  pointer-events: none;
+}
+
+.bp-stamp-ok > * {
+  position: relative;
+}
