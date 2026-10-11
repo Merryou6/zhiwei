@@ -1,0 +1,144 @@
+{
+ "tag": "teacher",
+ "page": "t",
+ "width": 1024,
+ "height": 900,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T10:39:36.135Z",
+ "auth": {
+  "teacher": {
+   "ident": "demo_teacher",
+   "via": "login"
+  },
+  "student": {
+   "ident": "e2e_smoke",
+   "via": "login"
+  }
+ },
+ "boundStudents": 1,
+ "states": [
+  {
+   "hash": "#/t",
+   "overflowPx": 0,
+   "clientWidth": 1024,
+   "scrollWidth": 1024,
+   "h1Count": 1,
+   "h1Text": [
+    "教师工作台"
+   ],
+   "sheetNo": "SHEET 10-15",
+   "eyebrowOk": true,
+   "measures": 4,
+   "tblRows": 2,
+   "hasTable": true,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "chips": 6,
+   "sections": [
+    "总览",
+    "邀请码",
+    "隐私与数据边界",
+    "学生列表"
+   ],
+   "shellNav": true,
+   "textLen": 565,
+   "state": "normal",
+   "injected": null,
+   "width": 1024,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t",
+   "overflowPx": 0,
+   "clientWidth": 1024,
+   "scrollWidth": 1024,
+   "h1Count": 1,
+   "h1Text": [
+    "教师工作台"
+   ],
+   "sheetNo": "SHEET 10-15",
+   "eyebrowOk": true,
+   "measures": 4,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": true,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "chips": 3,
+   "sections": [
+    "总览",
+    "邀请码",
+    "隐私与数据边界",
+    "学生列表"
+   ],
+   "shellNav": true,
+   "textLen": 411,
+   "state": "empty",
+   "injected": "inject:/api/teacher/students+invites=[]",
+   "width": 1024,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t",
+   "overflowPx": 0,
+   "clientWidth": 1024,
+   "scrollWidth": 1024,
+   "h1Count": 1,
+   "h1Text": [
+    "教师工作台"
+   ],
+   "sheetNo": "SHEET 10-15",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 2,
+   "sections": [
+    "学生列表"
+   ],
+   "shellNav": true,
+   "textLen": 230,
+   "state": "error",
+   "injected": "inject:/api/teacher/students+invites=500",
+   "width": 1024,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/t",
+   "overflowPx": 0,
+   "clientWidth": 1024,
+   "scrollWidth": 1024,
+   "h1Count": 1,
+   "h1Text": [
+    "教师工作台"
+   ],
+   "sheetNo": "SHEET 10-15",
+   "eyebrowOk": true,
+   "measures": 0,
+   "tblRows": 0,
+   "hasTable": false,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "chips": 2,
+   "sections": [
+    "学生列表"
+   ],
+   "shellNav": true,
+   "textLen": 228,
+   "state": "denied",
+   "injected": "real-403:student-token",
+   "width": 1024,
+   "height": 900,
+   "theme": "light"
+  }
+ ]
+}
