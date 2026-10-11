@@ -210,8 +210,10 @@ export default function TopNav() {
         <ThemeToggle />
       </span>
 
-      {/* 「全部图纸」抽屉入口（规范 5.15）：任意档都在 —— 它同时是空间管理的唯一入口。
-          跨组件 id 走 lib/ids.ts 的共享常量（mobileNav.test.ts 冻结断言 + 焦点归还依赖它）。 */}
+      {/* 「全部图纸」抽屉入口（规范 5.15）。2026-10-12 用户验收修订：桌面档（≥900）
+          隐藏 —— 桌面有常驻 Rail 与空间胶囊，该按钮冗余；**≤900 保留**：窄档空间
+          胶囊/主题钮/空间管理全部收进抽屉，此按钮是抽屉唯一入口（删了断功能）。
+          跨组件 id 走 lib/ids.ts 的共享常量（焦点归还依赖它）。 */}
       <button
         id={MOBILE_NAV_TOGGLE_ID}
         type="button"
@@ -220,7 +222,7 @@ export default function TopNav() {
         aria-controls={MOBILE_NAV_DRAWER_ID}
         aria-haspopup="dialog"
         aria-label={navOpen ? '关闭全部图纸' : '打开全部图纸'}
-        className={cn(bpButtonClass('secondary'), 'px-2.5')}
+        className={cn(bpButtonClass('secondary'), 'px-2.5 sheet:hidden')}
       >
         <Icon name="grid" className="h-4 w-4" />
         <span className="hidden sheet:inline">全部图纸</span>

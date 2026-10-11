@@ -1,7 +1,8 @@
 /**
- * Rail 分层索引（style-10 蓝图迁移 P4 / 规范 4.3）
+ * Rail 分层索引（style-10 蓝图迁移 P4 / 规范 4.3；2026-10-12 用户验收修订：
+ * 删右列 T0/T1/T2 优先级徽标与底部图层/当前空间 note——与图签条信息重复，冗余）
  *
- * 图纸左侧的图层索引：图号（等宽，宽 46px）+ 标题 + 优先级（等宽，宽 22px 右对齐），
+ * 图纸左侧的图层索引：图号（等宽，宽 46px）+ 标题，
  * 当前项 `aria-current="page"` + 左侧 2px 强调条。项高 ≥44px（触控底线）。
  *
  * 【它不认识路由表】items 由外壳给（外壳从 router.ROUTES 派生），Rail 只负责画。
@@ -12,7 +13,6 @@
  * 的焦点陷阱死区 —— 抽屉与正文靠 aria-hidden 互斥，多一个不可见可聚焦子树很危险）。
  */
 
-import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { cn } from '../../lib/cn';
@@ -22,21 +22,18 @@ export interface RailItem {
   /** 图号，如 '10-12'。 */
   dwg: string;
   label: string;
-  pr: 'T0' | 'T1' | 'T2';
 }
 
 export interface RailProps {
   items: RailItem[];
   /** 缺省「分层索引」。 */
   title?: string;
-  /** 底部说明（图层口径 / 当前空间 / 证据计数）。 */
-  note?: ReactNode;
   /** 抽屉内复用：去掉左侧内边距、标题右对齐。 */
   dense?: boolean;
   className?: string;
 }
 
-export default function Rail({ items, title = '分层索引', note, dense = false, className }: RailProps) {
+export default function Rail({ items, title = '分层索引', dense = false, className }: RailProps) {
   return (
     <nav
       id={dense ? undefined : 'bp-rail'}
@@ -77,24 +74,10 @@ export default function Rail({ items, title = '分层索引', note, dense = fals
                 {item.dwg}
               </span>
               <span className="min-w-0 flex-1">{item.label}</span>
-              <span className="num-mono w-[22px] flex-none text-right text-mono-xs text-ink-soft">
-                {item.pr}
-              </span>
             </NavLink>
           </li>
         ))}
       </ul>
-
-      {note ? (
-        <div
-          className={cn(
-            'border-t border-line/20 px-3.5 py-2.5 font-mono text-mono-xs leading-relaxed tracking-wider text-ink-soft',
-            dense && 'px-0',
-          )}
-        >
-          {note}
-        </div>
-      ) : null}
     </nav>
   );
 }

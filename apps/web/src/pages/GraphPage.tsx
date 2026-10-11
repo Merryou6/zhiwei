@@ -228,9 +228,8 @@ interface GraphView {
 }
 
 export default function GraphPage() {
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const highlightPath = parsePathParam(params.get('path'));
-  const bootstrapped = params.get('bootstrapped') === '1';
 
   const [report, setReport] = useState<GraphMasteryData | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -273,12 +272,6 @@ export default function GraphPage() {
   const byKp = useMemo(() => masteryByKpOf(report?.nodes ?? []), [report]);
   const summary = report?.summary ?? null;
   const badges = useMemo<ChapterBadge[]>(() => chapterBadges(byKp), [byKp]);
-
-  /** 冷启动（拍卷建图）横幅：确认后带 ?bootstrapped=1 跳入，展示一次即关闭。 */
-  function dismissBootstrap(): void {
-    params.delete('bootstrapped');
-    setParams(params, { replace: true });
-  }
 
   useEffect(() => {
     if (!activeSpaceId) {
@@ -772,25 +765,6 @@ export default function GraphPage() {
   return (
     <>
       {pageHead}
-
-      {bootstrapped && summary ? (
-        <div className="mb-6 flex items-start justify-between gap-3 rounded-surface border border-band-basic bg-surface p-4 shadow-card">
-          <div>
-            <p className="text-sm text-ink">
-              初始图谱已生成：覆盖{' '}
-              <span className="font-mono tabular-nums">{summary.covered_kp}</span> 个知识点，
-              <span className="font-mono tabular-nums">{summary.band_counts['待巩固'] ?? 0}</span>{' '}
-              个待巩固。
-            </p>
-            <p className="mt-1 text-ui-sm text-ink-soft">
-              带「？」的点是从旧卷估出来的，做两道复测就会更准。
-            </p>
-          </div>
-          <IconButton size="md" variant="quiet" onClick={dismissBootstrap} aria-label="关闭横幅">
-            ×
-          </IconButton>
-        </div>
-      ) : null}
 
       {/* ② 01 证据统计（原型 L2867-2870）：四格 measure，数据全部来自 summary / badges */}
       <SheetBlock

@@ -7,11 +7,14 @@
  *   ├─ Masthead（图签条：品牌 ⊕ 四项图签 ⊕ 身份芯片 ⊕ 索引/标注/面板开关 ⊕ 右区操作簇）
  *   ├─ workbench（grid）
  *   │  ├─ Rail（分层索引；≥901 才渲染，窄档收进「全部图纸」抽屉）
- *   │  └─ Sheet（图纸：页头 + 页面内容 + 右下标题栏）
  *   ├─ MobileNav（≤900 底部 5 项 tabbar + 「全部图纸」抽屉 + 空间切换/新建/管理）
  *   ├─ ChatPanelDock（对话面板三个形态，见下）
  *   ├─ BackToTop（回到图纸顶部）
  *   └─ ToastHost（非阻断批注条）
+ *
+ * 【2026-10-12 用户验收修订】删右下 8 格标题栏（TitleBlock，与图签条 meta 重复，
+ *  原型的图纸签栏隐喻在产品界面里是冗余信息——打印签栏随之取消）与 Rail 的
+ *  T0/T1/T2 徽标列、底部图层/当前空间 note（当前空间与图签条空间胶囊重复）。
  *
  * 【三处必须说清的设计决定】
  *
@@ -43,12 +46,10 @@ import { LOGIN_PATH, ROUTES, routeOf } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
-import { useSpaceStore } from '../stores/space';
 import Board, { useBlueprintTier, type BlueprintTier } from './blueprint/Board';
 import Masthead from './blueprint/Masthead';
 import Rail, { type RailItem } from './blueprint/Rail';
 import Sheet, { sheetDimText } from './blueprint/Sheet';
-import TitleBlock, { type TitleCell } from './blueprint/TitleBlock';
 import ChatPanel from './chat/ChatPanel';
 import MobileNav from './MobileNav';
 import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
@@ -105,7 +106,8 @@ const SHEET_NO: Record<string, string> = {
   '/t/recommendations': '10-17',
 };
 
-/** 图纸优先级（Rail 右列）：T0 = 学习闭环主链，T1 = 质量定型页，T2 = 辅助页。 */
+/** 图纸优先级：T0 = 学习闭环主链，T1 = 质量定型页，T2 = 辅助页。
+ *  （2026-10-12 用户验收修订：Rail 右列徽标已删，本表仅剩通用页头 eyebrow 一个消费者。） */
 const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
   '/assessment': 'T0',
   '/practice': 'T0',
@@ -332,8 +334,6 @@ export default function Layout({ children }: LayoutProps) {
 
   const token = useAuthStore((state) => state.token);
   const role = useAuthStore((state) => state.role);
-  const spaces = useSpaceStore((state) => state.spaces);
-  const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
 
   const tier = useBlueprintTier();
 
@@ -344,14 +344,12 @@ export default function Layout({ children }: LayoutProps) {
   const route = routeOf(pathname);
   const sheetNo = SHEET_NO[pathname] ?? '10-00';
   const pr = SHEET_PR[pathname] ?? 'T2';
-  const activeSpace = spaces.find((space) => space.space_id === activeSpaceId) ?? null;
 
   /** 分层索引项：路由表派生（router.ROUTES 是冻结区，只读不改）。 */
   const railItems: RailItem[] = ROUTES.filter((item) => item.path !== LOGIN_PATH).map((item) => ({
     path: item.path,
     dwg: SHEET_NO[item.path] ?? '10-00',
     label: item.label,
-    pr: SHEET_PR[item.path] ?? 'T2',
   }));
 
   const meta = [
@@ -359,18 +357,6 @@ export default function Layout({ children }: LayoutProps) {
     { label: '图号 / SHEET', value: sheetNo },
     { label: '比例 / SCALE', value: TIER_SCALE[tier] },
     { label: '日期 / DATE', value: ISSUE_DATE },
-  ];
-
-  /** 右下标题栏 8 格（规范 4.3）。 */
-  const titleCells: TitleCell[] = [
-    { label: '项目 / PROJECT', value: '知微·初中数学' },
-    { label: '图号 / SHEET', value: sheetNo },
-    { label: '比例 / SCALE', value: TIER_SCALE[tier] },
-    { label: '日期 / DATE', value: ISSUE_DATE },
-    { label: '视图 / VIEW', value: route?.label ?? '未登记' },
-    { label: '制图 / DRAWN', value: '知微前端' },
-    { label: '状态 / STATUS', value: token ? '已签发' : '草稿' },
-    { label: '签发 / ISSUED', value: role === 'teacher' ? '教师端' : '学生端' },
   ];
 
   return (
@@ -415,17 +401,7 @@ export default function Layout({ children }: LayoutProps) {
           ].join(' ')}
         >
           {railOpen && tier !== 'md' && tier !== 'sm' ? (
-            <Rail
-              items={railItems}
-              note={
-                <>
-                  <span className="block">图层：图纸 / 索引 / 标注</span>
-                  <span className="block">
-                    当前空间：{activeSpace ? activeSpace.name : '未选择'}
-                  </span>
-                </>
-              }
-            />
+            <Rail items={railItems} />
           ) : null}
 
           <Sheet
@@ -445,7 +421,6 @@ export default function Layout({ children }: LayoutProps) {
             }
           >
             {children}
-            <TitleBlock cells={titleCells} />
           </Sheet>
         </div>
       </div>
