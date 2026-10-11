@@ -105,7 +105,9 @@ vite build（--outDir /tmp/zhiwei-web-build-p8a）：✓ built in 4.77s；
 冻结区（工作区口径，P8.1/P8.2 提交前各一次）：
  git diff --name-only HEAD -- router.tsx api/ packages/engine functions data → 空
  git diff --name-only HEAD -- stores/ → 空
-区间口径（bf3c7fe..HEAD）终检须在 P12.1 做（本轮未做，如实留痕）。
+区间口径（bf3c7fe..HEAD，提交 a867887 后实测）：
+ router.tsx + api + packages/engine + functions + data → 空；stores → 空。
+ 完整终检（含 graphLayout/graphMastery/graphSnapshot/poster 四冻结件）由 P12.1 补做。
 未在本轮复跑：packages 测试 43 例、functions/api 测试 202 例、packages 与
  functions 两段 tsc —— 本轮未触碰其代码，冻结区命令为空输出旁证；计划 6.1 全套
  须在批次收尾（P9/P10/P11 各批完成时）补跑，本轮未达该批次收尾点。
