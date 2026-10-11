@@ -131,8 +131,12 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  *
  * ⚠ 这是 P6 首个迁移页带出的外壳机制（计划 P6 只列了 ReportPage + index.css，
  *   本表属偏差，见 02_EXEC_REPORT 的 D16 留痕）。后续页面迁移时在这里加一行即可。
+ *
+ * 【2026-10-11 迁移 P7（D19，INFO-1 认领）】/graph 页头归**页面自有**：原型 PAGES.graph
+ *   两个分支（有证据 L2865 / 空图谱 L2854）都渲染自己的 sheetHead，且 sub/chip 数据
+ *   只有页面拿得到 —— 登记 '/graph'，避免外壳再补一份通用页头造成双 h1。
  */
-const PAGE_OWNED_HEAD = new Set<string>(['/report']);
+const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph']);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {

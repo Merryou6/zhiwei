@@ -1634,6 +1634,74 @@ textarea::placeholder {
   }
 }
 
+/* ── 图谱画布区（2026-10-11 迁移 P7 / 原型 L547-573）────────────────────
+   容器：1px 边框 + 圆角 + overflow:hidden（原型 .gcanvas-wrap）；
+   工具条：右上竖排四钮（原型 .gwrap-tools）；
+   视口：固定视口高（桌面 460 / 窄档 340），页面侧**不再写内联 minWidth** ——
+        /graph 的页面级横向溢出随之清零（旧实现用 minWidth:max(720, layout.width+200)
+        把画布撑到 1400px+，是 overflowPx≠0 的根因）；
+   图例底条：容器内的 BandLegend 面板去掉左右/下边框与圆角，只留一条上边框作分隔
+            （原型 .gwrap-legend 的 border-top）。 */
+.bp-gcanvas {
+  position: relative;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-surface));
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.bp-gcanvas__viewport {
+  width: 100%;
+  height: 340px;
+}
+
+@media (min-width: 900px) {
+  .bp-gcanvas__viewport {
+    height: 460px;
+  }
+}
+
+.bp-gcanvas__viewport:focus-visible {
+  outline-offset: -2px;
+}
+
+.bp-gtools {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 3;
+}
+
+.bp-gcanvas__note {
+  margin: 0;
+  padding: 8px 12px;
+  border-top: 1px solid rgb(var(--c-line-faint));
+  color: rgb(var(--c-ink-soft));
+}
+
+/* 图例底条：BandLegend 自带 .bp-panel，作为画布容器底部条时只留上边框。 */
+.bp-gcanvas > .bp-panel {
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: 0;
+}
+
+.bp-gcanvas > .bp-panel::after {
+  display: none;
+}
+
+/* 文字清单选中行（原型 L2844 的 box-shadow:inset 2px 0 0 var(--cyan) + 选中底色）。
+   放在 .bp-tbl tbody tr:hover 之后并带上 :hover 变体，保证选中行 hover 时不被覆盖。 */
+.bp-tbl tbody tr[data-current='true'],
+.bp-tbl tbody tr[data-current='true']:hover {
+  background-color: rgb(var(--c-accent-veil));
+  box-shadow: inset 2px 0 0 rgb(var(--c-accent));
+}
+
 /* ── 只在纸上出现的行（原型 .print-only）────────────────────────────────
    屏幕上的同一信息已由区块自己承担（chip / 表格），纸面上按原型的做法再完整给
    一次「主结果」—— 打印件是脱离屏幕上下文传阅的，主结果必须自成一句。
