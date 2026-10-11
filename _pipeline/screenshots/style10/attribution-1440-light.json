@@ -1,0 +1,185 @@
+{
+ "page": "/attribution",
+ "width": 1440,
+ "height": 900,
+ "theme": "light",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T09:00:43.720Z",
+ "auth": {
+  "via": "login",
+  "space": "sp_mv3d1i2g01js2",
+  "spaceName": "P6 四态取证空间"
+ },
+ "chain": {
+  "fileIndex": 1,
+  "manual": true,
+  "wrongIndex": 0,
+  "picked": "manual-picked",
+  "marked": 1,
+  "submitted": true,
+  "wrongCount": 3,
+  "analyzeAvailable": true
+ },
+ "states": [
+  {
+   "hash": "#/attribution",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "sheet10": true,
+   "stepChips": [
+    "01 · 挑一道错题",
+    "02 · 复述确认",
+    "03 · 错误分类",
+    "04 · 分流 / 深挖",
+    "05 · 结果与验证"
+   ],
+   "wrongRows": 3,
+   "pathItems": 0,
+   "candItems": 0,
+   "hasAnalyze": false,
+   "hasNoDeepDive": false,
+   "hasClarify": false,
+   "hasResult": false,
+   "planGiven": false,
+   "paperWrongCount": 3,
+   "textLen": 1151,
+   "state": "step1",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/attribution",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "sheet10": true,
+   "stepChips": [
+    "01 · 挑一道错题",
+    "02 · 复述确认",
+    "03 · 错误分类",
+    "04 · 分流 / 深挖",
+    "05 · 结果与验证"
+   ],
+   "wrongRows": 0,
+   "pathItems": 0,
+   "candItems": 0,
+   "hasAnalyze": false,
+   "hasNoDeepDive": false,
+   "hasClarify": false,
+   "hasResult": false,
+   "planGiven": false,
+   "paperWrongCount": 3,
+   "textLen": 513,
+   "state": "step2",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/attribution",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "sheet10": true,
+   "stepChips": [
+    "01 · 挑一道错题",
+    "02 · 复述确认",
+    "03 · 错误分类",
+    "04 · 分流 / 深挖",
+    "05 · 结果与验证"
+   ],
+   "wrongRows": 5,
+   "pathItems": 0,
+   "candItems": 0,
+   "hasAnalyze": true,
+   "hasNoDeepDive": false,
+   "hasClarify": false,
+   "hasResult": false,
+   "planGiven": false,
+   "paperWrongCount": 3,
+   "textLen": 809,
+   "state": "step3",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/attribution?attribution_id=attr_mv3lf5dq11hs3",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "sheet10": true,
+   "stepChips": [
+    "01 · 挑一道错题",
+    "02 · 复述确认",
+    "03 · 错误分类",
+    "04 · 分流 / 深挖",
+    "05 · 结果与验证"
+   ],
+   "wrongRows": 0,
+   "pathItems": 2,
+   "candItems": 3,
+   "hasAnalyze": false,
+   "hasNoDeepDive": false,
+   "hasClarify": false,
+   "hasResult": true,
+   "planGiven": true,
+   "paperWrongCount": 3,
+   "textLen": 1020,
+   "state": "step4",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  },
+  {
+   "hash": "#/attribution?attribution_id=attr_mv3lf5dq11hs3",
+   "overflowPx": 0,
+   "clientWidth": 1440,
+   "scrollWidth": 1440,
+   "h1Count": 1,
+   "h1Text": [
+    "错题归因：往上找真正卡住你的那一环"
+   ],
+   "sheet10": true,
+   "stepChips": [
+    "01 · 挑一道错题",
+    "02 · 复述确认",
+    "03 · 错误分类",
+    "04 · 分流 / 深挖",
+    "05 · 结果与验证"
+   ],
+   "wrongRows": 0,
+   "pathItems": 2,
+   "candItems": 3,
+   "hasAnalyze": false,
+   "hasNoDeepDive": false,
+   "hasClarify": false,
+   "hasResult": true,
+   "planGiven": true,
+   "paperWrongCount": 3,
+   "textLen": 1020,
+   "state": "result",
+   "width": 1440,
+   "height": 900,
+   "theme": "light"
+  }
+ ]
+}
