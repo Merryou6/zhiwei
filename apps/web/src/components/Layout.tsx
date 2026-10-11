@@ -144,8 +144,18 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  *
  * 【2026-10-11 迁移 P9.2（D24 逐页扩表）】/practice 页头归页面自有：原型 PAGES.practice
  *   L2354 自渲染 sheetHead（明判通路口径与所选章节只有页面拿得到）。
+ *
+ * 【2026-10-11 迁移 P9.3（D24 逐页扩表）】/paper 页头归页面自有：原型 PAGES.paper
+ *   L2218 自渲染 sheetHead（三段制的段位与「上限 5 页拼一份整卷」只有页面拿得到）。
  */
-const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph', '/chat', '/assessment', '/practice']);
+const PAGE_OWNED_HEAD = new Set<string>([
+  '/report',
+  '/graph',
+  '/chat',
+  '/assessment',
+  '/practice',
+  '/paper',
+]);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {

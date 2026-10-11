@@ -2115,3 +2115,49 @@ textarea::placeholder {
 .bp-stamp-ok > * {
   position: relative;
 }
+
+/* 勾选框（原型 .check L303-309）：18×18 方框 + 勾，用于「选文件」这类多选行。
+   ⚠ 真控件仍是原生 checkbox（键盘 / 读屏语义不重造），只把 input 视觉隐藏成 1px 节点，
+   选中态与焦点环由 `:checked` / `:focus-visible` 的兄弟选择器表达 —— 与 .bp-seg
+   同一条手法（自绘控件必须先解决焦点可见性与 aria 语义，否则就是退步）。 */
+.bp-check {
+  position: relative;
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.bp-check input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.bp-check .box {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-raised));
+}
+
+.bp-check .box svg {
+  opacity: 0;
+  color: rgb(var(--c-accent));
+}
+
+.bp-check input:checked + .box {
+  border-color: rgb(var(--c-accent));
+}
+
+.bp-check input:checked + .box svg {
+  opacity: 1;
+}
+
+.bp-check input:focus-visible + .box {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
+}
