@@ -1,0 +1,38 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = light
+width   = 1024 × 900
+
+登录 = {"ok":true,"count":4}
+空间分类 = [{"space_id":"sp_muf82zhx02br0","name":"初中数学","evidence":0},{"space_id":"sp_mugfdmcl01qe6","name":"UI 验收·先修薄弱","evidence":2},{"space_id":"sp_mv3d1i2g01js2","name":"P6 四态取证空间","evidence":0},{"space_id":"sp_mv3d53em02iv2","name":"P6四态1791695333756","evidence":0}]
+有证据空间 = sp_mugfdmcl01qe6（证据 2）
+空空间（复用/不新建） = sp_muf82zhx02br0（初中数学）
+
+正常态：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-normal.png
+  缩放 tok = 缩放 0.33×
+键盘注入 = {"ok":true,"focused":true,"ariaLen":51}
+键盘操作后（右移 + 放大）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-keyboard.png
+  缩放 tok = 缩放 0.48×
+主题切换前（当前主题）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-theme-before-light.png
+主题切换点击 = {"ok":true,"pressed":"false"}
+主题切换后 350ms（点火窗口内；节点画满 = 未重播）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-theme-after-350ms.png
+  缩放 tok：切换前 = 缩放 0.33× / 切换后 = 缩放 0.33×
+  画布墨量：350ms = {"w":690,"h":460,"ink":3291} / 稳态 = {"w":690,"h":460,"ink":3291}
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-theme-after-settled.png
+reduced-motion 生效 = true（重进后 800ms 截图，节点应已瞬时到位）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-reduced-motion.png
+无数据态（空图谱，复用既有空空间）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-no-data.png
+loading 态（骨架）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-loading.png
+error 态（红章）：
+  → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1024-light-error.png
+
+无空间态：**探针不采** —— router.guardPath 在「已登录 + 无活跃空间」时把 /graph
+  重定向到 /spaces（router.tsx 属冻结区）；该分支只在「页面已挂载时空间被清空」
+  路径下出现，无导航取证方式（R12 口径，与 P6 /report 同）。

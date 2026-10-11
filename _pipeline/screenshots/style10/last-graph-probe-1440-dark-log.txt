@@ -22,7 +22,7 @@ width   = 1440 × 900
 主题切换后 350ms（点火窗口内；节点画满 = 未重播）：
   → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1440-dark-theme-after-350ms.png
   缩放 tok：切换前 = 缩放 0.55× / 切换后 = 缩放 0.55×
-  画布墨量：350ms = {"w":1106,"h":460,"ink":16747} / 稳态 = {"w":1106,"h":460,"ink":16747}
+  画布墨量：350ms = {"w":1106,"h":460,"ink":12845} / 稳态 = {"w":1106,"h":460,"ink":12845}
   → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1440-dark-theme-after-settled.png
 reduced-motion 生效 = true（重进后 800ms 截图，节点应已瞬时到位）：
   → /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10/graph-1440-dark-reduced-motion.png
