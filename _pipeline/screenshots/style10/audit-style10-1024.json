@@ -5,7 +5,7 @@
  "mobile": false,
  "theme": "light",
  "base": "http://127.0.0.1:5173",
- "capturedAt": "2026-10-11T07:52:52.799Z",
+ "capturedAt": "2026-10-11T08:11:52.748Z",
  "pages": [
   {
    "hash": "#/login",
@@ -179,23 +179,23 @@
      "x": 236,
      "y": 117,
      "w": 788,
-     "h": 812.13
+     "h": 986.7
     },
     "mainChild": {
      "x": 284,
      "y": 165,
      "w": 692,
-     "h": 748.13
+     "h": 922.7
     },
     "firstCard": {
      "x": 284,
      "y": 165,
      "w": 692,
-     "h": 76
+     "h": 122
     },
     "heading": {
      "x": 284,
-     "y": 187.5,
+     "y": 193,
      "w": 692,
      "h": 32.5
     }
@@ -206,7 +206,7 @@
     "heading": "26px",
     "headerNav": null
    },
-   "textLen": 717,
+   "textLen": 922,
    "route": "/assessment",
    "routeName": "assessment",
    "width": 1024,
