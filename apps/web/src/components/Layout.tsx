@@ -177,6 +177,13 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  * 【2026-10-11 迁移 P10.6（D24 逐页扩表）】/drive 页头归页面自有：原型 PAGES.library
  *   L3005 自渲染 sheetHead（「只读资料」「与当前缺口挂钩」的口径只有页面拿得到）。
  *   迁移前该页同样在外壳里同时有通用页头与自己的 PageHeader ⇒ 双 h1。
+ *
+ * 【2026-10-11 迁移 P11.1（D24 逐页扩表）】/ 门户页头归页面自有（原型 PAGES.portal
+ *   L1881-1889 的 hero：eyebrow + h1 + lede + CTA + hero-meta，PUBLIC SHEET 制式、
+ *   不套 SheetHead 件）。
+ *   ⚠ 门户当前由 App.tsx 直接渲染（<Route path="/"> 不经 Layout 外壳），故此登记对 '/'
+ *   **暂无实际效果**；登记是为保持 D24 登记表完整、并与「若将来门户纳入壳渲染」一致。
+ *   门户自渲染 hero，本页无外壳通用页头可被替换，故不存在双 h1 风险。
  */
 const PAGE_OWNED_HEAD = new Set<string>([
   '/report',
@@ -192,6 +199,7 @@ const PAGE_OWNED_HEAD = new Set<string>([
   '/login',
   '/me',
   '/drive',
+  '/',
 ]);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */

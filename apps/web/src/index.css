@@ -1266,6 +1266,37 @@ textarea::placeholder {
   color: rgb(var(--c-ink));
 }
 
+/* 编号清单（原型 `.num-list`，门户 P11.1 的五步闭环用）：编号 + 词 + 注释一行。
+   编号列等宽定宽；注释靠右；窄档自动换行不溢出（flex-wrap + min-w-0 纪律）。 */
+.bp-num-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bp-num-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 8px 12px;
+  border: 1px solid rgb(var(--c-line-soft));
+  border-radius: var(--r);
+  background-color: rgb(var(--c-surface));
+}
+
+.bp-num-list > li > .num-mono {
+  flex: none;
+  color: rgb(var(--c-accent-ink));
+}
+
+.bp-num-list > li > .tok {
+  margin-left: auto;
+}
+
 /* 双线面板（规范 5.4）：外框 1px + inset 3px 内框线。 */
 .bp-panel {
   position: relative;
