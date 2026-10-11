@@ -138,8 +138,11 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
  *
  * 【2026-10-11 迁移 P8.2（D24 逐页扩表）】/chat 页头归页面自有：原型 PAGES.chat L2535
  *   自渲染 sheetHead（sub 带当轮 kp 与置信度，只有页面拿得到）。
+ *
+ * 【2026-10-11 迁移 P9.1（D24 逐页扩表）】/assessment 页头归页面自有：原型 PAGES.assess
+ *   L2113 自渲染 sheetHead（三个模式名与静默纪律只有页面拿得到）。
  */
-const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph', '/chat']);
+const PAGE_OWNED_HEAD = new Set<string>(['/report', '/graph', '/chat', '/assessment']);
 
 /** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
 const TIER_SCALE: Record<BlueprintTier, string> = {

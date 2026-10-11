@@ -1771,3 +1771,108 @@ textarea::placeholder {
 .print-only {
   display: none;
 }
+
+/* ══ T0 学习闭环四页制式类（2026-10-11 迁移 P9）══════════════════════════
+   逐条对原型转录（tempui/prototypes/style-10/index.html 的 CSS 段），只把原型直连变量
+   换成本工程的角色变量：
+
+     原型                       →  本工程
+     --line / --line-faint      →  --c-line / --c-line-faint
+     --fg-2 / --fg-3            →  --c-ink-soft / --c-ink-faint
+     --surface-3 / --leader-fill→  --c-raised / --c-accent-veil
+     --cyan / --amber / --red   →  --c-accent / --c-band-2-t / --c-danger
+     --b4 / --b1 / --b2-t       →  --c-band-4 / --c-band-1 / --c-band-2-t
+
+   ⚠ 与其它制式类同一条纪律：**不进 @layer utilities**（内容扫描会裁掉它们）。
+   ⚠ 命名一律 bp- 前缀：页面里不得为这些形态另写一次性样式（6.3 抽查项）。 */
+
+/* flat 面板（原型 .panel.flat L164-165）：单线浅框、无底色、无内框线。
+   用途是「不是结构件的补充说明区」（三条约定、阶段指示条、旁注块）。 */
+.bp-flat {
+  position: relative;
+  border: 1px solid rgb(var(--c-line-faint));
+  border-radius: var(--r);
+  background-color: transparent;
+}
+
+/* 旁注（原型 .note L182-185）：左侧 2px 实线 + 次一级文字。
+   四个色调各承担一种语义：默认中性说明 / ok 结论 / warn 提醒 / alert 需注意。 */
+.bp-note {
+  border-left: 2px solid rgb(var(--c-line));
+  padding-left: 11px;
+  margin: 10px 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgb(var(--c-ink-soft));
+}
+
+.bp-note--ok {
+  border-left-color: rgb(var(--c-accent));
+}
+
+.bp-note--warn {
+  border-left-color: rgb(var(--c-band-2-t));
+}
+
+.bp-note--alert {
+  border-left-color: rgb(var(--c-danger));
+}
+
+/* 勾选清单（原型 .tick-list L242-247）：每行前置一个 14×14 的「√」小方框。
+   方框用 background 上的内联 SVG 画（与原型的 mask 手法等价，且不引入图片请求）。 */
+.bp-tick-list {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.bp-tick-list > li {
+  position: relative;
+  padding-left: 20px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgb(var(--c-ink-soft));
+}
+
+.bp-tick-list > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 13px;
+  height: 13px;
+  border: 1px solid rgb(var(--c-line));
+  background-color: rgb(var(--c-raised));
+  /* 勾线本身：两条斜线画一个「√」，走 currentColor 的强调色。 */
+  background-image: linear-gradient(
+      45deg,
+      transparent 42%,
+      rgb(var(--c-accent)) 42% 56%,
+      transparent 56%
+    ),
+    linear-gradient(-45deg, transparent 42%, rgb(var(--c-accent)) 42% 56%, transparent 56%);
+  background-position: 3px 6px, 3px 6px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* 细进度条（原型 .hbar L634-635）：2px 细线，只表达「量」不表达「对错」。 */
+.bp-hbar {
+  position: relative;
+  height: 2px;
+  margin: 10px 0;
+  background-color: rgb(var(--c-line));
+}
+
+.bp-hbar > i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+  background-color: rgb(var(--c-accent));
+  transition: width var(--t-ui) linear;
+}
