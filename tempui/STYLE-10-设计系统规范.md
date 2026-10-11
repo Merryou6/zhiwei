@@ -180,10 +180,20 @@ Board（制图板：底色 + 四角十字标记 + data-tier / data-rail / data-a
 
 | 档位 | 视口 | Rail | Sheet 内边距 | 标注列 annos | LeaderLayer 引线 | 底部 tabbar | `.mast-meta` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `xl` | `≥1180` | 显示（236px 列） | `48px` | 右侧 296px 列（sticky） | 绘制 | 不显示 | 显示 |
-| `lg` | `901–1179` | 显示 | `48px` | 降级：上标 + 列表（下方） | **不绘制** | 不显示 | 显示 |
-| `md` | `421–900` | 隐藏（进抽屉） | `22px 18px` | 降级：上标 + 列表 | 不绘制 | 显示（正文底部让位 66px） | 隐藏 |
-| `sm` | `≤420` | 隐藏（进抽屉） | `16px 12px` | 降级：上标 + 列表 | 不绘制 | 显示 | 隐藏 |
+| `xl` | `≥1180` | 显示（236px 列） | `48px`（上 48 · 左右 48 · 底 16） | 右侧 296px 列（sticky） | 绘制 | 不显示 | 显示 |
+| `lg` | `901–1179` | 显示 | `48px`（上 48 · 左右 48 · 底 16） | 降级：上标 + 列表（下方） | **不绘制** | 不显示 | 显示 |
+| `md` | `421–900` | 隐藏（进抽屉） | `22px 18px`（上 22 · 左右 18 · 底 12） | 降级：上标 + 列表 | 不绘制 | 显示（正文底部让位 66px） | 隐藏 |
+| `sm` | `≤420` | 隐藏（进抽屉） | `16px 12px`（上 16 · 左右 12 · 底 10） | 降级：上标 + 列表 | 不绘制 | 显示 | 隐藏 |
+
+> **Sheet 内边距的垂直值（2026-10-11 迁移 P6a / M-1 留痕补全，只增不改原值）**
+> 上表「Sheet 内边距」列此前只记到 xl/lg 的 `48px` 与 md/sm 的「上 + 左右」，
+> 下内边距散落在原型各档覆盖里。本轮按唯一视觉依据补全，**不修订任何既有值**：
+> 原型 L140 `.sheet{padding:var(--pad-frame); padding-bottom:16px}` + L40 `--pad-frame:48px`
+> （xl/lg → 上 48 · 左右 48 · 底 16）；原型 L680 `#board[data-tier="md"] .sheet{padding:22px 18px 12px}`
+> （md → 上 22 · 左右 18 · 底 12）；原型 L681 `#board[data-tier="sm"] .sheet{padding:16px 12px 10px}`
+> （sm → 上 16 · 左右 12 · 底 10）。工程落地：22 / 18 不在 Tailwind 默认刻度上，
+> 故在 `apps/web/tailwind.config.js` 的 `extend.spacing` 增 `pad-frame-md-y / -md-x / -md-b / -sm-b`
+> 四个具名 token，由 `Sheet` 单点消费、`apps/web/tests/tokens.test.ts` ⑬ 锁定 —— 实现向本表对齐。
 
 `data-tier` 由原型 JS 按 `clientWidth` 计算（`≤420 sm / ≤900 md / ≤1179 lg / ≥1180 xl`）。
 **工程落地用 `@media` 具名断点**（D1）：`narrow:420px` `sheet:900px` `annos:1180px`；

@@ -29,6 +29,7 @@
  *   ⑩ 任意值圆角   —— 圆角只有「0 与 2px」两档（style-10 蓝图纪律）
  *   ⑪ 裸 band 令牌 —— 缺前缀的 band-* 不是 tailwind 类
  *   ⑫ 蓝图 token   —— 动效三 token（160/110/800ms + 单一缓动）与圆角刻度值
+ *   ⑬ 图纸内边距   —— Sheet 的四档内边距走具名 token（M-1：实现向规范 §4.2 对齐）
  *
  * ⚠ 这套闸门只覆盖「能静态判定」的部分。它不能替代截图走查 ——
  *   一个类名合法但视觉平庸的页面，这里全绿。
@@ -430,5 +431,43 @@ describe('⑫ 蓝图 token（动效三档 + 单一缓动 + 形状刻度）', () 
     const dark = cssBlock(/html\.dusk\s*\{([^}]*)\}/);
     expect(light).toMatch(/--shadow-card:\s*none;/);
     expect(dark).toMatch(/--shadow-card:\s*none;/);
+  });
+});
+
+describe('⑬ 图纸内边距 token（M-1：实现向规范 §4.2 对齐，不修订规范既有值）', () => {
+  it('extend.spacing 里 pad-frame 四个 token 存在，且值 = 规范 §4.2 / 原型逐值', () => {
+    // 为什么单独锁一条：这四个值里 22 / 18 不落在 Tailwind 默认刻度上，
+    // 而它们直接决定全站每一张图纸的内容可用宽。早前实现「取最近刻度」（24/16）
+    // 让规范与实现各说一套（M-1 漂移）—— 没有断言时，这种漂移只会在截图里
+    // 「看着差不多」，谁也不会发现。值的事实源是原型 L140/L680/L681。
+    const block = /spacing:\s*\{([^}]*)\}/.exec(CONFIG);
+    expect(block, 'tailwind.config.js 里找不到 spacing 定义').not.toBeNull();
+    for (const [token, value] of [
+      ['pad-frame-md-y', '22px'], // 原型 L680 上内边距
+      ['pad-frame-md-x', '18px'], // 原型 L680 左右内边距
+      ['pad-frame-md-b', '12px'], // 原型 L680 下内边距
+      ['pad-frame-sm-b', '10px'], // 原型 L681 下内边距
+    ] as const) {
+      expect(block![1], `spacing 缺少图纸内边距 token ${token}（规范 §4.2 的 Sheet 内边距）`).toMatch(
+        new RegExp(`['"]?${token}['"]?\\s*:\\s*['"]${value.replace('.', '\\.')}['"]`),
+      );
+    }
+  });
+
+  it('Sheet 内边距类只经 token 与默认刻度表达，无裸任意值内边距', () => {
+    // 反向锁：token 定义得再齐，实现里若又写回 pt-[22px]，刻度依旧是空的。
+    // 与 ①/⑩ 同一手法 —— 这类写法不报错、不失效，只是悄悄绕过刻度。
+    const sheet = FILES.find((file) => file.rel.endsWith('components/blueprint/Sheet.tsx'));
+    expect(sheet, 'apps/web/src 下找不到 blueprint/Sheet.tsx').toBeTruthy();
+    const paddingArbitrary = sheet!.text
+      .split('\n')
+      .filter((line) => {
+        const trimmed = line.trim();
+        // 注释行不算（与 ⑧/⑩/⑪ 同一口径）：文件头正是在**举例说明禁止哪种写法**，
+        // 把注释一起拦下会逼着注释不敢举反例，闸门反而更难读。
+        if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) return false;
+        return /(?:^|[\s"':])(?:p|pt|pr|pb|pl|px|py)-\[[^\]]+\]/.test(line);
+      });
+    expect(paddingArbitrary, '图纸内边距禁止裸任意值类，应走 pad-frame-* / 默认刻度 token').toEqual([]);
   });
 });

@@ -105,18 +105,34 @@ export interface SheetProps {
   aside?: ReactNode;
   /** 栏位是否占位（false 时 grid 单栏）。 */
   asideOpen?: boolean;
-  /** 图纸内边距档：default（--pad-frame 48px）/ narrow（≤900 的 22px 18px）。 */
   className?: string;
   children: ReactNode;
 }
 
+/**
+ * 图纸外框内边距：**四值逐档对齐规范 §4.2 / 原型**（2026-10-11 P6a，M-1 裁决 D13）。
+ *
+ *   档位（工程断点）              上 / 左右 / 底      依据
+ *   ─────────────────────────────────────────────────────────────────────────
+ *   base（sm，<420）              16 / 12 / 10        原型 L681（16px 12px 10px）
+ *   narrow:（md，420–899.98）     22 / 18 / 12        原型 L680（22px 18px 12px）
+ *   sheet:（lg/xl，≥900）         48 / 48 / 16        原型 L140 + L40（--pad-frame 48，底 16）
+ *
+ * ⚠ 两处与原型 1px 的端点差（与既有 nav:720 的端点留痕同性质，D13b 已注明）：
+ *   原型 md 档是 421–900、lg 档是 901 起；工程断点是 narrow:420 / sheet:900
+ *   （D1 具名断点，全站同一套）⇒ 恰好 420px 与 900px 两处归属与原型相差 1px。
+ *   不为此改断点：D1 的价值是「全站只有一套档位边界」，1px 归属差是它的已知代价。
+ *
+ * ⚠ 22 / 18 走 tailwind.config.js 的 pad-frame-* 具名 token（默认刻度上没有这两个值），
+ *   禁止就地写 pt-[22px] —— 裸任意值既不挂在刻度上，也没有任何断言保护。
+ * ⚠ annos 档不再单列 px-12：lg/xl 同值（48），多一条分支只会多一个真相。
+ */
+const SHEET_PADDING =
+  'pt-4 px-3 pb-2.5 narrow:pt-pad-frame-md-y narrow:px-pad-frame-md-x narrow:pb-pad-frame-md-b sheet:pt-12 sheet:px-12 sheet:pb-4';
+
 export default function Sheet({ head, aside, asideOpen = false, className, children }: SheetProps) {
   return (
-    <main
-      id="sheet"
-      tabIndex={-1}
-      className={cn('relative min-w-0 px-4 pb-4 pt-6 narrow:px-4 sheet:px-6 annos:px-12', className)}
-    >
+    <main id="sheet" tabIndex={-1} className={cn('relative min-w-0', SHEET_PADDING, className)}>
       <div
         className={cn(
           'relative z-10 grid gap-0',
