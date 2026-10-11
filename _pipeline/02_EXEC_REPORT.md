@@ -2,7 +2,7 @@
 ====================================
 执行角色：implementer；起点 HEAD=bf3c7fe；第3轮报告已归档 _pipeline/archive/02_EXEC_REPORT_20261011_1548.md
 本文件在本轮内被多次续写（D25 续完口径）：P8 段 → P9.1 → P9.2 收口 → P9.3 → P9.4 →
-P10.1 → P10.2 → P10.3 收口 → P10.4 → P10.5 收口 → P10.6 → P10 批次收尾。
+P10.1 → P10.2 → P10.3 收口 → P10.4 → P10.5 收口 → P10.6 → P10 批次收尾 → P11.1 门户。
 报告随每次续写提交入库；「一、快照表」永远反映当前真实进度。
 
 一、快照表（D25 E5；hash 取自 git log）
@@ -33,7 +33,11 @@ P10.6 完成 /drive（代码 e59035c；走查 50a306b：1440/1024/375 双主题 
      h1=1；专项探针新增 tools/probe-drive-states.cjs：normal/empty/error/no-space 四状态 ×
      1440/375 × 双主题全绿；D24 登记 '/drive' 消除双 h1；D-P10.6-1/2/3 留痕）
 P10 批次收尾 完成（6.1 全套实测 + 冻结区双口径空输出，见「十二、」；不单列提交）
-P11.1-P11.4 未开始
+P11.1 完成 /（门户落地页；代码 e8ec745；走查 2c90cd0：1440/1024/768/375 双主题 8 组合
+     overflowPx 全 0、h1=1；专项探针新增 tools/probe-landing-states.cjs：normal +
+     prefers-reduced-motion 双通道 × 4 档 × 双主题全绿；Layout 登记 '/'（portal 不经外壳，
+     登记暂无实效并留痕）；D-P11.1-1~4 留痕）
+P11.2-P11.4 未开始
 P12.1-P12.4 未开始
 
 本次调用（P9.2 收口 + P9.3 + P9.4 + P9 收尾）入库提交（旧→新）：
@@ -543,20 +547,64 @@ D-P10.6-3（noSpace 分支被守卫重定向，R19）：同 D-P10.5-3，/drive �
 6.3 静态纪律四条（任意值断点 / z-[ / CDN 字体）全局无匹配；
   nav: 用法现存 36 处（P12.2 按 D26 逐条 A/B/C 分类处置）。
 
+P11.1 /（门户落地页；原型 PAGES.portal L1855-1911 / hero L1881-1889；代码 e8ec745；走查 2c90cd0）
+· 涉及文件：apps/web/src/pages/LandingPage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/'）、apps/web/src/index.css（新增 .bp-num-list 制式类）。
+· 拍板④ + D6：保留现有四章叙事内容与信息架构（问题 / 方法 / 证据 / 开始）与**逐字动画**
+  （KineticTitle）；视觉层换蓝图（去 glass-card/噪点，改 bp-panel / bp-measure / bp-tbl）。
+  逐段复现：
+  ① hero（自渲染，**不套 SheetHead 件**，D24 预判 portal 为 PUBLIC SHEET）：eyebrow
+     「ZHIWEI / PUBLIC SHEET · SHEET 10-01 · 需求 2.1 · REV.A」+ KineticTitle（现有逐字标题）
+     + lede（现有标语）+ CTA（立即体验 / 查看源码）+ hero-meta 数字行（现有 STATS 六数字落 .bp-measure）。
+  ② 01 三条主张（原型 `.grid.g3`）：现有 PROOFS 三条 → 三列 bp-panel。
+  ③ 02 五步闭环（原型 `ol.num-list`）：现有 LOOP_STEPS → .bp-num-list（新增制式类）。
+  ④ 03 两个入口（原型 aside）：学生 / 教师两条入口（落点仍 LOGIN_PATH，由登录页按身份分流，
+     navigate 语义零改动）+ 仓库外部链接。
+  ⑤ 04 证据：现有「ΔAccuracy」叙事落旁注（原型 note 位；六数字已在 hero-meta，不重复罗列）。
+  ⑥ 05 图纸目录（原型 `.tbl`）：现有 router.ROUTES 目录（图号=PRD 页面编号 / 视图 / 路径 / 直达）。
+· 业务逻辑零改动：enter() = navigate(LOGIN_PATH)（一条路径自动分登录/已登录两态，与迁移前一致）；
+  useMagnetic / useReveal / ParticleLogo 保留；未改 router.ROUTES、守卫、顶栏导航。
+· 走查：/ **不在** tools/responsive-audit.cjs 的 11 页 ROUTES 表内（门户不进 11 页链路），按 6.5
+  另起 tools/probe-landing-states.cjs，1440/1024/768/375 × 双主题共 8 组合，每组 normal +
+  prefers-reduced-motion(reduce) 双通道 = 16 个状态量尺，全部 overflowPx=0、h1=1、逐字 span=13、
+  量块=6、主张=3、闭环=5、目录行=13。目验 1440 浅色：单 h1、蓝图 hero、六数字、三条主张齐备。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿（实例图/滚动揭示等 6 项进
+  tokens/blueprint/reveal 等既有断言）；tsc apps/web exit 0；6.3 静态纪律四条无匹配、
+  LandingPage.tsx 无裸 hex 与 min-w-[。
+D-P11.1-1（拍板④ vs 原型克制动效观的口径裁决）：原型门户是「纯前端 mock、克制动效」的图纸；
+  本工程保留既有四章滚动叙事与 kinetic 逐字动画（拍板④明文保留）。故按 D6「视觉层换蓝图」：
+  只把 awwwards 期的一次性视觉资产（glass-card 玻璃面、噪点、超大 clamp 字号）换成蓝图制式
+  （bp-panel / bp-measure / bp-tbl / text-display-lg token），叙事结构与逐字动画一字不删。
+D-P11.1-2（原型 mock 口径不迁移 · 同 D5/12.3）：① hero-cta 的「纯前端原型 · 全部 mock 数据 ·
+  无后端」chip 不迁移——本工程是真实前后端；② aside 的「外部链接，原型不请求任何真实接口」半句
+  同样不迁移。
+D-P11.1-3（图纸目录表内容口径）：原型目录表列「图号/视图/需求/优先级/直达」。本工程
+  router.ROUTES 只有 path/label/page/requiresAuth/nav（无「需求号/优先级」字段），故目录表按
+  「图号=PRD 页面编号(page) / 视图(label) / 路径(path) / 直达」呈现，「内容以现有为准」；
+  **不编造 SHEET 图号或需求号**。router.ROUTES 以只读方式 import，冻结文件一行未改。
+D-P11.1-4（D24 登记 '/' 的实效说明）：门户由 App.tsx 的 `<Route path="/">` 直接渲染（不经
+  Layout 外壳），故 PAGE_OWNED_HEAD 登记 '/' 对当前渲染路径**暂无实际效果**；登记是为保持
+  D24 登记表完整、并与「若将来门户纳入壳渲染」一致。portal 自渲染 hero，本身无双 h1 风险。
+  逐字标题 h1 由 KineticTitle 渲染（aria-label=完整句子、逐字 span 对读屏隐藏），实测 h1=1。
+
 十三、未完成项与续完入口（本次调用后 · D25 五件证据）
-未完成：P11.1-P11.4（/ → /t(+TeacherShell) → /t/student/:id → /t/recommendations）、
+未完成：P11.2-P11.4（/t(+TeacherShell) → /t/student/:id → /t/recommendations）、
   P12.1-P12.4（终检 / nav 断点清退评估 / 全站走查汇总 / 文档与报告）。
 状态：P10 六页全部完成（/spaces bcc253a → /start 52212c6 → /self-report b026e72 →
   /login 7653b2b → /me 1b3f41d → /drive e59035c），每页代码 + 走查各独立提交；P10 批次收尾
-  6.1 全套 + 冻结区双口径已实测（见「十二、」）。
-续完入口：先读 01_PLAN「五、P11」+ 本快照表 + git log 三者对齐，从第一个未完成页
-  P11.1 /（门户落地页）继续 —— 原型 PAGES.portal L1855-1911 / hero L1881-1889；
-  Layout 登记 '/'（D24；portal 为 PUBLIC SHEET，自渲染 hero，不套 SheetHead 件）；
-  拍板④ + D6：现有四章叙事内容与信息架构保留、视觉层换蓝图；逐字动画保留。
+  6.1 全套 + 冻结区双口径已实测（见「十二、」）；**P11.1 门户 / 完成**（代码 e8ec745 +
+  走查 2c90cd0）。
+续完入口：先读 01_PLAN「五、P11.2」+ 本快照表 + git log 三者对齐，从第一个未完成页
+  P11.2 /t（教师工作台 + TeacherShell）继续 —— 原型 PAGES.teacher L3120-3177；
+  sheetHead L3143「TEACHER CONSOLE / 邀请码与学情总览」、SHEET 10-15、需求 2.15；
+  涉及 apps/web/src/pages/teacher/TeacherDashboard.tsx +
+  apps/web/src/components/teacher/TeacherShell.tsx（角色校验链路一行不动）+ Layout 登记 '/t'；
+  教师 403 兜底零改动；教师端走查需教师演示账号（tools/e2e-smoke.cjs 既有流程取；若无可用
+  教师账号按 R17 降级为登录态 403 拦截截图 + 留痕，不伪造）。
 
 十、当前状态一句话
-P10 六页（/spaces /start /self-report /login /me /drive）全部完成；本次调用收口 P10.5 半页
-  （逐行复核三份未提交 diff 后判定方向正确并收口）+ 完成 P10.6，两页走查各 6 组合 overflowPx
-  全 0、D24 单 h1、专项探针双主题齐备；P10 批次 6.1 全套 + 冻结区双口径实测通过（462 用例
-  全绿只增不减）；下一站 P11.1 门户 /。
-—— 第 4 轮执行报告（P8 + P9 + P10 段）完；P11–P12 未开始，续完入口见「十三、」——
+P10 六页（/spaces /start /self-report /login /me /drive）全部完成 + P11.1 门户 / 完成；
+  本次调用收口 P10.5 半页（逐行复核三份未提交 diff 后判定方向正确并收口）+ 完成 P10.6 +
+  P10 批次收尾 + P11.1 门户；各页走查 overflowPx 全 0、D24 单 h1、专项探针双主题齐备；
+  P10 批次 6.1 全套（462 用例全绿只增不减）+ 冻结区双口径实测通过；下一站 P11.2 /t。
+—— 第 4 轮执行报告（P8 + P9 + P10 + P11.1 段）完；P11.2–P12 未开始，续完入口见「十三、」——
