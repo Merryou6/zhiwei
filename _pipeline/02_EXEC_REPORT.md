@@ -602,6 +602,31 @@ D-P11.1-4（D24 登记 '/' 的实效说明）：门户由 App.tsx 的 `<Route pa
   教师 403 兜底零改动；教师端走查需教师演示账号（tools/e2e-smoke.cjs 既有流程取；若无可用
   教师账号按 R17 降级为登录态 403 拦截截图 + 留痕，不伪造）。
 
+十四、P11.2 准备期的探针副作用与修复（如实留痕）
+· 事件：为核实 P11.2（教师工作台）走查是否有可用教师演示账号，本次调用在准备阶段跑了一个
+  临时核查脚本（/tmp/teacher-check.cjs，不入库），它对 demo_teacher / demo123456 做了
+  「先 login、失败则 register」的探测。由于该脚本 register 时**未带 role 形参**（产品自身的
+  一键进入会带 role:'teacher'），而此账号在本机此前并不存在，于是服务端**创建了一个
+  role=student 的 demo_teacher 账号**（user_id u_mv3onoz517kir，created 2026-10-11T10:31:17Z）
+  及其默认空间。这会让产品「演示教师」按钮的「先登录」分支意外成功（落成学生身份），属真实副作用。
+· 影响与修复：data/local_db/ 是 .gitignore 的**运行时数据**（非 3.1 冻结区的源 data/，
+  git check-ignore 已核实为 data/local_db/）。用一次性脚本
+  （/tmp/fix-demo-teacher.cjs，不入库）从 local_db 的 users.json 删除该 user、spaces.json
+  删除其默认空间（users 70→69、spaces 76→75），并顺带扫描 mastery_profiles / evidence_events /
+  mastery_logs / links / invite_codes 无残留关联记录。修复后 grep demo_teacher users.json = 0，
+  演示教师流程恢复「先登录失败→再以 role=teacher 注册」的原样。jsonStore 逐次读盘（无内存
+  缓存，已核实），故文件级修复即时生效、无需重启后端。
+· 纪律反思：产品级探针一律应走「app 自身流程」（如登录页一键进入）或带 role 形参，不得用
+  裸 register 探测账号；后续 P11.2 教师端走查将按 R17 用带 role:'teacher' 的注册（= 产品自身
+  演示行为）或降级 403 截图，不再犯同类副作用。
+
+十五、本次调用收口决定（P11.2 未开始）
+· 本次调用已完成：P10.5 /me 收口 + P10.6 /drive + P10 批次收尾 + P11.1 门户 /（各代码/走查/
+  报告独立提交）。P11.2（教师工作台 + TeacherShell）经评估为「2 个文件视觉重写（约 345 行）+
+  教师端专属走查（需教师账号 / R17 降级）+ 专项探针」，体量与前几页相当；为避免在调用尾段
+  留下半页未提交状态，**本次不启动 P11.2**，留待下一个续完调用从 P11.2 起做（续完入口见
+  「十三、」）。工作区除他人未提交项（tempui/、.workbuddy/、package-lock.json 等）外干净。
+
 十、当前状态一句话
 P10 六页（/spaces /start /self-report /login /me /drive）全部完成 + P11.1 门户 / 完成；
   本次调用收口 P10.5 半页（逐行复核三份未提交 diff 后判定方向正确并收口）+ 完成 P10.6 +
