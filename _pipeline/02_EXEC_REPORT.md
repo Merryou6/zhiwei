@@ -14,7 +14,9 @@ P9.3 39b3ea1+c9d1494 完成 /paper（代码 39b3ea1；8 组合 + 三段流转专
 P9.4 b9ca011+a11e7e5+88baf44 完成 /attribution（代码 b9ca011；走查修复 a11e7e5；
      8 组合 + 向导五步专项 88baf44）
 P9 收尾 — 完成（6.1 全套 + 冻结区双口径，见「六、」；不单列提交）
-P10.1-P10.6 未开始
+P10.1 完成 /spaces（代码 bcc253a；4 状态探针 + 409 专项 1440/375 双主题；1440/1024/375
+     双主题 6 组合 overflowPx 全 0；h1=1 无双页头；D-P10.1-1/2/3 三条偏差已留痕）
+P10.2-P10.6 未开始
 P11.1-P11.4 未开始
 P12.1-P12.4 未开始
 
@@ -190,15 +192,68 @@ D-P9-6（能力边界·未取证项）：P9.3 与 P9.4 的四态里，error（�
   「先查明来源再取证」，并优先复用 初中数学。
 
 九、未完成项与续完入口（D25 五件证据）
-未完成：P10.1-P10.6（/spaces /start /self-report /login /me /drive）、
+未完成：P10.2-P10.6（/start /self-report /login /me /drive）、
   P11.1-P11.4（/ /t /t/student/:id /t/recommendations + TeacherShell）、
   P12.1-P12.4（终检 / nav 断点清退评估 / 全站走查汇总 / 文档与报告）。
-状态：以上页面代码一行未动（工作区无这些页的未提交改动），01_PLAN「五、」勾选保持未勾。
+状态：P10.1 /spaces 已结（代码 bcc253a + 走查产物 + 本报告），其余页面代码一行未动。
 续完入口：先读 01_PLAN「五、」+ 本快照表 + git log 三者对齐，从第一个未完成页
-  P10.1 /spaces 继续（原型 PAGES.spaces L2040-2107；sheetHead L2087「SPACES / 学习容器管理」、
-  SHEET 10-05、需求 2.5；Layout 登记 '/spaces'；走查 4 档 × 双主题 + 409 冲突专项）。
+  P10.2 /start 继续（原型 PAGES['cold-start'] L1974-1999；sheetHead L1986
+  「COLD START / 一次性引导」、SHEET 10-03、需求 2.3；Layout 登记 '/start'；
+  /start **不在** tools/responsive-audit.cjs 的 11 页 ROUTES 表里，故该页需按 6.5
+  另起 tools/probe-start-states.cjs 取证，并在走查里说明）。
+P10 批次收尾待办：8 组合一次跑齐（补 768 档）+ 快照表与「五、」勾选同步。
 本页（P9）留下的两条尾账：P9.3/P9.4 的 error/empty 四态实拍（见 D-P9-6）；
   验证/反驳/处方三个既有交互的实拍（见「五、」未做）。
+
+十一、P10 段（T1 六页；本段随每页续写）
+P10.1 /spaces（原型 PAGES.spaces L2040-2107；代码 bcc253a）
+· 涉及文件：apps/web/src/pages/SpacesPage.tsx（视觉层重写）、
+  apps/web/src/components/Layout.tsx（D24 登记 '/spaces'，一行 + 注释）、
+  apps/web/src/index.css（新增 .bp-panel[data-active='1'] 选中态边框，10 行）、
+  **apps/web/src/components/SpaceCreateForm.tsx（计划清单之外，仅视觉，见 D-P10.1-3）**。
+· 逐段复现：① sheetHead（SPACES / 学习容器管理 · SHEET 10-05 · 需求 2.5 ·
+  h1「学习空间：给证据找一个落点」· chip T1）；② 01 空间列表（计数 chip + 空间卡
+  bp-panel + data-active 边框 + 「当前使用」/「默认空间」徽标 + 学科 tok +
+  默认空间/创建时间 .bp-kv + 动作行「进入学习 / 自报 · 拍卷建图」（活跃）或
+  「切到这个空间」（非活跃））+ 活跃空间纪律旁注（原型 anno①正文）；
+  ③ 02 新建（新建表单本体 = 共享件 SpaceCreateForm）。
+· 四态（区域级，探针实测四份 JSON）：loading → PageSkeleton/SkeletonLines；
+  normal → 5 张卡；empty（注入空集合）→ .bp-empty；error（注入列表失败）→ .bp-stamp
+  + **真重试**（重发同一个 listSpaces()）。四态 overflowPx 全 0、main h1 全 1。
+· 409 冲突专项（真链路）：注入 stale 列表（在**真实** list 响应上滤掉一个已占用名）
+  ⇒ 在真表单里提交那个名字 ⇒ **真 POST /api/space/create 返回 409** ⇒
+  ConfirmDialog「已有同名空间 / 切换过去（autoFocus）」实拍（1440/375 × 双主题各一张）。
+  复核：该次提交未落库（空间数前后一致）。
+· 走查：1440/1024/375 × 双主题共 6 组合，/spaces overflowPx 全 0（768 档留到 P10 批次
+  收尾一次跑齐，届时全部页面的证据相对各自代码提交均为新鲜）。目验 1440 浅色正常态 /
+  1440 浅色 409 态 / 375 浅色正常态：单 h1、无外壳通用页头残留、无溢出。
+· 冻结区：3.2 双口径空输出；vitest apps/web 22 文件 217 用例全绿；tsc apps/web exit 0；
+  6.3 静态纪律四条无匹配、SpacesPage/SpaceCreateForm 无裸 hex 与 min-w-[。
+
+D-P10.1-1（计数 chip 口径偏差）：原型 01 的 chip 是 `n / 30`（MOCK.spaces.limit=30），
+  本工程后端只有**空间名长度上限** 30（services/space.ts MAX_SPACE_NAME_LENGTH），
+  **没有空间数量上限**。照抄「/ 30」等于向学生宣告一个不存在的上限，故 chip 只给真实计数
+  「N 个空间」，sheetHead 的 sub 同样去掉「上限 30 个空间」那句。属「原型 mock 口径 vs
+  工程真实口径」冲突，按 P9.4 的 D-P9.4-2 同一裁决法：以真实为准并留痕。
+D-P10.1-2（kv 行口径偏差）：原型空间卡第三行 kv 是「空间内证据：N 条（本次会话新增）/
+  与当前空间彼此隔离」。本工程没有「本会话新增证据数」这个数据源（会话级计数不存在），
+  故该行不迁移，改用真实字段「默认空间 / 创建时间」两行 kv；原型那句隔离纪律改写成
+  列表末尾的一条旁注（内容是原型 anno① 的正文，不是编造的话）。
+D-P10.1-3（计划外文件·共享件视觉重写）：/spaces 的 02 新建区块本体是共享件
+  components/SpaceCreateForm（D2c 单一入口，顶栏弹层与移动抽屉复用同一组件），
+  该文件不在计划 P10.1 的「涉及」清单里。不迁移则该页 02 区块仍是迁移前的圆角/实心蓝
+  按钮语汇，页面视觉不完整；另起一份表单会复制 409/预检/提交顺序这套业务逻辑（违反
+  「业务逻辑一行不改」与 D2c 单一来源）。故按最小范围只换视觉：学科单选 → .bp-seg 分段、
+  名字输入 → ui 原语 FormField+Input（顺带补上 label↔控件关联）、提交键 → ui 原语 Button、
+  说明文案 → 批注制式。**业务逻辑逐行未动**（handleSubmit / refresh / 本地重名预检 /
+  suggestSpaceName / 409 → ConfirmDialog / setActive→refresh 顺序 / maxLength / 兜底文案）。
+  影响面：顶栏弹层与移动抽屉里的紧凑态同步换制式（与 P5 已迁移的外壳一致）。这是本次
+  唯一的计划外文件改动，特此标明；reviewer 若判定超出范围，可单条 revert 该文件。
+D-P10.1-4（D23 空间记账·1 个探针空间）：本页第一次跑 409 专项时用的是「先建一个重名空间
+  制造 store 过期」的旧探针，真实新建了 1 个空间：**P10-1-409-1791710050756**（账号空间数
+  4 → 5）。随即改探针为「stale 列表注入 + 真实 409 判定」的零副作用方式并重跑，此后 4 组
+  探针（1440/375 × 双主题）不再新建任何空间。后续走查/探针按 D23 以「现为 5」为基数记账；
+  该探针空间无证据、可留可清（无删除接口，故保留并如实记账）。
 
 十、当前状态一句话
 P9 四页（/assessment /practice /paper /attribution）全部完成：每页代码单提交 + 走查独立提交，

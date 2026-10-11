@@ -1,0 +1,134 @@
+{
+ "page": "/spaces",
+ "width": 375,
+ "height": 812,
+ "theme": "dark",
+ "base": "http://127.0.0.1:5173",
+ "capturedAt": "2026-10-11T09:19:36.386Z",
+ "auth": {
+  "via": "login",
+  "count": 5,
+  "names": [
+   "初中数学",
+   "UI 验收·先修薄弱",
+   "P6 四态取证空间",
+   "P6四态1791695333756",
+   "P10-1-409-1791710050756"
+  ],
+  "activeSpace": "sp_muf82zhx02br0"
+ },
+ "sideEffects": {
+  "createdSpace": null,
+  "countBefore": 5,
+  "countAfter": 5
+ },
+ "states": [
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "sheet10": true,
+   "cards": 5,
+   "activeCard": 1,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "createForm": true,
+   "dialogOpen": false,
+   "dialogTitle": "",
+   "dialogButtons": [],
+   "textLen": 791,
+   "state": "normal",
+   "injected": null,
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "sheet10": true,
+   "cards": 4,
+   "activeCard": 1,
+   "hasEmpty": false,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "createForm": true,
+   "dialogOpen": true,
+   "dialogTitle": "已有同名空间",
+   "dialogButtons": [
+    "取消",
+    "切换过去"
+   ],
+   "textLen": 800,
+   "state": "conflict",
+   "injected": "409 由真实 POST /api/space/create 判定；list 注入 stale（滤掉目标名）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "sheet10": true,
+   "cards": 0,
+   "activeCard": 0,
+   "hasEmpty": false,
+   "hasStamp": true,
+   "hasSkeleton": false,
+   "createForm": false,
+   "dialogOpen": false,
+   "dialogTitle": "",
+   "dialogButtons": [],
+   "textLen": 371,
+   "state": "list-fail",
+   "injected": "error 态为探针注入（/api/space/list 返回 500）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  },
+  {
+   "hash": "#/spaces",
+   "overflowPx": 0,
+   "clientWidth": 375,
+   "scrollWidth": 375,
+   "h1Count": 1,
+   "h1Text": [
+    "学习空间：给证据找一个落点"
+   ],
+   "sheet10": true,
+   "cards": 0,
+   "activeCard": 0,
+   "hasEmpty": true,
+   "hasStamp": false,
+   "hasSkeleton": false,
+   "createForm": false,
+   "dialogOpen": false,
+   "dialogTitle": "",
+   "dialogButtons": [],
+   "textLen": 359,
+   "state": "list-empty",
+   "injected": "empty 态为探针注入（/api/space/list 返回空集合）",
+   "width": 375,
+   "height": 812,
+   "theme": "dark"
+  }
+ ]
+}

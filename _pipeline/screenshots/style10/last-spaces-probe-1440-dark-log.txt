@@ -1,0 +1,27 @@
+browser = /Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge
+base    = http://127.0.0.1:5173
+out     = /Users/Merryou/LearnBuddy/zhiwei/_pipeline/screenshots/style10
+theme   = dark
+width   = 1440 × 900
+
+auth    = via=login 空间数=5 名称=["初中数学","UI 验收·先修薄弱","P6 四态取证空间","P6四态1791695333756","P10-1-409-1791710050756"]
+== 状态取证 ==
+  normal     溢出=   0px  h1=1  卡片=5 空盒=false 红章=false 骨架=false 对话框=false
+  → _pipeline/screenshots/style10/spaces-1440-dark-normal.png
+  注入 stale 列表（滤掉「初中数学」）后进页
+  表单填入已被占用的名字=true
+  提交=true
+  conflict   溢出=   0px  h1=1  卡片=4 空盒=false 红章=false 骨架=false 对话框=true
+  → _pipeline/screenshots/style10/spaces-1440-dark-conflict.png
+  点「取消」关闭对话框=true
+  复核：空间数 5 → 5（409 那次未落库；探针不新建空间）
+  复核名称 = ["初中数学","UI 验收·先修薄弱","P6 四态取证空间","P6四态1791695333756","P10-1-409-1791710050756"]
+  list-fail  溢出=   0px  h1=1  卡片=0 空盒=false 红章=true 骨架=false 对话框=false
+  → _pipeline/screenshots/style10/spaces-1440-dark-list-fail.png
+  list-empty 溢出=   0px  h1=1  卡片=0 空盒=true 红章=false 骨架=false 对话框=false
+  → _pipeline/screenshots/style10/spaces-1440-dark-list-empty.png
+
+→ _pipeline/screenshots/style10/spaces-1440-dark.json
+overflowPx 最大 0px（判据：0）
+h1 ≠ 1 的状态：无
+409 对话框实拍：出现
