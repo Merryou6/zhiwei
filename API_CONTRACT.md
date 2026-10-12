@@ -276,10 +276,13 @@ res:  data = 同 analyze 的 data（归因结果页刷新回显用，含 rejecte
 ### POST /api/attribution/verify
 ```
 req:  { "attribution_id", "item_id": "验证题", "answer": "学生作答原文" }
-res:  data = { "verified": true, "correct": true,        // 对错由服务端判定
+res:  data = { "verified": false, "correct": true,       // 对错由服务端判定
                "root_cause": "...",
                "next_candidate": { "kp_id", "suspect_score", "verification_item" } | null }
-规则: correct=false → 排除当前候选，返回次高嫌疑及其验证题
+规则: 验证题考的是候选上游知识点（2026-10-12 方向修正）
+      correct=false（答错）→ 上游薄弱实证，确认当前候选为根因：
+        verified=true、next_candidate=null（单题定论为初步判断，多题交叉验证留作增强）
+      correct=true（答对）→ 排除当前候选，返回次高嫌疑及其验证题
       候选全部排除 → root_cause 回落为本节点（from_kp），verified=true
       验证题作答写 evidence_events(source="diagnose", mode="diagnose", w=1.0)
 ```

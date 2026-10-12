@@ -8,7 +8,7 @@
  *      candidates = BFS 反向沿先修, 深度 ≤ MAX_DEPTH
  *      for a in candidates: suspect[a] = SUSPECT_BASE^dist(a) * (1 − mastery(a))
  *      降序逐个出最小验证题（train 池, 难度取该 kp 最低）
- *         答对 → 确认根因；答错 → 排除，取次高嫌疑继续
+ *         答错 → 确认根因（上游薄弱实证）；答对 → 排除，取次高嫌疑继续
  *      全部排除 → root_cause 回落为本节点（诚实兜底，不硬猜）
  * ```
  *

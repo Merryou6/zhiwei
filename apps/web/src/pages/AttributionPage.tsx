@@ -432,6 +432,9 @@ export default function AttributionPage() {
               从「{kpName(view.from_kp)}」出发，沿先修链往上找了 {view.path.length} 层，停在了「
               {kpName(view.root_cause)}」。{ERROR_TYPE_LABEL[view.error_type]} ——{' '}
               {ERROR_TYPE_NOTE[view.error_type]}
+              {view.verified && !view.rejected_by_student
+                ? ' 这是验证题给出的初步判断——觉得不对，随时反驳。'
+                : ''}
             </p>
             {/* 主操作：未验证时给出「下一步」，已到达终局就不再堆按钮（处方区自会有操作）。 */}
             {!view.verified && item ? (
@@ -506,7 +509,8 @@ export default function AttributionPage() {
             {item ? (
               <>
                 <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
-                  做对这一题，就说明我们找对了方向（做错也没关系，我换一道再确认）。
+                  这道题考的是我怀疑的那层基础——做错，说明它确实卡住了你，我们就先认定它
+                  （只是初步判断，不服随时反驳）；做对，说明这层没问题，我往下一层再找。
                 </p>
                 <div className="mt-3">
                   <ItemCard item={item} value={verifyAnswer} onChange={setVerifyAnswer} disabled={busy} />
@@ -518,8 +522,8 @@ export default function AttributionPage() {
             ) : view.verified ? (
               <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">
                 {lastCorrect === false
-                  ? '这道没过，我们换个方向继续看。'
-                  : `${UI_TEXT.verifyPassed}——这一环确实是我们该补的地方。`}
+                  ? '这道没过——看来根子就卡在这一层。这只是初步判断，觉得不对就反驳，我重新找。'
+                  : '几层都验过了，你对上游的掌握其实扎实——那就从出错的那一环本身下手。'}
               </p>
             ) : (
               <p className="max-w-[74ch] text-body-sm leading-relaxed text-ink-soft">

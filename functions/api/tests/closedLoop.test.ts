@@ -2,7 +2,7 @@
  * 闭环集成测试（真实 HTTP server + fetch，唯一使用真实端口的测试）
  *
  * 全链路：register → 自报先验 → diagnose 3 题（错答制造 prerequisite_gap 素材）→
- * 试卷上传/回显/确认 → classify → attribution/analyze → verify（答错推进 + 答对确认
+ * 试卷上传/回显/确认 → classify → attribution/analyze → verify（答对推进 + 答错确认
  * 两条子场景）→ agent/reject → plan/generate → baseline 3 题 / retest 3 题 →
  * report/summary 断言 ΔAccuracy > 0。
  *
@@ -298,35 +298,35 @@ describe('closedLoop · 20 接口全链路（真实 HTTP）', () => {
     expect(fetched.body.data!.root_cause).toBe(analyzed.body.data!.root_cause);
     expect(fetched.body.data!.verification_item).toEqual(analyzed.body.data!.verification_item);
 
-    // ---- #15 verify 子场景 A：答错 → 推进次高嫌疑
+    // ---- #15 verify 子场景 A：答对 → 排除当前候选，推进次高嫌疑
     const firstItemId = analyzed.body.data!.verification_item!.item_id;
-    const wrongVerified = await api<VerifyData>(
+    const correctVerifiedA = await api<VerifyData>(
       'POST',
       '/api/attribution/verify',
-      { attribution_id: attributionId, item_id: firstItemId, answer: wrongOf(firstItemId) },
+      { attribution_id: attributionId, item_id: firstItemId, answer: SD.itemById.get(firstItemId)!.answer },
       token,
     );
-    expect(wrongVerified.body.code).toBe(0);
-    expect(wrongVerified.body.data!.correct).toBe(false);
-    expect(wrongVerified.body.data!.verified).toBe(false);
-    expect(wrongVerified.body.data!.next_candidate).not.toBeNull();
+    expect(correctVerifiedA.body.code).toBe(0);
+    expect(correctVerifiedA.body.data!.correct).toBe(true);
+    expect(correctVerifiedA.body.data!.verified).toBe(false);
+    expect(correctVerifiedA.body.data!.next_candidate).not.toBeNull();
 
-    // ---- #15 verify 子场景 B：答对 → 确认根因
-    const secondItem = wrongVerified.body.data!.next_candidate!.verification_item!;
-    const correctVerified = await api<VerifyData>(
+    // ---- #15 verify 子场景 B：答错 → 确认根因（上游薄弱实证）
+    const secondItem = correctVerifiedA.body.data!.next_candidate!.verification_item!;
+    const wrongVerified = await api<VerifyData>(
       'POST',
       '/api/attribution/verify',
       {
         attribution_id: attributionId,
         item_id: secondItem.item_id,
-        answer: SD.itemById.get(secondItem.item_id)!.answer,
+        answer: wrongOf(secondItem.item_id),
       },
       token,
     );
-    expect(correctVerified.body.code).toBe(0);
-    expect(correctVerified.body.data!.correct).toBe(true);
-    expect(correctVerified.body.data!.verified).toBe(true);
-    expect(correctVerified.body.data!.root_cause).toBe(
+    expect(wrongVerified.body.code).toBe(0);
+    expect(wrongVerified.body.data!.correct).toBe(false);
+    expect(wrongVerified.body.data!.verified).toBe(true);
+    expect(wrongVerified.body.data!.root_cause).toBe(
       SD.itemById.get(secondItem.item_id)!.knowledge_point,
     );
 

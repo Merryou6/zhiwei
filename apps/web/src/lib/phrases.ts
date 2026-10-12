@@ -80,8 +80,6 @@ export const UI_TEXT = {
   assessmentDone: '这一轮先到这里，我们去看看你的地图',
   /** 冷启动立即收敛（INFO-1）时的结束屏引导。 */
   assessmentDoneTooFast: '这么快就收敛了，多半是起点还没填——先花 30 秒自报一下，我再看地图会更准。',
-  /** 验证通过徽标。 */
-  verifyPassed: '验证通过',
   /** 反驳已记录徽标。 */
   rejectRecorded: '已记录你的反驳',
   /** 候选耗尽的诚实兜底。 */

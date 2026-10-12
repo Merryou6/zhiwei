@@ -6,7 +6,7 @@
  *     降序 + (1−mastery) 单调性、path 完整 id 且终点=根因、验证题取 train 池最低难度未做题
  *   - self（concept_confusion）：path=[kp]、verification_item=null、suspect_scores={}
  *   - none（procedural_slip / misreading）→ 400（服务端防御，不进归因）
- *   - verify：答对确认根因 / 答错推进次高嫌疑 / 全部排除诚实回落 from_kp / 验证题写 diagnose 证据
+ *   - verify：答错确认根因 / 答对推进次高嫌疑 / 全部排除诚实回落 from_kp / 验证题写 diagnose 证据
  *   - reject：rejected_by_student=true + 追加再验证题 / 候选耗尽 → null
  *   - analyze 后立即 GET 字段一致；404 / 403 / 401
  */
@@ -194,16 +194,16 @@ describe('attribution · 契约 §7 get / verify', () => {
     expect(fetched.data?.rejected_by_student).toBe(false);
   });
 
-  it('verify 答对 → verified=true、root_cause=首候选、next_candidate=null，并写 diagnose 证据', async () => {
+  it('verify 答错 → verified=true、root_cause=首候选、next_candidate=null，并写 diagnose 证据', async () => {
     const user = await app.register(uniqueIdentifier());
     const created = await analyze(user, FROM_KP, 'prerequisite_gap');
     const itemId = created.data!.verification_item!.item_id;
-    const item = SD.itemById.get(itemId)!;
 
-    const res = await verify(user, created.data!.attribution_id, itemId, item.answer);
+    // 验证题考的是候选上游知识点：答错 = 上游薄弱实证 → 确认为根因
+    const res = await verify(user, created.data!.attribution_id, itemId, wrongAnswer(itemId));
 
     expect(res.code).toBe(0);
-    expect(res.data?.correct).toBe(true);
+    expect(res.data?.correct).toBe(false);
     expect(res.data?.verified).toBe(true);
     expect(res.data?.root_cause).toBe('math.cz.quadratic.vertex_form');
     expect(res.data?.next_candidate).toBeNull();
@@ -221,15 +221,21 @@ describe('attribution · 契约 §7 get / verify', () => {
     expect(fetched.data?.verified_by).toBe(events[0].event_id);
   });
 
-  it('verify 答错一次 → 排除当前候选，next_candidate=次高嫌疑及其验证题', async () => {
+  it('verify 答对一次 → 排除当前候选，next_candidate=次高嫌疑及其验证题', async () => {
     const user = await app.register(uniqueIdentifier());
     const created = await analyze(user, FROM_KP, 'prerequisite_gap');
     const firstItemId = created.data!.verification_item!.item_id;
 
-    const res = await verify(user, created.data!.attribution_id, firstItemId, wrongAnswer(firstItemId));
+    // 验证题考的是候选上游知识点：答对 = 这一层其实掌握 → 排除、推进次高嫌疑
+    const res = await verify(
+      user,
+      created.data!.attribution_id,
+      firstItemId,
+      SD.itemById.get(firstItemId)!.answer,
+    );
 
     expect(res.code).toBe(0);
-    expect(res.data?.correct).toBe(false);
+    expect(res.data?.correct).toBe(true);
     expect(res.data?.verified).toBe(false);
     expect(res.data?.next_candidate?.kp_id).toBe('math.cz.function.graph');
     expect(res.data?.next_candidate?.suspect_score).toBeCloseTo(0.36, 10);
@@ -238,7 +244,7 @@ describe('attribution · 契约 §7 get / verify', () => {
     );
   });
 
-  it('连续答错至候选全部排除 → root_cause 回落 from_kp、verified=true（诚实兜底）', async () => {
+  it('连续答对至候选全部排除 → root_cause 回落 from_kp、verified=true（诚实兜底）', async () => {
     const user = await app.register(uniqueIdentifier());
     const created = await analyze(user, FROM_KP, 'prerequisite_gap');
     const id = created.data!.attribution_id;
@@ -247,9 +253,10 @@ describe('attribution · 契约 §7 get / verify', () => {
     const visited: string[] = [];
 
     for (let hop = 0; hop < 6; hop += 1) {
-      const res = await verify(user, id, current, wrongAnswer(current));
+      // 逐层答对 = 逐层排除（上游其实都掌握）
+      const res = await verify(user, id, current, SD.itemById.get(current)!.answer);
       expect(res.code).toBe(0);
-      expect(res.data?.correct).toBe(false);
+      expect(res.data?.correct).toBe(true);
       visited.push(SD.itemById.get(current)!.knowledge_point);
 
       if (!res.data?.next_candidate) {
@@ -323,9 +330,9 @@ describe('attribution · 契约 §7 get / verify', () => {
     expect(Object.keys(created.data!.suspect_scores)).toContain(secondKp);
     const item = SD.itemsByKpPool(secondKp, 'train')[0];
 
-    const res = await verify(user, id, item.item_id, wrongAnswer(item.item_id));
+    const res = await verify(user, id, item.item_id, item.answer);
     expect(res.code).toBe(0);
-    expect(res.data?.correct).toBe(false);
+    expect(res.data?.correct).toBe(true);
     // 该候选被排除，root_cause 回到剩余候选的第一位（vertex_form）
     expect(res.data?.root_cause).toBe('math.cz.quadratic.vertex_form');
     expect(res.data?.next_candidate?.kp_id).toBe('math.cz.quadratic.vertex_form');
