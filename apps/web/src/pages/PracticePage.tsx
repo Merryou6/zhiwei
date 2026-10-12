@@ -63,6 +63,7 @@ import { useBlueprintTier } from '../components/blueprint/Board';
 import { SheetBlock, SheetHead, sheetDimText } from '../components/blueprint/Sheet';
 import Stamp from '../components/blueprint/Stamp';
 import { GRAPH_CHAPTERS, snapshotNode } from '../data/graphSnapshot';
+import MathSymbolPad from '../components/MathSymbolPad';
 import { cn } from '../lib/cn';
 import { scrollBehavior } from '../lib/motion';
 import { UI_TEXT } from '../lib/phrases';
@@ -205,6 +206,10 @@ export default function PracticePage() {
    *  —— 只改类型标注，取值与 scrollIntoView 行为逐字不变。 */
   const stepRowRefs = useRef(new Map<number, HTMLElement>());
   const summaryRef = useRef<HTMLDivElement | null>(null);
+  /** 可编辑步骤输入框本体（1 基下标，与 stepRowRefs 同口径）：符号键盘光标插入的目标。 */
+  const stepFieldRefs = useRef(new Map<number, HTMLTextAreaElement>());
+  /** 最后聚焦的步骤下标（0 基）：符号键盘插入优先落点；判定后自动回退到可编辑步。 */
+  const activeStepRef = useRef(0);
 
   const activeSpaceId = useSpaceStore((state) => state.activeSpaceId);
   const toast = useUiStore((state) => state.toast);
@@ -381,6 +386,43 @@ export default function PracticePage() {
 
   function updateStep(index: number, value: string): void {
     setSteps((prev) => prev.map((step, offset) => (offset === index ? value : step)));
+  }
+
+  /**
+   * 符号键盘 → 步骤输入框的光标插入（2026-10-12：面板从整题框迁到分步书写区）。
+   * 语义与 ItemCard.insertSymbol 一致：selectionStart/End 生效，插入后光标落回符号之后。
+   * 落点 = 最后聚焦的可编辑步；无聚焦/不可编辑时回退到第一个可编辑步（判后即断点步）。
+   * 写入走函数式 setSteps：连点符号时每次都基于最新值累加，不互相覆盖。
+   */
+  function insertStepSymbol(symbol: string): void {
+    const breakStep = result?.overall.first_break_step ?? null;
+    const isEditable = (index: number): boolean =>
+      !(result !== null && index + 1 !== breakStep);
+    let target = activeStepRef.current;
+    if (!isEditable(target) || !stepFieldRefs.current.has(target + 1)) {
+      target = steps.findIndex((_, index) => isEditable(index) && stepFieldRefs.current.has(index + 1));
+      if (target < 0) return;
+    }
+    const element = stepFieldRefs.current.get(target + 1);
+    if (!element) {
+      setSteps((prev) => prev.map((step, offset) => (offset === target ? (step ?? '') + symbol : step)));
+      return;
+    }
+    const start = element.selectionStart ?? 0;
+    const end = element.selectionEnd ?? 0;
+    setSteps((prev) =>
+      prev.map((step, offset) => {
+        if (offset !== target) return step;
+        const cur = step ?? '';
+        return cur.slice(0, start) + symbol + cur.slice(end);
+      }),
+    );
+    // 插入后把光标放回符号之后（异步等 DOM 更新）
+    requestAnimationFrame(() => {
+      element.focus();
+      const cursor = start + symbol.length;
+      element.setSelectionRange(cursor, cursor);
+    });
   }
 
   /** 删步（P2 防丢）：被删步内容非空时先确认；空步直接删。 */
@@ -578,11 +620,15 @@ export default function PracticePage() {
               {ladder.refilled ? <Badge>第二轮：练过的题已回流</Badge> : null}
             </p>
             <div className="mt-3.5">
+              {/* 2026-10-12：解答题不再渲染整题作答框（payload 只走分步 steps，整题框是
+                  「写了不参与批改」的死框且与 STEP 01 提示文案相同造成误导）——只留题干；
+                  符号键盘随迁至 02 分步书写区。选择题 radio 分支不受影响（payload=[choice]）。 */}
               <ItemCard
                 item={current}
                 value={choice}
                 onChange={setChoice}
                 disabled={busy || result !== null}
+                answerVisible={Boolean(current.options)}
                 placeholder="第一步怎么下手？"
               />
             </div>
@@ -637,6 +683,13 @@ export default function PracticePage() {
                               busy || retrying || (result !== null && index + 1 !== firstBreak)
                             }
                             placeholder={index === 0 ? '第一步怎么下手？' : '这一步做了什么？'}
+                            ref={(el) => {
+                              if (el) stepFieldRefs.current.set(index + 1, el);
+                              else stepFieldRefs.current.delete(index + 1);
+                            }}
+                            onFocus={() => {
+                              activeStepRef.current = index;
+                            }}
                             onChange={(event) => updateStep(index, event.target.value)}
                           />
                         )}
@@ -712,6 +765,14 @@ export default function PracticePage() {
                   );
                 })}
               </ol>
+              {/* 符号键盘（2026-10-12 自整题框迁入）：光标插入最后聚焦的可编辑步，
+                  判后自动落断点步；busy/重批期间整体禁用，与步骤输入框 disabled 同口径。 */}
+              <div className="mt-3.5">
+                <MathSymbolPad
+                  disabled={busy || retrying}
+                  onInsert={insertStepSymbol}
+                />
+              </div>
               <div className="mt-3.5 flex flex-wrap items-center gap-3">
                 {steps.length < MAX_STEPS ? (
                   <Button

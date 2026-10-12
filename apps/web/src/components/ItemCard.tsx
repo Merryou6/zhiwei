@@ -13,6 +13,7 @@
 import { useRef, type ReactNode } from 'react';
 
 import type { ClientItem } from '../api/types';
+import MathSymbolPad from './MathSymbolPad';
 
 export interface ItemCardProps {
   item: ClientItem;
@@ -27,12 +28,16 @@ export interface ItemCardProps {
   placeholder?: string;
   /** 图号批注位（规范 4.3）：传给迁移页的题卡，未迁移页面不传即零变化。 */
   dwg?: string;
+  /**
+   * 解答题是否渲染整题作答框 + 符号面板（默认 true，既有使用方零变化）。
+   * 2026-10-12：练习页解答题批改只走分步 steps（payload 分流见 PracticePage.submitSteps），
+   * 整题框成了「写了不参与批改」的死框，且与 STEP 01 提示文案相同造成误导——
+   * 练习页传 false 只留题干；选择题 radio 分支不受此开关影响。
+   */
+  answerVisible?: boolean;
 }
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
-
-/** 数学符号快捷面板（纯文本插入，光标位置生效；不含任何判分逻辑）。 */
-const MATH_SYMBOLS = ['√', '²', '³', '±', '×', '÷', 'π', '≤', '≥', '≠', 'Δ', '/'] as const;
 
 export default function ItemCard({
   item,
@@ -43,6 +48,7 @@ export default function ItemCard({
   tone = 'default',
   placeholder = '把你的作答写在这里（写一步也行）',
   dwg,
+  answerVisible = true,
 }: ItemCardProps) {
   const options = item.options ?? null;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -114,7 +120,7 @@ export default function ItemCard({
             );
           })}
         </ul>
-      ) : (
+      ) : answerVisible ? (
         <>
           {/* 无可见标签，用提示文案作可访问名（P2 无障碍） */}
           <textarea
@@ -128,27 +134,12 @@ export default function ItemCard({
             disabled={disabled}
             onChange={(event) => onChange(event.target.value)}
           />
-          {/* 数学符号快捷面板（规范 5.16 的 .sym-pad）：桌面 36px、≤900 档 44px 保底；
-              0 圆角 + hover 转 accent 面纱。禁用态跟随作答区（同一 disabled 入参）。 */}
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="font-mono text-mono-xs uppercase tracking-widest text-ink-soft">
-              插入
-            </span>
-            {MATH_SYMBOLS.map((symbol) => (
-              <button
-                key={symbol}
-                type="button"
-                disabled={disabled}
-                aria-label={`插入符号 ${symbol}`}
-                className="min-h-9 min-w-9 rounded-none border border-line bg-surface px-2 text-sm text-ink transition-colors hover:border-accent hover:bg-accent-veil disabled:cursor-not-allowed disabled:opacity-60 max-sheet:min-h-11 max-sheet:min-w-11"
-                onClick={() => insertSymbol(symbol)}
-              >
-                {symbol}
-              </button>
-            ))}
+          {/* 数学符号快捷面板（规范 5.16 的 .sym-pad）：面板本体抽至 MathSymbolPad 共用。 */}
+          <div className="mt-2">
+            <MathSymbolPad disabled={disabled} onInsert={insertSymbol} />
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }
