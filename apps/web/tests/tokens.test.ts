@@ -41,7 +41,7 @@
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { dirname, extname, join, relative, resolve } from 'node:path';
+import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
@@ -64,7 +64,9 @@ function scanSources(dir: string, out: string[] = []): string[] {
 
 const FILES = scanSources(SRC).map((file) => ({
   path: file,
-  rel: relative(WEB, file),
+  // 2026-10-12：Windows 上 relative() 返回反斜杠，endsWith('components/.../Sheet.tsx')
+  // 这类正斜杠断言永远匹配不上（⑬ 号用例本机必挂）——统一规范化为正斜杠，断言语义零变化。
+  rel: relative(WEB, file).split(sep).join('/'),
   text: readFileSync(file, 'utf8'),
 }));
 
