@@ -48,11 +48,13 @@
  *   ③ 右栏（原型 `aside.panel.flat` = `.split` 的 220px 列）：02 演示账号 ——
  *      两张演示卡（学生端 / 教师端 chip + 一键进入 + 账号/密码 kv）+ 注册后冷启动说明。
  *
- * 【外壳形态的变化（本次唯一的计划外文件改动，见执行报告 D-P10.4-1）】原型 PAGES.login
- * 是**画在外壳里**的图纸（sheetHead + 左右分栏 + 左栏分层索引可见），而本工程 /login
- * 自 2026-09-22 起走 `Guarded bare`（全屏深色开场、不套 Layout）。按「原型为视觉唯一依据」
- * （D9）与 D24 登记表的说明（「登录页在外壳内渲染图纸制式」），本次改为**在壳内渲染**：
- * App.tsx 里 /login 的 `bare` 由 true 改 false（一处 + 注释），Layout.tsx 登记 '/login'。
+ * 【外壳形态的变化（P10.4 计划外改动 D-P10.4-1；2026-10-13 用户验收修订推翻）】
+ * P10.4 曾按原型 PAGES.login 把登录页画进外壳（sheetHead + 左右分栏 + 左栏分层索
+ * 引可见），App.tsx 的 `bare` 由 true 改 false。用户验收否决了这一形态：未登录态下
+ * 外壳的整列导航全部被守卫弹回 /login，「看得见、点不动」。2026-10-13 恢复独立全屏
+ * 渲染（App.tsx `/login` 重走 `Guarded bare`），页面自带品牌顶栏与「返回门户」出
+ * 口；表单、演示账号与全部交互逻辑（finishAuth 落会话→取空间→按角色导航、演示账
+ * 号一键进入、温和纠正 toast）一字未动。
  * 随之退场的是旧开场的三件动效资产（ParticleLogo 粒子标识 / aurora 氛围斑 / 表单入场
  * 揭示与磁性 CTA）—— 它们只服务于「全屏开场」这一种形态，原型 login 页里没有；
  * ParticleLogo 仍在门户 /（P11.1）与 ZhiweiLogo 里使用，未被删除。
@@ -62,7 +64,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import { listSpaces, login, register } from '../api/endpoints';
@@ -70,7 +72,10 @@ import type { AuthData } from '../api/types';
 import { Icon } from '../components/blueprint/icons';
 import { useBlueprintTier } from '../components/blueprint/Board';
 import { SheetBlock, SheetHead, sheetDimText } from '../components/blueprint/Sheet';
+import ZhiweiLogo from '../components/ZhiweiLogo';
 import { Badge, Button, FormField, Input } from '../components/ui';
+import { buttonVariants } from '../components/ui/Button';
+import { cn } from '../lib/cn';
 import { UI_TEXT } from '../lib/phrases';
 import { SPACES_PATH, START_PATH, TEACHER_HOME } from '../router';
 import { useAuthStore } from '../stores/auth';
@@ -263,7 +268,23 @@ export default function LoginPage() {
   ] as const;
 
   return (
-    <>
+    // 【2026-10-13 用户验收修订】独立全屏登录页（App.tsx 恢复 bare）：自带品牌顶栏与
+    // 「返回门户」出口——未登录态不再呈现应用外壳（外壳整列导航会被守卫弹回，观感
+    // 「卡着不让去其他页面」）。表单、演示账号、全部交互逻辑一字未动。
+    <div className="flex min-h-dvh flex-col bg-canvas text-ink">
+      <header className="border-b border-line">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 annos:px-6">
+          <div className="flex items-center gap-2 font-disp text-reading font-semibold">
+            <ZhiweiLogo size={24} />
+            知微 · ZhiWei
+          </div>
+          <Link to="/" className={cn(buttonVariants({ variant: 'quiet', size: 'md' }))}>
+            返回门户
+          </Link>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-14 annos:px-6 annos:py-20">
       {pageHead}
 
       {/* 原型 `<section class="block">` 无分节号（左侧表单列直接落进 .split 的 1fr，
@@ -455,6 +476,7 @@ export default function LoginPage() {
           </aside>
         </div>
       </section>
-    </>
+      </main>
+    </div>
   );
 }

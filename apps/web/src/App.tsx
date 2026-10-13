@@ -83,11 +83,11 @@ export function readSession(): { token: string | null; hasActiveSpace: boolean }
 /**
  * 守卫 + 外壳。
  *
- * bare（视觉改版 2026-09-22；现只服务教师端路由族 /t）：不套带顶栏的 Layout —— 教师端
- * 自带 TeacherShell，不需要学生端外壳。此时仍挂 ToastHost，保证校验/服务端错误照旧走
- * 非阻断提示（与内页同一份队列实现）。
- * ⚠ /login 曾用 bare（全屏深色开场 + 中央粒子标识）；2026-10-11 style-10 迁移 P10.4 起
- *   改为在壳内渲染（原型 login 就是外壳里的图纸），此处不再有登录页分支。
+ * bare（视觉改版 2026-09-22；2026-10-13 起服务 /login 与教师端路由族 /t）：不套带
+ * 顶栏的 Layout —— 教师端自带 TeacherShell，登录页是独立全屏开场（页面自带品牌顶栏）。
+ * 此时仍挂 ToastHost，保证校验/服务端错误照旧走非阻断提示（与内页同一份队列实现）。
+ * ⚠ /login 的壳内形态（P10.4 按原型把登录画进外壳）已被用户验收否决：未登录态下外壳
+ *   导航全部被守卫弹回，观感是「卡着不让去其他页面」；2026-10-13 恢复独立渲染。
  */
 function Guarded({ children, bare = false }: { children: ReactElement; bare?: boolean }) {
   const location = useLocation();
@@ -174,13 +174,12 @@ export default function App() {
               key={route.path}
               path={route.path}
               element={
-                // 【2026-10-11 style-10 迁移 P10.4】/login 不再走 bare：原型 PAGES.login
-                // 是**画在外壳里**的图纸（原型 L1951 的 sheetHead + 左右分栏，左侧分层索引
-                // 可见），D24 登记表也写明「登录页在外壳内渲染图纸制式」。旧 bare 形态是
-                // 2026-09-22「全屏深色开场 + 中央粒子标识」那一版的产物，与本迁移的视觉
-                // 唯一依据（原型）冲突，故此处去掉 bare 分支 —— 见执行报告 D-P10.4-1。
+                // 【2026-10-13 用户验收修订】/login 恢复 bare（独立全屏页）：
+                // P10.4 曾按原型把登录页画进外壳，但未登录态下外壳的整列导航全部被
+                // 守卫弹回 /login（「看得见、点不动」的卡死观感）。登录页回归独立形态
+                // （页面自带品牌顶栏与「返回门户」出口），表单逻辑不变。
                 // （`Guarded` 的 bare 形参本身保留：/t 教师端路由族仍在用。）
-                <Guarded>
+                <Guarded bare={route.path === LOGIN_PATH}>
                   {/* 页面级边界：只兜内容区，顶栏导航保留 → 出错也能切到别的页 */}
                   <ErrorBoundary key={`page:${route.path}`}>
                     <Suspense fallback={<PageLoading />}>
