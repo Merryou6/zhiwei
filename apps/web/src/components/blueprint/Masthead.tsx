@@ -4,7 +4,9 @@
  * 项目/学科信息由空间胶囊承担）
  *
  * 吸顶的顶栏：品牌位 ⊕ 右区操作
- * （身份芯片 / 索引开关 / 标注开关 / 全部图纸 / 对话面板开合 / 注入槽位）。
+ * （身份芯片 / 标注开关 / 对话面板开合 / 注入槽位）。
+ * 2026-10-13 用户验收修订：侧栏索引开关移出本条（挪到侧栏原「分层索引」标题行位置，
+ * 由 Layout 注入 Rail 的 header 槽）。
  *
  * 【为什么全部是受控 props】外壳（Layout）负责持状态（含 localStorage 记忆），
  * Masthead 只负责画与转发点击 —— 这样它既能被外壳用，也能在截图走查里被固定态用，
@@ -60,9 +62,7 @@ export interface MastheadIdentity {
 
 export interface MastheadProps {
   identity: MastheadIdentity;
-  railOpen: boolean;
   annosOpen: boolean;
-  onRailToggle: () => void;
   onAnnosToggle: () => void;
   /**
    * 「全部图纸」抽屉入口（P5 修正）。按钮本体由 `trailing` 槽里的右区操作簇渲染
@@ -86,9 +86,7 @@ function identityText(identity: MastheadIdentity): string {
 
 export default function Masthead({
   identity,
-  railOpen,
   annosOpen,
-  onRailToggle,
   onAnnosToggle,
   panelOpen,
   onTogglePanel,
@@ -131,17 +129,6 @@ export default function Masthead({
         >
           {identityText(identity)}
         </span>
-
-        <BpButton
-          variant="secondary"
-          onClick={onRailToggle}
-          aria-expanded={railOpen}
-          aria-controls="bp-rail"
-          className="hidden sheet:inline-flex"
-        >
-          <Icon name="list" className="h-4 w-4" />
-          {railOpen ? '收起' : '索引'}
-        </BpButton>
 
         <BpButton
           variant="secondary"

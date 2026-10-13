@@ -14,6 +14,7 @@
  * 的焦点陷阱死区 —— 抽屉与正文靠 aria-hidden 互斥，多一个不可见可聚焦子树很危险）。
  */
 
+import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { cn } from '../../lib/cn';
@@ -25,12 +26,17 @@ export interface RailItem {
 
 export interface RailProps {
   items: RailItem[];
+  /**
+   * 顶行槽位（2026-10-13 用户验收修订：侧栏收纳开关放在原「分层索引」标题行的位置，
+   * 由外壳注入；抽屉内复用时不传）。渲染在列表上方，随 nav 一起 sticky。
+   */
+  header?: ReactNode;
   /** 抽屉内复用：去掉左侧内边距。 */
   dense?: boolean;
   className?: string;
 }
 
-export default function Rail({ items, dense = false, className }: RailProps) {
+export default function Rail({ items, header, dense = false, className }: RailProps) {
   return (
     <nav
       id={dense ? undefined : 'bp-rail'}
@@ -42,6 +48,12 @@ export default function Rail({ items, dense = false, className }: RailProps) {
         className,
       )}
     >
+      {header ? (
+        <div className={cn('border-b border-line/20 px-3.5 pb-1.5 pt-3', dense && 'px-0')}>
+          {header}
+        </div>
+      ) : null}
+
       <ul className="list-none py-1.5">
         {items.map((item) => (
           <li key={item.path}>

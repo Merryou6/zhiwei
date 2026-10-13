@@ -46,10 +46,12 @@ import { LOGIN_PATH, ROUTES, routeOf } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
+import { cn } from '../lib/cn';
 import Board, { useBlueprintTier } from './blueprint/Board';
-import Masthead from './blueprint/Masthead';
+import Masthead, { bpButtonClass } from './blueprint/Masthead';
 import Rail, { type RailItem } from './blueprint/Rail';
 import Sheet from './blueprint/Sheet';
+import { Icon } from './blueprint/icons';
 import ChatPanel from './chat/ChatPanel';
 import MobileNav from './MobileNav';
 import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
@@ -322,9 +324,7 @@ export default function Layout({ children }: LayoutProps) {
         // 身份芯片：未登录 / 学生 / 教师。昵称不取（auth store 只落 user_id，
         // 没有昵称字段 —— 不为了填一格而编一个名字）。
         identity={{ role: token ? role : 'guest' }}
-        railOpen={railOpen}
         annosOpen={annosOpen}
-        onRailToggle={() => setRailOpen((value) => !value)}
         onAnnosToggle={() => setAnnosOpen((value) => !value)}
         panelOpen={open}
         onTogglePanel={() => useChatPanelStore.getState().toggle()}
@@ -337,9 +337,9 @@ export default function Layout({ children }: LayoutProps) {
       {/* workbench：常驻态给面板让位的 padding 落在外层（D24），
           让 Sheet 的可用宽度仍是「面板左边的宽」；顶栏右区读同一个变量 ⇒ 左基线一致。
           aria-hidden：抽屉 / 覆盖式面板打开期间正文对读屏隐藏（关闭时不渲染该属性 →
-          DOM 与默认态一致）。 */}
+          DOM 与默认态一致）。relative：收起态的「展开索引」浮动钮以它为定位基准。 */}
       <div
-        className="mx-auto w-full transition-[padding] duration-200 ease-out"
+        className="relative mx-auto w-full transition-[padding] duration-200 ease-out"
         style={DOCK_OFFSET_STYLE}
         aria-hidden={navOpen || (open && !docked) || undefined}
       >
@@ -350,7 +350,24 @@ export default function Layout({ children }: LayoutProps) {
           ].join(' ')}
         >
           {railOpen && tier !== 'md' && tier !== 'sm' ? (
-            <Rail items={railItems} />
+            <Rail
+              items={railItems}
+              header={
+                // 索引收纳开关（2026-10-13 用户验收修订：从图签条身份/标注之间
+                // 挪到侧栏原「分层索引」标题行的位置）。
+                <button
+                  type="button"
+                  onClick={() => setRailOpen(false)}
+                  aria-expanded={true}
+                  aria-controls="bp-rail"
+                  className="flex min-h-9 w-full items-center gap-2 font-mono text-mono-xs uppercase tracking-widest text-ink-soft transition-colors hover:text-ink"
+                >
+                  <Icon name="list" className="h-4 w-4" />
+                  <span className="flex-1 text-left">分层索引</span>
+                  <span>收起</span>
+                </button>
+              }
+            />
           ) : null}
 
           <Sheet
@@ -371,6 +388,23 @@ export default function Layout({ children }: LayoutProps) {
             {children}
           </Sheet>
         </div>
+
+        {/* 收起态的「展开索引」浮动钮（2026-10-13 用户验收修订）：贴工作区左缘、
+            与侧栏顶行同一竖向位置——收起后仍能一眼找到入口。落在 Sheet 的 ≥900 档
+            左内边距（48px）之内，不压内容；打印隐藏。 */}
+        {!railOpen && tier !== 'md' && tier !== 'sm' ? (
+          <button
+            type="button"
+            data-print="hide"
+            onClick={() => setRailOpen(true)}
+            aria-expanded={false}
+            aria-controls="bp-rail"
+            aria-label="展开分层索引"
+            className={cn(bpButtonClass('secondary'), 'absolute left-1 top-3 px-2.5')}
+          >
+            <Icon name="list" className="h-4 w-4" />
+          </button>
+        ) : null}
       </div>
 
       {/* 回到图纸顶部：放在浮层之前，保证抽屉 / 面板 / 批注条都在它之上。 */}
