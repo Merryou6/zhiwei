@@ -44,10 +44,14 @@ export default function Rail({ items, header, dense = false, className }: RailPr
       className={cn(
         dense
           ? ''
-          : 'sticky top-14 max-h-[calc(100dvh-3.5rem)] min-w-0 self-start overflow-auto border-r border-line/20',
+          : 'sticky top-14 max-h-[calc(100dvh-3.5rem)] min-w-0 self-start overflow-x-hidden overflow-y-auto border-r border-line/20',
         className,
       )}
     >
+      {/* 固定宽内容层：外壳对 nav 做宽度过渡动画（2026-10-13 用户验收：收纳加动画），
+          内容层钉在 235px（= 236px 档宽 - 1px 右边框）不重排，收展时整体裁切平移；
+          overflow-x-hidden 防动画期间出现横向滚动条。dense（抽屉内）无动画，不钉宽。 */}
+      <div className={dense ? '' : 'w-[235px]'}>
       {header ? (
         <div className={cn('border-b border-line/20 px-3.5 pb-1.5 pt-3', dense && 'px-0')}>
           {header}
@@ -74,6 +78,7 @@ export default function Rail({ items, header, dense = false, className }: RailPr
           </li>
         ))}
       </ul>
+      </div>
     </nav>
   );
 }

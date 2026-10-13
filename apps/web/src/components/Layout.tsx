@@ -299,9 +299,25 @@ export default function Layout({ children }: LayoutProps) {
 
   const tier = useBlueprintTier();
 
-  /** 两个图层开关（索引 / 标注）。会话级组件态：刷新回到缺省（索引开、标注关）。 */
+  /** 两个图层开关（索引 / 标注）。会话级组件态：刷新回到缺省（索引开、标注关）。
+   *  railMounted：收纳动画的挂载门（2026-10-13 用户验收：收纳加动画）——
+   *  展开时先挂载再下一帧开宽（w-0 → 236px 过渡），收起时先收宽再延迟卸载，
+   *  避免不可见可聚焦子树常驻（卸载节奏 > 160ms 过渡时长）。 */
   const [railOpen, setRailOpen] = useState(true);
+  const [railMounted, setRailMounted] = useState(true);
   const [annosOpen, setAnnosOpen] = useState(false);
+
+  const openRail = () => {
+    setRailMounted(true);
+    // 双 rAF：先让「挂载 + w-0」这一帧落画，再翻 w-[236px] 才会走过渡而不是直接到位
+    requestAnimationFrame(() => requestAnimationFrame(() => setRailOpen(true)));
+  };
+
+  useEffect(() => {
+    if (railOpen) return;
+    const timer = setTimeout(() => setRailMounted(false), 240);
+    return () => clearTimeout(timer);
+  }, [railOpen]);
 
   const route = routeOf(pathname);
 
@@ -346,19 +362,25 @@ export default function Layout({ children }: LayoutProps) {
         <div
           className={[
             'grid items-start',
-            railOpen && tier !== 'md' && tier !== 'sm' ? 'sheet:grid-cols-[236px_minmax(0,1fr)]' : 'grid-cols-1',
+            tier !== 'md' && tier !== 'sm' ? 'sheet:grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1',
           ].join(' ')}
         >
-          {railOpen && tier !== 'md' && tier !== 'sm' ? (
+          {railMounted && tier !== 'md' && tier !== 'sm' ? (
             <Rail
               items={railItems}
+              // 收纳动画：宽度 236px ↔ 0 过渡（160ms 单一缓动，规范第 8 章；
+              // reduced-motion 由 index.css 全局规则压到 0.01ms 自动降级）。
+              className={cn(
+                'transition-[width] duration-[160ms] ease-[cubic-bezier(0.2,0.7,0.3,1)]',
+                railOpen ? 'w-[236px]' : 'w-0',
+              )}
               header={
                 // 索引收纳开关（2026-10-13 用户验收修订：从图签条身份/标注之间
                 // 挪到侧栏原「分层索引」标题行的位置）。
                 <button
                   type="button"
                   onClick={() => setRailOpen(false)}
-                  aria-expanded={true}
+                  aria-expanded={railOpen}
                   aria-controls="bp-rail"
                   className="flex min-h-9 w-full items-center gap-2 font-mono text-mono-xs uppercase tracking-widest text-ink-soft transition-colors hover:text-ink"
                 >
@@ -391,12 +413,13 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* 收起态的「展开索引」浮动钮（2026-10-13 用户验收修订）：贴工作区左缘、
             与侧栏顶行同一竖向位置——收起后仍能一眼找到入口。落在 Sheet 的 ≥900 档
-            左内边距（48px）之内，不压内容；打印隐藏。 */}
-        {!railOpen && tier !== 'md' && tier !== 'sm' ? (
+            左内边距（48px）之内，不压内容；打印隐藏。
+            动画口径：收起过渡播完（railMounted 翻 false）才出现，展开立即消失。 */}
+        {!railMounted && tier !== 'md' && tier !== 'sm' ? (
           <button
             type="button"
             data-print="hide"
-            onClick={() => setRailOpen(true)}
+            onClick={openRail}
             aria-expanded={false}
             aria-controls="bp-rail"
             aria-label="展开分层索引"
