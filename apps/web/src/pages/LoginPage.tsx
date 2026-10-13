@@ -3,8 +3,10 @@
  * 开场：恒深色开场、粒子标识为主角、一屏一件事、无卡片无眉标无说明性旁注）。P10.4 按
  * 原型迁移的「图纸制式」版（SheetHead / bp-seg / 三条说明文案 / 演示账号 aside 卡片）被
  * 用户验收否决。交互逻辑自双端开场（2026-10-09）以来零改动，本文件与其后版本完全一致。
- * 补一处出口：右上角「返回门户」（独立登录页不卡人）。dusk-* 令牌族与 Input tone=
- * "onDark"、aurora 氛围基建均未被 style-10 迁移删除，直接可用（本页恒深色、不随主题）。
+ * 补一处出口：右上角「返回门户」（独立登录页不卡人）。
+ * 【2026-10-13 二次修订】版式保持（标识主角/一屏一件事），配色从「恒深色 dusk-* 固定令牌」
+ * 改为**跟随主题的语义令牌**（canvas/ink/ink-soft/accent…）：白图默认下是浅色开场，
+ * 蓝图用户见深色；aurora/focus-glow 本就消费 --c-accent，自动跟随。
  */
 /**
  * 页 1 · 登录 / 注册（PRD §5 #1「一件事：进得来」；P0 #1）
@@ -249,7 +251,7 @@ export default function LoginPage() {
      ⚠ 本页此后不再维护任何色值。 */
 
   return (
-    <section className="dusk relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-dusk-base px-6 py-10 text-dusk-body">
+    <section className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas px-6 py-10 text-ink">
       {/* 背景氛围：单一品牌色相的极淡径向光，模拟夜里桌面上的一盏光。
           刻意只用一个色相——多色光晕是生成式页面的固定配色，也会让登录页冒出
           内页没有的第二套强调色。 */}
@@ -267,7 +269,7 @@ export default function LoginPage() {
           py-2 把可点高度抬回触控底线）。 */}
       <Link
         to="/"
-        className="absolute right-5 top-5 py-2 text-ui-sm text-dusk-muted transition-colors hover:text-dusk-title"
+        className="absolute right-5 top-5 py-2 text-ui-sm text-ink-soft transition-colors hover:text-ink"
       >
         返回门户
       </Link>
@@ -280,11 +282,11 @@ export default function LoginPage() {
 
       {/* 品牌字与一句话定位。标题的力度全部来自字号、字重与中文特有的宽字距，
           不用渐变填充——强调应当由字体本身承担。 */}
-      <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-dusk-title sm:text-display-lg">
+      <h1 className="mt-4 pl-[0.3em] text-display font-medium tracking-[0.3em] text-ink sm:text-display-lg">
         知微
       </h1>
       {/* 一句话定位随身份切换：进门先说我是谁，这一屏在为谁准备就清楚了 */}
-      <p className="mt-3 text-center text-ui-sm leading-relaxed text-dusk-muted">
+      <p className="mt-3 text-center text-ui-sm leading-relaxed text-ink-soft">
         {role === 'teacher'
           ? '看清每个学生卡在哪，把该补的一环送到他手上'
           : '先弄清你卡在哪个知识点，再陪你把它补上'}
@@ -347,7 +349,6 @@ export default function LoginPage() {
           error={fieldErrors.identifier}
         >
           <Input
-            tone="onDark"
             fieldSize="lg"
             placeholder="手机号或邮箱"
             value={identifier}
@@ -367,7 +368,6 @@ export default function LoginPage() {
           error={fieldErrors.password}
         >
           <Input
-            tone="onDark"
             fieldSize="lg"
             placeholder={tab === 'register' ? '设个密码，至少 6 位' : '密码'}
             type="password"
@@ -415,7 +415,7 @@ export default function LoginPage() {
             分段控件是「设置项」的语汇，这里只是换个入口。
             py-2：文字形态的按钮没有盒模型，默认的可点高度会低于 44px 下限，
             这里补回纵向内边距把它抬上去 —— 密度只压信息容器，不压交互目标。 */}
-        <p className="mt-4 text-center text-ui-sm text-dusk-muted">
+        <p className="mt-4 text-center text-ui-sm text-ink-soft">
           {tab === 'login' ? '第一次来？' : '已经有账号了？'}
           <Button
             variant="link"
@@ -443,7 +443,7 @@ export default function LoginPage() {
             variant="link"
             loading={submitting}
             onClick={() => void handleDemoEnter('student')}
-            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
+            className="py-2 text-ui-sm text-ink-soft hover:text-accent-ink"
           >
             用演示账号看看学生端
           </Button>
@@ -451,13 +451,13 @@ export default function LoginPage() {
             variant="link"
             loading={submitting}
             onClick={() => void handleDemoEnter('teacher')}
-            className="py-2 text-ui-sm text-dusk-muted hover:text-primary-lift"
+            className="py-2 text-ui-sm text-ink-soft hover:text-accent-ink"
           >
             用演示账号看看老师端
           </Button>
         </div>
         {/* 等宽 + 表格数字：字符数一眼可数，抄的时候不容易错 */}
-        <p className="mt-1.5 font-mono text-caption tabular-nums text-dusk-muted">
+        <p className="mt-1.5 font-mono text-caption tabular-nums text-ink-soft">
           demo_student · demo_teacher / {DEMO_PASSWORD}
         </p>
       </div>
