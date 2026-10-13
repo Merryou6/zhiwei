@@ -178,7 +178,10 @@ describe('③ 主题变量成对（白图 :root 与蓝图 html.dusk 都必须有
     expect(referenced.length, 'tailwind.config.js 里没解析到任何 --c-* 变量引用').toBeGreaterThan(5);
 
     const light = cssBlock(/:root\s*\{([^}]*)\}/);
-    const dark = cssBlock(/html\.dusk\s*\{([^}]*)\}/);
+    // 2026-10-13：深色块选择器扩展为 `html.dusk, .dusk {`（恒深色页面的作用域
+    // 作用域入口，如登录页）。`[^{]*` 容忍伴生选择器；首个匹配仍是主题变量块
+    // （排在 @media print 的 html.dusk 覆盖块之前），断言意图不变。
+    const dark = cssBlock(/html\.dusk[^{]*\{([^}]*)\}/);
     expect(light).not.toBe('');
 
     for (const name of referenced) {
@@ -189,7 +192,10 @@ describe('③ 主题变量成对（白图 :root 与蓝图 html.dusk 都必须有
 
   it('--shadow-card / --shadow-overlay 在两套主题下都有定义', () => {
     const light = cssBlock(/:root\s*\{([^}]*)\}/);
-    const dark = cssBlock(/html\.dusk\s*\{([^}]*)\}/);
+    // 2026-10-13：深色块选择器扩展为 `html.dusk, .dusk {`（恒深色页面的作用域
+    // 作用域入口，如登录页）。`[^{]*` 容忍伴生选择器；首个匹配仍是主题变量块
+    // （排在 @media print 的 html.dusk 覆盖块之前），断言意图不变。
+    const dark = cssBlock(/html\.dusk[^{]*\{([^}]*)\}/);
     for (const name of ['--shadow-card', '--shadow-overlay']) {
       expect(light, `:root 缺少 ${name}`).toContain(`${name}:`);
       expect(dark, `html.dusk 缺少 ${name}`).toContain(`${name}:`);
@@ -201,7 +207,10 @@ describe('③ 主题变量成对（白图 :root 与蓝图 html.dusk 都必须有
     // 守恒区（tailwind 的 band-* 六个字面 hex）只能容纳白图那套，蓝图那套走变量，
     // 因此这里必须成对定义 —— 少一边就是「某套主题下四档色消失」。
     const light = cssBlock(/:root\s*\{([^}]*)\}/);
-    const dark = cssBlock(/html\.dusk\s*\{([^}]*)\}/);
+    // 2026-10-13：深色块选择器扩展为 `html.dusk, .dusk {`（恒深色页面的作用域
+    // 作用域入口，如登录页）。`[^{]*` 容忍伴生选择器；首个匹配仍是主题变量块
+    // （排在 @media print 的 html.dusk 覆盖块之前），断言意图不变。
+    const dark = cssBlock(/html\.dusk[^{]*\{([^}]*)\}/);
     for (const name of [
       '--c-band-1',
       '--c-band-2',
@@ -428,7 +437,10 @@ describe('⑫ 蓝图 token（动效三档 + 单一缓动 + 形状刻度）', () 
   it('静态面一律无阴影：--shadow-card 为 none', () => {
     // 规范 2.5：图纸感来自线与面，静态面板一律无阴影，只有浮层保留一层投影。
     const light = cssBlock(/:root\s*\{([^}]*)\}/);
-    const dark = cssBlock(/html\.dusk\s*\{([^}]*)\}/);
+    // 2026-10-13：深色块选择器扩展为 `html.dusk, .dusk {`（恒深色页面的作用域
+    // 作用域入口，如登录页）。`[^{]*` 容忍伴生选择器；首个匹配仍是主题变量块
+    // （排在 @media print 的 html.dusk 覆盖块之前），断言意图不变。
+    const dark = cssBlock(/html\.dusk[^{]*\{([^}]*)\}/);
     expect(light).toMatch(/--shadow-card:\s*none;/);
     expect(dark).toMatch(/--shadow-card:\s*none;/);
   });

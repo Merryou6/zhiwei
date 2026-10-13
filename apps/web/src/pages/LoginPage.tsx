@@ -249,7 +249,7 @@ export default function LoginPage() {
      ⚠ 本页此后不再维护任何色值。 */
 
   return (
-    <section className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-dusk-base px-6 py-10 text-dusk-body">
+    <section className="dusk relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-dusk-base px-6 py-10 text-dusk-body">
       {/* 背景氛围：单一品牌色相的极淡径向光，模拟夜里桌面上的一盏光。
           刻意只用一个色相——多色光晕是生成式页面的固定配色，也会让登录页冒出
           内页没有的第二套强调色。 */}

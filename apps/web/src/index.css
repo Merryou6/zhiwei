@@ -190,8 +190,12 @@ html {
 }
 
 /* 蓝图主题（style-10「青蓝蓝图」的深色板）—— 与白图逐项成对。
-   每项右侧标注其在板面 (#0B1B2B) 上的实测对比度。 */
-html.dusk {
+   每项右侧标注其在板面 (#0B1B2B) 上的实测对比度。
+   2026-10-13 追加 `.dusk` 作用域选择器：恒深色页面（如登录页）在白图默认下，
+   页内跟随主题的语义令牌（accent/surface/ink…）会渲染浅色值、在深底上成了
+   「浅色贴纸」。挂 .dusk 类即可让子树的 --c-* 全部走深色值，不必抄两份变量。 */
+html.dusk,
+.dusk {
   --c-canvas: var(--p-blueprint-900); /* 板面      底 */
   --c-surface: var(--p-blueprint-700); /* 面板底（合成后 15 39 60） */
   --c-raised: var(--p-blueprint-800); /* 抬升面 / 图签条 */
@@ -472,7 +476,8 @@ body::after {
 
    刻意不放进 @layer：未分层样式优先级最高，确保能覆盖上面的浅色取值，
    不必靠提高选择器权重去打补丁。 */
-html.dusk {
+html.dusk,
+.dusk {
   color-scheme: dark;
   scrollbar-color: rgb(var(--c-scroll-thumb)) transparent;
 }
