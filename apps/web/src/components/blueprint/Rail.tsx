@@ -1,8 +1,9 @@
 /**
- * Rail 分层索引（style-10 蓝图迁移 P4 / 规范 4.3；2026-10-12 用户验收修订：
- * 删右列 T0/T1/T2 优先级徽标与底部图层/当前空间 note——与图签条信息重复，冗余）
+ * Rail 分层索引（style-10 蓝图迁移 P4 / 规范 4.3；2026-10-12/13 用户验收修订：
+ * 删右列 T0/T1/T2 优先级徽标、底部图层/当前空间 note、标题行「分层索引 · N 张」
+ * 与行首图号（10-04 一类）——图纸编号制式信息不上产品界面）
  *
- * 图纸左侧的图层索引：图号（等宽，宽 46px）+ 标题，
+ * 图纸左侧的图层索引：纯标题列表，
  * 当前项 `aria-current="page"` + 左侧 2px 强调条。项高 ≥44px（触控底线）。
  *
  * 【它不认识路由表】items 由外壳给（外壳从 router.ROUTES 派生），Rail 只负责画。
@@ -19,21 +20,17 @@ import { cn } from '../../lib/cn';
 
 export interface RailItem {
   path: string;
-  /** 图号，如 '10-12'。 */
-  dwg: string;
   label: string;
 }
 
 export interface RailProps {
   items: RailItem[];
-  /** 缺省「分层索引」。 */
-  title?: string;
-  /** 抽屉内复用：去掉左侧内边距、标题右对齐。 */
+  /** 抽屉内复用：去掉左侧内边距。 */
   dense?: boolean;
   className?: string;
 }
 
-export default function Rail({ items, title = '分层索引', dense = false, className }: RailProps) {
+export default function Rail({ items, dense = false, className }: RailProps) {
   return (
     <nav
       id={dense ? undefined : 'bp-rail'}
@@ -45,16 +42,6 @@ export default function Rail({ items, title = '分层索引', dense = false, cla
         className,
       )}
     >
-      <h2
-        className={cn(
-          'flex items-center justify-between gap-2 border-b border-line/20 px-3.5 pb-2 pt-3 font-mono text-mono-xs uppercase tracking-widest text-ink-soft',
-          dense && 'px-0',
-        )}
-      >
-        <span>{title}</span>
-        <span className="num-mono">{items.length} 张</span>
-      </h2>
-
       <ul className="list-none py-1.5">
         {items.map((item) => (
           <li key={item.path}>
@@ -70,9 +57,6 @@ export default function Rail({ items, title = '分层索引', dense = false, cla
                 )
               }
             >
-              <span className="num-mono w-[46px] flex-none text-mono-xs text-accent-ink">
-                {item.dwg}
-              </span>
               <span className="min-w-0 flex-1">{item.label}</span>
             </NavLink>
           </li>

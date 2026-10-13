@@ -46,10 +46,10 @@ import { LOGIN_PATH, ROUTES, routeOf } from '../router';
 import { useAuthStore } from '../stores/auth';
 import { useChatPanelStore } from '../stores/chatPanel';
 import { useMobileNavStore } from '../stores/mobileNav';
-import Board, { useBlueprintTier, type BlueprintTier } from './blueprint/Board';
+import Board, { useBlueprintTier } from './blueprint/Board';
 import Masthead from './blueprint/Masthead';
 import Rail, { type RailItem } from './blueprint/Rail';
-import Sheet, { sheetDimText } from './blueprint/Sheet';
+import Sheet from './blueprint/Sheet';
 import ChatPanel from './chat/ChatPanel';
 import MobileNav from './MobileNav';
 import { DOCK_OFFSET_STYLE, dockOffsetVarStyle } from './panelDock';
@@ -85,38 +85,9 @@ const PANEL_FULLSCREEN_MAX_WIDTH_PX = 900;
 /** 图签条高度（px）：覆盖态面板从它的下缘起，不遮图签条。 */
 const MASTHEAD_HEIGHT_PX = 56;
 
-/** 图号（规范 10 章：学生图纸 10-01…10-14、教师图纸 10-15…10-17）。 */
-const SHEET_NO: Record<string, string> = {
-  '/': '10-01',
-  '/login': '10-02',
-  '/start': '10-03',
-  '/self-report': '10-04',
-  '/spaces': '10-05',
-  '/assessment': '10-06',
-  '/paper': '10-07',
-  '/practice': '10-08',
-  '/chat': '10-09',
-  '/attribution': '10-10',
-  '/graph': '10-11',
-  '/report': '10-12',
-  '/drive': '10-13',
-  '/me': '10-14',
-  '/t': '10-15',
-  '/t/student': '10-16',
-  '/t/recommendations': '10-17',
-};
-
-/** 图纸优先级：T0 = 学习闭环主链，T1 = 质量定型页，T2 = 辅助页。
- *  （2026-10-12 用户验收修订：Rail 右列徽标已删，本表仅剩通用页头 eyebrow 一个消费者。） */
-const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
-  '/assessment': 'T0',
-  '/practice': 'T0',
-  '/paper': 'T0',
-  '/attribution': 'T0',
-  '/graph': 'T1',
-  '/chat': 'T1',
-  '/report': 'T1',
-};
+/* 2026-10-13 用户验收修订：图号（SHEET_NO）/优先级（SHEET_PR）表已删——图号制式
+ * 信息不再上界面（Rail 列 / 页头 / 图签条全停渲染）；SheetHead 的 sheetNo 字段
+ * 已改为可选并停渲染，调用点传了也忽略。 */
 
 /**
  * 自持页头的图纸（2026-10-11 迁移 P6 / D16）。
@@ -229,17 +200,6 @@ function ownsHead(pathname: string): boolean {
   return PAGE_OWNED_HEAD.has(pathname) || pathname.startsWith('/t/student/');
 }
 
-/** 图幅档 → 标题栏比例（规范 4.3：xl 1:1 / lg 1:2 / md 1:5 / sm 1:10）。 */
-const TIER_SCALE: Record<BlueprintTier, string> = {
-  xl: '1:1',
-  lg: '1:2',
-  md: '1:5',
-  sm: '1:10',
-};
-
-/** 一个批次内写死的日期：图纸签署日期是「本图纸的签发日」，不是实时时钟。 */
-const ISSUE_DATE = '2026-10-10';
-
 function readMatch(query: string): boolean {
   try {
     return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
@@ -342,22 +302,12 @@ export default function Layout({ children }: LayoutProps) {
   const [annosOpen, setAnnosOpen] = useState(false);
 
   const route = routeOf(pathname);
-  const sheetNo = SHEET_NO[pathname] ?? '10-00';
-  const pr = SHEET_PR[pathname] ?? 'T2';
 
   /** 分层索引项：路由表派生（router.ROUTES 是冻结区，只读不改）。 */
   const railItems: RailItem[] = ROUTES.filter((item) => item.path !== LOGIN_PATH).map((item) => ({
     path: item.path,
-    dwg: SHEET_NO[item.path] ?? '10-00',
     label: item.label,
   }));
-
-  const meta = [
-    { label: '项目 / PROJECT', value: '初中数学' },
-    { label: '图号 / SHEET', value: sheetNo },
-    { label: '比例 / SCALE', value: TIER_SCALE[tier] },
-    { label: '日期 / DATE', value: ISSUE_DATE },
-  ];
 
   return (
     // 让位量写一次（单一来源）：workbench 与右区操作簇都读这个自定义属性。
@@ -369,7 +319,6 @@ export default function Layout({ children }: LayoutProps) {
       style={dockOffsetVarStyle(docked ? PANEL_WIDTH_PX : 0)}
     >
       <Masthead
-        meta={meta}
         // 身份芯片：未登录 / 学生 / 教师。昵称不取（auth store 只落 user_id，
         // 没有昵称字段 —— 不为了填一格而编一个名字）。
         identity={{ role: token ? role : 'guest' }}
@@ -409,14 +358,13 @@ export default function Layout({ children }: LayoutProps) {
             // 它让出 76px（tabbar 52px + 安全区 + 呼吸），否则页尾内容被压住。
             className="min-w-0 max-sheet:pb-[76px]"
             // 已迁移页自持页头（见 PAGE_OWNED_HEAD）：head 传 undefined，由页面渲染。
+            // 2026-10-13 用户验收修订：通用页头不再带图号/优先级/图幅制式批注。
             head={
               ownsHead(pathname)
                 ? undefined
                 : {
-                    eyebrow: `${route?.label ?? '未登记'} / ${pr} 图纸`,
-                    sheetNo,
-                    title: route?.label ?? '这一页还没有登记图号',
-                    dim: sheetDimText(tier),
+                    eyebrow: route?.label ?? '未登记',
+                    title: route?.label ?? '这一页还没有登记',
                   }
             }
           >

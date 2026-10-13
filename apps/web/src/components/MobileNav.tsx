@@ -39,34 +39,9 @@ import SpaceCreateForm from './SpaceCreateForm';
 import ThemeToggle from './ThemeToggle';
 import { IconButton } from './ui';
 
-/** 图号（与 Layout 的 SHEET_NO 同一套口径；抽屉里的索引是它的 dense 形态）。 */
-const SHEET_NO: Record<string, string> = {
-  '/': '10-01',
-  '/login': '10-02',
-  '/start': '10-03',
-  '/self-report': '10-04',
-  '/spaces': '10-05',
-  '/assessment': '10-06',
-  '/paper': '10-07',
-  '/practice': '10-08',
-  '/chat': '10-09',
-  '/attribution': '10-10',
-  '/graph': '10-11',
-  '/report': '10-12',
-  '/drive': '10-13',
-  '/me': '10-14',
-};
-
-const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
-  '/assessment': 'T0',
-  '/practice': 'T0',
-  '/paper': 'T0',
-  '/attribution': 'T0',
-  '/graph': 'T1',
-  '/chat': 'T1',
-  '/report': 'T1',
-};
-
+/** 图号（与 Layout 的 SHEET_NO 同一套口径；抽屉里的索引是它的 dense 形态）。
+ *  2026-10-13 用户验收修订：图号/优先级制式信息不上界面，两张映射表随删
+ *  （RailItem 已不携带 dwg/pr）。 */
 /**
  * 抽屉里的图纸索引（除登录页：它是门口，不是图纸）。
  * 从 router.ROUTES（冻结区，只读）派生，不另手写一张表 —— 两张表一定会漂移。
@@ -74,9 +49,7 @@ const SHEET_PR: Record<string, 'T0' | 'T1' | 'T2'> = {
 const DRAWER_SHEETS: RailItem[] = ROUTES.filter((route) => route.path !== LOGIN_PATH).map(
   (route) => ({
     path: route.path,
-    dwg: SHEET_NO[route.path] ?? '10-00',
     label: route.label,
-    pr: SHEET_PR[route.path] ?? 'T2',
   }),
 );
 
@@ -296,7 +269,7 @@ export default function MobileNav() {
 
             {/* 滚动区：底部 pb-safe-3 让开 home indicator。 */}
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-safe-3">
-              <Rail items={DRAWER_SHEETS} title="分层索引" dense />
+              <Rail items={DRAWER_SHEETS} dense />
 
               <div className="my-3 border-t border-line" />
 

@@ -176,16 +176,8 @@ export default function LandingPage() {
       <section className="mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full max-w-6xl flex-col justify-center px-4 py-16 annos:px-6 annos:py-20">
         <div className="flex flex-col items-center gap-10 annos:flex-row annos:gap-14">
           <div className="min-w-0 flex-1 animate-rise">
-            {/* 眉标：参赛信息（main 版保留的内容）+ 蓝图批注制式行（SHEET 10-01）*/}
             <p className="text-ui-sm font-medium tracking-widest text-accent-ink">
               粤港澳大湾区 AI Coding 创新赛 · 参赛作品
-            </p>
-            <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-tok uppercase tracking-widest text-ink-soft">
-              <Icon name="compass" className="h-4 w-4" />
-              <span>ZHIWEI / PUBLIC SHEET</span>
-              <span className="num-mono">SHEET 10-01</span>
-              <span>需求 2.1</span>
-              <span className="num-mono">REV.A</span>
             </p>
             <KineticTitle lines={['每一分丢在哪里，', '都有名字。']} />
             <p className="mt-5 max-w-prose text-reading leading-relaxed text-ink-soft">

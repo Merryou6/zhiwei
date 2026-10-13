@@ -1,16 +1,14 @@
 /**
- * Masthead 图签条（style-10 蓝图迁移 P4 / 规范 4.3）
+ * Masthead 图签条（style-10 蓝图迁移 P4 / 规范 4.3；2026-10-13 用户验收修订：
+ * 删四项图签「项目/图号/比例/日期」——图纸编号制式信息不上产品界面，
+ * 项目/学科信息由空间胶囊承担）
  *
- * 吸顶的「图签条」：品牌位 ⊕ 四项图签（项目 / 图号 / 比例 / 日期）⊕ 右区操作
+ * 吸顶的顶栏：品牌位 ⊕ 右区操作
  * （身份芯片 / 索引开关 / 标注开关 / 全部图纸 / 对话面板开合 / 注入槽位）。
  *
  * 【为什么全部是受控 props】外壳（Layout）负责持状态（含 localStorage 记忆），
  * Masthead 只负责画与转发点击 —— 这样它既能被外壳用，也能在截图走查里被固定态用，
  * 且不需要任何 store 依赖（P4 的目标是「组件先就位，P5 再切外壳」）。
- *
- * 【窄档收掉什么】图签四项整块收掉（原型 [data-tier=md/sm] .mast-meta{display:none}）：
- * 窄屏上它只是装饰性元信息，留着力气给操作按钮；索引 / 标注开关同样只在 ≥900 出现
- * （≤900 时底部 tabbar 与「全部图纸」抽屉承担导航）。
  */
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
@@ -55,19 +53,12 @@ function BpButton({
   );
 }
 
-export interface MastheadMetaItem {
-  /** 项名（等宽大写，如 PROJECT / SHEET）。 */
-  label: string;
-  value: string;
-}
-
 export interface MastheadIdentity {
   role: 'guest' | 'student' | 'teacher';
   nickname?: string;
 }
 
 export interface MastheadProps {
-  meta: MastheadMetaItem[];
   identity: MastheadIdentity;
   railOpen: boolean;
   annosOpen: boolean;
@@ -94,7 +85,6 @@ function identityText(identity: MastheadIdentity): string {
 }
 
 export default function Masthead({
-  meta,
   identity,
   railOpen,
   annosOpen,
@@ -127,25 +117,10 @@ export default function Masthead({
         <span className="font-disp text-title leading-none tracking-widest text-ink">
           知微
           <small className="mt-1 block font-mono text-mono-xs font-normal uppercase tracking-widest text-ink-soft">
-            Zhiwei · Blueprint Rev.A
+            Zhiwei
           </small>
         </span>
       </div>
-
-      {/* 四项图签：≤900 整块收掉（原型 .mast-meta） */}
-      <dl aria-label="图签" className="hidden items-center border-l border-line/20 sheet:flex">
-        {meta.map((item) => (
-          <div
-            key={item.label}
-            className="border-r border-line/20 px-3 py-1.5 font-mono text-mono-xs uppercase leading-normal tracking-widest text-ink-soft"
-          >
-            {item.label}
-            <b className="mt-0.5 block font-disp text-ui-sm font-semibold normal-case tracking-normal text-ink">
-              {item.value}
-            </b>
-          </div>
-        ))}
-      </dl>
 
       <div className="flex items-center gap-2 border-l border-line/20 px-3 py-2">
         <span

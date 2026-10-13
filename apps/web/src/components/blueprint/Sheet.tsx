@@ -31,9 +31,9 @@ export function sheetDimText(tier: string): string {
 export interface SheetHeadProps {
   /** 眉标（等宽大写，如 'REPORT / 学习报告'）。 */
   eyebrow: string;
-  /** 图号，如 '10-12'。 */
-  sheetNo: string;
-  /** 需求编号，如 '2.12'。 */
+  /** 图号（已停渲染：2026-10-13 用户验收，图号制式不上界面；传了即忽略）。 */
+  sheetNo?: string;
+  /** 需求编号（已停渲染，同上）。 */
   section?: string;
   title: string;
   /** 页头说明（≤74ch）。 */
@@ -45,14 +45,16 @@ export interface SheetHeadProps {
   className?: string;
 }
 
-/** 页头四件：eyebrow（图标 + 眉标 + 图号 + 需求号）/ h1 / sheet-sub / dim。 */
+/**
+ * 页头（2026-10-13 用户验收修订：eyebrow 行的图号 `SHEET 10-xx`、需求号与右上的
+ * 图幅 dim 批注**停渲染**——图纸编号制式信息不上产品界面。sheetNo / section / dim
+ * 三个字段保留在 props 里以免逐页改 17 处调用点，传入即忽略）。
+ * 现渲染：eyebrow（图标 + 眉标 + chips）/ h1 / sheet-sub。
+ */
 export function SheetHead({
   eyebrow,
-  sheetNo,
-  section,
   title,
   sub,
-  dim,
   chips,
   className,
 }: SheetHeadProps) {
@@ -61,8 +63,6 @@ export function SheetHead({
       <div className="mb-1.5 flex flex-wrap items-center gap-2.5 font-mono text-tok uppercase tracking-widest text-accent-ink">
         <Icon name="compass" className="h-4 w-4" />
         <span>{eyebrow}</span>
-        <span className="num-mono">SHEET {sheetNo}</span>
-        {section ? <span>需求 {section}</span> : null}
         {chips}
       </div>
       {/* h1：`sm` 档（≤420）降到 20px 并允许断词 —— 原型
@@ -73,14 +73,7 @@ export function SheetHead({
         {title}
       </h1>
       {sub ? <p className="max-w-[74ch] text-body-sm text-ink-soft">{sub}</p> : null}
-      {dim ? (
-        <div
-          aria-hidden="true"
-          className="num-mono absolute right-0 top-0 text-right text-mono-xs leading-relaxed tracking-wide text-ink-soft max-narrow:static max-narrow:mt-2.5 max-narrow:text-left"
-        >
-          {dim}
-        </div>
-      ) : null}
+      {/* dim（图幅批注）已停渲染（2026-10-13 用户验收：图号/图幅制式不上界面）。 */}
     </header>
   );
 }
