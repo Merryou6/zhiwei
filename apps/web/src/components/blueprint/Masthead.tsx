@@ -16,6 +16,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
+import ZhiweiLogo from '../ZhiweiLogo';
 import { Icon } from './icons';
 
 /**
@@ -106,11 +107,11 @@ export default function Masthead({
       <div className="flex min-h-14 flex-1 items-center gap-3 px-4 py-2">
         <span
           aria-hidden="true"
-          // 品牌 sigil 里的图标走 accent-ink 而不是 accent（规范 2.4 / 门禁 ⑧：
-          // accent 只做填充与描边，凡是「作为内容被看见的蓝」一律走 accent-ink）。
-          className="grid h-[34px] w-[34px] flex-none place-items-center border border-line text-accent-ink"
+          // 品牌 sigil（2026-10-13 用户验收：换成项目标识 ZhiweiLogo——
+          // 与登录页/门户同一份几何与渐变，Icon graph 退役）。
+          className="grid h-[34px] w-[34px] flex-none place-items-center border border-line"
         >
-          <Icon name="graph" className="h-5 w-5" />
+          <ZhiweiLogo size={24} />
         </span>
         <span className="font-disp text-title leading-none tracking-widest text-ink">
           知微

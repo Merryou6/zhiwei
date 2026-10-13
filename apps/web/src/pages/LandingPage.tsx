@@ -27,6 +27,7 @@ import type { ReactNode } from 'react';
 
 import { Icon } from '../components/blueprint/icons';
 import ParticleLogo from '../components/ParticleLogo';
+import ZhiweiLogo from '../components/ZhiweiLogo';
 import { Button } from '../components/ui';
 import { buttonVariants } from '../components/ui/Button';
 import { cn } from '../lib/cn';
@@ -155,7 +156,7 @@ export default function LandingPage() {
       <header className="border-b border-line">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 annos:px-6">
           <div className="flex items-center gap-2 font-disp text-reading font-semibold">
-            <img src="./favicon.svg" alt="" className="h-6 w-6" />
+            <ZhiweiLogo size={24} />
             知微 · ZhiWei
           </div>
           <nav className="flex items-center gap-3">
